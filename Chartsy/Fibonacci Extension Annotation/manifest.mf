@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.annotation.fibonacciextension
+OpenIDE-Module-Layer: org/chartsy/annotation/fibonacciextension/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/annotation/fibonacciextension/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

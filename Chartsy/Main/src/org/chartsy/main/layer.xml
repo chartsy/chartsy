@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-chartsy-main-NewChart.instance">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.chartsy.main.Bundle"/>
+                <attr name="delegate" newvalue="org.chartsy.main.NewChart"/>
+                <attr name="displayName" bundlevalue="org.chartsy.main.Bundle#CTL_NewChart"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" stringvalue="false"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-chartsy-main-NewChart.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-chartsy-main-NewChart.instance"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

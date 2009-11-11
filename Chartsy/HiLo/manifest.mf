@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.hilo
+OpenIDE-Module-Layer: org/chartsy/hilo/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/hilo/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

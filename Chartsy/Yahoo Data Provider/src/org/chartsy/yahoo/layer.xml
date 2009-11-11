@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="File">
+            <file name="org-chartsy-yahoo-Activate.instance">
+                <attr name="delegate" newvalue="org.chartsy.yahoo.Activate"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Connect">
+                <file name="org-chartsy-yahoo-Activate.shadow">
+                    <attr name="originalFile" stringvalue="Actions/File/org-chartsy-yahoo-Activate.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

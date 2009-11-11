@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="Chartsy" basedir=".">
+    <description>Builds the module suite Chartsy.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
+
+    <target name="build-launchers" depends="suite.build-launchers">
+        <antcall target="replaceWindowsLauncherIcon"/>
+    </target>
+
+    <target name="replaceWindowsLauncherIcon" if="isWindows" description="Replace the icon for the Windows launcher exe">
+        <echo message="Replacing icon of Windows launcher executable."/>
+        <exec executable="ReplaceVistaIcon.exe" resolveexecutable="true">
+            <arg line="build/launcher/bin/${app.name}.exe ${app.name}.ico"/>
+        </exec>
+    </target>
+
+    <target name="build" depends="build-brand,suite.build"/>
+
+    <target name="build-brand" depends="-init">
+        <propertyfile
+            file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
+            comment="Updated by build script">
+            <entry key="currentVersion" value="${app.title}"/>
+        </propertyfile>
+
+        <propertyfile
+            file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
+            comment="Updated by build script">
+            <entry key="CTL_MainWindow_Title" value="${app.title}"/>
+            <entry key="CTL_MainWindow_Title_No_Project" value="${app.title}"/>
+        </propertyfile>
+
+        <propertyfile
+            file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
+            comment="Updated by build script">
+            <entry key="LBL_ProductInformation" value="${app.title}"/>
+        </propertyfile>
+    </target>
+
+</project>
