@@ -27,7 +27,7 @@
         <propertyfile
             file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
             comment="Updated by build script">
-            <entry key="currentVersion" value="${app.title}"/>
+            <entry key="currentVersion" value="${app.title} ${app.version}"/>
         </propertyfile>
 
         <propertyfile
