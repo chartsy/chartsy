@@ -6,6 +6,7 @@ import java.awt.Stroke;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.DefaultPainter;
@@ -16,7 +17,6 @@ import org.chartsy.main.utils.ComponentGenerator;
 import org.chartsy.main.utils.Properties;
 import org.chartsy.main.utils.PropertyItem;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -54,17 +54,23 @@ public class MACD extends Indicator {
         }
     }
 
-    public String getMarkerLabel(ChartFrame cf, int i) {
+    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+        LinkedHashMap ht = new LinkedHashMap();
+
         DecimalFormat df = new DecimalFormat("#,##0.00");
-        StringBuilder sb = new StringBuilder();
-        sb.append(getLabel() + "\n");
         double[] values = getValues(cf, i);
-        String[] labels = {"Histogram", "Signal", "MACD"};
+        String[] labels = {"Histogram:", "Signal:", "MACD:"};
+
+        ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
-            for (int j = 0; j < values.length; j++) sb.append("<font color=\"" + Integer.toHexString(colors[j].getRGB() & 0x00ffffff) + "\">&nbsp;&nbsp;&nbsp;" + labels[j] + ":&nbsp;" + df.format(values[j]) + "</font>\n");
+            for (int j = 0; j < values.length; j++) {
+                ht.put(getFontHTML(colors[j], labels[j]),
+                        getFontHTML(colors[j], df.format(values[j])));
+            }
         }
-        return sb.toString();
+
+        return ht;
     }
 
     public Range getRange(ChartFrame cf) {
