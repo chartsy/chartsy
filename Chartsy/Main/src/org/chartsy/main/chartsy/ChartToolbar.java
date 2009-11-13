@@ -74,7 +74,7 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         this.add(button);
 
         // Value marker visibility button
-        button = this.getToolbarToggleButton("marker", "MARKER", "Marker", "Marker");
+        button = this.getToolbarToggleButton("marker", "MARKER", "Marker", "Marker", true);
         this.add(button);
 
         // Export image button
@@ -108,7 +108,7 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         return button;
     }
 
-    private JToggleButton getToolbarToggleButton(final String name, final String action, final String alt, final String tooltip) {
+    private JToggleButton getToolbarToggleButton(final String name, final String action, final String alt, final String tooltip, final boolean def) {
         JToggleButton button = new JToggleButton();
 
         button.setMargin(new Insets(6,6,6,6));
@@ -122,6 +122,7 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         } else {
             button.setText(alt);
         }
+        button.setSelected(def);
 
         return button;
     }

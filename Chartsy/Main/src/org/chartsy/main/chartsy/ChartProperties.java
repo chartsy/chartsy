@@ -25,7 +25,7 @@ public class ChartProperties implements XMLUtils.ToXML {
 
     private Color axisColor = DefaultTheme.AXIS_COLOR;
     private Stroke axisStroke = DefaultTheme.AXIS_STROKE;
-    private boolean markerVisibility = false;
+    private boolean markerVisibility = true;
     private String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     private double barWidth = DefaultTheme.BAR_WIDTH;

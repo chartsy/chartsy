@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -33,6 +35,7 @@ public class AddOverlays extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        setTitle("Add Overlays");
     }
     public void setChartFrame(ChartFrame cf) { parent = cf; }
 
@@ -54,26 +57,42 @@ public class AddOverlays extends javax.swing.JDialog {
 
         lstSelected.setListData(selectedItems);
         lstSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lstSelected.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                btnAdd.setEnabled(false);
-                btnRemove.setEnabled(lstSelected.getLastVisibleIndex() != -1);
-                int index = lstSelected.getSelectedIndex();
-                if (index != -1) {
-                    Overlay ind = selected[index];
-                    lblDescription.setText(ind.getDescription());
-                    getPanel(ind);
+        lstSelected.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                switch (e.getClickCount()) {
+                    case 1:
+                        btnAdd.setEnabled(false);
+                        btnRemove.setEnabled(lstSelected.getLastVisibleIndex() != -1);
+                        int index = lstSelected.locationToIndex(e.getPoint());
+                        if (index != -1) {
+                            Overlay ind = selected[index];
+                            lblDescription.setText(ind.getDescription());
+                            getPanel(ind);
+                        }
+                        break;
+                    case 2:
+                        btnRemove.doClick();
+                        break;
                 }
             }
         });
 
         lstUnselected.setListData(unselectedItems);
         lstUnselected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lstUnselected.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                btnAdd.setEnabled(true);
-                btnRemove.setEnabled(false);
-                lblDescriptionValue.setText("");
+        lstUnselected.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                switch (e.getClickCount()) {
+                    case 1:
+                        scrollPane.removeAll();
+                        scrollPane.revalidate();
+                        btnAdd.setEnabled(true);
+                        btnRemove.setEnabled(false);
+                        lblDescription.setText("");
+                        break;
+                    case 2:
+                        btnAdd.doClick();
+                        break;
+                }
             }
         });
 

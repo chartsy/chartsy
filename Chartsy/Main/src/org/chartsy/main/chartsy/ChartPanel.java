@@ -137,6 +137,11 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         if (current != null && current.isSelected()) {
             current.moveLeft();
             repaint();
+        } else {
+            if (chartFrame.getChartProperties().getMarkerVisibility()) {
+                chartFrame.getMarker().moveLeft();
+                repaint();
+            }
         }
     }
 
@@ -144,6 +149,11 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         if (current != null && current.isSelected()) {
             current.moveRight();
             repaint();
+        } else {
+            if (chartFrame.getChartProperties().getMarkerVisibility()) {
+                chartFrame.getMarker().moveRight();
+                repaint();
+            }
         }
     }
 
@@ -349,44 +359,48 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         g.setClip(oldR);
     }
 
-    public void mouseClicked(MouseEvent e) {
-        if (getState() == NONE && chartFrame.getChartProperties().getMarkerVisibility()) {
-            int index = chartFrame.getMarker().getIndex(e.getX(), e.getY());
-            chartFrame.getMarker().setIndex(index);
-            repaint();
-        }
-    }
+    public void mouseClicked(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {
-        if (getState() == NONE) {
-            if (!isAnnotation(e.getX(), e.getY())) {
-                deselectAll();
-                setState(NONE);
-                repaint();
-            } else {
-                if (hasCurrent())
-                    getCurrent().mousePressed(e);
-            }
-        } else if (getState() == RESIZE) {
-            if (hasCurrent()) getCurrent().mousePressed(e);
-        } else if (getState() == MOVE) {
-            if (hasCurrent()) getCurrent().mousePressed(e);
-        } else if (getState() == NEWANNOTATION) {
-            int x = e.getX(), y = e.getY();
-            int areaIndex = chartFrame.getChartRenderer().getAreaIndex(x, y);
-            if (areaIndex != -1) {
-                Annotation a = AnnotationManager.getDefault().getNewAnnotation(chartFrame);
-                a.setAreaIndex(areaIndex);
-                Rectangle2D.Double bounds = chartFrame.getChartRenderer().getClickedBounds(areaIndex);
-                Range range = chartFrame.getChartRenderer().getClickedRange(areaIndex);
-                a.setBounds(bounds);
-                a.setRange(range);
-                setCurrent(a);
-                if (hasCurrent())
-                    getCurrent().mousePressed(e);
-            } else {
-                setState(NONE);
-                mousePressed(e);
-            }
+        switch (getState()) {
+            case NONE:
+                if (!isAnnotation(e.getX(), e.getY())) {
+                    deselectAll();
+                    setState(NONE);
+                    repaint();
+                } else {
+                    if (hasCurrent())
+                        getCurrent().mousePressed(e);
+                }
+                if (chartFrame.getChartProperties().getMarkerVisibility() && !hasCurrent()) {
+                    int index = chartFrame.getMarker().getIndex(e.getX(), e.getY());
+                    chartFrame.getMarker().setIndex(index);
+                    repaint();
+                }
+                break;
+            case RESIZE:
+                if (hasCurrent()) getCurrent().mousePressed(e);
+                break;
+            case MOVE:
+                if (hasCurrent()) getCurrent().mousePressed(e);
+                break;
+            case NEWANNOTATION:
+                int x = e.getX(), y = e.getY();
+                int areaIndex = chartFrame.getChartRenderer().getAreaIndex(x, y);
+                if (areaIndex != -1) {
+                    Annotation a = AnnotationManager.getDefault().getNewAnnotation(chartFrame);
+                    a.setAreaIndex(areaIndex);
+                    Rectangle2D.Double bounds = chartFrame.getChartRenderer().getClickedBounds(areaIndex);
+                    Range range = chartFrame.getChartRenderer().getClickedRange(areaIndex);
+                    a.setBounds(bounds);
+                    a.setRange(range);
+                    setCurrent(a);
+                    if (hasCurrent())
+                        getCurrent().mousePressed(e);
+                } else {
+                    setState(NONE);
+                    mousePressed(e);
+                }
+                break;
         }
     }
     public void mouseReleased(MouseEvent e) {

@@ -2,6 +2,7 @@ package org.chartsy.main.chartsy;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
@@ -39,9 +40,10 @@ public class Marker {
     private Color color = new Color(0x555753);
     private Color backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100);
     private Color fontColor = new Color(0xffffff);
+    private Font font;
 
     public static Marker newInstance(ChartFrame cf) { return new Marker(cf); }
-    private Marker(ChartFrame c) { cf = c; text = ""; }
+    private Marker(ChartFrame c) { cf = c; Font f = cf.getChartProperties().getFont(); font = new Font(f.getName(), f.getStyle(), 10); text = ""; }
 
     public void setText(String t) { text = t; }
     public String getText() { return text; }
@@ -58,7 +60,7 @@ public class Marker {
         StringTokenizer tokenizer = new StringTokenizer(text, "\n");
         boolean first = true;
 
-        FontMetrics fm = g.getFontMetrics(cf.getChartProperties().getFont());
+        FontMetrics fm = g.getFontMetrics(font);
 
         width = 0;
         height = fm.getHeight();
@@ -114,32 +116,92 @@ public class Marker {
         return new Rectangle2D.Double(0, 0, dim.getWidth(), dim.getHeight());
     }
 
+    private String addLine(String left, String right) {
+        String html = "";
+        html += "<tr>";
+        html += "<td width='75' height='15' valign='middle' align='left' style='font-weight:bold;'>";
+        html += left;
+        html += "</td>";
+        html += "<td width='75' height='15' valign='middle' align='right'>";
+        html += right;
+        html += "</td>";
+        html += "</tr>";
+        return html;
+    }
+
     public void paint(Graphics2D g) {
         if (cf.getChartProperties().getMarkerVisibility()) {
-            if (index != -1) {
+            if (index != -1 && index <= cf.getChartRenderer().getItems() && index >= 0) {
                 Dataset dataset = cf.getChartRenderer().getVisibleDataset();
                 paintLine(g);
+
+                FontMetrics fm = g.getFontMetrics(font);
+                height = fm.getHeight();
+
 
                 NumberFormat nf = NumberFormat.getNumberInstance();
                 DecimalFormat df = (DecimalFormat) nf;
                 df.applyPattern("#,###.00");
+                
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(dataset.getDate(index));
 
-                text =  "Open:   " + df.format(dataset.getOpenValue(index)) + "\n" + "High:   " + df.format(dataset.getHighValue(index)) + "\n" + "Low:    " + df.format(dataset.getLowValue(index)) + "\n" + "Close:  " + df.format(dataset.getCloseValue(index));
+                String html = "<html><table width='150'>";
+                // Date:
+                String s = (!cf.getTime().contains("Min"))
+                ? ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
+                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
+                    String.valueOf(cal.get(Calendar.YEAR))
+                : ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
+                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
+                    String.valueOf(cal.get(Calendar.YEAR) + " " + (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
+                    (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE))));
+                html += addLine("Date:", s);
+                // Open:
+                html += addLine("Open:", df.format(dataset.getOpenValue(index)));
+                // High:
+                html += addLine("High:", df.format(dataset.getHighValue(index)));
+                // Low:
+                html += addLine("Low:", df.format(dataset.getLowValue(index)));
+                // Close:
+                html += addLine("Close:", df.format(dataset.getCloseValue(index)));
+
+                html += "</table></html>";
+
+                System.out.println(html);
+
+                /*String s = (!cf.getTime().contains("Min"))
+                ? ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
+                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
+                    String.valueOf(cal.get(Calendar.YEAR))
+                : ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
+                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
+                    String.valueOf(cal.get(Calendar.YEAR) + " " + (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
+                    (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE))));
+
+                text =  "Date:   " + s + "\n" + "Open:   " + df.format(dataset.getOpenValue(index)) + "\n" + "High:   " + df.format(dataset.getHighValue(index)) + "\n" + "Low:    " + df.format(dataset.getLowValue(index)) + "\n" + "Close:  " + df.format(dataset.getCloseValue(index));
                 Indicator[] indicators = cf.getChartRenderer().getIndicators();
                 Overlay[] overlays = cf.getChartRenderer().getOverlays();
                 if (overlays.length > 0 || indicators.length > 0) text += "&nbsp;\n&nbsp;\n";
                 if (overlays.length > 0) for (Overlay o : overlays) text += o.getMarkerLabel(cf, index) + "\n";
                 if (indicators.length > 0) for (Indicator i : indicators) text += i.getMarkerLabel(cf, index) + "\n";
-                setLabelText(g);
+                setLabelText(g);*/
+
+                label.setText(html);
+                label.setBounds(0, 0, 150, height * 10);
+                //label.setHorizontalAlignment(SwingConstants.LEFT);
+                label.setVerticalAlignment(SwingConstants.TOP);
+                //label.setHorizontalTextPosition(SwingConstants.LEFT);
+                label.setVerticalTextPosition(SwingConstants.TOP);
 
                 g.setPaint(backgroundColor);
                 g.fill(label.getBounds());
                 g.setPaint(color);
                 g.draw(label.getBounds());
 
-                g.setFont(cf.getChartProperties().getFont());
+                g.setFont(font);
                 g.setColor(fontColor);
-                label.setFont(cf.getChartProperties().getFont());
+                label.setFont(font);
                 label.setForeground(fontColor);
                 label.paint(g);
             }
@@ -151,6 +213,7 @@ public class Marker {
         Dataset dataset = cf.getChartRenderer().getVisibleDataset();
 
         g.setPaint(lineColor);
+        g.setFont(font);
 
         Point2D.Double p = cf.getChartRenderer().valueToJava2D(index, 0);
 
@@ -166,7 +229,7 @@ public class Marker {
                 : (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
                     (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE)));
 
-        FontMetrics fm = g.getFontMetrics(cf.getChartProperties().getFont());
+        FontMetrics fm = g.getFontMetrics(font);
         int w = fm.stringWidth(s) + 2;
         int h = fm.getHeight() + 2;
         float x = (float) p.getX() + 1;
@@ -189,6 +252,33 @@ public class Marker {
         }
 
         return idx;
+    }
+
+    public void moveRight() {
+        int all = cf.getChartRenderer().getMainDataset().getItemCount();
+        int end = cf.getChartRenderer().getEnd();
+        int items = cf.getChartRenderer().getItems() - 1;
+        int idx = index + 1;
+        if (idx > items) {
+            if (end < all) {
+                cf.getChartRenderer().setEnd(end + 1);
+            }
+        } else {
+            setIndex(idx);
+        }
+    }
+
+    public void moveLeft() {
+        int end = cf.getChartRenderer().getEnd();
+        int items = cf.getChartRenderer().getItems() - 1;
+        int idx = index - 1;
+        if (idx < 0) {
+            if (end-1 > items) {
+                cf.getChartRenderer().setEnd(end - 1);
+            }
+        } else {
+            setIndex(idx);
+        }
     }
 
 }

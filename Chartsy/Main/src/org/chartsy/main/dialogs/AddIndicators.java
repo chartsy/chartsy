@@ -5,11 +5,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractIndicator;
 import org.chartsy.main.chartsy.chart.Indicator;
@@ -33,6 +33,7 @@ public class AddIndicators extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        setTitle("Add Indicators");
     }
     public void setChartFrame(ChartFrame cf) { parent = cf; }
 
@@ -54,26 +55,42 @@ public class AddIndicators extends javax.swing.JDialog {
 
         lstSelected.setListData(selectedItems);
         lstSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lstSelected.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                btnAdd.setEnabled(false);
-                btnRemove.setEnabled(lstSelected.getLastVisibleIndex() != -1);
-                int index = lstSelected.getSelectedIndex();
-                if (index != -1) {
-                    Indicator ind = selected[index];
-                    lblDescription.setText(ind.getDescription());
-                    getPanel(ind);
+        lstSelected.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                switch (e.getClickCount()) {
+                    case 1:
+                        btnAdd.setEnabled(false);
+                        btnRemove.setEnabled(lstSelected.getLastVisibleIndex() != -1);
+                        int index = lstSelected.locationToIndex(e.getPoint());
+                        if (index != -1) {
+                            Indicator ind = selected[index];
+                            lblDescription.setText(ind.getDescription());
+                            getPanel(ind);
+                        }
+                        break;
+                    case 2:
+                        btnRemove.doClick();
+                        break;
                 }
             }
         });
 
         lstUnselected.setListData(unselectedItems);
         lstUnselected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        lstUnselected.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                btnAdd.setEnabled(true);
-                btnRemove.setEnabled(false);
-                lblDescriptionValue.setText("");
+        lstUnselected.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                switch (e.getClickCount()) {
+                    case 1:
+                        scrollPane.removeAll();
+                        scrollPane.revalidate();
+                        btnAdd.setEnabled(true);
+                        btnRemove.setEnabled(false);
+                        lblDescription.setText("");
+                        break;
+                    case 2:
+                        btnAdd.doClick();
+                        break;
+                }
             }
         });
 
@@ -185,7 +202,7 @@ public class AddIndicators extends javax.swing.JDialog {
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
@@ -344,7 +361,7 @@ public class AddIndicators extends javax.swing.JDialog {
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -360,7 +377,7 @@ public class AddIndicators extends javax.swing.JDialog {
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnCancel;
@@ -378,6 +395,6 @@ public class AddIndicators extends javax.swing.JDialog {
     private javax.swing.JList lstUnselected;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JPanel scrollPane;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
 }

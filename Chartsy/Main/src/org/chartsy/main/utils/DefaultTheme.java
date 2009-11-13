@@ -42,7 +42,7 @@ public final class DefaultTheme {
     public static final Color BACKGROUND_COLOR = new Color(0xffffff);
     public static final Font FONT = new Font("Dialog", Font.PLAIN, 12);
     public static final Color FONT_COLOR = new Color(0x2e3436);
-    public static final boolean MARKER_VISIBILITY = false;
+    public static final boolean MARKER_VISIBILITY = true;
 
     public static final Color ANNOTATION_COLOR = Color.RED;
     public static final Stroke ANNOTATION_STROKE = StrokeGenerator.DEFAULT_STROKE;
