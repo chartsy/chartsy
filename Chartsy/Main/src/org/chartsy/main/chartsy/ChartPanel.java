@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -21,7 +24,11 @@ import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
+import java.util.Vector;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.RepaintManager;
 import org.chartsy.main.chartsy.axis.DateAxis;
 import org.chartsy.main.chartsy.axis.HorizontalGrid;
@@ -30,6 +37,8 @@ import org.chartsy.main.chartsy.axis.PriceAxisMarker;
 import org.chartsy.main.chartsy.axis.VerticalGrid;
 import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.managers.AnnotationManager;
+import org.chartsy.main.managers.UpdaterManager;
+import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.XMLUtils;
 import org.w3c.dom.Document;
@@ -49,6 +58,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     private int state;
 
     protected ChartFrame chartFrame;
+    protected JPopupMenu menu;
     protected Annotation current;
     protected Annotation[] annotations;
     protected Annotation[] intraDayAnnotations;
@@ -61,6 +71,8 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         annotations = new Annotation[0];
         intraDayAnnotations = new Annotation[0];
         current = null;
+        menu = new JPopupMenu();
+        initMenu();
 
         setFocusable(true);
         requestFocusInWindow();
@@ -72,6 +84,79 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
         setOpaque(true);
         setLayout(new BorderLayout());
+    }
+
+    protected void initMenu() {
+        Vector list;
+        JMenu menuitem;
+        JMenuItem item;
+        // Select Time
+        menu.add(menuitem = new JMenu("Select Time"));
+        list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) != null) {
+                final String name = (String) list.get(i);
+                JMenuItem subitem = new JMenuItem(name);
+                subitem.setMargin(new Insets(0,0,0,0));
+                subitem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        MainActions.changeTimeAction(chartFrame, name);
+                    }
+                });
+                menuitem.add(subitem);
+            }
+        }
+        // Select Chart
+        menu.add(menuitem = new JMenu("Select Chart"));
+        list = ChartManager.getDefault().getCharts();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) != null) {
+                final String name = (String) list.get(i);
+                JMenuItem subitem = new JMenuItem(name);
+                subitem.setMargin(new Insets(0,0,0,0));
+                subitem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        MainActions.changeChartAction(chartFrame, name);
+                    }
+                });
+                menuitem.add(subitem);
+            }
+        }
+        // Add Indicator
+        menu.add(item = new JMenuItem("Add Indicator"));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MainActions.addIndicator(chartFrame);
+            }
+        });
+        // Add Overlay
+        menu.add(item = new JMenuItem("Add Overlay"));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MainActions.addOverlay(chartFrame);
+            }
+        });
+        // Export Image
+        menu.add(item = new JMenuItem("Export Image"));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MainActions.exportImage(chartFrame);
+            }
+        });
+        // Print
+        menu.add(item = new JMenuItem("Print"));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MainActions.printChart(chartFrame);
+            }
+        });
+        // Settings
+        menu.add(item = new JMenuItem("Settings"));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MainActions.chartSettings(chartFrame);
+            }
+        });
     }
 
     public void paintComponent(Graphics g) {
@@ -94,6 +179,8 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             chartFrame.getChartRenderer().calculate();
 
         if (chartFrame.getChartRenderer().getVisibleDataset() != null) {
+            g2.setColor(new Color(0x898c95));
+            g2.drawLine(0, 0, getWidth(), 0);
             g2.setPaintMode();
             HorizontalGrid.paint(g2, chartFrame); // paint horizontal grid
             VerticalGrid.paint(g2, chartFrame); // paint vertical grid
@@ -361,46 +448,50 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
     public void mouseClicked(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {
-        switch (getState()) {
-            case NONE:
-                if (!isAnnotation(e.getX(), e.getY())) {
-                    deselectAll();
-                    setState(NONE);
-                    repaint();
-                } else {
-                    if (hasCurrent())
-                        getCurrent().mousePressed(e);
-                }
-                if (chartFrame.getChartProperties().getMarkerVisibility() && !hasCurrent()) {
-                    int index = chartFrame.getMarker().getIndex(e.getX(), e.getY());
-                    chartFrame.getMarker().setIndex(index);
-                    repaint();
-                }
-                break;
-            case RESIZE:
-                if (hasCurrent()) getCurrent().mousePressed(e);
-                break;
-            case MOVE:
-                if (hasCurrent()) getCurrent().mousePressed(e);
-                break;
-            case NEWANNOTATION:
-                int x = e.getX(), y = e.getY();
-                int areaIndex = chartFrame.getChartRenderer().getAreaIndex(x, y);
-                if (areaIndex != -1) {
-                    Annotation a = AnnotationManager.getDefault().getNewAnnotation(chartFrame);
-                    a.setAreaIndex(areaIndex);
-                    Rectangle2D.Double bounds = chartFrame.getChartRenderer().getClickedBounds(areaIndex);
-                    Range range = chartFrame.getChartRenderer().getClickedRange(areaIndex);
-                    a.setBounds(bounds);
-                    a.setRange(range);
-                    setCurrent(a);
-                    if (hasCurrent())
-                        getCurrent().mousePressed(e);
-                } else {
-                    setState(NONE);
-                    mousePressed(e);
-                }
-                break;
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            switch (getState()) {
+                case NONE:
+                    if (!isAnnotation(e.getX(), e.getY())) {
+                        deselectAll();
+                        setState(NONE);
+                        repaint();
+                    } else {
+                        if (hasCurrent())
+                            getCurrent().mousePressed(e);
+                    }
+                    if (chartFrame.getChartProperties().getMarkerVisibility() && !hasCurrent()) {
+                        int index = chartFrame.getMarker().getIndex(e.getX(), e.getY());
+                        chartFrame.getMarker().setIndex(index);
+                        repaint();
+                    }
+                    break;
+                case RESIZE:
+                    if (hasCurrent()) getCurrent().mousePressed(e);
+                    break;
+                case MOVE:
+                    if (hasCurrent()) getCurrent().mousePressed(e);
+                    break;
+                case NEWANNOTATION:
+                    int x = e.getX(), y = e.getY();
+                    int areaIndex = chartFrame.getChartRenderer().getAreaIndex(x, y);
+                    if (areaIndex != -1) {
+                        Annotation a = AnnotationManager.getDefault().getNewAnnotation(chartFrame);
+                        a.setAreaIndex(areaIndex);
+                        Rectangle2D.Double bounds = chartFrame.getChartRenderer().getClickedBounds(areaIndex);
+                        Range range = chartFrame.getChartRenderer().getClickedRange(areaIndex);
+                        a.setBounds(bounds);
+                        a.setRange(range);
+                        setCurrent(a);
+                        if (hasCurrent())
+                            getCurrent().mousePressed(e);
+                    } else {
+                        setState(NONE);
+                        mousePressed(e);
+                    }
+                    break;
+            }
+        } else if (e.getButton() == MouseEvent.BUTTON3) {
+            menu.show(this, e.getX(), e.getY());
         }
     }
     public void mouseReleased(MouseEvent e) {

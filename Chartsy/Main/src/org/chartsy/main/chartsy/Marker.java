@@ -1,19 +1,20 @@
 package org.chartsy.main.chartsy;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import org.chartsy.main.chartsy.chart.Indicator;
@@ -30,12 +31,13 @@ public class Marker {
     public static final int LEFT = 0;
     public static final int CENTER = 1;
     public static final int RIGHT = 2;
-    private String text;
+    //private String text;
     private ChartFrame cf;
     private static JLabel label = new JLabel();
     private int index = -1;
-    private int width;
-    private int height;
+    private int width = 150;
+    private int height = 15;
+    private int fontSize = 10;
     private Color lineColor = new Color(0xef2929);
     private Color color = new Color(0x555753);
     private Color backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100);
@@ -43,111 +45,39 @@ public class Marker {
     private Font font;
 
     public static Marker newInstance(ChartFrame cf) { return new Marker(cf); }
-    private Marker(ChartFrame c) { cf = c; Font f = cf.getChartProperties().getFont(); font = new Font(f.getName(), f.getStyle(), 10); text = ""; }
-
-    public void setText(String t) { text = t; }
-    public String getText() { return text; }
-
-    private void setLabelText(Graphics2D g) {
-        StringBuffer prefix = new StringBuffer();
-        StringBuffer suffix = new StringBuffer();
-        StringBuffer htmlText = new StringBuffer();
-
-        prefix.append("&nbsp;");
-        suffix.insert(0, "&nbsp;");
-        htmlText.append("<html>");
-
-        StringTokenizer tokenizer = new StringTokenizer(text, "\n");
-        boolean first = true;
-
-        FontMetrics fm = g.getFontMetrics(font);
-
-        width = 0;
-        height = fm.getHeight();
-
-        int i = 0;
-        while (tokenizer.hasMoreTokens()) {
-            if (first) first = false;
-            else htmlText.append("<br>");
-
-            htmlText.append(prefix);
-            String string = tokenizer.nextToken();
-            htmlText.append("<b>");
-            htmlText.append(string);
-            htmlText.append("</b>");
-            htmlText.append(suffix);
-
-            if (string.contains(">")) {
-                string = string.split(">")[1];
-                string = string.split("<")[0];
-                string = string.replace("&nbsp;", " ");
-            }
-            width = Math.max(width, fm.stringWidth(string));
-
-            i++;
-        }
-
-        htmlText.append("</html>");
-
-        List dontReplace = Arrays.asList(new String[] { "u", "i", "b", "tt", "font", "br" });
-
-        int ltpos = 0;
-        while (ltpos != -1) {
-            ltpos = htmlText.indexOf("<", ltpos + 1);
-            if (ltpos != -1 && !(ltpos + 1 < htmlText.length() && htmlText.charAt(ltpos + 1) == '/')) {
-                int end = ltpos + 1;
-                while (end < htmlText.length() && Character.isLetter(htmlText.charAt(end))) end++;
-                    if (!dontReplace.contains(htmlText.substring(ltpos + 1, end)))
-                        htmlText.replace(ltpos, ltpos+1, "&lt;");
-            }
-        }
-
-        label.setText(htmlText.toString());
-        label.setBounds(0, 0, width + 10, height * i);
-        label.setHorizontalAlignment(SwingConstants.LEFT);
-        label.setVerticalAlignment(SwingConstants.TOP);
-        label.setHorizontalTextPosition(SwingConstants.LEFT);
-        label.setVerticalTextPosition(SwingConstants.TOP);
+    private Marker(ChartFrame c) {
+        cf = c;
+        Font f = cf.getChartProperties().getFont();
+        font = new Font(f.getName(), f.getStyle(), fontSize);
+        initialize();
     }
 
-    public Rectangle2D getBounds() {
-        if (text.length() == 0) return new Rectangle2D.Double();
-        Dimension dim = label.getPreferredSize();
-        return new Rectangle2D.Double(0, 0, dim.getWidth(), dim.getHeight());
+    private void initialize() {
+        label.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                Cursor c = new Cursor(Cursor.MOVE_CURSOR);
+            }
+            public void mouseExited(MouseEvent e) {
+                Cursor c = new Cursor(Cursor.DEFAULT_CURSOR);
+            }
+        });
     }
 
     private String addLine(String left, String right) {
-        String html = "";
-        html += "<tr>";
-        html += "<td width='75' height='15' valign='middle' align='left' style='font-weight:bold;'>";
-        html += left;
-        html += "</td>";
-        html += "<td width='75' height='15' valign='middle' align='right'>";
-        html += right;
-        html += "</td>";
-        html += "</tr>";
-        return html;
+        if (!right.equals(" ")) {
+            return "<tr><td width='" + width/2 + "' height='" + fontSize + "' valign='middle' align='left'>" + left + "</td><td width='" + width/2 +"' height='" + fontSize + "' valign='middle' align='right'>" + right + "</td></tr>";
+        } else {
+            return "<tr><td width='" + width + "' height='" + fontSize + "' valign='middle' align='left' colspan='2'>" + left + "</td></tr>";
+        }
     }
 
     public void paint(Graphics2D g) {
         if (cf.getChartProperties().getMarkerVisibility()) {
             if (index != -1 && index <= cf.getChartRenderer().getItems() && index >= 0) {
                 Dataset dataset = cf.getChartRenderer().getVisibleDataset();
-                paintLine(g);
-
-                FontMetrics fm = g.getFontMetrics(font);
-                height = fm.getHeight();
-
-
-                NumberFormat nf = NumberFormat.getNumberInstance();
-                DecimalFormat df = (DecimalFormat) nf;
-                df.applyPattern("#,###.00");
-                
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(dataset.getDate(index));
 
-                String html = "<html><table width='150'>";
-                // Date:
                 String s = (!cf.getTime().contains("Min"))
                 ? ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
                     (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
@@ -156,6 +86,15 @@ public class Marker {
                     (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
                     String.valueOf(cal.get(Calendar.YEAR) + " " + (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
                     (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE))));
+
+                paintLine(g, s);
+
+                NumberFormat nf = NumberFormat.getNumberInstance();
+                DecimalFormat df = (DecimalFormat) nf;
+                df.applyPattern("#,###.00");
+
+                String html = "<html><table width='" + width + "' cellpadding='0' cellspacing='0' border='0'>";
+                // Date:
                 html += addLine("Date:", s);
                 // Open:
                 html += addLine("Open:", df.format(dataset.getOpenValue(index)));
@@ -166,32 +105,50 @@ public class Marker {
                 // Close:
                 html += addLine("Close:", df.format(dataset.getCloseValue(index)));
 
+                int hl = 5;
+
+                Overlay[] overlays = cf.getChartRenderer().getOverlays();
+                Indicator[] indicators = cf.getChartRenderer().getIndicators();
+                if (overlays.length > 0 || indicators.length > 0) {
+                    html += addLine(" ", " ");
+                    hl++;
+                }
+
+                // Overlays
+                if (overlays.length > 0) {
+                    for (Overlay o : overlays) {
+                        LinkedHashMap ht = o.getHTML(cf, index);
+                        Iterator it = ht.keySet().iterator();
+                        while (it.hasNext()) {
+                            Object key = it.next();
+                            html += addLine(key.toString(), ht.get(key).toString());
+                            hl++;
+                        }
+                    }
+                }
+
+                // Indicators
+                if (indicators.length > 0) {
+                    if (overlays.length > 0) {
+                        html += addLine(" ", " ");
+                        hl++;
+                    }
+                    for (Indicator i : indicators) {
+                        LinkedHashMap ht = i.getHTML(cf, index);
+                        Iterator it = ht.keySet().iterator();
+                        while (it.hasNext()) {
+                            Object key = it.next();
+                            html += addLine(key.toString(), ht.get(key).toString());
+                            hl++;
+                        }
+                    }
+                }
+
                 html += "</table></html>";
 
-                System.out.println(html);
-
-                /*String s = (!cf.getTime().contains("Min"))
-                ? ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
-                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
-                    String.valueOf(cal.get(Calendar.YEAR))
-                : ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
-                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
-                    String.valueOf(cal.get(Calendar.YEAR) + " " + (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
-                    (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE))));
-
-                text =  "Date:   " + s + "\n" + "Open:   " + df.format(dataset.getOpenValue(index)) + "\n" + "High:   " + df.format(dataset.getHighValue(index)) + "\n" + "Low:    " + df.format(dataset.getLowValue(index)) + "\n" + "Close:  " + df.format(dataset.getCloseValue(index));
-                Indicator[] indicators = cf.getChartRenderer().getIndicators();
-                Overlay[] overlays = cf.getChartRenderer().getOverlays();
-                if (overlays.length > 0 || indicators.length > 0) text += "&nbsp;\n&nbsp;\n";
-                if (overlays.length > 0) for (Overlay o : overlays) text += o.getMarkerLabel(cf, index) + "\n";
-                if (indicators.length > 0) for (Indicator i : indicators) text += i.getMarkerLabel(cf, index) + "\n";
-                setLabelText(g);*/
-
                 label.setText(html);
-                label.setBounds(0, 0, 150, height * 10);
-                //label.setHorizontalAlignment(SwingConstants.LEFT);
+                label.setBounds(0, 0, width, height * hl);
                 label.setVerticalAlignment(SwingConstants.TOP);
-                //label.setHorizontalTextPosition(SwingConstants.LEFT);
                 label.setVerticalTextPosition(SwingConstants.TOP);
 
                 g.setPaint(backgroundColor);
@@ -208,9 +165,8 @@ public class Marker {
         }
     }
 
-    private void paintLine(Graphics2D g) {
+    private void paintLine(Graphics2D g, String s) {
         RectangleInsets dataOffset = cf.getChartProperties().getDataOffset();
-        Dataset dataset = cf.getChartRenderer().getVisibleDataset();
 
         g.setPaint(lineColor);
         g.setFont(font);
@@ -218,16 +174,6 @@ public class Marker {
         Point2D.Double p = cf.getChartRenderer().valueToJava2D(index, 0);
 
         g.draw(new Line2D.Double(p.getX(), 0, p.getX(), cf.getChartRenderer().getHeight() - dataOffset.bottom));
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dataset.getDate(index));
-
-        String s = (!cf.getTime().contains("Min"))
-                ? ((cal.get(Calendar.MONTH) + 1) < 10 ? "0" + String.valueOf(cal.get(Calendar.MONTH) + 1) : String.valueOf(cal.get(Calendar.MONTH) + 1)) + "/" +
-                    (cal.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) : String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) + "/" +
-                    String.valueOf(cal.get(Calendar.YEAR))
-                : (cal.get(Calendar.HOUR) < 10 ? "0" + String.valueOf(cal.get(Calendar.HOUR)) : String.valueOf(cal.get(Calendar.HOUR))) + ":" +
-                    (cal.get(Calendar.MINUTE) < 10 ? "0" + String.valueOf(cal.get(Calendar.MINUTE)) : String.valueOf(cal.get(Calendar.MINUTE)));
 
         FontMetrics fm = g.getFontMetrics(font);
         int w = fm.stringWidth(s) + 2;

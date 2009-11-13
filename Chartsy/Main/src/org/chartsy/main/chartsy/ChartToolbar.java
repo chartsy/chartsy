@@ -1,10 +1,10 @@
 package org.chartsy.main.chartsy;
 
-import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.print.PageFormat;
 import java.util.Vector;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -13,16 +13,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import org.chartsy.main.dialogs.AddIndicators;
-import org.chartsy.main.dialogs.AddOverlays;
+import javax.swing.SwingConstants;
 import org.chartsy.main.dialogs.AnnotationProperties;
-import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.UpdaterManager;
-import org.chartsy.main.utils.ImageExporter;
-import org.chartsy.main.utils.Printer;
 
 /**
  *
@@ -31,15 +27,19 @@ import org.chartsy.main.utils.Printer;
 public class ChartToolbar extends JToolBar implements ActionListener {
 
     private ChartFrame parent;
+    private Font font;
 
     public static ChartToolbar newInstance(ChartFrame parent) { return new ChartToolbar(parent); }
 
     private ChartToolbar(ChartFrame parent) {
         super("ChartToolbar", JToolBar.HORIZONTAL);
         this.parent = parent;
+        Font f = this.parent.getChartProperties().getFont();
+        font = new Font(f.getName(), f.getStyle(), 10);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setFloatable(false);
         initComponents();
+        setFloatable(false);
     }
 
     private void initComponents() {
@@ -93,6 +93,11 @@ public class ChartToolbar extends JToolBar implements ActionListener {
     private JButton getToolbarButton(final String name, final String action, final String alt, final String tooltip) {
         JButton button = new JButton();
 
+        button.setFont(font);
+        button.setText(alt);
+        button.setVerticalAlignment(SwingConstants.TOP);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setMargin(new Insets(6,6,6,6));
         button.setBorderPainted(false);
         button.setActionCommand(action);
@@ -100,7 +105,6 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         button.addActionListener(this);
         if (IconUtils.getIcon(name) != null) {
             button.setIcon(IconUtils.getIcon(name, tooltip, IconUtils.PNG));
-            button.setPreferredSize(new Dimension(24, 24));
         } else {
             button.setText(alt);
         }
@@ -111,6 +115,11 @@ public class ChartToolbar extends JToolBar implements ActionListener {
     private JToggleButton getToolbarToggleButton(final String name, final String action, final String alt, final String tooltip, final boolean def) {
         JToggleButton button = new JToggleButton();
 
+        button.setFont(font);
+        button.setText(alt);
+        button.setVerticalAlignment(SwingConstants.TOP);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setMargin(new Insets(6,6,6,6));
         button.setBorderPainted(false);
         button.setActionCommand(action);
@@ -118,7 +127,6 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         button.addActionListener(this);
         if (IconUtils.getIcon(name) != null) {
             button.setIcon(IconUtils.getIcon(name, tooltip, IconUtils.PNG));
-            button.setPreferredSize(new Dimension(24, 24));
         } else {
             button.setText(alt);
         }
@@ -141,28 +149,17 @@ public class ChartToolbar extends JToolBar implements ActionListener {
                 item.setMargin(new Insets(0,0,0,0));
                 item.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        changeChart(name);
+                        MainActions.changeChartAction(parent, name);
                     }
                 });
-
-                String img = name.replace(" ", "").toLowerCase();
-                //if (IconUtils.getChartIcon(img) != null) item.setIcon(IconUtils.getChartIcon(img));
                 popup.add(item);
             }
 
             popup.show(button, 0, button.getHeight());
         } else if (actionCommand.equals("ADDINDICATOR")) {
-            AddIndicators dialog = new AddIndicators(new javax.swing.JFrame(), true);
-            dialog.setChartFrame(parent);
-            dialog.initForm();
-            dialog.setLocationRelativeTo(parent);
-            dialog.setVisible(true);
+            MainActions.addIndicator(parent);
         } else if (actionCommand.equals("ADDOVERLAY")) {
-            AddOverlays dialog = new AddOverlays(new javax.swing.JFrame(), true);
-            dialog.setChartFrame(parent);
-            dialog.initForm();
-            dialog.setLocationRelativeTo(parent);
-            dialog.setVisible(true);
+            MainActions.addOverlay(parent);
         } else if (actionCommand.equals("DRAWINGS")) {
             Vector list = AnnotationManager.getDefault().getAnnotations();
 
@@ -175,13 +172,9 @@ public class ChartToolbar extends JToolBar implements ActionListener {
                 item.setMargin(new Insets(0,0,0,0));
                 item.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        AnnotationManager.getDefault().setNewAnnotationName(name);
-                        parent.getChartPanel().setState(ChartPanel.NEWANNOTATION);
+                        MainActions.addAnnotation(parent, name);
                     }
                 });
-
-                String img = "annotations_" + name.replace(" ", "").toLowerCase();
-                //if (IconUtils.getChartIcon(img) != null) item.setIcon(IconUtils.getChartIcon(img));
                 popup.add(item);
             }
 
@@ -191,7 +184,7 @@ public class ChartToolbar extends JToolBar implements ActionListener {
             item1.setMargin(new Insets(0, 0, 0, 0));
             item1.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    parent.getChartPanel().removeAllAnnotations();
+                    MainActions.removeAllAnnotations(parent);
                 }
             });
             popup.add(item1);
@@ -224,7 +217,7 @@ public class ChartToolbar extends JToolBar implements ActionListener {
                     item.setMargin(new Insets(0,0,0,0));
                     item.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            changeTime(name);
+                            MainActions.changeTimeAction(parent, name);
                         }
                     });
 
@@ -246,19 +239,12 @@ public class ChartToolbar extends JToolBar implements ActionListener {
                 parent.getChartPanel().repaint();
             }
         } else if (actionCommand.equals("EXPORTIMAGE")) {
-            ImageExporter.getDefault().export(parent.getChartPanel());
+            MainActions.exportImage(parent);
         } else if (actionCommand.equals("PRINT")) {
-            PageFormat pf = new PageFormat();
-            Printer.print(parent.getChartPanel(), pf);
+            MainActions.printChart(parent);
         } else if (actionCommand.equals("SETTINGS")) {
-            ChartSettings dialog = new ChartSettings(new javax.swing.JFrame(), true);
-            dialog.initializeForm(parent);
-            dialog.setLocationRelativeTo(parent);
-            dialog.setVisible(true);
+            MainActions.chartSettings(parent);
         }
     }
-
-    public void changeChart(String chart) { if (!parent.getChart().getName().equals(chart)) parent.setChart(chart); }
-    public void changeTime(String time) { if (!parent.getTime().equals(time)) parent.setTime(time); }
 
 }

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.utils.Properties;
@@ -41,7 +42,11 @@ public abstract class Overlay extends Object implements XMLUtils.ToXML {
     public String getName() { return name; }
     public String getDescription() { return description; }
     public abstract String getLabel();
-    public abstract String getMarkerLabel(ChartFrame cf, int i);
+    public String getFontHTML(Color color, String text) {
+        String html = "<font color=\"" + Integer.toHexString(color.getRGB() & 0x00ffffff) + "\">" + text + "</font>";
+        return html;
+    }
+    public abstract LinkedHashMap getHTML(ChartFrame cf, int i);
     public String getDialogLabel() { return dialogLabel; }
     public void setDialogLabel(String d) { dialogLabel = d; }
 

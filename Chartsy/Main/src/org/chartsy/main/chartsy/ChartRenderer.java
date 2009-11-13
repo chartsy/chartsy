@@ -182,7 +182,6 @@ public class ChartRenderer {
             for (Overlay o : overlays) chartRange = Range.combine(chartRange, o.getRange(parent));
             indicatorHeight = indicators.length == 0 ? 0 : (((height / 5) * 2) / indicators.length);
             int index = parent.getMarker().getIndex();
-            System.out.println("index = " + index);
             parent.getMarker().setIndex(index > items-1 ? items-1 : index);
         }
     }
