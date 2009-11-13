@@ -3,6 +3,7 @@ package org.chartsy.sma;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.DefaultPainter;
 import org.chartsy.main.chartsy.chart.Overlay;
@@ -40,16 +41,22 @@ public class SMA extends Overlay {
         }
     }
 
-    public String getMarkerLabel(ChartFrame cf, int i) {
+    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+        LinkedHashMap ht = new LinkedHashMap();
+
         DecimalFormat df = new DecimalFormat("#,##0.00");
-        StringBuilder sb = new StringBuilder();
-        sb.append(getLabel() + "\n");
         double[] values = getValues(cf, i);
+
+        ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
-            for (int j = 0; j < values.length; j++) sb.append("<font color=\"" + Integer.toHexString(colors[j].getRGB() & 0x00ffffff) + "\">&nbsp;&nbsp;&nbsp;SMA:&nbsp;" + df.format(values[j]) + "</font>\n");
+            for (int j = 0; j < values.length; j++) {
+                ht.put(getFontHTML(colors[j], "SMA:"),
+                        getFontHTML(colors[j], df.format(values[j])));
+            }
         }
-        return sb.toString();
+
+        return ht;
     }
 
     public Range getRange(ChartFrame cf) {
