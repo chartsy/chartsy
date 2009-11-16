@@ -1,6 +1,5 @@
 package org.chartsy.annotation.arrowline;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
@@ -32,8 +31,8 @@ public class ArrowLine extends Annotation {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        g.setPaint(getChartFrame().getChartProperties().getAnnotationColor());
-        g.setStroke(getChartFrame().getChartProperties().getAnnotationStroke());
+        g.setPaint(color);
+        g.setStroke(stroke);
         Point2D.Double p1 = getP1();
         Point2D.Double p2 = getP2();
         g.draw(new Line2D.Double(p1, p2));
