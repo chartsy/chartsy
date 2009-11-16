@@ -226,8 +226,6 @@ public class AddIndicators extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        mainPanel.setBackground(new java.awt.Color(255, 255, 255));
-
         lblIO.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblIO.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.lblIO.text")); // NOI18N
 
@@ -269,7 +267,7 @@ public class AddIndicators extends javax.swing.JDialog {
         scrollPane.setLayout(scrollPaneLayout);
         scrollPaneLayout.setHorizontalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 324, Short.MAX_VALUE)
+            .add(0, 325, Short.MAX_VALUE)
         );
         scrollPaneLayout.setVerticalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -283,8 +281,8 @@ public class AddIndicators extends javax.swing.JDialog {
             .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
-                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
                     .add(mainPanelLayout.createSequentialGroup()
                         .add(btnAdd)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -302,8 +300,8 @@ public class AddIndicators extends javax.swing.JDialog {
                         .add(btnApply)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnCancel))
-                    .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
-                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+                    .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
                     .add(lblDescription)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -346,12 +344,10 @@ public class AddIndicators extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 662, Short.MAX_VALUE)
             .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 392, Short.MAX_VALUE)
             .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
