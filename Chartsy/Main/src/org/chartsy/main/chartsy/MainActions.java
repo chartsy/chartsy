@@ -1,8 +1,10 @@
 package org.chartsy.main.chartsy;
 
 import java.awt.print.PageFormat;
+import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.dialogs.AddIndicators;
 import org.chartsy.main.dialogs.AddOverlays;
+import org.chartsy.main.dialogs.AnnotationProperties;
 import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.ImageExporter;
@@ -43,6 +45,14 @@ public class MainActions {
     public static void addAnnotation(ChartFrame chartFrame, String name) {
         AnnotationManager.getDefault().setNewAnnotationName(name);
         chartFrame.getChartPanel().setState(ChartPanel.NEWANNOTATION);
+    }
+
+    public static void annotationSettings(ChartFrame chartFrame, Annotation a) {
+        AnnotationProperties dialog = new AnnotationProperties(new javax.swing.JFrame(), true);
+        dialog.setListener(a);
+        dialog.initializeForm(chartFrame);
+        dialog.setLocationRelativeTo(chartFrame);
+        dialog.setVisible(true);
     }
 
     public static void removeAllAnnotations(ChartFrame chartFrame) {

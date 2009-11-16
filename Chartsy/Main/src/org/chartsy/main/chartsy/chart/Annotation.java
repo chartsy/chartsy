@@ -3,6 +3,7 @@ package org.chartsy.main.chartsy.chart;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -65,13 +66,28 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     protected int areaIndex;
     protected Range range;
     protected Rectangle2D.Double bounds;
+    protected Color color;
+    protected Color fillColor;
+    protected Stroke stroke;
 
     public Annotation(ChartFrame chartFrame) {
         cf = chartFrame;
+        color = cf.getChartProperties().getAnnotationColor();
+        fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 30);
+        stroke = cf.getChartProperties().getAnnotationStroke();
         active = false;
         selected = false;
         inflectionSet = new BitSet(9);
     }
+
+    public void setColor(Color c) { color = c; }
+    public Color getColor() { return color; }
+
+    public void setFillColor(Color c) { fillColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), 30); }
+    public Color getFillColor() { return fillColor; }
+
+    public void setStroke(Stroke s) { stroke = s; }
+    public Stroke getStroke() { return stroke; }
 
     public String getIdentifier() { return getClass().getName(); }
 

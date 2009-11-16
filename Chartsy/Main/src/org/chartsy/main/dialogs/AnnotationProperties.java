@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import javax.swing.JColorChooser;
 import org.chartsy.main.chartsy.ChartFrame;
+import org.chartsy.main.chartsy.chart.Annotation;
 import org.openide.windows.WindowManager;
 
 /**
@@ -15,6 +16,8 @@ import org.openide.windows.WindowManager;
  */
 public class AnnotationProperties extends javax.swing.JDialog {
 
+    private Annotation listener;
+
     public AnnotationProperties(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -22,14 +25,18 @@ public class AnnotationProperties extends javax.swing.JDialog {
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
     }
 
+    public void setListener(Annotation a) {
+        listener = a;
+    }
+
     public void initializeForm(final ChartFrame chartFrame) {
-        this.color.setBackground(chartFrame.getChartProperties().getAnnotationColor());
+        this.color.setBackground(listener.getColor());
         this.color.addMouseListener(new MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 getLabelColor(color, "Choose Annotation Color");
             }
         });
-        this.lineStyle.setSelectedItem(chartFrame.getChartProperties().getAnnotationStroke());
+        this.lineStyle.setSelectedItem(listener.getStroke());
         btnCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
@@ -51,8 +58,9 @@ public class AnnotationProperties extends javax.swing.JDialog {
     }
 
     private void setSettings(ChartFrame cf) {
-        cf.getChartProperties().setAnnotationColor(color.getBackground());
-        cf.getChartProperties().setAnnotationStroke((Stroke) lineStyle.getSelectedItem());
+        listener.setColor(color.getBackground());
+        listener.setFillColor(color.getBackground());
+        listener.setStroke((Stroke) lineStyle.getSelectedItem());
         cf.getChartPanel().repaint();
     }
 

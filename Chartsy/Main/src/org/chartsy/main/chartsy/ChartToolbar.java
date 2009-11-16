@@ -208,19 +208,18 @@ public class ChartToolbar extends JToolBar implements ActionListener {
             });
             popup.add(item1);
 
-            popup.addSeparator();
+            if (parent.getChartPanel().getCurrent() != null && parent.getChartPanel().getCurrent().isSelected()) {
+                popup.addSeparator();
 
-            JMenuItem item2 = new JMenuItem("Annotation Properties");
-            item2.setMargin(new Insets(0, 0, 0, 0));
-            item2.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    AnnotationProperties dialog = new AnnotationProperties(new javax.swing.JFrame(), true);
-                    dialog.initializeForm(parent);
-                    dialog.setLocationRelativeTo(parent);
-                    dialog.setVisible(true);
-                }
-            });
-            popup.add(item2);
+                JMenuItem item2 = new JMenuItem("Annotation Properties");
+                item2.setMargin(new Insets(0, 0, 0, 0));
+                item2.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        MainActions.annotationSettings(parent, parent.getChartPanel().getCurrent());
+                    }
+                });
+                popup.add(item2);
+            }
 
             popup.show(button, 0, button.getHeight());
         } else if (actionCommand.equals("TIMEACTION")) {

@@ -46,8 +46,8 @@ public class FibonacciRetracement extends Annotation {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        g.setPaint(getChartFrame().getChartProperties().getAnnotationColor());
-        g.setStroke(getChartFrame().getChartProperties().getAnnotationStroke());
+        g.setPaint(color);
+        g.setStroke(stroke);
         g.setFont(font);
         double max = Math.max(getV1(), getV2());
         double min = Math.min(getV1(), getV2());

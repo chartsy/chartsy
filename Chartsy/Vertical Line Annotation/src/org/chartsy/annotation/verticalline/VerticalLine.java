@@ -27,8 +27,8 @@ public class VerticalLine extends Annotation {
     public void paint(Graphics2D g) {
         double x = getXCoord(getT1());
         Stroke old = g.getStroke();
-        g.setPaint(getChartFrame().getChartProperties().getAnnotationColor());
-        g.setStroke(getChartFrame().getChartProperties().getAnnotationStroke());
+        g.setPaint(color);
+        g.setStroke(stroke);
         g.draw(new Line2D.Double(x, getBounds().getMinY(), x, getBounds().getMaxY()));
         g.setStroke(old);
         if (isSelected()) paintInflectionPoints(g);

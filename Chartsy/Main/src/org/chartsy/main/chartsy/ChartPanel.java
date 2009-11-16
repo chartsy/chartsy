@@ -73,7 +73,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         annotations = new Annotation[0];
         intraDayAnnotations = new Annotation[0];
         current = null;
-        menu = new JPopupMenu();
         initMenu();
 
         putClientProperty("print.printable", Boolean.TRUE);
@@ -92,6 +91,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     protected void initMenu() {
+        menu = new JPopupMenu();
         Vector list;
         JMenu menuitem;
         JMenuItem item;
@@ -180,6 +180,14 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                 MainActions.chartSettings(chartFrame);
             }
         });
+        if (current != null && current.isSelected()) {
+            menu.add(item = new JMenuItem("Annotation Settings"));
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    MainActions.annotationSettings(chartFrame, current);
+                }
+            });
+        }
     }
 
     public void paint(Graphics g) {
@@ -518,6 +526,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                     break;
             }
         } else if (e.getButton() == MouseEvent.BUTTON3) {
+            initMenu();
             menu.show(this, e.getX(), e.getY());
         }
     }

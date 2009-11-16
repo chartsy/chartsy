@@ -27,8 +27,8 @@ public class HorizontalLine extends Annotation {
     public void paint(Graphics2D g) {
         double y = getYCoord(getV1());
         Stroke old = g.getStroke();
-        g.setPaint(getChartFrame().getChartProperties().getAnnotationColor());
-        g.setStroke(getChartFrame().getChartProperties().getAnnotationStroke());
+        g.setPaint(color);
+        g.setStroke(stroke);
         g.draw(new Line2D.Double(getBounds().getMinX(), y, getBounds().getMaxX(), y));
         g.setStroke(old);
         if (isSelected()) paintInflectionPoints(g);
