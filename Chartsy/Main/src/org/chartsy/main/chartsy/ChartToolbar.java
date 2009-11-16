@@ -18,6 +18,7 @@ import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.UpdaterManager;
+import org.netbeans.api.print.PrintManager;
 
 /**
  *
@@ -61,11 +62,11 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         this.add(button);
 
         // Indicator button
-        button = this.getToolbarButton("indicator", "ADDINDICATOR", "Add Indicator", "Add Indicator");
+        button = this.getToolbarButton("indicator", "ADDINDICATOR", "Add Indicators", "Add Indicators");
         this.add(button);
 
         // Overlay button
-        button = this.getToolbarButton("overlay", "ADDOVERLAY", "Add Overlay", "Add Overlay");
+        button = this.getToolbarButton("overlay", "ADDOVERLAY", "Add Overlays", "Add Overlays");
         this.add(button);
 
         // Line button
@@ -81,12 +82,31 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         this.add(button);
 
         // Print button
-        button = this.getToolbarButton("print", "PRINT", "Print", "Print");
+        button = this.getPrintButton("print", "Print", "print");
         this.add(button);
 
         // Settings button
         button = this.getToolbarButton("settings", "SETTINGS", "Settings", "Settings");
         this.add(button);
+    }
+
+    private JButton getPrintButton(final String name, final String alt, final String tooltip) {
+        JButton button = new JButton();
+
+        button.setAction(PrintManager.printAction(parent.getChartPanel()));
+        button.setFont(font);
+        button.setText(alt);
+        button.setVerticalAlignment(SwingConstants.TOP);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setMargin(new Insets(6,6,6,6));
+        button.setBorderPainted(false);
+        button.setToolTipText(tooltip);
+        if (IconUtils.getIcon(name + "-24x24") != null) {
+            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
+        }
+
+        return button;
     }
 
     private JButton getToolbarButton(final String name, final String action, final String alt, final String tooltip) {
@@ -102,8 +122,8 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         button.setActionCommand(action);
         button.setToolTipText(tooltip);
         button.addActionListener(this);
-        if (IconUtils.getIcon(name) != null) {
-            button.setIcon(IconUtils.getIcon(name, tooltip, IconUtils.PNG));
+        if (IconUtils.getIcon(name + "-24x24") != null) {
+            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
         } else {
             button.setText(alt);
         }
@@ -124,8 +144,8 @@ public class ChartToolbar extends JToolBar implements ActionListener {
         button.setActionCommand(action);
         button.setToolTipText(tooltip);
         button.addActionListener(this);
-        if (IconUtils.getIcon(name) != null) {
-            button.setIcon(IconUtils.getIcon(name, tooltip, IconUtils.PNG));
+        if (IconUtils.getIcon(name + "-24x24") != null) {
+            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
         } else {
             button.setText(alt);
         }
@@ -239,8 +259,6 @@ public class ChartToolbar extends JToolBar implements ActionListener {
             }
         } else if (actionCommand.equals("EXPORTIMAGE")) {
             MainActions.exportImage(parent);
-        } else if (actionCommand.equals("PRINT")) {
-            MainActions.printChart(parent);
         } else if (actionCommand.equals("SETTINGS")) {
             MainActions.chartSettings(parent);
         }

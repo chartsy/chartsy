@@ -8,7 +8,7 @@
                 <attr name="delegate" newvalue="org.chartsy.main.NewChart"/>
                 <attr name="displayName" bundlevalue="org.chartsy.main.Bundle#CTL_NewChart"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="iconBase" stringvalue="org/chartsy/main/icons/newchart24.png"/>
+                <attr name="iconBase" stringvalue="org/chartsy/main/icons/newchart-16x16.png"/>
                 <attr name="noIconInMenu" stringvalue="false"/>
             </file>
         </folder>

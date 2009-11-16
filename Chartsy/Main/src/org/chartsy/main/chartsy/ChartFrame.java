@@ -100,13 +100,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
     public Marker getMarker() { return marker; }
 
     private JScrollBar initHorizontalScrollBar() {
-        JScrollBar bar = new JScrollBar(Adjustable.HORIZONTAL);
+        JScrollBar bar = new JScrollBar(JScrollBar.HORIZONTAL);
         BoundedRangeModel model = bar.getModel();
         model.setExtent(chartRenderer.getItems());
         model.setMinimum(0);
         model.setMaximum(chartRenderer.getEnd());
         model.setValue(chartRenderer.getEnd() - chartRenderer.getItems());
         bar.setModel(model);
+        bar.setAlignmentX(java.awt.Component.RIGHT_ALIGNMENT);
         bar.addAdjustmentListener(this);
         return bar;
     }
@@ -193,16 +194,28 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
     class PeriodTimer extends TimerTask {
         public void run() {
             AbstractUpdater ac = UpdaterManager.getDefault().getActiveUpdater();
-            System.out.println(ac.getName());
             if (ac != null) {
-                Dataset dataset = (!time.contains("Min")) 
-                        ? ac.updateLastValues(symbol, time, getChartRenderer().getMainDataset())
-                        : ac.updateIntraDayLastValues(symbol, time, getChartRenderer().getMainDataset());
-                if (dataset != null) {
-                    DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
-                    getChartRenderer().setMainDataset(dataset, false);
-                    getChartPanel().repaint();
+                int intraDay = (!time.contains("Min")) ? 0 : 1;
+                Dataset dataset;
+                switch (intraDay) {
+                    case 0:
+                        dataset = ac.updateLastValues(symbol, DatasetManager.DAILY, DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, DatasetManager.DAILY)));
+                        if (dataset != null) {
+                            DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, DatasetManager.DAILY), dataset);
+                            if (time.equals(DatasetManager.DAILY)) {
+                                getChartRenderer().setMainDataset(dataset, false);
+                            }
+                        }
+                        break;
+                    case 1:
+                        dataset = ac.updateIntraDayLastValues(symbol, time, getChartRenderer().getMainDataset());
+                        if (dataset != null) {
+                            DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+                            getChartRenderer().setMainDataset(dataset, false);
+                        }
+                        break;
                 }
+                getChartPanel().repaint();
             }
         }
     }

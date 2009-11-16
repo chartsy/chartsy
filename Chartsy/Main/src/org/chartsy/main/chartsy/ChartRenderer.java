@@ -183,6 +183,7 @@ public class ChartRenderer {
             indicatorHeight = indicators.length == 0 ? 0 : (((height / 5) * 2) / indicators.length);
             int index = parent.getMarker().getIndex();
             parent.getMarker().setIndex(index > items-1 ? items-1 : index);
+            parent.updateHorizontalScrollBar(end);
         }
     }
 

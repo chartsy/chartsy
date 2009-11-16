@@ -36,11 +36,13 @@ import org.chartsy.main.chartsy.axis.PriceAxis;
 import org.chartsy.main.chartsy.axis.PriceAxisMarker;
 import org.chartsy.main.chartsy.axis.VerticalGrid;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.XMLUtils;
+import org.netbeans.api.print.PrintManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -74,6 +76,9 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         menu = new JPopupMenu();
         initMenu();
 
+        putClientProperty("print.printable", Boolean.TRUE);
+        putClientProperty("print.name", chartFrame.preferredID());
+
         setFocusable(true);
         requestFocusInWindow();
 
@@ -92,6 +97,9 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         JMenuItem item;
         // Select Time
         menu.add(menuitem = new JMenu("Select Time"));
+        if (IconUtils.getIcon("time-16x16") != null) {
+            menuitem.setIcon(IconUtils.getIcon("time-16x16", "Select Time", IconUtils.PNG));
+        }
         list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
@@ -108,6 +116,9 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         }
         // Select Chart
         menu.add(menuitem = new JMenu("Select Chart"));
+        if (IconUtils.getIcon("chart-16x16") != null) {
+            menuitem.setIcon(IconUtils.getIcon("chart-16x16", "Select Chart", IconUtils.PNG));
+        }
         list = ChartManager.getDefault().getCharts();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
@@ -123,14 +134,20 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             }
         }
         // Add Indicator
-        menu.add(item = new JMenuItem("Add Indicator"));
+        menu.add(item = new JMenuItem("Add Indicators"));
+        if (IconUtils.getIcon("indicator-16x16") != null) {
+            item.setIcon(IconUtils.getIcon("indicator-16x16", "Add Indicators", IconUtils.PNG));
+        }
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 MainActions.addIndicator(chartFrame);
             }
         });
         // Add Overlay
-        menu.add(item = new JMenuItem("Add Overlay"));
+        menu.add(item = new JMenuItem("Add Overlays"));
+        if (IconUtils.getIcon("overlay-16x16") != null) {
+            item.setIcon(IconUtils.getIcon("overlay-16x16", "Add Overlays", IconUtils.PNG));
+        }
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 MainActions.addOverlay(chartFrame);
@@ -138,20 +155,26 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         });
         // Export Image
         menu.add(item = new JMenuItem("Export Image"));
+        if (IconUtils.getIcon("image-16x16") != null) {
+            item.setIcon(IconUtils.getIcon("image-16x16", "Export Image", IconUtils.PNG));
+        }
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 MainActions.exportImage(chartFrame);
             }
         });
         // Print
-        menu.add(item = new JMenuItem("Print"));
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                MainActions.printChart(chartFrame);
-            }
-        });
+        menu.add(item = new JMenuItem());
+        item.setAction(PrintManager.printAction(this));
+        item.setText("Print");
+        if (IconUtils.getIcon("print-16x16") != null) {
+            item.setIcon(IconUtils.getIcon("print-16x16", "Print", IconUtils.PNG));
+        }
         // Settings
         menu.add(item = new JMenuItem("Settings"));
+        if (IconUtils.getIcon("settings-16x16") != null) {
+            item.setIcon(IconUtils.getIcon("settings-16x16", "Settings", IconUtils.PNG));
+        }
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 MainActions.chartSettings(chartFrame);
