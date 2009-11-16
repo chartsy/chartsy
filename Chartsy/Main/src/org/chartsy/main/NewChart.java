@@ -12,6 +12,7 @@ import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -31,12 +32,12 @@ public class NewChart implements ActionListener {
         AbstractUpdater updater = UpdaterManager.getDefault().getActiveUpdater();
         if (updater != null) {
             NewChartDialog dialog = new NewChartDialog(new JFrame(), true);
-            dialog.setLocationRelativeTo((Component) e.getSource());
+            dialog.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             dialog.setListener(this);
             dialog.setVisible(true);
 
             if (!dialog.isVisible()) {
-                if (!symbol.isEmpty() && !chart.isEmpty()) {
+                if (!symbol.equals("") && !chart.equals("")) {
                     boolean exists = DatasetManager.getDefault().dataExists(symbol);
                     if (!exists) {
                         LoaderDialog loader = new LoaderDialog(new JFrame(), true);

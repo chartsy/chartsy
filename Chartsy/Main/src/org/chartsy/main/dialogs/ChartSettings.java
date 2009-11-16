@@ -11,8 +11,6 @@ import java.beans.PropertyEditorManager;
 import javax.swing.JColorChooser;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.utils.DefaultTheme;
-import org.chartsy.main.utils.StrokeComboBox;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.windows.WindowManager;
@@ -22,17 +20,16 @@ import org.openide.windows.WindowManager;
  * @author viorel.gheba
  */
 public class ChartSettings extends javax.swing.JDialog {
-    
+
     private Font selectedFont;
 
     public ChartSettings(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
     }
 
     public void initializeForm(final ChartFrame cf) {
-        setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
-
         axisColor.setBackground(cf.getChartProperties().getAxisColor());
         axisColor.addMouseListener(new MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -140,6 +137,11 @@ public class ChartSettings extends javax.swing.JDialog {
         }
     }
 
+    private String getFontValue(Font font) {
+        final String[] style = {"Plain", "Bold", "Italic", "Bold Italic"};
+        return font.getName() + ", " + style[font.getStyle()] + ", " + font.getSize();
+    }
+
     private void setSettings(ChartFrame cf) {
         cf.getChartProperties().setAxisColor(this.axisColor.getBackground());
         cf.getChartProperties().setAxisStroke((Stroke) this.axisStyle.getSelectedItem());
@@ -190,11 +192,6 @@ public class ChartSettings extends javax.swing.JDialog {
         selectedFont = DefaultTheme.FONT;
         fontValue.setText(getFontValue(DefaultTheme.FONT));
         fontColor.setBackground(DefaultTheme.FONT_COLOR);
-    }
-
-    private String getFontValue(Font font) {
-        final String[] style = {"Plain", "Bold", "Italic", "Bold Italic"};
-        return font.getName() + ", " + style[font.getStyle()] + ", " + font.getSize();
     }
 
     @SuppressWarnings("unchecked")
@@ -258,77 +255,77 @@ public class ChartSettings extends javax.swing.JDialog {
 
         mainPanel.setBackground(new java.awt.Color(255, 255, 255));
 
-        lblAxis.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxis.text_1")); // NOI18N
+        lblAxis.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxis.text")); // NOI18N
 
-        lblAxisColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxisColor.text_1")); // NOI18N
+        lblAxisColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxisColor.text")); // NOI18N
         lblAxisColor.setPreferredSize(new java.awt.Dimension(52, 20));
 
-        axisColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.axisColor.text_1")); // NOI18N
+        axisColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.axisColor.text")); // NOI18N
         axisColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         axisColor.setMaximumSize(new java.awt.Dimension(20, 20));
         axisColor.setMinimumSize(new java.awt.Dimension(20, 20));
         axisColor.setOpaque(true);
         axisColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        lblAxisStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxisStyle.text_1")); // NOI18N
+        lblAxisStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxisStyle.text")); // NOI18N
 
-        lblDataSeries.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDataSeries.text_1")); // NOI18N
+        lblDataSeries.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDataSeries.text")); // NOI18N
 
-        lblBarWidth.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBarWidth.text_1")); // NOI18N
+        lblBarWidth.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBarWidth.text")); // NOI18N
 
-        barWidth.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.barWidth.text_1")); // NOI18N
+        barWidth.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.barWidth.text")); // NOI18N
 
-        lblBorderColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderColor.text_1")); // NOI18N
+        lblBorderColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderColor.text")); // NOI18N
         lblBorderColor.setPreferredSize(new java.awt.Dimension(64, 20));
 
-        borderColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.borderColor.text_1")); // NOI18N
+        borderColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.borderColor.text")); // NOI18N
         borderColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         borderColor.setMaximumSize(new java.awt.Dimension(20, 20));
         borderColor.setMinimumSize(new java.awt.Dimension(20, 20));
         borderColor.setOpaque(true);
         borderColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        lblBorderStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderStyle.text_1")); // NOI18N
+        lblBorderStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderStyle.text")); // NOI18N
 
-        lblUpColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblUpColor.text_1")); // NOI18N
+        lblUpColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblUpColor.text")); // NOI18N
         lblUpColor.setPreferredSize(new java.awt.Dimension(45, 20));
 
-        upColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.upColor.text_1")); // NOI18N
+        upColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.upColor.text")); // NOI18N
         upColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         upColor.setMaximumSize(new java.awt.Dimension(20, 20));
         upColor.setMinimumSize(new java.awt.Dimension(20, 20));
         upColor.setOpaque(true);
         upColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        lblDownColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDownColor.text_1")); // NOI18N
+        lblDownColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDownColor.text")); // NOI18N
         lblDownColor.setPreferredSize(new java.awt.Dimension(45, 20));
 
-        downColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.downColor.text_1")); // NOI18N
+        downColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.downColor.text")); // NOI18N
         downColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         downColor.setMaximumSize(new java.awt.Dimension(20, 20));
         downColor.setMinimumSize(new java.awt.Dimension(20, 20));
         downColor.setOpaque(true);
         downColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        lblGrid.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblGrid.text_1")); // NOI18N
+        lblGrid.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblGrid.text")); // NOI18N
 
-        lblHColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHColor.text_1")); // NOI18N
+        lblHColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHColor.text")); // NOI18N
         lblHColor.setPreferredSize(new java.awt.Dimension(102, 20));
 
-        lblHStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHStyle.text_1")); // NOI18N
+        lblHStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHStyle.text")); // NOI18N
 
-        lblHVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHVisibility.text_1")); // NOI18N
+        lblHVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblHVisibility.text")); // NOI18N
         lblHVisibility.setPreferredSize(new java.awt.Dimension(114, 21));
 
-        lblVColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVColor.text_1")); // NOI18N
+        lblVColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVColor.text")); // NOI18N
         lblVColor.setPreferredSize(new java.awt.Dimension(89, 20));
 
-        lblVStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVStyle.text_1")); // NOI18N
+        lblVStyle.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVStyle.text")); // NOI18N
 
-        lblVVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVVisibility.text_1")); // NOI18N
+        lblVVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblVVisibility.text")); // NOI18N
         lblVVisibility.setPreferredSize(new java.awt.Dimension(101, 21));
 
-        hColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.hColor.text_1")); // NOI18N
+        hColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.hColor.text")); // NOI18N
         hColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         hColor.setMaximumSize(new java.awt.Dimension(20, 20));
         hColor.setMinimumSize(new java.awt.Dimension(20, 20));
@@ -337,9 +334,9 @@ public class ChartSettings extends javax.swing.JDialog {
 
         hVisibility.setBackground(new java.awt.Color(255, 255, 255));
         hVisibility.setSelected(true);
-        hVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.hVisibility.text_1")); // NOI18N
+        hVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.hVisibility.text")); // NOI18N
 
-        vColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.vColor.text_1")); // NOI18N
+        vColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.vColor.text")); // NOI18N
         vColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         vColor.setMaximumSize(new java.awt.Dimension(20, 20));
         vColor.setMinimumSize(new java.awt.Dimension(20, 20));
@@ -348,27 +345,27 @@ public class ChartSettings extends javax.swing.JDialog {
 
         vVisibility.setBackground(new java.awt.Color(255, 255, 255));
         vVisibility.setSelected(true);
-        vVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.vVisibility.text_1")); // NOI18N
+        vVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.vVisibility.text")); // NOI18N
 
-        lblWindow.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblWindow.text_1")); // NOI18N
+        lblWindow.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblWindow.text")); // NOI18N
 
-        lblBackground.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBackground.text_1")); // NOI18N
+        lblBackground.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBackground.text")); // NOI18N
         lblBackground.setPreferredSize(new java.awt.Dimension(88, 20));
 
-        lblFont.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblFont.text_1")); // NOI18N
+        lblFont.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblFont.text")); // NOI18N
         lblFont.setPreferredSize(new java.awt.Dimension(26, 23));
 
-        lblFontColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblFontColor.text_1")); // NOI18N
+        lblFontColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblFontColor.text")); // NOI18N
         lblFontColor.setPreferredSize(new java.awt.Dimension(54, 20));
 
-        backgroundColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.backgroundColor.text_1")); // NOI18N
+        backgroundColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.backgroundColor.text")); // NOI18N
         backgroundColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         backgroundColor.setMaximumSize(new java.awt.Dimension(20, 20));
         backgroundColor.setMinimumSize(new java.awt.Dimension(20, 20));
         backgroundColor.setOpaque(true);
         backgroundColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        fontColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.fontColor.text_1")); // NOI18N
+        fontColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.fontColor.text")); // NOI18N
         fontColor.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         fontColor.setMaximumSize(new java.awt.Dimension(20, 20));
         fontColor.setMinimumSize(new java.awt.Dimension(20, 20));
@@ -377,37 +374,37 @@ public class ChartSettings extends javax.swing.JDialog {
 
         fontChooser.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.fontChooser.text")); // NOI18N
 
-        fontValue.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.fontValue.text_1")); // NOI18N
+        fontValue.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.fontValue.text")); // NOI18N
         fontValue.setPreferredSize(new java.awt.Dimension(49, 23));
 
-        btnCancel.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnCancel.text_1")); // NOI18N
+        btnCancel.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnCancel.text")); // NOI18N
 
-        btnReset.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnReset.text_1")); // NOI18N
+        btnReset.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnReset.text")); // NOI18N
 
-        btnApply.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnApply.text_1")); // NOI18N
+        btnApply.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnApply.text")); // NOI18N
 
-        btnOk.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnOk.text_1")); // NOI18N
+        btnOk.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.btnOk.text")); // NOI18N
 
-        lblBorderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderVisibility.text_1")); // NOI18N
+        lblBorderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderVisibility.text")); // NOI18N
         lblBorderVisibility.setPreferredSize(new java.awt.Dimension(76, 21));
 
         borderVisibility.setBackground(new java.awt.Color(255, 255, 255));
         borderVisibility.setSelected(true);
-        borderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.borderVisibility.text_1")); // NOI18N
+        borderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.borderVisibility.text")); // NOI18N
 
-        lblUpVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblUpVisibility.text_1")); // NOI18N
+        lblUpVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblUpVisibility.text")); // NOI18N
         lblUpVisibility.setPreferredSize(new java.awt.Dimension(57, 21));
 
         upVisibility.setBackground(new java.awt.Color(255, 255, 255));
         upVisibility.setSelected(true);
-        upVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.upVisibility.text_1")); // NOI18N
+        upVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.upVisibility.text")); // NOI18N
 
-        lblDownVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDownVisibility.text_1")); // NOI18N
+        lblDownVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDownVisibility.text")); // NOI18N
         lblDownVisibility.setPreferredSize(new java.awt.Dimension(71, 21));
 
         downVisibility.setBackground(new java.awt.Color(255, 255, 255));
         downVisibility.setSelected(true);
-        downVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.downVisibility.text_1")); // NOI18N
+        downVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.downVisibility.text")); // NOI18N
 
         axisStyle.setPreferredSize(new java.awt.Dimension(100, 20));
 
@@ -418,237 +415,246 @@ public class ChartSettings extends javax.swing.JDialog {
 
         vStyle.setPreferredSize(new java.awt.Dimension(100, 20));
 
-        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
+            mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAxis)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblAxisStyle)
-                                .addGap(18, 18, 18)
-                                .addComponent(axisStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblAxisColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(axisColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(lblDataSeries)
-                    .addComponent(lblGrid)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblHColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(hColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblHStyle)
-                                .addGap(18, 18, 18)
-                                .addComponent(hStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblHVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(hVisibility)))
-                        .addGap(31, 31, 31)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblVVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(vVisibility))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblVColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblVStyle))
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(mainPanelLayout.createSequentialGroup()
-                                        .addGap(18, 18, 18)
-                                        .addComponent(vColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(mainPanelLayout.createSequentialGroup()
-                                        .addGap(18, 18, 18)
-                                        .addComponent(vStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addGap(183, 183, 183))
-                    .addComponent(lblWindow)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblFont, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(80, 80, 80)
-                                .addComponent(fontChooser, 0, 0, Short.MAX_VALUE))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblBackground, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(backgroundColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addComponent(lblFontColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(fontColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fontValue, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblBorderVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblBorderColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblBarWidth)
-                            .addComponent(lblBorderStyle))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(borderColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(barWidth, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(borderStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(borderVisibility))
-                        .addGap(64, 64, 64)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(lblDownColor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(mainPanelLayout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(lblDownVisibility, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addComponent(lblUpColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblUpVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(upVisibility)
-                            .addComponent(downColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(downVisibility)
-                            .addComponent(upColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                        .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                        .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                        .addGroup(mainPanelLayout.createSequentialGroup()
-                            .addComponent(btnOk)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnApply)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnReset)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnCancel))))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(lblAxis)
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(lblAxisStyle)
+                                        .add(18, 18, 18)
+                                        .add(axisStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(lblAxisColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(18, 18, 18)
+                                        .add(axisColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(lblDataSeries)
+                            .add(lblGrid)
+                            .add(lblWindow)
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(lblFont, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(80, 80, 80)
+                                        .add(fontChooser, 0, 0, Short.MAX_VALUE))
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(lblBackground, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(18, 18, 18)
+                                        .add(backgroundColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(lblFontColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(fontColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(fontValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 389, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(lblBorderVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(lblBorderColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(lblBarWidth)
+                                    .add(lblBorderStyle))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(borderColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(barWidth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(borderVisibility)
+                                    .add(borderStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(33, 33, 33)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                        .add(lblDownColor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(mainPanelLayout.createSequentialGroup()
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(lblDownVisibility, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .add(lblUpColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(lblUpVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(upVisibility)
+                                    .add(downColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(downVisibility)
+                                    .add(upColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(jSeparator4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                            .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                            .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanelLayout.createSequentialGroup()
+                                .add(btnOk)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnApply)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnReset)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnCancel)))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(10, 10, 10)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(lblHColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(18, 18, 18)
+                                .add(hColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(lblHStyle)
+                                .add(18, 18, 18)
+                                .add(hStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(lblHVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(hVisibility)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 60, Short.MAX_VALUE)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(lblVVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(vVisibility))
+                            .add(mainPanelLayout.createSequentialGroup()
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(lblVColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(lblVStyle))
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(18, 18, 18)
+                                        .add(vColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(mainPanelLayout.createSequentialGroup()
+                                        .add(18, 18, 18)
+                                        .add(vStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                        .add(46, 46, 46))))
         );
         mainPanelLayout.setVerticalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
+            mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblAxis)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(axisColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblAxisColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(lblAxisStyle)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblDataSeries))
-                    .addComponent(axisStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblBarWidth)
-                            .addComponent(barWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(12, 12, 12)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lblBorderColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(borderColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lblUpColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(upColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(upVisibility)
-                            .addComponent(lblUpVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblBorderStyle)
-                            .addComponent(lblDownColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(9, 9, 9))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(downColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(borderStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
-                        .addComponent(borderVisibility)
-                        .addGap(53, 53, 53)
-                        .addComponent(lblGrid))
-                    .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblDownVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(downVisibility))
-                    .addComponent(lblBorderVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblHColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblVColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(vColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblHStyle)
-                        .addComponent(lblVStyle))
-                    .addComponent(hStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(vStyle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblHVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hVisibility)
-                    .addComponent(lblVVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(vVisibility))
-                .addGap(18, 18, 18)
-                .addComponent(lblWindow)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblBackground, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(backgroundColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFont, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(fontChooser)
-                        .addComponent(fontValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFontColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fontColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCancel)
-                    .addComponent(btnReset)
-                    .addComponent(btnApply)
-                    .addComponent(btnOk))
+                .add(lblAxis)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(axisColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(lblAxisColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(lblAxisStyle)
+                        .add(18, 18, 18)
+                        .add(lblDataSeries))
+                    .add(axisStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(lblBarWidth)
+                            .add(barWidth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(12, 12, 12)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(lblBorderColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(borderColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(lblUpColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(upColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(upVisibility)
+                            .add(lblUpVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(lblBorderStyle)
+                            .add(lblDownColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(9, 9, 9))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(downColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(borderStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)))
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(borderVisibility)
+                        .add(53, 53, 53)
+                        .add(lblGrid))
+                    .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(lblDownVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(downVisibility))
+                    .add(lblBorderVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(lblHColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(hColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(8, 8, 8)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(lblHStyle)
+                            .add(hStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(hVisibility)
+                            .add(lblHVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lblWindow))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(lblVColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(vColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(8, 8, 8)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(lblVStyle)
+                            .add(vStyle, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(lblVVisibility, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(vVisibility))))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(lblBackground, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(backgroundColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(lblFont, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(fontChooser)
+                        .add(fontValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(lblFontColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fontColor, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 12, Short.MAX_VALUE)
+                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(btnCancel)
+                    .add(btnReset)
+                    .add(btnApply)
+                    .add(btnOk))
                 .addContainerGap())
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();

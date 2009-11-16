@@ -67,11 +67,11 @@ public class PriceAxisMarker {
         double y = point.y;
 
         GeneralPath gp = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 5);
-        gp.moveTo(x, y);
-        gp.lineTo(x + 6, y - h/2);
-        gp.lineTo(x + w + 8, y - h/2);
-        gp.lineTo(x + w + 8, y + h/2);
-        gp.lineTo(x + 6, y + h/2);
+        gp.moveTo((float) x, (float) y);
+        gp.lineTo((float) (x + 6), (float) (y - h/2));
+        gp.lineTo((float) (x + w + 8), (float) (y - h/2));
+        gp.lineTo((float) (x + w + 8), (float) (y + h/2));
+        gp.lineTo((float) (x + 6), (float) (y + h/2));
         gp.closePath();
         g.fill(gp);
 

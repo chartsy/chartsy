@@ -13,7 +13,7 @@
     <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="true"/>
-    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
@@ -45,8 +45,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="lblIO" pref="304" max="32767" attributes="0"/>
-                      <Component id="lblSelected" pref="304" max="32767" attributes="0"/>
+                      <Component id="lblIO" alignment="0" pref="305" max="32767" attributes="0"/>
+                      <Component id="lblSelected" alignment="0" pref="305" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnAdd" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -67,8 +67,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnCancel" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="lblProperties" alignment="0" pref="413" max="32767" attributes="0"/>
-                      <Component id="lblDescriptionValue" alignment="0" pref="413" max="32767" attributes="1"/>
+                      <Component id="lblProperties" alignment="0" pref="325" max="32767" attributes="0"/>
+                      <Component id="lblDescriptionValue" alignment="0" pref="325" max="32767" attributes="1"/>
                       <Component id="lblDescription" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="scrollPane" alignment="1" max="32767" attributes="0"/>
                   </Group>
@@ -256,7 +256,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="413" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="325" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">

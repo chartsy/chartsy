@@ -1,14 +1,16 @@
 package org.chartsy.main.managers;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ServiceLoader;
+//import java.util.ServiceLoader;
 import java.util.Vector;
 import org.chartsy.main.RestoreSettings;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.XMLUtils;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -30,12 +32,16 @@ public class UpdaterManager {
 
     public void initialize() {
         updaters = new Hashtable<Object, Object>();
-        ServiceLoader<AbstractUpdater> service = ServiceLoader.load(AbstractUpdater.class);
+        Collection<? extends AbstractUpdater> list = Lookup.getDefault().lookupAll(AbstractUpdater.class);
+        for (AbstractUpdater au : list) {
+            addUpdater(au.getName(), au);
+        }
+        /*ServiceLoader<AbstractUpdater> service = ServiceLoader.load(AbstractUpdater.class);
         Iterator<AbstractUpdater> it = service.iterator();
         while (it.hasNext()) {
             AbstractUpdater au = it.next();
             addUpdater(au.getName(), au);
-        }
+        }*/
     }
 
     public void addUpdater(Object key, Object value) { updaters.put(key, value); }

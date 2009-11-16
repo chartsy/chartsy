@@ -1,9 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ServiceLoader;
+//import java.util.ServiceLoader;
 import org.chartsy.main.chartsy.chart.AbstractOverlay;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -23,12 +25,16 @@ public class OverlayManager {
 
     public void initialize() {
         overlays = new Hashtable<Object, Object>();
-        ServiceLoader<AbstractOverlay> service = ServiceLoader.load(AbstractOverlay.class);
+        Collection<? extends AbstractOverlay> list = Lookup.getDefault().lookupAll(AbstractOverlay.class);
+        for (AbstractOverlay ao : list) {
+            addOverlay(ao.getName(), ao);
+        }
+        /*ServiceLoader<AbstractOverlay> service = ServiceLoader.load(AbstractOverlay.class);
         Iterator<AbstractOverlay> it = service.iterator();
         while (it.hasNext()) {
             AbstractOverlay ao = it.next();
             addOverlay(ao.getName(), ao);
-        }
+        }*/
     }
 
     public void addOverlay(Object key, Object value) { overlays.put(key, value); }

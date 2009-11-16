@@ -1,11 +1,13 @@
 package org.chartsy.main.managers;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ServiceLoader;
+//import java.util.ServiceLoader;
 import java.util.Vector;
 import org.chartsy.main.chartsy.chart.AbstractChart;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -25,12 +27,16 @@ public class ChartManager {
 
     public void initialize() {
         charts = new Hashtable<Object, Object>();
-        ServiceLoader<AbstractChart> service = ServiceLoader.load(AbstractChart.class);
+        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
+        for (AbstractChart c : list) {
+            addChart(c.getName(), c);
+        }
+        /*ServiceLoader<AbstractChart> service = ServiceLoader.load(AbstractChart.class);
         Iterator<AbstractChart> it = service.iterator();
         while (it.hasNext()) {
             AbstractChart c = it.next();
             addChart(c.getName(), c);
-        }
+        }*/
     }
 
     public void addChart(Object key, Object value) { charts.put(key, value); }

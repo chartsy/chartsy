@@ -1,9 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ServiceLoader;
+//import java.util.ServiceLoader;
 import org.chartsy.main.chartsy.chart.AbstractIndicator;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -23,12 +25,16 @@ public class IndicatorManager {
 
     public void initialize() {
         indicators = new Hashtable<Object, Object>();
-        ServiceLoader<AbstractIndicator> service = ServiceLoader.load(AbstractIndicator.class);
+        Collection<? extends AbstractIndicator> list = Lookup.getDefault().lookupAll(AbstractIndicator.class);
+        for (AbstractIndicator ai : list) {
+            addIndicator(ai.getName(), ai);
+        }
+        /*ServiceLoader<AbstractIndicator> service = ServiceLoader.load(AbstractIndicator.class);
         Iterator<AbstractIndicator> it = service.iterator();
         while (it.hasNext()) {
             AbstractIndicator ai = it.next();
             addIndicator(ai.getName(), ai);
-        }
+        }*/
     }
 
     public void addIndicator(Object key, Object value) { indicators.put(key, value); }

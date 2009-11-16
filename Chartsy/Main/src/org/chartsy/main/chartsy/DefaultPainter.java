@@ -63,10 +63,10 @@ public final class DefaultPainter {
                 Point2D.Double p2 = cf.getChartRenderer().valueToJava2D(i, value2);
                 if (point1 != null && point2 != null) {
                     GeneralPath gp = new GeneralPath();
-                    gp.moveTo(point1.x, point1.y);
-                    gp.lineTo(p1.x, p1.y);
-                    gp.lineTo(p2.x, p2.y);
-                    gp.lineTo(point2.x, point2.y);
+                    gp.moveTo((float) point1.x, (float) point1.y);
+                    gp.lineTo((float) p1.x, (float) p1.y);
+                    gp.lineTo((float) p2.x, (float) p2.y);
+                    gp.lineTo((float) point2.x, (float) point2.y);
                     gp.closePath();
                     g.fill(gp);
                 }

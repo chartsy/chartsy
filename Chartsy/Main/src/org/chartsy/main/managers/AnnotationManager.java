@@ -1,13 +1,15 @@
 package org.chartsy.main.managers;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.ServiceLoader;
+//import java.util.ServiceLoader;
 import java.util.Vector;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractAnnotation;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -28,12 +30,16 @@ public class AnnotationManager {
 
     public void initialize() {
         annotations = new Hashtable<Object, Object>();
-        ServiceLoader<AbstractAnnotation> service = ServiceLoader.load(AbstractAnnotation.class);
+        Collection<? extends AbstractAnnotation> list = Lookup.getDefault().lookupAll(AbstractAnnotation.class);
+        for (AbstractAnnotation aa : list) {
+            addAnnotation(aa.getName(), aa);
+        }
+        /*ServiceLoader<AbstractAnnotation> service = ServiceLoader.load(AbstractAnnotation.class);
         Iterator<AbstractAnnotation> it = service.iterator();
         while (it.hasNext()) {
             AbstractAnnotation aa = it.next();
             addAnnotation(aa.getName(), aa);
-        }
+        }*/
     }
 
     public String getNewAnnotationName() { return newAnnotationName; }
@@ -57,7 +63,7 @@ public class AnnotationManager {
     }
 
     public Annotation getNewAnnotation(ChartFrame cf) {
-        if (!newAnnotationName.isEmpty()) {
+        if (!newAnnotationName.equals("")) {
             Object obj = annotations.get(newAnnotationName);
             if (obj != null && obj instanceof AbstractAnnotation) return ((AbstractAnnotation) obj).newInstance(cf);
         }

@@ -159,7 +159,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         });
     }
 
-    public void paintComponent(Graphics g) {
+    public void paint(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
@@ -196,6 +196,10 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             setFocusable(true);
             requestFocusInWindow();
         }
+    }
+
+    public void update(Graphics g) {
+        paint(g);
     }
 
     public ChartFrame getChartFrame() { return chartFrame; }

@@ -2,10 +2,10 @@ package org.chartsy.main.intro;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
-import java.net.URL;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
@@ -13,29 +13,33 @@ import javax.swing.event.HyperlinkListener;
  *
  * @author viorel.gheba
  */
-public class WebBrowser extends JPanel implements HyperlinkListener {
+public final class WebBrowser extends JPanel implements HyperlinkListener {
 
     public JPanel window_pnl;
     public JEditorPane window_edp;
     public JScrollPane window_scrl;
+    private static final String LINK = "http://www.chartsy.org/index.php?template=startpage";
 
     public WebBrowser() {
-        this.setLayout(new BorderLayout());
-        try {
-            URL url = new URL("http://www.chartsy.org/index.php?template=startpage");
-            //this.window_edp = (url.openConnection().getContentLength() > 0 ? new JEditorPane("http://www.google.com") : new JEditorPane());
-            this.window_edp = new JEditorPane("http://www.chartsy.org/index.php?template=startpage");
-            this.window_edp.setContentType("text/html; charset=UTF-8");
-            this.window_edp.setEditable(false);
-            this.window_edp.addHyperlinkListener(this);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        this.window_pnl = new JPanel(new BorderLayout());
-        this.window_scrl = new JScrollPane(this.window_edp);
-        this.window_pnl.add(this.window_scrl);
-        this.add(this.window_pnl, BorderLayout.CENTER);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                System.out.println("Starting");
+                setLayout(new BorderLayout());
+                try {
+                    System.out.println("Aquiring URL");
+                    window_edp = new JEditorPane(LINK);
+                    window_edp.setContentType("text/html");
+                    window_edp.setEditable(false);
+                    System.out.println("URL aquired");
+                    window_scrl = new JScrollPane(window_edp, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                    window_pnl = new JPanel(new BorderLayout());
+                    window_pnl.add(window_scrl, BorderLayout.CENTER);
+                    add(window_pnl, BorderLayout.CENTER);
+                } catch (IOException e) {
+                    System.err.println( "can't find URL" );
+                }
+            }
+        });
     }
 
     public WebBrowser getWebBrowser() {
