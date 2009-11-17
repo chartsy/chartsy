@@ -1,7 +1,9 @@
 package org.chartsy.main.dialogs;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import org.chartsy.main.managers.UpdaterManager;
+import org.chartsy.main.utils.Stock;
 import org.openide.windows.WindowManager;
 
 /**
@@ -17,11 +19,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
     }
 
-    public void update(final String symbol, final String time) {
+    public void update(final Stock stock, final String time) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(symbol, time);
+                    UpdaterManager.getDefault().update(stock, time);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -33,11 +35,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final Hashtable symbols) {
+    public void update(final LinkedHashMap stocks) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(symbols);
+                    UpdaterManager.getDefault().update(stocks);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -49,11 +51,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final String[] symbols) {
+    public void update(final Stock[] stocks) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(symbols);
+                    UpdaterManager.getDefault().update(stocks);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -65,11 +67,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final String symbol) {
+    public void update(final Stock stock) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(symbol);
+                    UpdaterManager.getDefault().update(stock);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -81,11 +83,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void updateIntraday(final String symbol, final String time) {
+    public void updateIntraday(final Stock stock, final String time) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().updateIntraDay(symbol, time);
+                    UpdaterManager.getDefault().updateIntraDay(stock, time);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);

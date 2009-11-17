@@ -15,7 +15,7 @@ public final class DefaultTheme {
     }
 
     public static final RectangleInsets AXIS_OFFSET = new RectangleInsets(5.0, 5.0, 5.0, 5.0);
-    public static final RectangleInsets DATA_OFFSET = new RectangleInsets(20.0, 20.0, 60.0, 50.0);
+    public static final RectangleInsets DATA_OFFSET = new RectangleInsets(32.0, 20.0, 60.0, 50.0);
 
     public static final Color AXIS_COLOR = new Color(0x2e3436);
     public static final Stroke AXIS_STROKE = StrokeGenerator.getStroke(StrokeGenerator.NORMAL);

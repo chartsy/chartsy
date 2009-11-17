@@ -4,11 +4,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-//import java.util.ServiceLoader;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 import org.chartsy.main.RestoreSettings;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.updater.AbstractUpdater;
+import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
 import org.openide.util.Lookup;
 
@@ -36,12 +37,6 @@ public class UpdaterManager {
         for (AbstractUpdater au : list) {
             addUpdater(au.getName(), au);
         }
-        /*ServiceLoader<AbstractUpdater> service = ServiceLoader.load(AbstractUpdater.class);
-        Iterator<AbstractUpdater> it = service.iterator();
-        while (it.hasNext()) {
-            AbstractUpdater au = it.next();
-            addUpdater(au.getName(), au);
-        }*/
     }
 
     public void addUpdater(Object key, Object value) { updaters.put(key, value); }
@@ -80,69 +75,69 @@ public class UpdaterManager {
         return v;
     }
 
-    public void update(String symbol) {
+    public void update(Stock stock) {
         Dataset dataset;
         if (active != null) {
             for (String time : DatasetManager.LIST) {
-                dataset = active.update(symbol, time);
-                if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+                dataset = active.update(stock.getKey(), time);
+                if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
             }
         }
         setUpdate(true);
     }
 
-    public void update(String[] symbols) {
+    public void update(Stock[] stocks) {
         Dataset dataset;
         if (active != null) {
-            for (String symbol : symbols) {
+            for (Stock stock : stocks) {
                 for (String time : DatasetManager.LIST) {
-                    dataset = active.update(symbol, time);
-                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+                    dataset = active.update(stock.getKey(), time);
+                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
                 }
             }
         }
         setUpdate(true);
     }
 
-    public void update(Hashtable symbols) {
+    public void update(LinkedHashMap stocks) {
         Dataset dataset;
         if (active != null) {
-            Iterator it = symbols.keySet().iterator();
+            Iterator it = stocks.keySet().iterator();
             while (it.hasNext()) {
-                String symbol = (String) it.next();
-                String time = (String) symbols.get(symbol);
+                Stock stock = (Stock) it.next();
+                String time = (String) stocks.get(stock);
                 if (!time.contains("Min")) {
                     for (String t : DatasetManager.LIST) {
-                        dataset = active.update(symbol, t);
-                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, t), dataset);
+                        dataset = active.update(stock.getKey(), t);
+                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, t), dataset);
                     }
                 } else {
                     for (String t : DatasetManager.LIST) {
-                        dataset = active.update(symbol, t);
-                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, t), dataset);
+                        dataset = active.update(stock.getKey(), t);
+                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, t), dataset);
                     }
-                    dataset = active.updateIntraDay(symbol, time);
-                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+                    dataset = active.updateIntraDay(stock.getKey(), time);
+                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
                 }
             }
         }
         setUpdate(true);
     }
 
-    public void update(String symbol, String time) {
+    public void update(Stock stock, String time) {
         Dataset dataset;
         if (active != null) {
-            dataset = (!time.contains("Min")) ? active.update(symbol, time) : active.updateIntraDay(symbol, time);
-            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+            dataset = (!time.contains("Min")) ? active.update(stock.getKey(), time) : active.updateIntraDay(stock.getKey(), time);
+            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
         }
         setUpdate(true);
     }
 
-    public void updateIntraDay(String symbol, String time) {
+    public void updateIntraDay(Stock stock, String time) {
         Dataset dataset;
         if (active != null) {
-            dataset = active.updateIntraDay(symbol, time);
-            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+            dataset = active.updateIntraDay(stock.getKey(), time);
+            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
         }
         setUpdate(true);
     }

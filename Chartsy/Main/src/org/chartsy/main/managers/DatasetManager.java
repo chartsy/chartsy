@@ -3,6 +3,7 @@ package org.chartsy.main.managers;
 import java.util.Hashtable;
 import java.util.Iterator;
 import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.utils.Stock;
 
 /**
  *
@@ -26,11 +27,9 @@ public class DatasetManager {
 
     protected DatasetManager() {}
 
-    public void initialize() {
-        datasets = new Hashtable<Object, Object>();
-    }
+    public void initialize() { datasets = new Hashtable<Object, Object>(); }
 
-    public static String getName(String symbol, String time) { return symbol + DELIMITATOR + time; }
+    public static String getName(Stock stock, String time) { return stock.getKey() + DELIMITATOR + time; }
 
     public void addDataset(Object key, Object value) { datasets.put(key, value); }
     public void removeDataset(Object key) { datasets.remove(key); }
@@ -43,11 +42,11 @@ public class DatasetManager {
         return null;
     }
 
-    public boolean dataExists(String symbol) {
+    public boolean dataExists(Stock stock) {
         Iterator it = datasets.keySet().iterator();
         while (it.hasNext()) {
             String s = (String) it.next();
-            if (s.startsWith(symbol + DELIMITATOR)) return true;
+            if (s.startsWith(stock.getKey() + DELIMITATOR)) return true;
         }
         return false;
     }

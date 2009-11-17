@@ -68,7 +68,6 @@ public class NewChartDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        mainPanel.setBackground(new java.awt.Color(255, 255, 255));
         mainPanel.setMinimumSize(new java.awt.Dimension(400, 168));
 
         lblSymbol.setFont(new java.awt.Font("Tahoma", 1, 11));
@@ -154,12 +153,10 @@ public class NewChartDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 452, Short.MAX_VALUE)
             .add(mainPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 300, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -168,14 +165,17 @@ public class NewChartDialog extends javax.swing.JDialog {
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         this.newChart.setSymbol("");
+        this.newChart.setExchange("");
         this.newChart.setChart("");
         setVisible(false);
 }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnNewChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewChartActionPerformed
-        String symbol = txtSymbol.getText() + (lstExchange.isVisible() ? UpdaterManager.getDefault().getActiveUpdater().getSufix(lstExchange.getSelectedItem()) : "");
+        String symbol = txtSymbol.getText();
+        String exchange = (lstExchange.isVisible() ? UpdaterManager.getDefault().getActiveUpdater().getSufix(lstExchange.getSelectedItem()) : "");
         String chart = (String) lstChart.getSelectedItem();
         this.newChart.setSymbol(symbol);
+        this.newChart.setExchange(exchange);
         this.newChart.setChart(chart);
         setVisible(false);
 }//GEN-LAST:event_btnNewChartActionPerformed

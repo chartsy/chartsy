@@ -1,13 +1,15 @@
 package org.chartsy.main;
 
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import javax.swing.JFrame;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.dialogs.LoaderDialog;
 import org.chartsy.main.managers.ChartFrameManager;
 import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.managers.UpdaterManager;
+import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.FileUtils;
+import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -30,6 +32,7 @@ public class RestoreSettings {
         String updater = XMLUtils.getActiveDataProvider();
         if (updater != null) {
             UpdaterManager.getDefault().setActiveUpdater(updater);
+            AbstractUpdater active = UpdaterManager.getDefault().getActiveUpdater();
             // restore settings
             String path = FileUtils.SaveFile(updater);
             Document document = XMLUtils.loadXMLDocument(path);
@@ -38,14 +41,14 @@ public class RestoreSettings {
                 Element root = XMLUtils.getRoot(document);
                 if (root != null) {
                     NodeList nodeList = root.getElementsByTagName("chartframe");
-                    Hashtable<Object, Object> ht = new Hashtable<Object, Object>();
-                    String[] symbols = new String[nodeList.getLength()];
+                    LinkedHashMap<Object, Object> ht = new LinkedHashMap<Object, Object>();
+                    Stock[] stocks = new Stock[nodeList.getLength()];
                     for (int i = 0; i < nodeList.getLength(); i++) {
                         Element parent = (Element) nodeList.item(i);
-                        String symbol = XMLUtils.getStringParam(parent, "symbol");
+                        Stock stock = active.getStock(XMLUtils.getStringParam(parent, "symbol"), XMLUtils.getStringParam(parent, "exchange"));
                         String time = XMLUtils.getStringParam(parent, "time");
-                        symbols[i] = symbol;
-                        ht.put(symbol, time);
+                        stocks[i] = stock;
+                        ht.put(stock, time);
                     }
                     LoaderDialog loader = new LoaderDialog(new JFrame(), true);
                     loader.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
@@ -55,25 +58,31 @@ public class RestoreSettings {
                     if (!loader.isVisible()) {
                         for (int i = 0; i < nodeList.getLength(); i++) {
                             Element parent = (Element) nodeList.item(i);
-                            String symbol = XMLUtils.getStringParam(parent, "symbol");
+                            Stock stock = active.getStock(XMLUtils.getStringParam(parent, "symbol"), XMLUtils.getStringParam(parent, "exchange"));
                             String chart = XMLUtils.getStringParam(parent, "chart");
-                            newChartFrame(symbol, chart, parent);
+                            newChartFrame(stock, chart, parent);
                         }
                     }
                 }
             }
+        } else {
+            SelectDataProvider sdp = new SelectDataProvider(new javax.swing.JFrame(), true);
+            sdp.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+            sdp.setVisible(true);
         }
     }
 
-    protected void newChartFrame(String symbol, String chart, Element parent) {
-        if (DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, DatasetManager.DAILY)) != null) {
-            ChartFrame chartFrame = new ChartFrame(symbol, chart);
+    protected void newChartFrame(Stock stock, String chart, Element parent) {
+        if (DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, DatasetManager.DAILY)) != null) {
+            ChartFrame chartFrame = new ChartFrame(stock, chart);
+            Element element = (Element) parent.getElementsByTagName("frame").item(0);
+            int tab = XMLUtils.getIntegerParam(element, "tabPosition");
             chartFrame.setID(ChartFrameManager.getDefault().getID());
             ChartFrameManager.getDefault().addChartFrame(chartFrame.preferredID(), chartFrame);
-            chartFrame.open();
+            chartFrame.openAtTabPosition(tab);
             if (chartFrame.isOpened()) chartFrame.readXMLDocument(parent);
         } else {
-            NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + symbol + " symbol.", NotifyDescriptor.ERROR_MESSAGE);
+            NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + stock.getKey() + " symbol.", NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
         }
     }

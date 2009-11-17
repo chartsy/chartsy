@@ -1,12 +1,9 @@
 package org.chartsy.main.chartsy;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -31,7 +28,6 @@ public class Marker {
     public static final int LEFT = 0;
     public static final int CENTER = 1;
     public static final int RIGHT = 2;
-    //private String text;
     private ChartFrame cf;
     private static JLabel label = new JLabel();
     private int index = -1;
@@ -49,25 +45,13 @@ public class Marker {
         cf = c;
         Font f = cf.getChartProperties().getFont();
         font = new Font(f.getName(), f.getStyle(), fontSize);
-        initialize();
-    }
-
-    private void initialize() {
-        label.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                Cursor c = new Cursor(Cursor.MOVE_CURSOR);
-            }
-            public void mouseExited(MouseEvent e) {
-                Cursor c = new Cursor(Cursor.DEFAULT_CURSOR);
-            }
-        });
     }
 
     private String addLine(String left, String right) {
         if (!right.equals(" ")) {
-            return "<tr><td width='" + width/2 + "' height='" + fontSize + "' valign='middle' align='left'>" + left + "</td><td width='" + width/2 +"' height='" + fontSize + "' valign='middle' align='right'>" + right + "</td></tr>";
+            return "<tr><td width='" + width/2 + "' height='" + fontSize + "' valign='middle' align='left'>&nbsp;" + left + "</td><td width='" + width/2 +"' height='" + fontSize + "' valign='middle' align='right'>" + right + "</td></tr>";
         } else {
-            return "<tr><td width='" + width + "' height='" + fontSize + "' valign='middle' align='left' colspan='2'>" + left + "</td></tr>";
+            return "<tr><td width='" + width + "' height='" + fontSize + "' valign='middle' align='left' colspan='2'>&nbsp;" + left + "</td></tr>";
         }
     }
 
@@ -94,6 +78,9 @@ public class Marker {
                 df.applyPattern("#,###.00");
 
                 String html = "<html><table width='" + width + "' cellpadding='0' cellspacing='0' border='0'>";
+                html += addLine(" ", " ");
+                html += addLine(" ", " ");
+                html += addLine(" ", " ");
                 // Date:
                 html += addLine("Date:", s);
                 // Open:
@@ -147,7 +134,7 @@ public class Marker {
                 html += "</table></html>";
 
                 label.setText(html);
-                label.setBounds(0, 0, width, height * hl);
+                label.setBounds(0, 35, width, height * hl);
                 label.setVerticalAlignment(SwingConstants.TOP);
                 label.setVerticalTextPosition(SwingConstants.TOP);
 
@@ -168,18 +155,20 @@ public class Marker {
     private void paintLine(Graphics2D g, String s) {
         RectangleInsets dataOffset = cf.getChartProperties().getDataOffset();
 
-        g.setPaint(lineColor);
-        g.setFont(font);
-
         Point2D.Double p = cf.getChartRenderer().valueToJava2D(index, 0);
-
-        g.draw(new Line2D.Double(p.getX(), 0, p.getX(), cf.getChartRenderer().getHeight() - dataOffset.bottom));
+        g.setFont(font);
 
         FontMetrics fm = g.getFontMetrics(font);
         int w = fm.stringWidth(s) + 2;
         int h = fm.getHeight() + 2;
         float x = (float) p.getX() + 1;
         float y = (float) fm.getAscent() + 1;
+
+        g.setPaint(fontColor);
+        g.fill(new Rectangle2D.Double(p.getX(), 0, w, h));
+
+        g.setPaint(lineColor);
+        g.draw(new Line2D.Double(p.getX(), 0, p.getX(), cf.getChartRenderer().getHeight() - dataOffset.bottom));
         g.draw(new Rectangle2D.Double(p.getX(), 0, w, h));
         g.drawString(s, x, y);
     }

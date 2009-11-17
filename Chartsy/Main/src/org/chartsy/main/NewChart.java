@@ -10,6 +10,7 @@ import org.chartsy.main.managers.ChartFrameManager;
 import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
+import org.chartsy.main.utils.Stock;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.windows.WindowManager;
@@ -21,11 +22,13 @@ import org.openide.windows.WindowManager;
 public class NewChart implements ActionListener {
 
     private String symbol = "";
+    private String exchange = "";
     private String chart = "";
 
     public NewChart() {}
 
     public void setSymbol(String symbol) { this.symbol = symbol.toUpperCase(); }
+    public void setExchange(String exchange) { this.exchange = exchange; }
     public void setChart(String chart) { this.chart = chart; }
 
     public void actionPerformed(ActionEvent e) {
@@ -38,17 +41,18 @@ public class NewChart implements ActionListener {
 
             if (!dialog.isVisible()) {
                 if (!symbol.equals("") && !chart.equals("")) {
-                    boolean exists = DatasetManager.getDefault().dataExists(symbol);
+                    Stock stock = updater.getStock(symbol, exchange);
+                    boolean exists = DatasetManager.getDefault().dataExists(stock);
                     if (!exists) {
                         LoaderDialog loader = new LoaderDialog(new JFrame(), true);
-                        loader.setLocationRelativeTo((Component) e.getSource());
-                        loader.update(symbol);
+                        loader.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+                        loader.update(stock);
                         loader.setVisible(true);
 
                         if (!loader.isVisible()) {
-                            newChartFrame(symbol, chart);
+                            newChartFrame(stock, chart);
                         }
-                    } else newChartFrame(symbol, chart);
+                    } else newChartFrame(stock, chart);
                 }
             }
         } else {
@@ -57,15 +61,16 @@ public class NewChart implements ActionListener {
         }
     }
 
-    protected void newChartFrame(String symbol, String chart) {
-        if (DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, DatasetManager.DAILY)) != null) {
-            ChartFrame chartFrame = new ChartFrame(symbol, chart);
+    protected void newChartFrame(Stock stock, String chart) {
+        if (DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, DatasetManager.DAILY)) != null) {
+            ChartFrame chartFrame = new ChartFrame(stock, chart);
             chartFrame.setID(ChartFrameManager.getDefault().getID());
             ChartFrameManager.getDefault().addChartFrame(chartFrame.preferredID(), chartFrame);
             chartFrame.open();
+            chartFrame.toFront();
             chartFrame.requestActive();
         } else {
-            NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + symbol + " symbol.", NotifyDescriptor.ERROR_MESSAGE);
+            NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + stock.getKey() + " symbol.", NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
         }
     }

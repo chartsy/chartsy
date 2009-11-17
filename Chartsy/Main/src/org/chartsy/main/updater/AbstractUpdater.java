@@ -3,6 +3,7 @@ package org.chartsy.main.updater;
 import java.util.Hashtable;
 import java.util.Vector;
 import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.utils.Stock;
 
 /**
  *
@@ -58,6 +59,7 @@ public abstract class AbstractUpdater {
     public Vector getTimes() { return times; }
     public String getSufix(Object key) { return xcg.get(key) == null ? "" : (String) xcg.get(key); }
 
+    public abstract Stock getStock(String symbol, String exchange);
     public abstract Dataset update(String symbol, String time);
     public abstract Dataset updateLastValues(String symbol, String time, Dataset dataset);
     public abstract Dataset updateIntraDay(String symbol, String time);

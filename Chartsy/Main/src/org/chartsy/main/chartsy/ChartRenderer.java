@@ -16,6 +16,7 @@ import org.chartsy.main.managers.OverlayManager;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.RectangleInsets;
+import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
 import org.openide.windows.WindowManager;
 import org.w3c.dom.Document;
@@ -53,7 +54,7 @@ public class ChartRenderer {
         barWidth = parent.getChartProperties().getBarWidth();
         axisOffset = parent.getChartProperties().getAxisOffset();
         dataOffset = parent.getChartProperties().getDataOffset();
-        mainDataset = DatasetManager.getDefault().getDataset(DatasetManager.getName(parent.getSymbol(), parent.getTime()));
+        mainDataset = DatasetManager.getDefault().getDataset(DatasetManager.getName(parent.getStock(), parent.getTime()));
         visibleDataset = null;
         chartRange = mainDataset != null ? new Range(mainDataset.getMin(), mainDataset.getMax()) : new Range();
     }
@@ -62,18 +63,18 @@ public class ChartRenderer {
 
     public String getTime() { return parent.getTime(); }
     public Dataset getMainDataset() { return mainDataset; }
-    public void setMainDataset(String symbol, String time) {
+    public void setMainDataset(Stock stock, String time) {
         Dataset d;
-        d = DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, time));
+        d = DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, time));
         if (d != null) {
             setMainDataset(d, true);
         } else {
             LoaderDialog loader = new LoaderDialog(new JFrame(), true);
             loader.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-            loader.updateIntraday(symbol, time);
+            loader.updateIntraday(stock, time);
             loader.setVisible(true);
             if (!loader.isVisible()) {
-                d = DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, time));
+                d = DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, time));
                 setMainDataset(d, true);
             }
         }
@@ -142,22 +143,22 @@ public class ChartRenderer {
         LineMetrics lm = parent.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
         g.setPaint(parent.getChartProperties().getAxisColor());
         g.setFont(parent.getChartProperties().getFont());
-        if (!parent.getChartProperties().getMarkerVisibility()) {
-            if (overlays.length > 0) {
-                StringBuilder sb = new StringBuilder();
-                String d = ", ";
-                for (Overlay o : overlays) {
-                    String label = o.getLabel();
-                    sb.append(label + d);
-                }
-                sb.delete(sb.length() - d.length(), sb.length());
-                g.drawString(sb.toString(), (float) parent.getChartProperties().getDataOffset().left, lm.getAscent());
+        int h = (int) lm.getHeight();
+        if (overlays.length > 0) {
+            StringBuilder sb = new StringBuilder();
+            String d = ", ";
+            for (Overlay o : overlays) {
+                String label = o.getLabel();
+                sb.append(label + d);
             }
+            sb.delete(sb.length() - d.length(), sb.length());
+            g.drawString(sb.toString(), (float) parent.getChartProperties().getDataOffset().left, lm.getAscent() + h);
         }
 
-        Font font = new Font(parent.getChartProperties().getFont().getName(), Font.PLAIN, 12);
+        Font font = new Font(parent.getChartProperties().getFont().getName(), Font.BOLD, 12);
         g.setFont(font);
-        g.drawString("Chartsy.org \u00a9 2009 MrSwing bvba (" + parent.getTime() + ")", (float) parent.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
+        g.drawString(parent.getStock().getKey() + " - " + parent.getStock().getCompanyName() + " (" + parent.getTime() + ")", (float) parent.getChartProperties().getDataOffset().left, lm.getAscent());
+        g.drawString("Chartsy.org \u00a9 2009 MrSwing bvba", (float) parent.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
     }
 
     public Range getChartRange() { return chartRange; }

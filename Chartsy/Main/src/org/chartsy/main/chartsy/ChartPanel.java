@@ -43,6 +43,7 @@ import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.XMLUtils;
 import org.netbeans.api.print.PrintManager;
+import org.netbeans.spi.print.PrintPage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -51,7 +52,7 @@ import org.w3c.dom.NodeList;
  *
  * @author viorel.gheba
  */
-public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, Printable {
+public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, Printable, PrintPage {
 
     public static final int NONE = 0;
     public static final int NEWANNOTATION = 1;

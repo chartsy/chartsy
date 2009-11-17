@@ -1,7 +1,7 @@
 package org.chartsy.main.chartsy;
 
-import java.awt.Adjustable;
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -9,6 +9,7 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.JScrollBar;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.SwingUtilities;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.managers.ChartFrameManager;
@@ -16,8 +17,10 @@ import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
+import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,15 +30,13 @@ import org.w3c.dom.Element;
  */
 public class ChartFrame extends TopComponent implements AdjustmentListener, XMLUtils.ToXML {
 
-    private String symbol;
+    private Stock stock;
     private String chartName;
     private String time;
     private String id;
     private boolean forced = false;
     
     private AbstractChart chart;
-    private AbstractUpdater active;
-
     private ChartToolbar chartToolbar;
     private ChartPanel chartPanel;
     private ChartProperties chartProperties;
@@ -46,15 +47,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
 
     public ChartFrame() {}
 
-    public ChartFrame(String symbol, String chart) {
-        this(symbol, chart, null);
+    public ChartFrame(Stock stock, String chart) {
+        this(stock, chart, null);
     }
 
-    public ChartFrame(String s, String c, String displayName) {
-        symbol = s;
+    public ChartFrame(Stock s, String c, String displayName) {
+        stock = s;
         chartName = c;
-        active = UpdaterManager.getDefault().getActiveUpdater();
-        setDisplayName(displayName == null ? symbol + " Chart" : displayName);
+        setDisplayName(displayName == null ? stock.getKey() + " Chart" : displayName);
         initComponents();
     }
 
@@ -82,15 +82,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
     public void setForced(boolean b) { forced = b; }
     public boolean isForced() { return forced; }
 
-    public String getSymbol() { return symbol; }
-    public void setSymbol(String s) { symbol = s; }
+    public Stock getStock() { return stock; }
+    public void setStock(Stock s) { stock = s; }
 
     public void setChart(String name) { chartName = name; chart = ChartManager.getDefault().getChart(chartName); chartPanel.repaint(); }
     public AbstractChart getChart() { return chart; }
     public void paintChart(Graphics2D g) { if (chart != null) chart.paint(g, this); }
 
     public String getTime() { return time; }
-    public void setTime(String t) { time = t; chartRenderer.setMainDataset(symbol, time); chartPanel.repaint(); }
+    public void setTime(String t) { time = t; chartRenderer.setMainDataset(stock, time); chartPanel.repaint(); }
 
     public ChartToolbar getChartToolbar() { return chartToolbar; }
     public ChartPanel getChartPanel() { return chartPanel; }
@@ -170,12 +170,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
     public void writeXMLDocument(Document document, Element parent) {
         Element element;
         element = document.createElement("symbol");
-        parent.appendChild(XMLUtils.setStringParam(element, getSymbol()));
+        parent.appendChild(XMLUtils.setStringParam(element, getStock().getSymbol()));
+        element = document.createElement("exchange");
+        parent.appendChild(XMLUtils.setStringParam(element, getStock().getExchange()));
         element = document.createElement("time");
         parent.appendChild(XMLUtils.setStringParam(element, getTime()));
         element = document.createElement("chart");
         parent.appendChild(XMLUtils.setStringParam(element, getChart().getName()));
         element = document.createElement("frame");
+        setPosition(document, element);
         parent.appendChild(element);
         element = document.createElement("properties");
         getChartProperties().writeXMLDocument(document, element);
@@ -191,6 +194,19 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
         parent.appendChild(element);
     }
 
+    private void setPosition(Document document, Element parent) {
+        Element element;
+        element = document.createElement("tabPosition");
+        parent.appendChild(XMLUtils.setIntegerParam(element, getTabPosition()));
+        element = document.createElement("docked");
+        parent.appendChild(XMLUtils.setBooleanParam(element, isDocked()));
+    }
+
+    private boolean isDocked() {
+        Frame frame = WindowManager.getDefault().getMainWindow();
+        return (isOpened() && frame.equals(SwingUtilities.getWindowAncestor(this)));
+    }
+
     class PeriodTimer extends TimerTask {
         public void run() {
             AbstractUpdater ac = UpdaterManager.getDefault().getActiveUpdater();
@@ -199,18 +215,18 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
                 Dataset dataset;
                 switch (intraDay) {
                     case 0:
-                        dataset = ac.updateLastValues(symbol, DatasetManager.DAILY, DatasetManager.getDefault().getDataset(DatasetManager.getName(symbol, DatasetManager.DAILY)));
+                        dataset = ac.updateLastValues(stock.getKey(), DatasetManager.DAILY, DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, DatasetManager.DAILY)));
                         if (dataset != null) {
-                            DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, DatasetManager.DAILY), dataset);
+                            DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, DatasetManager.DAILY), dataset);
                             if (time.equals(DatasetManager.DAILY)) {
                                 getChartRenderer().setMainDataset(dataset, false);
                             }
                         }
                         break;
                     case 1:
-                        dataset = ac.updateIntraDayLastValues(symbol, time, getChartRenderer().getMainDataset());
+                        dataset = ac.updateIntraDayLastValues(stock.getKey(), time, getChartRenderer().getMainDataset());
                         if (dataset != null) {
-                            DatasetManager.getDefault().addDataset(DatasetManager.getName(symbol, time), dataset);
+                            DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
                             getChartRenderer().setMainDataset(dataset, false);
                         }
                         break;
