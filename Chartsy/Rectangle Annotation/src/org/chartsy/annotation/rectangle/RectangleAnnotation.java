@@ -1,6 +1,5 @@
 package org.chartsy.annotation.rectangle;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
@@ -37,18 +36,16 @@ public class RectangleAnnotation extends Annotation {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        Color borderColor = getChartFrame().getChartProperties().getAnnotationColor();
-        Color fillColor = new Color(borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue(), 30);
         double X1 = getXCoord(getT1()), X2 = getXCoord(getT2());
         double Y1 = getYCoord(getV1()), Y2 = getYCoord(getV2());
         Rectangle r = new Rectangle(); r.setFrameFromDiagonal(X1, Y1, X2, Y2);
         g.setPaint(fillColor);
         g.fill(r);
-        g.setStroke(getChartFrame().getChartProperties().getAnnotationStroke());
-        g.setPaint(borderColor);
+        g.setStroke(stroke);
+        g.setPaint(color);
         g.draw(r);
         g.setStroke(old);
-        if (isSelected ()) paintInflectionPoints(g);
+        if (isSelected()) paintInflectionPoints(g);
     }
 
     public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
