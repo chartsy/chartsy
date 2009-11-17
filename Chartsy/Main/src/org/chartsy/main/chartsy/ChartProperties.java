@@ -132,10 +132,7 @@ public class ChartProperties implements XMLUtils.ToXML {
     public void setFontColor(Color color) { this.fontColor = color; }
 
     public Color getAnnotationColor() { return this.annotationColor; }
-    public void setAnnotationColor(Color color) { this.annotationColor = color; }
-
     public Stroke getAnnotationStroke() { return this.annotationStroke; }
-    public void setAnnotationStroke(Stroke stroke) { this.annotationStroke = stroke; }
 
     public void readXMLDocument(Element parent) {
         setAxisColor(XMLUtils.getColorParam(parent, "axisColor"));
@@ -157,8 +154,6 @@ public class ChartProperties implements XMLUtils.ToXML {
         setBackgroundColor(XMLUtils.getColorParam(parent, "background"));
         setFont(XMLUtils.getFontParam(parent, "font"));
         setFontColor(XMLUtils.getColorParam(parent, "fontColor"));
-        setAnnotationColor(XMLUtils.getColorParam(parent, "annotationColor"));
-        setAnnotationStroke(XMLUtils.getStrokeParam(parent, "annotationStroke"));
     }
 
     public void writeXMLDocument(Document document, Element parent) {
@@ -220,12 +215,6 @@ public class ChartProperties implements XMLUtils.ToXML {
 
         element = document.createElement("fontColor");
         parent.appendChild(XMLUtils.setColorParam(element, getFontColor()));
-
-        element = document.createElement("annotationColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getAnnotationColor()));
-
-        element = document.createElement("annotationStroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getAnnotationStroke()));
     }
 
 }

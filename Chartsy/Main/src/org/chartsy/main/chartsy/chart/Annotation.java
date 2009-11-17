@@ -612,6 +612,9 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     protected void readFromXMLDocument(Element parent) {
         setIntraDay(XMLUtils.getIntegerParam(parent, "intraDay"));
         setAreaIndex(XMLUtils.getIntegerParam(parent, "areaIndex"));
+        setColor(XMLUtils.getColorParam(parent, "color"));
+        setFillColor(XMLUtils.getColorParam(parent, "color"));
+        setStroke(XMLUtils.getStrokeParam(parent, "stroke"));
         Element element = XMLUtils.getAnnotationsParam(parent, "coords");
         setT1(Long.parseLong(element.getAttribute("t1")));
         setT2(Long.parseLong(element.getAttribute("t2")));
@@ -625,8 +628,10 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         parent.appendChild(XMLUtils.setStringParam(element, name));
         element = document.createElement("intraDay");
         parent.appendChild(XMLUtils.setIntegerParam(element, isIntraDay()));
-        //element = document.createElement("bounds");
-        //parent.appendChild(XMLUtils.setBoundsParam(element, getBounds()));
+        element = document.createElement("color");
+        parent.appendChild(XMLUtils.setColorParam(element, getColor()));
+        element = document.createElement("stroke");
+        parent.appendChild(XMLUtils.setStrokeParam(element, getStroke()));
         element = document.createElement("areaIndex");
         parent.appendChild(XMLUtils.setIntegerParam(element, getAreaIndex()));
         element = document.createElement("coords");
