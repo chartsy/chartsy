@@ -2,6 +2,7 @@ package org.chartsy.main.utils;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -151,6 +152,13 @@ public final class XMLUtils {
         element.setAttribute("sizevalue", Integer.toString(value.getSize()));
         return element;
     }
+    public static Element setRectangleParam(Element element, Rectangle value) {
+        element.setAttribute("x", Integer.toString((int) value.getMinX()));
+        element.setAttribute("y", Integer.toString((int) value.getMinY()));
+        element.setAttribute("width", Integer.toString((int) value.getWidth()));
+        element.setAttribute("height", Integer.toString((int) value.getHeight()));
+        return element;
+    }
     public static Element setBoundsParam(Element element, Rectangle2D.Double value) {
         element.setAttribute("x", Double.toString(value.getMinX()));
         element.setAttribute("y", Double.toString(value.getMinY()));
@@ -224,6 +232,13 @@ public final class XMLUtils {
             new Font(element.getAttribute("stringvalue"),
             Integer.parseInt(element.getAttribute("stylevalue")),
             Integer.parseInt(element.getAttribute("sizevalue")));
+    }
+    public static Rectangle getRectangleParam(Element parent, String name) {
+        Element element = (Element) parent.getElementsByTagName(name).item(0);
+        return new Rectangle(Integer.parseInt(element.getAttribute("x")),
+                Integer.parseInt(element.getAttribute("y")),
+                Integer.parseInt(element.getAttribute("width")),
+                Integer.parseInt(element.getAttribute("height")));
     }
     public static Rectangle2D.Double getBoundsParam(Element parent, String name) {
         Element element = (Element) parent.getElementsByTagName(name).item(0);

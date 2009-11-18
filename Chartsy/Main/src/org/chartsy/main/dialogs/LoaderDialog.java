@@ -1,6 +1,5 @@
 package org.chartsy.main.dialogs;
 
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.utils.Stock;
@@ -106,7 +105,6 @@ public class LoaderDialog extends javax.swing.JDialog {
         mainPanel = new javax.swing.JPanel();
         lblLogo = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
-        lblUpdate = new javax.swing.JLabel();
         lblUpdate1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -119,9 +117,6 @@ public class LoaderDialog extends javax.swing.JDialog {
         lblLogo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         progressBar.setIndeterminate(true);
-
-        lblUpdate.setText(org.openide.util.NbBundle.getMessage(LoaderDialog.class, "LoaderDialog.lblUpdate.text")); // NOI18N
-        lblUpdate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         lblUpdate1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblUpdate1.setText(org.openide.util.NbBundle.getMessage(LoaderDialog.class, "LoaderDialog.lblUpdate1.text")); // NOI18N
@@ -138,11 +133,6 @@ public class LoaderDialog extends javax.swing.JDialog {
                     .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
                     .add(lblUpdate1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
                 .addContainerGap())
-            .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(mainPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(lblUpdate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                    .addContainerGap()))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -154,11 +144,6 @@ public class LoaderDialog extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(lblUpdate1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(mainPanelLayout.createSequentialGroup()
-                    .add(144, 144, 144)
-                    .add(lblUpdate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(43, Short.MAX_VALUE)))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -194,7 +179,6 @@ public class LoaderDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblLogo;
-    private javax.swing.JLabel lblUpdate;
     private javax.swing.JLabel lblUpdate1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JProgressBar progressBar;

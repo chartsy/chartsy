@@ -10,10 +10,10 @@ import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import javax.swing.JColorChooser;
 import org.chartsy.main.chartsy.ChartFrame;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.utils.DefaultTheme;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -26,7 +26,8 @@ public class ChartSettings extends javax.swing.JDialog {
     public ChartSettings(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        parent.setIconImage(IconUtils.getDefault().getMainIcon());
+        setTitle("Chart Settings");
     }
 
     public void initializeForm(final ChartFrame cf) {
@@ -253,8 +254,6 @@ public class ChartSettings extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        mainPanel.setBackground(new java.awt.Color(255, 255, 255));
-
         lblAxis.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxis.text")); // NOI18N
 
         lblAxisColor.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxisColor.text")); // NOI18N
@@ -332,7 +331,6 @@ public class ChartSettings extends javax.swing.JDialog {
         hColor.setOpaque(true);
         hColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        hVisibility.setBackground(new java.awt.Color(255, 255, 255));
         hVisibility.setSelected(true);
         hVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.hVisibility.text")); // NOI18N
 
@@ -343,7 +341,6 @@ public class ChartSettings extends javax.swing.JDialog {
         vColor.setOpaque(true);
         vColor.setPreferredSize(new java.awt.Dimension(20, 20));
 
-        vVisibility.setBackground(new java.awt.Color(255, 255, 255));
         vVisibility.setSelected(true);
         vVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.vVisibility.text")); // NOI18N
 
@@ -388,21 +385,18 @@ public class ChartSettings extends javax.swing.JDialog {
         lblBorderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblBorderVisibility.text")); // NOI18N
         lblBorderVisibility.setPreferredSize(new java.awt.Dimension(76, 21));
 
-        borderVisibility.setBackground(new java.awt.Color(255, 255, 255));
         borderVisibility.setSelected(true);
         borderVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.borderVisibility.text")); // NOI18N
 
         lblUpVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblUpVisibility.text")); // NOI18N
         lblUpVisibility.setPreferredSize(new java.awt.Dimension(57, 21));
 
-        upVisibility.setBackground(new java.awt.Color(255, 255, 255));
         upVisibility.setSelected(true);
         upVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.upVisibility.text")); // NOI18N
 
         lblDownVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblDownVisibility.text")); // NOI18N
         lblDownVisibility.setPreferredSize(new java.awt.Dimension(71, 21));
 
-        downVisibility.setBackground(new java.awt.Color(255, 255, 255));
         downVisibility.setSelected(true);
         downVisibility.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.downVisibility.text")); // NOI18N
 
@@ -495,7 +489,7 @@ public class ChartSettings extends javax.swing.JDialog {
                                 .add(btnReset)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(btnCancel)))
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(11, Short.MAX_VALUE))
                     .add(mainPanelLayout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

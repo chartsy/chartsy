@@ -1,7 +1,6 @@
 package org.chartsy.main.icons;
 
 import java.awt.Image;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import org.openide.windows.WindowManager;
 
@@ -17,45 +16,20 @@ public final class IconUtils {
     public static final String GIF = ".gif";
     public static final String BMP = ".bmp";
     public static final Image mainIcon = WindowManager.getDefault().getMainWindow().getIconImage();
+    private static IconUtils instance;
+
+    public static IconUtils getDefault() {
+        if (instance == null) instance = new IconUtils();
+        return instance;
+    }
 
     private IconUtils() {
         // does nothing
     }
 
-    public static Image getMainIcon() {
-        return mainIcon;
-    }
+    public Image getMainIcon() { return mainIcon; }
 
-    public static ImageIcon getIcon(final String name) {
-        return getIcon(name, "", PNG);
-    }
-
-    public static ImageIcon getIcon(final String name, final String ext) {
-        return getIcon(name, "", ext);
-    }
-
-    public static ImageIcon getIcon(final String name, final String tooltip, final String ext) {
-        final String src = name + ext;
-        URL location = IconUtils.class.getResource(src);
-        if (location != null) {
-            return new ImageIcon(location, tooltip);
-        } else {
-            return null;
-        }
-    }
-
-    public static ImageIcon getChartIcon(final String name) {
-        return getChartIcon(name, PNG);
-    }
-
-    public static ImageIcon getChartIcon(final String name, final String ext) {
-        final String src = "charts_" + name + ext;
-        URL location = IconUtils.class.getResource(src);
-        if (location != null) {
-            return new ImageIcon(location);
-        } else {
-            return null;
-        }
-    }
+    public ImageIcon getIcon16(final String name) { return new javax.swing.ImageIcon(getClass().getResource("/org/chartsy/main/icons/" + name + "-16x16.png")); }
+    public ImageIcon getIcon24(final String name) { return new javax.swing.ImageIcon(getClass().getResource("/org/chartsy/main/icons/" + name + "-24x24.png")); }
 
 }

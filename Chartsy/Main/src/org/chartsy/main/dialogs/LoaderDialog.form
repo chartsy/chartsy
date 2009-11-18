@@ -51,13 +51,6 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lblUpdate" pref="432" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -70,13 +63,6 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="lblUpdate1" min="-2" pref="30" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
-              </Group>
-              <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="144" max="-2" attributes="0"/>
-                      <Component id="lblUpdate" min="-2" pref="30" max="-2" attributes="0"/>
-                      <EmptySpace pref="43" max="32767" attributes="0"/>
-                  </Group>
               </Group>
           </Group>
         </DimensionLayout>
@@ -97,14 +83,6 @@
         <Component class="javax.swing.JProgressBar" name="progressBar">
           <Properties>
             <Property name="indeterminate" type="boolean" value="true"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="lblUpdate">
-          <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/chartsy/main/dialogs/Bundle.properties" key="LoaderDialog.lblUpdate.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lblUpdate1">

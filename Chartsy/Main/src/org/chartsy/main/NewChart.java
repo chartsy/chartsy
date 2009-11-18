@@ -67,7 +67,6 @@ public class NewChart implements ActionListener {
             chartFrame.setID(ChartFrameManager.getDefault().getID());
             ChartFrameManager.getDefault().addChartFrame(chartFrame.preferredID(), chartFrame);
             chartFrame.open();
-            chartFrame.toFront();
             chartFrame.requestActive();
         } else {
             NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + stock.getKey() + " symbol.", NotifyDescriptor.ERROR_MESSAGE);

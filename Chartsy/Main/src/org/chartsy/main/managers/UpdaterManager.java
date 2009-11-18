@@ -11,6 +11,8 @@ import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 
 /**
@@ -151,6 +153,9 @@ public class UpdaterManager {
     }
 
     public void fireUpdaterChange(AbstractUpdater inactive) {
+        NotifyDescriptor nd = new NotifyDescriptor.Message("Your tabs are saved and will be restored when you choose " + active.getName() + " data provider.", NotifyDescriptor.INFORMATION_MESSAGE);
+        DialogDisplayer.getDefault().notify(nd);
+        
         ChartFrameManager.getDefault().saveAll(); // save settings
         ChartFrameManager.getDefault().closeAll(); // close all chart frames
         DatasetManager.getDefault().removeAll(); // remove datasets

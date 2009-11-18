@@ -2,29 +2,18 @@ package org.chartsy.main.chartsy;
 
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Vector;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import org.chartsy.main.dialogs.AnnotationProperties;
-import org.chartsy.main.icons.IconUtils;
-import org.chartsy.main.managers.AnnotationManager;
-import org.chartsy.main.managers.ChartManager;
-import org.chartsy.main.managers.UpdaterManager;
-import org.netbeans.api.print.PrintManager;
 
 /**
  *
  * @author viorel.gheba
  */
-public class ChartToolbar extends JToolBar implements ActionListener {
+public class ChartToolbar extends JToolBar {
 
     private ChartFrame parent;
     private Font font;
@@ -43,224 +32,73 @@ public class ChartToolbar extends JToolBar implements ActionListener {
     }
 
     private void initComponents() {
-        AbstractButton button = null;
+        AbstractButton button;
 
         // Zoom in button
-        button = this.getToolbarButton("zoomin", "ZOOMIN", " + ", "Zoom in");
-        this.add(button);
+        button = new JButton(MainActions.zoomIn(parent));
+        setButtonSettings(button, "Zoom In");
+        add(button);
 
         // Zoom out button
-        button = this.getToolbarButton("zoomout", "ZOOMOUT", " - ", "Zoom out");
-        this.add(button);
+        button = new JButton(MainActions.zoomOut(parent));
+        setButtonSettings(button, "Zoom Out");
+        add(button);
 
         // Chart time type
-        button = this.getToolbarButton("time", "TIMEACTION", "Time", "Time");
-        this.add(button);
+        button = new JButton(MainActions.timeMenu(parent));
+        setButtonSettings(button, "Select Time");
+        add(button);
 
         // Chart type button
-        button = this.getToolbarButton("chart", "CHARTACTION", "Chart", "Chart Type");
-        this.add(button);
+        button = new JButton(MainActions.chartMenu(parent));
+        setButtonSettings(button, "Select Chart");
+        add(button);
 
         // Indicator button
-        button = this.getToolbarButton("indicator", "ADDINDICATOR", "Add Indicators", "Add Indicators");
-        this.add(button);
+        button = new JButton(MainActions.addIndicators(parent));
+        setButtonSettings(button, "Add Indicators");
+        add(button);
 
         // Overlay button
-        button = this.getToolbarButton("overlay", "ADDOVERLAY", "Add Overlays", "Add Overlays");
-        this.add(button);
+        button = new JButton(MainActions.addOverlays(parent));
+        setButtonSettings(button, "Add Overlays");
+        add(button);
 
         // Line button
-        button = this.getToolbarButton("line", "DRAWINGS", "Draw Line", "Draw Line");
-        this.add(button);
+        button = new JButton(MainActions.annotationMenu(parent));
+        setButtonSettings(button, "Annotations");
+        add(button);
 
         // Value marker visibility button
-        button = this.getToolbarToggleButton("marker", "MARKER", "Marker", "Marker", true);
-        this.add(button);
+        button = new JToggleButton(MainActions.markerAction(parent));
+        setButtonSettings(button, "Marker");
+        button.setSelected(true);
+        add(button);
 
         // Export image button
-        button = this.getToolbarButton("image", "EXPORTIMAGE", "Export Image", "Export Image");
-        this.add(button);
+        button = new JButton(MainActions.exportImage(parent));
+        setButtonSettings(button, "Export Image");
+        add(button);
 
         // Print button
-        button = this.getPrintButton("print", "Print", "print");
-        this.add(button);
+        button = new JButton(MainActions.printChart(parent));
+        setButtonSettings(button, "Print");
+        add(button);
 
         // Settings button
-        button = this.getToolbarButton("settings", "SETTINGS", "Settings", "Settings");
-        this.add(button);
+        button = new JButton(MainActions.chartSettings(parent));
+        setButtonSettings(button, "Chart Settings");
+        add(button);
     }
 
-    private JButton getPrintButton(final String name, final String alt, final String tooltip) {
-        JButton button = new JButton();
-
-        button.setAction(PrintManager.printAction(parent.getChartPanel()));
+    private void setButtonSettings(AbstractButton button, String tooltip) {
         button.setFont(font);
-        button.setText(alt);
         button.setVerticalAlignment(SwingConstants.TOP);
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setMargin(new Insets(6,6,6,6));
         button.setBorderPainted(false);
         button.setToolTipText(tooltip);
-        if (IconUtils.getIcon(name + "-24x24") != null) {
-            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
-        }
-
-        return button;
-    }
-
-    private JButton getToolbarButton(final String name, final String action, final String alt, final String tooltip) {
-        JButton button = new JButton();
-
-        button.setFont(font);
-        button.setText(alt);
-        button.setVerticalAlignment(SwingConstants.TOP);
-        button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setMargin(new Insets(6,6,6,6));
-        button.setBorderPainted(false);
-        button.setActionCommand(action);
-        button.setToolTipText(tooltip);
-        button.addActionListener(this);
-        if (IconUtils.getIcon(name + "-24x24") != null) {
-            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
-        } else {
-            button.setText(alt);
-        }
-
-        return button;
-    }
-
-    private JToggleButton getToolbarToggleButton(final String name, final String action, final String alt, final String tooltip, final boolean def) {
-        JToggleButton button = new JToggleButton();
-
-        button.setFont(font);
-        button.setText(alt);
-        button.setVerticalAlignment(SwingConstants.TOP);
-        button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setMargin(new Insets(6,6,6,6));
-        button.setBorderPainted(false);
-        button.setActionCommand(action);
-        button.setToolTipText(tooltip);
-        button.addActionListener(this);
-        if (IconUtils.getIcon(name + "-24x24") != null) {
-            button.setIcon(IconUtils.getIcon(name + "-24x24", tooltip, IconUtils.PNG));
-        } else {
-            button.setText(alt);
-        }
-        button.setSelected(def);
-
-        return button;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        final String actionCommand = e.getActionCommand();
-        if (actionCommand.equals("CHARTACTION")) {
-            Vector list = ChartManager.getDefault().getCharts();
-
-            JButton button = (JButton)e.getSource();
-            JPopupMenu popup = new JPopupMenu();
-
-            for (int i = 0; i < list.size(); i++) {
-                final String name = (String) list.get(i);
-                JMenuItem item = new JMenuItem(name);
-                item.setMargin(new Insets(0,0,0,0));
-                item.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        MainActions.changeChartAction(parent, name);
-                    }
-                });
-                popup.add(item);
-            }
-
-            popup.show(button, 0, button.getHeight());
-        } else if (actionCommand.equals("ADDINDICATOR")) {
-            MainActions.addIndicator(parent);
-        } else if (actionCommand.equals("ADDOVERLAY")) {
-            MainActions.addOverlay(parent);
-        } else if (actionCommand.equals("DRAWINGS")) {
-            Vector list = AnnotationManager.getDefault().getAnnotations();
-
-            JButton button = (JButton)e.getSource();
-            JPopupMenu popup = new JPopupMenu();
-
-            for (int i = 0; i < list.size(); i++) {
-                final String name = (String) list.get(i);
-                JMenuItem item = new JMenuItem(name);
-                item.setMargin(new Insets(0,0,0,0));
-                item.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        MainActions.addAnnotation(parent, name);
-                    }
-                });
-                popup.add(item);
-            }
-
-            popup.addSeparator();
-
-            JMenuItem item1 = new JMenuItem("Remove All");
-            item1.setMargin(new Insets(0, 0, 0, 0));
-            item1.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    MainActions.removeAllAnnotations(parent);
-                }
-            });
-            popup.add(item1);
-
-            if (parent.getChartPanel().getCurrent() != null && parent.getChartPanel().getCurrent().isSelected()) {
-                popup.addSeparator();
-
-                JMenuItem item2 = new JMenuItem("Annotation Properties");
-                item2.setMargin(new Insets(0, 0, 0, 0));
-                item2.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        MainActions.annotationSettings(parent, parent.getChartPanel().getCurrent());
-                    }
-                });
-                popup.add(item2);
-            }
-
-            popup.show(button, 0, button.getHeight());
-        } else if (actionCommand.equals("TIMEACTION")) {
-            Vector list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
-
-            JButton button = (JButton)e.getSource();
-            JPopupMenu popup = new JPopupMenu();
-
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i) != null) {
-                    final String name = (String) list.get(i);
-                    JMenuItem item = new JMenuItem(name);
-                    item.setMargin(new Insets(0,0,0,0));
-                    item.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            MainActions.changeTimeAction(parent, name);
-                        }
-                    });
-
-                    popup.add(item);
-                } else {
-                    popup.addSeparator();
-                }
-            }
-            popup.show(button, 0, button.getHeight());
-        } else if (actionCommand.equals("ZOOMIN")) {
-            parent.getChartRenderer().zoomIn();
-        } else if (actionCommand.equals("ZOOMOUT")) {
-            parent.getChartRenderer().zoomOut();
-        } else if (actionCommand.equals("MARKER")) {
-            if (e.getSource() instanceof JToggleButton) {
-                JToggleButton button = (JToggleButton) e.getSource();
-                parent.getChartProperties().setMarkerVisibility(button.isSelected());
-                if (!button.isSelected()) parent.getMarker().setIndex(-1);
-                parent.getChartPanel().repaint();
-            }
-        } else if (actionCommand.equals("EXPORTIMAGE")) {
-            MainActions.exportImage(parent);
-        } else if (actionCommand.equals("SETTINGS")) {
-            MainActions.chartSettings(parent);
-        }
     }
 
 }

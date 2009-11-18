@@ -1,7 +1,6 @@
 package org.chartsy.main.chartsy;
 
 import java.awt.BorderLayout;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -9,7 +8,6 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.JScrollBar;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.SwingUtilities;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.managers.ChartFrameManager;
@@ -20,7 +18,6 @@ import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.Stock;
 import org.chartsy.main.utils.XMLUtils;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -81,6 +78,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
 
     public void setForced(boolean b) { forced = b; }
     public boolean isForced() { return forced; }
+    /*public void setUndocked(boolean b) { docked = b; }*/
 
     public Stock getStock() { return stock; }
     public void setStock(Stock s) { stock = s; }
@@ -198,14 +196,16 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, XMLU
         Element element;
         element = document.createElement("tabPosition");
         parent.appendChild(XMLUtils.setIntegerParam(element, getTabPosition()));
-        element = document.createElement("docked");
+        /*element = document.createElement("docked");
         parent.appendChild(XMLUtils.setBooleanParam(element, isDocked()));
+        element = document.createElement("bounds");
+        parent.appendChild(XMLUtils.setRectangleParam(element, org.openide.windows.WindowManager.getDefault().findMode(this).getBounds()));*/
     }
 
-    private boolean isDocked() {
-        Frame frame = WindowManager.getDefault().getMainWindow();
-        return (isOpened() && frame.equals(SwingUtilities.getWindowAncestor(this)));
-    }
+    /*private boolean isDocked() {
+        java.awt.Frame frame = org.openide.windows.WindowManager.getDefault().getMainWindow();
+        return (isOpened() && frame.equals(javax.swing.SwingUtilities.getWindowAncestor(this)));
+    }*/
 
     class PeriodTimer extends TimerTask {
         public void run() {

@@ -21,7 +21,7 @@ public class AnnotationProperties extends javax.swing.JDialog {
     public AnnotationProperties(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        setTitle("Annotations Properties");
+        setTitle("Annotations Settings");
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
     }
 
@@ -75,8 +75,6 @@ public class AnnotationProperties extends javax.swing.JDialog {
         btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        mainPanel.setBackground(new java.awt.Color(255, 255, 255));
 
         lblColor.setText(org.openide.util.NbBundle.getMessage(AnnotationProperties.class, "AnnotationProperties.lblColor.text")); // NOI18N
         lblColor.setPreferredSize(new java.awt.Dimension(29, 20));

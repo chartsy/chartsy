@@ -13,6 +13,7 @@ import javax.swing.ListSelectionModel;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractIndicator;
 import org.chartsy.main.chartsy.chart.Indicator;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.IndicatorManager;
 import org.openide.windows.WindowManager;
 
@@ -33,7 +34,7 @@ public class AddIndicators extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setTitle("Add Indicators");
-        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        parent.setIconImage(IconUtils.getDefault().getMainIcon());
     }
 
     public void setChartFrame(ChartFrame cf) { parent = cf; }

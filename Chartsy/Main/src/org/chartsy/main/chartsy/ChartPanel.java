@@ -8,8 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -22,7 +20,6 @@ import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
-import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.util.Vector;
 import javax.swing.JMenu;
@@ -42,8 +39,7 @@ import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.XMLUtils;
-import org.netbeans.api.print.PrintManager;
-import org.netbeans.spi.print.PrintPage;
+import org.openide.windows.WindowManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -52,7 +48,7 @@ import org.w3c.dom.NodeList;
  *
  * @author viorel.gheba
  */
-public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, Printable, PrintPage {
+public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
 
     public static final int NONE = 0;
     public static final int NEWANNOTATION = 1;
@@ -93,101 +89,70 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
     protected void initMenu() {
         menu = new JPopupMenu();
-        Vector list;
         JMenu menuitem;
         JMenuItem item;
+
+        Vector list;
+
         // Select Time
         menu.add(menuitem = new JMenu("Select Time"));
-        if (IconUtils.getIcon("time-16x16") != null) {
-            menuitem.setIcon(IconUtils.getIcon("time-16x16", "Select Time", IconUtils.PNG));
-        }
+        menuitem.setIcon(IconUtils.getDefault().getIcon16("time"));
         list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
                 final String name = (String) list.get(i);
-                JMenuItem subitem = new JMenuItem(name);
+                JMenuItem subitem = new JMenuItem(MainActions.changeTime(chartFrame, name));
+                subitem.setText(name);
                 subitem.setMargin(new Insets(0,0,0,0));
-                subitem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        MainActions.changeTimeAction(chartFrame, name);
-                    }
-                });
+                subitem.setIcon(IconUtils.getDefault().getIcon16("time"));
                 menuitem.add(subitem);
             }
         }
+        
+
         // Select Chart
         menu.add(menuitem = new JMenu("Select Chart"));
-        if (IconUtils.getIcon("chart-16x16") != null) {
-            menuitem.setIcon(IconUtils.getIcon("chart-16x16", "Select Chart", IconUtils.PNG));
-        }
+        menuitem.setIcon(IconUtils.getDefault().getIcon24("chart"));
         list = ChartManager.getDefault().getCharts();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
                 final String name = (String) list.get(i);
-                JMenuItem subitem = new JMenuItem(name);
+                JMenuItem subitem = new JMenuItem(MainActions.changeChart(chartFrame, name));
+                subitem.setText(name);
                 subitem.setMargin(new Insets(0,0,0,0));
-                subitem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        MainActions.changeChartAction(chartFrame, name);
-                    }
-                });
                 menuitem.add(subitem);
             }
         }
+
         // Add Indicator
-        menu.add(item = new JMenuItem("Add Indicators"));
-        if (IconUtils.getIcon("indicator-16x16") != null) {
-            item.setIcon(IconUtils.getIcon("indicator-16x16", "Add Indicators", IconUtils.PNG));
-        }
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                MainActions.addIndicator(chartFrame);
-            }
-        });
+        menu.add(item = new JMenuItem(MainActions.addIndicators(chartFrame)));
+        item.setText("Add Indicators");
+        item.setIcon(IconUtils.getDefault().getIcon16("indicator"));
+
         // Add Overlay
-        menu.add(item = new JMenuItem("Add Overlays"));
-        if (IconUtils.getIcon("overlay-16x16") != null) {
-            item.setIcon(IconUtils.getIcon("overlay-16x16", "Add Overlays", IconUtils.PNG));
-        }
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                MainActions.addOverlay(chartFrame);
-            }
-        });
+        menu.add(item = new JMenuItem(MainActions.addOverlays(chartFrame)));
+        item.setText("Add Overlays");
+        item.setIcon(IconUtils.getDefault().getIcon16("overlay"));
+
         // Export Image
-        menu.add(item = new JMenuItem("Export Image"));
-        if (IconUtils.getIcon("image-16x16") != null) {
-            item.setIcon(IconUtils.getIcon("image-16x16", "Export Image", IconUtils.PNG));
-        }
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                MainActions.exportImage(chartFrame);
-            }
-        });
+        menu.add(item = new JMenuItem(MainActions.exportImage(chartFrame)));
+        item.setText("Export Image");
+        item.setIcon(IconUtils.getDefault().getIcon16("image"));
+
         // Print
-        menu.add(item = new JMenuItem());
-        item.setAction(PrintManager.printAction(this));
+        menu.add(item = new JMenuItem(MainActions.printChart(chartFrame)));
         item.setText("Print");
-        if (IconUtils.getIcon("print-16x16") != null) {
-            item.setIcon(IconUtils.getIcon("print-16x16", "Print", IconUtils.PNG));
-        }
+        item.setIcon(IconUtils.getDefault().getIcon16("print"));
+
         // Settings
-        menu.add(item = new JMenuItem("Settings"));
-        if (IconUtils.getIcon("settings-16x16") != null) {
-            item.setIcon(IconUtils.getIcon("settings-16x16", "Settings", IconUtils.PNG));
-        }
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                MainActions.chartSettings(chartFrame);
-            }
-        });
+        menu.add(item = new JMenuItem(MainActions.chartSettings(chartFrame)));
+        item.setText("Settings");
+        item.setIcon(IconUtils.getDefault().getIcon16("settings"));
+
+        // Annotation Settings
         if (current != null && current.isSelected()) {
-            menu.add(item = new JMenuItem("Annotation Settings"));
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    MainActions.annotationSettings(chartFrame, current);
-                }
-            });
+            menu.add(item = new JMenuItem(MainActions.annotationSettings(chartFrame, current)));
+            item.setText("Annotation Settings");
         }
     }
 
@@ -230,9 +195,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         }
     }
 
-    public void update(Graphics g) {
-        paint(g);
-    }
+    public void update(Graphics g) { paint(g); }
 
     public ChartFrame getChartFrame() { return chartFrame; }
     public void setState(int s) { state = s; }
@@ -527,19 +490,27 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                     break;
             }
         } else if (e.getButton() == MouseEvent.BUTTON3) {
-            initMenu();
-            menu.show(this, e.getX(), e.getY());
+            switch (getState()) {
+                case NONE:
+                    initMenu();
+                    menu.show(this, e.getX(), e.getY());
+                    break;
+            }
         }
     }
     public void mouseReleased(MouseEvent e) {
-        if (hasCurrent())
-            getCurrent().mouseReleased(e);
+        if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+            if (hasCurrent())
+                getCurrent().mouseReleased(e);
+        }
     }
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {}
     public void mouseDragged(MouseEvent e) {
-        if (hasCurrent())
-            getCurrent().mouseDragged(e);
+        if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+            if (hasCurrent())
+                getCurrent().mouseDragged(e);
+        }
     }
     public void mouseMoved(MouseEvent e) {}
     public void mouseWheelMoved(MouseWheelEvent e) {
@@ -626,26 +597,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         g.dispose();
 
         return image;
-    }
-
-    public int print(Graphics g, PageFormat pf, int page) throws PrinterException {
-        if (page > 0) return NO_SUCH_PAGE;
-
-        Graphics2D g2 = (Graphics2D) g;
-        g2.translate(pf.getImageableX(), pf.getImageableY());
-
-        int width = getWidth();
-        int height = getHeight();
-
-        setSize((int) pf.getImageableWidth(), (int) pf.getImageableHeight());
-        RepaintManager.currentManager(this).setDoubleBufferingEnabled(false);
-        this.paint(g2);
-        RepaintManager.currentManager(this).setDoubleBufferingEnabled(true);
-        setSize(width, height);
-
-        g2.drawRect(0, 0, (int) pf.getImageableWidth(), (int) pf.getImageableHeight());
-
-        return PAGE_EXISTS;
     }
 
 }
