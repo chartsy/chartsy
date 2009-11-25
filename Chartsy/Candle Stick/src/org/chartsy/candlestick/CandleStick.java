@@ -5,6 +5,7 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.ChartProperties;
 import org.chartsy.main.chartsy.ChartRenderer;
@@ -15,13 +16,15 @@ import org.chartsy.main.dataset.Dataset;
  *
  * @author viorel.gheba
  */
-public class CandleStick extends AbstractChart {
+public class CandleStick extends AbstractChart implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public CandleStick() { super("Candle Stick", "Description"); }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        ChartProperties cp = cf.getChartProperties();
-        ChartRenderer cr = cf.getChartRenderer();
+    public void paint(Graphics2D g, ChartFrame chartFrame) {
+        ChartProperties cp = chartFrame.getChartProperties();
+        ChartRenderer cr = chartFrame.getChartRenderer();
 
         Stroke stroke = g.getStroke();
 
