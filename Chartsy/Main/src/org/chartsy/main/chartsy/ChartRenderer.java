@@ -5,14 +5,15 @@ import java.awt.Graphics2D;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import javax.swing.JFrame;
 import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.dialogs.LoaderDialog;
-import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.managers.IndicatorManager;
 import org.chartsy.main.managers.OverlayManager;
+import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.RectangleInsets;
@@ -27,73 +28,88 @@ import org.w3c.dom.NodeList;
  *
  * @author viorel.gheba
  */
-public class ChartRenderer {
+public class ChartRenderer implements Serializable {
+
+    private static final long serialVersionUID = 101L;
     
-    private ChartFrame parent;
+    private ChartFrame chartFrame;
+    private AbstractUpdater abstractUpdater;
+    
     private Dataset mainDataset;
     private Dataset visibleDataset;
+
     private Range chartRange;
+
     private Indicator[] indicators;
     private Overlay[] overlays;
 
     private int items = -1;
     private int end = -1;
+
     private double barWidth;
     private double width;
     private double height;
     private double indicatorHeight = 200;
+    
     private RectangleInsets axisOffset;
     private RectangleInsets dataOffset;
 
-    public static ChartRenderer newInstance(ChartFrame cf) { return new ChartRenderer(cf); }
+    public static ChartRenderer newInstance(ChartFrame chartFrame) { return new ChartRenderer(chartFrame); }
 
-    private ChartRenderer(ChartFrame cf) {
-        parent = cf;
-        indicators = new Indicator[0];
-        overlays = new Overlay[0];
-        barWidth = parent.getChartProperties().getBarWidth();
-        axisOffset = parent.getChartProperties().getAxisOffset();
-        dataOffset = parent.getChartProperties().getDataOffset();
-        mainDataset = DatasetManager.getDefault().getDataset(DatasetManager.getName(parent.getStock(), parent.getTime()));
-        visibleDataset = null;
-        chartRange = mainDataset != null ? new Range(mainDataset.getMin(), mainDataset.getMax()) : new Range();
+    private ChartRenderer(ChartFrame chartFrame) {
+        this.chartFrame = chartFrame;
+        this.abstractUpdater = chartFrame.getUpdater();
+        this.mainDataset = chartFrame.getDataset();
+        this.indicators = new Indicator[0];
+        this.overlays = new Overlay[0];
+        this.barWidth = chartFrame.getChartProperties().getBarWidth();
+        this.axisOffset = chartFrame.getChartProperties().getAxisOffset();
+        this.dataOffset = chartFrame.getChartProperties().getDataOffset();
+        this.visibleDataset = null;
+        this.chartRange = null;
     }
 
-    public ChartFrame getChartFrame() { return parent; }
+    public ChartFrame getChartFrame() { return chartFrame; }
 
-    public String getTime() { return parent.getTime(); }
+    public Stock getStock() { return chartFrame.getStock(); }
+    public String getTime() { return chartFrame.getTime(); }
+
+    public void setUpdater(AbstractUpdater abstractUpdater) { this.abstractUpdater = abstractUpdater; }
+    public AbstractUpdater getUpdater() { return abstractUpdater; }
+
+    public boolean datasetExists() { return (mainDataset != null); }
+    public boolean visibleDatasetExists() { return (visibleDataset != null); }
+
     public Dataset getMainDataset() { return mainDataset; }
     public void setMainDataset(Stock stock, String time) {
-        Dataset d;
-        d = DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, time));
-        if (d != null) {
-            setMainDataset(d, true);
+        if (abstractUpdater.datasetExists(stock, time)) {
+            setMainDataset(abstractUpdater.getDataset(stock, time), true);
         } else {
             LoaderDialog loader = new LoaderDialog(new JFrame(), true);
             loader.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-            loader.updateIntraday(stock, time);
+            loader.updateIntraday(stock, time, abstractUpdater);
             loader.setVisible(true);
+            
             if (!loader.isVisible()) {
-                d = DatasetManager.getDefault().getDataset(DatasetManager.getName(stock, time));
-                setMainDataset(d, true);
+                setMainDataset(abstractUpdater.getDataset(abstractUpdater.getKey(stock, time)), true);
             }
         }
     }
-    public void setMainDataset(Dataset d, boolean init) {
-        mainDataset = d;
-        for (int i = 0; i < overlays.length; i++) { overlays[i].setDataset(d); overlays[i].calculate(); }
-        for (int i = 0; i < indicators.length; i++) { indicators[i].setDataset(d); indicators[i].calculate(); }
+    public void setMainDataset(Dataset dataset, boolean init) {
+        mainDataset = dataset;
+        for (int i = 0; i < overlays.length; i++) { overlays[i].setDataset(dataset); overlays[i].calculate(); }
+        for (int i = 0; i < indicators.length; i++) { indicators[i].setDataset(dataset); indicators[i].calculate(); }
         if (init) {
             setItems(-1);
             setEnd(-1);
         } else {
-            if (parent.getTime().contains("Min")) {
-                if (getEnd() + 1 >= d.getItemCount()) {
+            if (getTime().contains("Min")) {
+                if (getEnd() + 1 >= dataset.getItemCount()) {
                     setItems(-1);
                     setEnd(-1);
                 }
             } else {
-                if (getEnd() + 1 >= d.getItemCount()) {
+                if (getEnd() + 1 >= dataset.getItemCount()) {
                     setItems(-1);
                     setEnd(-1);
                 }
@@ -109,12 +125,11 @@ public class ChartRenderer {
     public void paintIndicators(Graphics2D g) {
         if (indicators.length > 0) {
             for (int i = 0; i < indicators.length; i++) {
-                indicators[i].paintIndicator(g, parent);
+                indicators[i].paintIndicator(g, chartFrame);
             }
         }
     }
     public void setIndicatorBounds() {
-        //calculate();
         for (int i = 0; i < indicators.length; i++) {
             Indicator ind = indicators[i];
             ind.setBounds(getIndicatorBounds(i));
@@ -127,12 +142,11 @@ public class ChartRenderer {
     public void paintOverlays(Graphics2D g) {
         if (overlays.length > 0) {
             for (int i = 0; i < overlays.length; i++) {
-                overlays[i].paintOverlay(g, parent);
+                overlays[i].paintOverlay(g, chartFrame);
             }
         }
     }
     public void setOverlaysBounds() {
-        //calculate();
         for (Overlay o : overlays) {
             o.setBounds(getChartBounds());
             o.setAxisBounds(getPriceAxisBounds());
@@ -140,9 +154,9 @@ public class ChartRenderer {
     }
 
     public void paintLabels(Graphics2D g) {
-        LineMetrics lm = parent.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
-        g.setPaint(parent.getChartProperties().getAxisColor());
-        g.setFont(parent.getChartProperties().getFont());
+        LineMetrics lm = chartFrame.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
+        g.setPaint(chartFrame.getChartProperties().getAxisColor());
+        g.setFont(chartFrame.getChartProperties().getFont());
         int h = (int) lm.getHeight();
         if (overlays.length > 0) {
             StringBuilder sb = new StringBuilder();
@@ -152,13 +166,13 @@ public class ChartRenderer {
                 sb.append(label + d);
             }
             sb.delete(sb.length() - d.length(), sb.length());
-            g.drawString(sb.toString(), (float) parent.getChartProperties().getDataOffset().left, lm.getAscent() + h);
+            g.drawString(sb.toString(), (float) chartFrame.getChartProperties().getDataOffset().left, lm.getAscent() + h);
         }
 
-        Font font = new Font(parent.getChartProperties().getFont().getName(), Font.BOLD, 12);
+        Font font = new Font(chartFrame.getChartProperties().getFont().getName(), Font.BOLD, 12);
         g.setFont(font);
-        g.drawString(parent.getStock().getKey() + " - " + parent.getStock().getCompanyName() + " (" + parent.getTime() + ")", (float) parent.getChartProperties().getDataOffset().left, lm.getAscent());
-        g.drawString("Chartsy.org \u00a9 2009 MrSwing bvba", (float) parent.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
+        g.drawString(getStock().getKey() + " - " + getStock().getCompanyName() + " (" + getTime() + ")", (float) chartFrame.getChartProperties().getDataOffset().left, lm.getAscent());
+        g.drawString("Chartsy.org \u00a9 2009 MrSwing bvba", (float) chartFrame.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
     }
 
     public Range getChartRange() { return chartRange; }
@@ -171,20 +185,20 @@ public class ChartRenderer {
     public void setHeight(double h) { height = h; }
 
     public void calculate() {
-        int w = parent.getChartPanel().getWidth();
+        int w = chartFrame.getChartPanel().getWidth();
         if (w != 0) {
             setWidth(w);
-            barWidth = parent.getChartProperties().getBarWidth();
+            barWidth = chartFrame.getChartProperties().getBarWidth();
             end = end == -1 ? mainDataset.getItemCount() : end;
             items = (int) ((width - dataOffset.left - dataOffset.right - axisOffset.left - axisOffset.right) / (barWidth + 2));
             items = items > mainDataset.getItemCount() ? mainDataset.getItemCount() : items;
             visibleDataset = mainDataset.getDrawableDataset(items, end);
             chartRange = new Range(visibleDataset.getMin(), visibleDataset.getMax());
-            for (Overlay o : overlays) chartRange = Range.combine(chartRange, o.getRange(parent));
+            for (Overlay o : overlays) chartRange = Range.combine(chartRange, o.getRange(chartFrame));
             indicatorHeight = indicators.length == 0 ? 0 : (((height / 5) * 2) / indicators.length);
-            int index = parent.getMarker().getIndex();
-            parent.getMarker().setIndex(index > items-1 ? items-1 : index);
-            parent.updateHorizontalScrollBar(end);
+            int index = chartFrame.getMarker().getIndex();
+            chartFrame.getMarker().setIndex(index > items-1 ? items-1 : index);
+            chartFrame.updateHorizontalScrollBar(end);
         }
     }
 
@@ -208,7 +222,7 @@ public class ChartRenderer {
                 return getChartRange();
             default:
                 if (indicators[areaIndex-1] != null)
-                    return indicators[areaIndex-1].getRange(parent);
+                    return indicators[areaIndex-1].getRange(chartFrame);
         }
         return null;
     }
@@ -380,22 +394,23 @@ public class ChartRenderer {
     public double valueToY(double value, Rectangle2D.Double bounds, Range range) { return CoordCalc.valueToY(this, value, bounds, range); }
 
     public void zoomIn() {
-        double newWidth = parent.getChartProperties().getBarWidth() + 1;
-        int i = (int)((items * parent.getChartProperties().getBarWidth()) / newWidth);
-        newWidth = i < 20 ? parent.getChartProperties().getBarWidth() : newWidth;
-        parent.getChartProperties().setBarWidth(newWidth);
+        double newWidth = barWidth + 1;
+        int i = (int)((items * barWidth) / newWidth);
+        newWidth = i < 20 ? barWidth : newWidth;
+        chartFrame.getChartProperties().setBarWidth(newWidth);
+        barWidth = newWidth;
         calculate();
-        parent.getChartPanel().repaint();
+        chartFrame.getChartPanel().repaint();
     }
 
     public void zoomOut() {
-        double newWidth = parent.getChartProperties().getBarWidth() - 1;
-        int i = (int)((items * parent.getChartProperties().getBarWidth()) / newWidth);
-        newWidth = i > mainDataset.getItemCount() ? parent.getChartProperties().getBarWidth() : newWidth;
-        newWidth = newWidth >= 2 ? newWidth : parent.getChartProperties().getBarWidth();
-        parent.getChartProperties().setBarWidth(newWidth);
+        double newWidth = barWidth - 1;
+        int i = (int)((items * barWidth) / newWidth);
+        newWidth = i > mainDataset.getItemCount() ? barWidth : (newWidth >= 2 ? newWidth : barWidth);
+        chartFrame.getChartProperties().setBarWidth(newWidth);
+        barWidth = newWidth;
         calculate();
-        parent.getChartPanel().repaint();
+        chartFrame.getChartPanel().repaint();
     }
 
     public void readOverlaysXMLDocument(Element parent) {

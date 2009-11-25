@@ -1,9 +1,10 @@
 package org.chartsy.main.dialogs;
 
 import java.util.LinkedHashMap;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.UpdaterManager;
+import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.Stock;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -14,15 +15,19 @@ public class LoaderDialog extends javax.swing.JDialog {
     public LoaderDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        setTitle("Updating");
-        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        try { parent.setIconImage(IconUtils.getDefault().getImage16("icon")); }
+        catch (Exception e) {}
     }
 
-    public void update(final Stock stock, final String time) {
+    public void setLabelText(String text) {
+        this.lblUpdate.setText(text);
+    }
+
+    public void update(final Stock stock, final String time, final AbstractUpdater abstractUpdater) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(stock, time);
+                    UpdaterManager.getDefault().update(stock, time, abstractUpdater);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -34,11 +39,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final LinkedHashMap stocks) {
+    public void update(final LinkedHashMap stocks, final AbstractUpdater abstractUpdater) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(stocks);
+                    UpdaterManager.getDefault().update(stocks, abstractUpdater);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -50,11 +55,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final Stock[] stocks) {
+    public void update(final Stock[] stocks, final AbstractUpdater abstractUpdater) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(stocks);
+                    UpdaterManager.getDefault().update(stocks, abstractUpdater);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -66,11 +71,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void update(final Stock stock) {
+    public void update(final Stock stock, final AbstractUpdater updater) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().update(stock);
+                    UpdaterManager.getDefault().update(stock, updater);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -82,11 +87,11 @@ public class LoaderDialog extends javax.swing.JDialog {
         t.start();
     }
 
-    public void updateIntraday(final Stock stock, final String time) {
+    public void updateIntraday(final Stock stock, final String time, final AbstractUpdater abstractUpdater) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    UpdaterManager.getDefault().updateIntraDay(stock, time);
+                    UpdaterManager.getDefault().updateIntraDay(stock, time, abstractUpdater);
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         setVisible(false);
@@ -105,9 +110,10 @@ public class LoaderDialog extends javax.swing.JDialog {
         mainPanel = new javax.swing.JPanel();
         lblLogo = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
-        lblUpdate1 = new javax.swing.JLabel();
+        lblUpdate = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(LoaderDialog.class, "LoaderDialog.title")); // NOI18N
 
         mainPanel.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -118,9 +124,9 @@ public class LoaderDialog extends javax.swing.JDialog {
 
         progressBar.setIndeterminate(true);
 
-        lblUpdate1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblUpdate1.setText(org.openide.util.NbBundle.getMessage(LoaderDialog.class, "LoaderDialog.lblUpdate1.text")); // NOI18N
-        lblUpdate1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblUpdate.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblUpdate.setText(org.openide.util.NbBundle.getMessage(LoaderDialog.class, "LoaderDialog.lblUpdate.text")); // NOI18N
+        lblUpdate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -131,7 +137,7 @@ public class LoaderDialog extends javax.swing.JDialog {
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, lblLogo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 432, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                    .add(lblUpdate1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
+                    .add(lblUpdate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -142,7 +148,7 @@ public class LoaderDialog extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(lblUpdate1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(lblUpdate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -179,7 +185,7 @@ public class LoaderDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblLogo;
-    private javax.swing.JLabel lblUpdate1;
+    private javax.swing.JLabel lblUpdate;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables

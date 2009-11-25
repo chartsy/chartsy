@@ -3,12 +3,12 @@ package org.chartsy.main.chartsy.chart;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.BitSet;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.ChartPanel;
@@ -22,7 +22,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public abstract class Annotation implements MouseListener, MouseMotionListener, XMLUtils.ToXML {
+public abstract class Annotation implements MouseListener, MouseMotionListener, XMLUtils.ToXML, Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final int NO = 0;
     public static final int YES = 1;
@@ -62,19 +64,20 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     protected boolean active;
     protected boolean selected;
 
-    protected ChartFrame cf;
+    protected transient ChartFrame cf;
     protected int areaIndex;
     protected Range range;
-    protected Rectangle2D.Double bounds;
+    protected transient Rectangle2D.Double bounds;
+
     protected Color color;
     protected Color fillColor;
-    protected Stroke stroke;
+    protected int strokeIndex;
 
     public Annotation(ChartFrame chartFrame) {
         cf = chartFrame;
         color = cf.getChartProperties().getAnnotationColor();
         fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 30);
-        stroke = cf.getChartProperties().getAnnotationStroke();
+        strokeIndex = 0;
         active = false;
         selected = false;
         inflectionSet = new BitSet(9);
@@ -86,8 +89,8 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     public void setFillColor(Color c) { fillColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), 30); }
     public Color getFillColor() { return fillColor; }
 
-    public void setStroke(Stroke s) { stroke = s; }
-    public Stroke getStroke() { return stroke; }
+    public void setStrokeIndex(int i) { strokeIndex = i; }
+    public int getStrokeIndex() { return strokeIndex; }
 
     public String getIdentifier() { return getClass().getName(); }
 
@@ -614,7 +617,7 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         setAreaIndex(XMLUtils.getIntegerParam(parent, "areaIndex"));
         setColor(XMLUtils.getColorParam(parent, "color"));
         setFillColor(XMLUtils.getColorParam(parent, "color"));
-        setStroke(XMLUtils.getStrokeParam(parent, "stroke"));
+        //setStroke(XMLUtils.getStrokeParam(parent, "stroke"));
         Element element = XMLUtils.getAnnotationsParam(parent, "coords");
         setT1(Long.parseLong(element.getAttribute("t1")));
         setT2(Long.parseLong(element.getAttribute("t2")));
@@ -630,8 +633,8 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         parent.appendChild(XMLUtils.setIntegerParam(element, isIntraDay()));
         element = document.createElement("color");
         parent.appendChild(XMLUtils.setColorParam(element, getColor()));
-        element = document.createElement("stroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getStroke()));
+        /*element = document.createElement("stroke");
+        parent.appendChild(XMLUtils.setStrokeParam(element, getStroke()));*/
         element = document.createElement("areaIndex");
         parent.appendChild(XMLUtils.setIntegerParam(element, getAreaIndex()));
         element = document.createElement("coords");

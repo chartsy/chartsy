@@ -3,6 +3,9 @@
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="title" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+      <ResourceString bundle="org/chartsy/main/dialogs/Bundle.properties" key="LoaderDialog.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -47,7 +50,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="lblLogo" alignment="1" min="-2" pref="432" max="-2" attributes="0"/>
                       <Component id="progressBar" alignment="0" pref="432" max="32767" attributes="0"/>
-                      <Component id="lblUpdate1" alignment="0" pref="432" max="32767" attributes="0"/>
+                      <Component id="lblUpdate" alignment="0" pref="432" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -61,7 +64,7 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="progressBar" min="-2" pref="43" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="lblUpdate1" min="-2" pref="30" max="-2" attributes="0"/>
+                  <Component id="lblUpdate" min="-2" pref="30" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -85,11 +88,11 @@
             <Property name="indeterminate" type="boolean" value="true"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="lblUpdate1">
+        <Component class="javax.swing.JLabel" name="lblUpdate">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/chartsy/main/dialogs/Bundle.properties" key="LoaderDialog.lblUpdate1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/chartsy/main/dialogs/Bundle.properties" key="LoaderDialog.lblUpdate.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="horizontalTextPosition" type="int" value="0"/>
           </Properties>

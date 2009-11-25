@@ -13,8 +13,8 @@ import javax.swing.ListSelectionModel;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractOverlay;
 import org.chartsy.main.chartsy.chart.Overlay;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.OverlayManager;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -32,8 +32,8 @@ public class AddOverlays extends javax.swing.JDialog {
     public AddOverlays(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        setTitle("Add Overlays");
-        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        try { parent.setIconImage(IconUtils.getDefault().getImage16("icon")); }
+        catch (Exception e) {}
     }
 
     public void setChartFrame(ChartFrame cf) { parent = cf; }
@@ -57,7 +57,7 @@ public class AddOverlays extends javax.swing.JDialog {
         lstSelected.setListData(selectedItems);
         lstSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lstSelected.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 switch (e.getClickCount()) {
                     case 1:
                         btnAdd.setEnabled(false);
@@ -65,7 +65,7 @@ public class AddOverlays extends javax.swing.JDialog {
                         int index = lstSelected.locationToIndex(e.getPoint());
                         if (index != -1) {
                             Overlay ind = selected[index];
-                            lblDescription.setText(ind.getDescription());
+                            lblDescriptionValue.setText(ind.getDescription());
                             getPanel(ind);
                         }
                         break;
@@ -86,7 +86,7 @@ public class AddOverlays extends javax.swing.JDialog {
                         scrollPane.revalidate();
                         btnAdd.setEnabled(true);
                         btnRemove.setEnabled(false);
-                        lblDescription.setText("");
+                        lblDescriptionValue.setText("");
                         break;
                     case 2:
                         btnAdd.doClick();
@@ -105,10 +105,13 @@ public class AddOverlays extends javax.swing.JDialog {
                     for (int j = 0; j < selected.length; j++) {
                         list[j] = selected[j];
                     }
-                    list[selected.length] = ai.newInstance();
+                    Overlay ovr = ai.newInstance();
+                    list[selected.length] = ovr;
                     selected = list;
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
+                    lblDescriptionValue.setText(ovr.getDescription());
+                    getPanel(ovr);
                 }
             }
         });
@@ -135,6 +138,10 @@ public class AddOverlays extends javax.swing.JDialog {
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
                 }
+                lblDescriptionValue.setText("");
+                scrollPane.removeAll();
+                scrollPane.revalidate();
+                repaint();
             }
         });
 
@@ -165,7 +172,6 @@ public class AddOverlays extends javax.swing.JDialog {
                     selected[i].calculate();
                 }
                 parent.getChartRenderer().setOverlays(selected);
-                //parent.getChartRenderer().setOverlaysBounds();
                 parent.getChartPanel().repaint();
             }
         });
@@ -180,6 +186,7 @@ public class AddOverlays extends javax.swing.JDialog {
         scrollPane.removeAll();
         scrollPane.add(jsp, BorderLayout.CENTER);
         scrollPane.revalidate();
+        repaint();
     }
 
     public void setSelectedIndicators() {
@@ -196,10 +203,17 @@ public class AddOverlays extends javax.swing.JDialog {
         }
     }
 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         setSelectedIndicators();
         lstSelected.setListData(selectedItems);
+    }
+
+    @Override
+    public void update(Graphics g) {
+        super.update(g);
+        repaint();
     }
 
     @SuppressWarnings("unchecked")
@@ -225,6 +239,8 @@ public class AddOverlays extends javax.swing.JDialog {
         scrollPane = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.title")); // NOI18N
+        setResizable(false);
 
         lblIO.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblIO.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblIO.text")); // NOI18N
@@ -251,6 +267,9 @@ public class AddOverlays extends javax.swing.JDialog {
         lblDescriptionValue.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblDescriptionValue.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblDescriptionValue.text")); // NOI18N
         lblDescriptionValue.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblDescriptionValue.setMaximumSize(new java.awt.Dimension(325, 41));
+        lblDescriptionValue.setMinimumSize(new java.awt.Dimension(325, 41));
+        lblDescriptionValue.setPreferredSize(new java.awt.Dimension(325, 41));
 
         btnCancel.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.btnCancel.text")); // NOI18N
 
@@ -281,8 +300,8 @@ public class AddOverlays extends javax.swing.JDialog {
             .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
-                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                     .add(mainPanelLayout.createSequentialGroup()
                         .add(btnAdd)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -301,7 +320,7 @@ public class AddOverlays extends javax.swing.JDialog {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnCancel))
                     .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(lblDescription)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())

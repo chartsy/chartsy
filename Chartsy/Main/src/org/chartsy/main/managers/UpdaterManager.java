@@ -45,8 +45,10 @@ public class UpdaterManager {
     public void removeUpdater(Object key) { updaters.remove(key); }
 
     public AbstractUpdater getUpdater(Object key) {
-        Object obj = updaters.get(key);
-        if (obj != null && obj instanceof AbstractUpdater) return (AbstractUpdater) obj;
+        Collection<? extends AbstractUpdater> list = Lookup.getDefault().lookupAll(AbstractUpdater.class);
+        for (AbstractUpdater au : list) {
+            if (au.getName().equals((String) key)) return au;
+        }
         return null;
     }
 
@@ -77,69 +79,83 @@ public class UpdaterManager {
         return v;
     }
 
-    public void update(Stock stock) {
+    public void update(Stock stock, AbstractUpdater updater) {
         Dataset dataset;
-        if (active != null) {
-            for (String time : DatasetManager.LIST) {
-                dataset = active.update(stock.getKey(), time);
-                if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
-            }
-        }
-        setUpdate(true);
-    }
-
-    public void update(Stock[] stocks) {
-        Dataset dataset;
-        if (active != null) {
-            for (Stock stock : stocks) {
-                for (String time : DatasetManager.LIST) {
-                    dataset = active.update(stock.getKey(), time);
-                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
+        if (updater != null) {
+            for (String time : AbstractUpdater.LIST) {
+                dataset = updater.update(stock.getKey(), time);
+                if (dataset != null) {
+                    updater.addDataset(updater.getKey(stock, time), dataset);
                 }
             }
         }
         setUpdate(true);
     }
 
-    public void update(LinkedHashMap stocks) {
+    public void update(Stock[] stocks, AbstractUpdater abstractUpdater) {
         Dataset dataset;
-        if (active != null) {
+        if (abstractUpdater != null) {
+            for (Stock stock : stocks) {
+                for (String time : AbstractUpdater.LIST) {
+                    dataset = abstractUpdater.update(stock.getKey(), time);
+                    if (dataset != null) {
+                        abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
+                    }
+                }
+            }
+        }
+        setUpdate(true);
+    }
+
+    public void update(LinkedHashMap stocks, AbstractUpdater abstractUpdater) {
+        Dataset dataset;
+        if (abstractUpdater != null) {
             Iterator it = stocks.keySet().iterator();
             while (it.hasNext()) {
                 Stock stock = (Stock) it.next();
                 String time = (String) stocks.get(stock);
                 if (!time.contains("Min")) {
-                    for (String t : DatasetManager.LIST) {
-                        dataset = active.update(stock.getKey(), t);
-                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, t), dataset);
+                    for (String t : AbstractUpdater.LIST) {
+                        dataset = abstractUpdater.update(stock.getKey(), t);
+                        if (dataset != null) {
+                            abstractUpdater.addDataset(abstractUpdater.getKey(stock, t), dataset);
+                        }
                     }
                 } else {
-                    for (String t : DatasetManager.LIST) {
-                        dataset = active.update(stock.getKey(), t);
-                        if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, t), dataset);
+                    for (String t : AbstractUpdater.LIST) {
+                        dataset = abstractUpdater.update(stock.getKey(), t);
+                        if (dataset != null) {
+                            abstractUpdater.addDataset(abstractUpdater.getKey(stock, t), dataset);
+                        }
                     }
-                    dataset = active.updateIntraDay(stock.getKey(), time);
-                    if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
+                    dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
+                    if (dataset != null) {
+                        abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
+                    }
                 }
             }
         }
         setUpdate(true);
     }
 
-    public void update(Stock stock, String time) {
+    public void update(Stock stock, String time, AbstractUpdater abstractUpdater) {
         Dataset dataset;
-        if (active != null) {
-            dataset = (!time.contains("Min")) ? active.update(stock.getKey(), time) : active.updateIntraDay(stock.getKey(), time);
-            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
+        if (abstractUpdater != null) {
+            dataset = (!time.contains("Min")) ? abstractUpdater.update(stock.getKey(), time) : abstractUpdater.updateIntraDay(stock.getKey(), time);
+            if (dataset != null) {
+                abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
+            }
         }
         setUpdate(true);
     }
 
-    public void updateIntraDay(Stock stock, String time) {
+    public void updateIntraDay(Stock stock, String time, AbstractUpdater abstractUpdater) {
         Dataset dataset;
-        if (active != null) {
-            dataset = active.updateIntraDay(stock.getKey(), time);
-            if (dataset != null) DatasetManager.getDefault().addDataset(DatasetManager.getName(stock, time), dataset);
+        if (abstractUpdater != null) {
+            dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
+            if (dataset != null) {
+                abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
+            }
         }
         setUpdate(true);
     }
@@ -153,15 +169,15 @@ public class UpdaterManager {
     }
 
     public void fireUpdaterChange(AbstractUpdater inactive) {
-        NotifyDescriptor nd = new NotifyDescriptor.Message("Your tabs are saved and will be restored when you choose " + active.getName() + " data provider.", NotifyDescriptor.INFORMATION_MESSAGE);
-        DialogDisplayer.getDefault().notify(nd);
+        //NotifyDescriptor nd = new NotifyDescriptor.Message("Your tabs are saved and will be restored when you choose " + active.getName() + " data provider.", NotifyDescriptor.INFORMATION_MESSAGE);
+        //DialogDisplayer.getDefault().notify(nd);
         
-        ChartFrameManager.getDefault().saveAll(); // save settings
-        ChartFrameManager.getDefault().closeAll(); // close all chart frames
-        DatasetManager.getDefault().removeAll(); // remove datasets
-        active = inactive;
-        XMLUtils.setActiveDataProvider(active.getName());
-        RestoreSettings.newInstance().restore();
+        //ChartFrameManager.getDefault().saveAll(); // save settings
+        //ChartFrameManager.getDefault().closeAll(); // close all chart frames
+        //DatasetManager.getDefault().removeAll(); // remove datasets
+        //active = inactive;
+        //XMLUtils.setActiveDataProvider(active.getName());
+        //RestoreSettings.newInstance().restore();
     }
 
 }

@@ -3,18 +3,18 @@ package org.chartsy.main.chartsy;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
+import java.io.Serializable;
 import org.chartsy.main.utils.DefaultTheme;
 import org.chartsy.main.utils.RectangleInsets;
 import org.chartsy.main.utils.StrokeGenerator;
-import org.chartsy.main.utils.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  *
  * @author viorel.gheba
  */
-public class ChartProperties implements XMLUtils.ToXML {
+public class ChartProperties implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private double axisTick = DefaultTheme.AXIS_TICK;
     private double axisDateStick = DefaultTheme.AXIS_DATE_STICK;
@@ -24,13 +24,15 @@ public class ChartProperties implements XMLUtils.ToXML {
     private RectangleInsets dataOffset = DefaultTheme.DATA_OFFSET;
 
     private Color axisColor = DefaultTheme.AXIS_COLOR;
-    private Stroke axisStroke = DefaultTheme.AXIS_STROKE;
+    private int axisStrokeIndex = 0;
+    //private transient Stroke axisStroke = DefaultTheme.AXIS_STROKE;
     private boolean markerVisibility = true;
     private String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     private double barWidth = DefaultTheme.BAR_WIDTH;
     private Color barColor = DefaultTheme.BAR_COLOR;
-    private Stroke barStroke = DefaultTheme.BAR_STROKE;
+    private int barStrokeIndex = 0;
+    //private transient Stroke barStroke = DefaultTheme.BAR_STROKE;
     private boolean barVisibility = DefaultTheme.BAR_VISIBILITY;
 
     private Color barDownColor = DefaultTheme.BAR_DOWN_COLOR;
@@ -39,10 +41,12 @@ public class ChartProperties implements XMLUtils.ToXML {
     private boolean barUpVisibility = DefaultTheme.BAR_UP_VISIBILITY;
 
     private Color gridHorizontalColor = DefaultTheme.HORIZONTAL_GRID_COLOR;
-    private Stroke gridHorizontalStroke = DefaultTheme.HORIZONTAL_GRID_STROKE;
+    private int gridHorizontalStrokeIndex = 0;
+    //private transient Stroke gridHorizontalStroke = DefaultTheme.HORIZONTAL_GRID_STROKE;
     private boolean gridHorizontalVisibility = DefaultTheme.HORIZONTAL_GRID_VISIBILITY;
     private Color gridVerticalColor = DefaultTheme.VERTICAL_GRID_COLOR;
-    private Stroke gridVerticalStroke = DefaultTheme.VERTICAL_GRID_STROKE;
+    private int gridVerticalStrokeIndex = 0;
+    //private transient Stroke gridVerticalStroke = DefaultTheme.VERTICAL_GRID_STROKE;
     private boolean gridVerticalVisibility = DefaultTheme.VERTICAL_GRID_VISIBILITY;
 
     private Color backgroundColor = DefaultTheme.BACKGROUND_COLOR;
@@ -50,7 +54,7 @@ public class ChartProperties implements XMLUtils.ToXML {
     private Color fontColor = DefaultTheme.FONT_COLOR;
 
     private Color annotationColor = DefaultTheme.ANNOTATION_COLOR;
-    private Stroke annotationStroke = DefaultTheme.ANNOTATION_STROKE;
+    //private transient Stroke annotationStroke = DefaultTheme.ANNOTATION_STROKE;
 
     public static ChartProperties newInstance() {
         return new ChartProperties();
@@ -58,163 +62,208 @@ public class ChartProperties implements XMLUtils.ToXML {
 
     private ChartProperties() {}
 
-    public double getAxisTick() { return this.axisTick; }
-    public double getAxisDateStick() { return this.axisDateStick; }
-    public double getAxisPriceStick() { return this.axisPriceStick; }
-
-    public RectangleInsets getAxisOffset() { return this.axisOffset; }
-    public RectangleInsets getDataOffset() { return this.dataOffset; }
-
-    public Color getAxisColor() { return this.axisColor; }
-    public void setAxisColor(Color color) { this.axisColor = color; }
-
-    public Stroke getAxisStroke() { return this.axisStroke; }
-    public void setAxisStroke(String stroke) { this.axisStroke = StrokeGenerator.getStroke(stroke); }
-    public void setAxisStroke(Stroke stroke) { this.axisStroke = stroke; }
-
-    public void setMarkerVisibility(boolean b) { markerVisibility = b; }
-    public boolean getMarkerVisibility() { return markerVisibility; }
-
-    public String[] getMonths() { return this.months; }
-
-    public void setBarWidth(double itemWidth) { barWidth = itemWidth; }
-    public double getBarWidth() { return barWidth; }
-
-    public Color getBarColor() { return this.barColor; }
-    public void setBarColor(Color color) { this.barColor = color; }
-
-    public Stroke getBarStroke() { return this.barStroke; }
-    public void setBarStroke(String stroke) { this.barStroke = StrokeGenerator.getStroke(stroke); }
-    public void setBarStroke(Stroke stroke) { this.barStroke = stroke; }
-
-    public boolean getBarVisibility() { return this.barVisibility; }
-    public void setBarVisibility(boolean b) { this.barVisibility = b; }
-
-    public Color getBarDownColor() { return this.barDownColor; }
-    public void setBarDownColor(Color color) { this.barDownColor = color; }
-
-    public boolean getBarDownVisibility() { return this.barDownVisibility; }
-    public void setBarDownVisibility(boolean b) { this.barDownVisibility = b; }
-
-    public Color getBarUpColor() { return this.barUpColor; }
-    public void setBarUpColor(Color color) { this.barUpColor = color; }
-
-    public boolean getBarUpVisibility() { return this.barUpVisibility; }
-    public void setBarUpVisibility(boolean b) { this.barUpVisibility = b; }
-
-    public Color getGridHorizontalColor() { return this.gridHorizontalColor; }
-    public void setGridHorizontalColor(Color color) { this.gridHorizontalColor = color; }
-
-    public Stroke getGridHorizontalStroke() { return this.gridHorizontalStroke; }
-    public void setGridHorizontalStroke(String stroke) { this.gridHorizontalStroke = StrokeGenerator.getStroke(stroke); }
-    public void setGridHorizontalStroke(Stroke stroke) { this.gridHorizontalStroke = stroke; }
-
-    public boolean getGridHorizontalVisibility() { return this.gridHorizontalVisibility; }
-    public void setGridHorizontalVisibility(boolean b) { this.gridHorizontalVisibility = b; }
-
-    public Color getGridVerticalColor() { return this.gridVerticalColor; }
-    public void setGridVerticalColor(Color color) { this.gridVerticalColor = color; }
-
-    public Stroke getGridVerticalStroke() { return this.gridVerticalStroke; }
-    public void setGridVerticalStroke(String stroke) { this.gridVerticalStroke = StrokeGenerator.getStroke(stroke); }
-    public void setGridVerticalStroke(Stroke stroke) { this.gridVerticalStroke = stroke; }
-
-    public boolean getGridVerticalVisibility() { return this.gridVerticalVisibility; }
-    public void setGridVerticalVisibility(boolean b) { this.gridVerticalVisibility = b;}
-
-    public Color getBackgroundColor() { return this.backgroundColor; }
-    public void setBackgroundColor(Color color) { this.backgroundColor = color; }
-
-    public Font getFont() { return this.font; }
-    public void setFont(Font font) { this.font = font; }
-
-    public Color getFontColor() { return this.fontColor; }
-    public void setFontColor(Color color) { this.fontColor = color; }
-
-    public Color getAnnotationColor() { return this.annotationColor; }
-    public Stroke getAnnotationStroke() { return this.annotationStroke; }
-
-    public void readXMLDocument(Element parent) {
-        setAxisColor(XMLUtils.getColorParam(parent, "axisColor"));
-        setAxisStroke(XMLUtils.getStrokeParam(parent, "axisStroke"));
-        setBarWidth(XMLUtils.getDoubleParam(parent, "barWidth"));
-        setBarColor(XMLUtils.getColorParam(parent, "barColor"));
-        setBarStroke(XMLUtils.getStrokeParam(parent, "barStroke"));
-        setBarVisibility(XMLUtils.getBooleanParam(parent, "barVisibility"));
-        setBarDownColor(XMLUtils.getColorParam(parent, "downColor"));
-        setBarDownVisibility(XMLUtils.getBooleanParam(parent, "downVisibility"));
-        setBarUpColor(XMLUtils.getColorParam(parent, "upColor"));
-        setBarUpVisibility(XMLUtils.getBooleanParam(parent, "upVisibility"));
-        setGridHorizontalColor(XMLUtils.getColorParam(parent, "horizontalColor"));
-        setGridHorizontalStroke(XMLUtils.getStrokeParam(parent, "horizontalStroke"));
-        setGridHorizontalVisibility(XMLUtils.getBooleanParam(parent, "horizontalVisibility"));
-        setGridVerticalColor(XMLUtils.getColorParam(parent, "verticalColor"));
-        setGridVerticalStroke(XMLUtils.getStrokeParam(parent, "verticalStroke"));
-        setGridVerticalVisibility(XMLUtils.getBooleanParam(parent, "verticalVisibility"));
-        setBackgroundColor(XMLUtils.getColorParam(parent, "background"));
-        setFont(XMLUtils.getFontParam(parent, "font"));
-        setFontColor(XMLUtils.getColorParam(parent, "fontColor"));
+    public double getAxisTick() {
+        return this.axisTick;
     }
 
-    public void writeXMLDocument(Document document, Element parent) {
-        Element element;
+    public double getAxisDateStick() {
+        return this.axisDateStick;
+    }
 
-        element = document.createElement("axisColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getAxisColor()));
+    public double getAxisPriceStick() { 
+        return this.axisPriceStick;
+    }
 
-        element = document.createElement("axisStroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getAxisStroke()));
+    public RectangleInsets getAxisOffset() {
+        return this.axisOffset;
+    }
 
-        element = document.createElement("barWidth");
-        parent.appendChild(XMLUtils.setDoubleParam(element, getBarWidth()));
+    public RectangleInsets getDataOffset() { 
+        return this.dataOffset;
+    }
 
-        element = document.createElement("barColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getBarColor()));
+    public Color getAxisColor() {
+        return this.axisColor;
+    }
 
-        element = document.createElement("barStroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getBarStroke()));
+    public void setAxisColor(Color color) { 
+        this.axisColor = color;
+    }
 
-        element = document.createElement("barVisibility");
-        parent.appendChild(XMLUtils.setBooleanParam(element, getBarVisibility()));
+    public int getAxisStrokeIndex() {
+        return this.axisStrokeIndex;
+    }
 
-        element = document.createElement("downColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getBarDownColor()));
+    public void setAxisStrokeIndex(int i) {
+        this.axisStrokeIndex = i;
+    }
 
-        element = document.createElement("downVisibility");
-        parent.appendChild(XMLUtils.setBooleanParam(element, getBarDownVisibility()));
+    public Stroke getAxisStroke() {
+        return StrokeGenerator.getStroke(axisStrokeIndex);
+    }
 
-        element = document.createElement("upColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getBarUpColor()));
+    public void setMarkerVisibility(boolean b) {
+        markerVisibility = b;
+    }
 
-        element = document.createElement("upVisibility");
-        parent.appendChild(XMLUtils.setBooleanParam(element, getBarUpVisibility()));
+    public boolean getMarkerVisibility() { 
+        return markerVisibility;
+    }
 
-        element = document.createElement("horizontalColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getGridHorizontalColor()));
+    public String[] getMonths() { 
+        return this.months;
+    }
 
-        element = document.createElement("horizontalStroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getGridHorizontalStroke()));
+    public void setBarWidth(double itemWidth) {
+        barWidth = itemWidth;
+    }
 
-        element = document.createElement("horizontalVisibility");
-        parent.appendChild(XMLUtils.setBooleanParam(element, getGridHorizontalVisibility()));
+    public double getBarWidth() { 
+        return barWidth;
+    }
 
-        element = document.createElement("verticalColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getGridVerticalColor()));
+    public Color getBarColor() {
+        return this.barColor;
+    }
 
-        element = document.createElement("verticalStroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getGridVerticalStroke()));
+    public void setBarColor(Color color) { 
+        this.barColor = color;
+    }
 
-        element = document.createElement("verticalVisibility");
-        parent.appendChild(XMLUtils.setBooleanParam(element, getGridVerticalVisibility()));
+    public int getBarStrokeIndex() {
+        return this.barStrokeIndex;
+    }
 
-        element = document.createElement("background");
-        parent.appendChild(XMLUtils.setColorParam(element, getBackgroundColor()));
+    public void setBarStrokeIndex(int i) {
+        this.barStrokeIndex = i;
+    }
 
-        element = document.createElement("font");
-        parent.appendChild(XMLUtils.setFontParam(element, getFont()));
+    public Stroke getBarStroke() {
+        return StrokeGenerator.getStroke(barStrokeIndex);
+    }
 
-        element = document.createElement("fontColor");
-        parent.appendChild(XMLUtils.setColorParam(element, getFontColor()));
+    public boolean getBarVisibility() {
+        return this.barVisibility;
+    }
+
+    public void setBarVisibility(boolean b) { 
+        this.barVisibility = b;
+    }
+
+    public Color getBarDownColor() {
+        return this.barDownColor;
+    }
+
+    public void setBarDownColor(Color color) { 
+        this.barDownColor = color;
+    }
+
+    public boolean getBarDownVisibility() {
+        return this.barDownVisibility;
+    }
+
+    public void setBarDownVisibility(boolean b) { 
+        this.barDownVisibility = b;
+    }
+
+    public Color getBarUpColor() {
+        return this.barUpColor;
+    }
+
+    public void setBarUpColor(Color color) { 
+        this.barUpColor = color;
+    }
+
+    public boolean getBarUpVisibility() {
+        return this.barUpVisibility;
+    }
+
+    public void setBarUpVisibility(boolean b) { 
+        this.barUpVisibility = b;
+    }
+
+    public Color getGridHorizontalColor() {
+        return this.gridHorizontalColor;
+    }
+
+    public void setGridHorizontalColor(Color color) { 
+        this.gridHorizontalColor = color;
+    }
+
+    public int getGridHorizontalStrokeIndex() {
+        return this.gridHorizontalStrokeIndex;
+    }
+
+    public void setGridHorizontalStrokeIndex(int i) {
+        this.gridHorizontalStrokeIndex = i;
+    }
+
+    public Stroke getGridHorizontalStroke() {
+        return StrokeGenerator.getStroke(gridHorizontalStrokeIndex);
+    }
+
+    public boolean getGridHorizontalVisibility() {
+        return this.gridHorizontalVisibility;
+    }
+
+    public void setGridHorizontalVisibility(boolean b) { 
+        this.gridHorizontalVisibility = b;
+    }
+
+    public Color getGridVerticalColor() {
+        return this.gridVerticalColor;
+    }
+
+    public void setGridVerticalColor(Color color) { 
+        this.gridVerticalColor = color;
+    }
+
+    public int getGridVerticalStrokeIndex() {
+        return this.gridVerticalStrokeIndex;
+    }
+
+    public void setGridVerticalStrokeIndex(int i) {
+        this.gridVerticalStrokeIndex = i;
+    }
+
+    public Stroke getGridVerticalStroke() {
+        return StrokeGenerator.getStroke(gridVerticalStrokeIndex);
+    }
+
+    public boolean getGridVerticalVisibility() {
+        return this.gridVerticalVisibility;
+    }
+
+    public void setGridVerticalVisibility(boolean b) { 
+        this.gridVerticalVisibility = b;
+    }
+
+    public Color getBackgroundColor() {
+        return this.backgroundColor;
+    }
+
+    public void setBackgroundColor(Color color) { 
+        this.backgroundColor = color;
+    }
+
+    public Font getFont() {
+        return this.font;
+    }
+
+    public void setFont(Font font) { 
+        this.font = font;
+    }
+
+    public Color getFontColor() {
+        return this.fontColor;
+    }
+
+    public void setFontColor(Color color) { 
+        this.fontColor = color;
+    }
+
+    public Color getAnnotationColor() {
+        return this.annotationColor;
     }
 
 }

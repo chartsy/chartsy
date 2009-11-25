@@ -1,13 +1,13 @@
 package org.chartsy.main.dialogs;
 
 import java.awt.Color;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import javax.swing.JColorChooser;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.icons.IconUtils;
 import org.openide.windows.WindowManager;
 
 /**
@@ -21,8 +21,8 @@ public class AnnotationProperties extends javax.swing.JDialog {
     public AnnotationProperties(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        setTitle("Annotations Settings");
-        parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        try { parent.setIconImage(IconUtils.getDefault().getImage16("icon")); }
+        catch (Exception e) {}
     }
 
     public void setListener(Annotation a) {
@@ -36,7 +36,7 @@ public class AnnotationProperties extends javax.swing.JDialog {
                 getLabelColor(color, "Choose Annotation Color");
             }
         });
-        this.lineStyle.setSelectedItem(listener.getStroke());
+        this.lineStyle.setSelectedIndex(listener.getStrokeIndex());
         btnCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
@@ -60,7 +60,8 @@ public class AnnotationProperties extends javax.swing.JDialog {
     private void setSettings(ChartFrame cf) {
         listener.setColor(color.getBackground());
         listener.setFillColor(color.getBackground());
-        listener.setStroke((Stroke) lineStyle.getSelectedItem());
+        listener.setStrokeIndex(lineStyle.getSelectedIndex());
+        //listener.setStroke((Stroke) lineStyle.getSelectedItem());
         cf.getChartPanel().repaint();
     }
 
@@ -75,6 +76,8 @@ public class AnnotationProperties extends javax.swing.JDialog {
         btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(AnnotationProperties.class, "AnnotationProperties.title")); // NOI18N
+        setResizable(false);
 
         lblColor.setText(org.openide.util.NbBundle.getMessage(AnnotationProperties.class, "AnnotationProperties.lblColor.text")); // NOI18N
         lblColor.setPreferredSize(new java.awt.Dimension(29, 20));

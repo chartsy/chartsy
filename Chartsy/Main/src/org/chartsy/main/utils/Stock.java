@@ -1,10 +1,14 @@
 package org.chartsy.main.utils;
 
+import java.io.Serializable;
+
 /**
  *
  * @author viorel.gheba
  */
-public class Stock extends Object {
+public class Stock extends Object implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private String symbol;
     private String exchange;

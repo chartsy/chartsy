@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
  */
 public class ChartFrameManager {
 
-    protected static ChartFrameManager instance;
+    /*protected static ChartFrameManager instance;
     protected final String chartFrameID = "ChartFrame";
     protected Hashtable<Object, Object> chartFrames;
     protected int nr;
@@ -106,6 +106,6 @@ public class ChartFrameManager {
     public void print() {
         Iterator it = chartFrames.keySet().iterator();
         while (it.hasNext()) System.out.println(it.next().toString());
-    }
+    }*/
 
 }

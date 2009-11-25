@@ -2,7 +2,6 @@ package org.chartsy.main.dialogs;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,8 +25,8 @@ public class ChartSettings extends javax.swing.JDialog {
     public ChartSettings(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        parent.setIconImage(IconUtils.getDefault().getMainIcon());
-        setTitle("Chart Settings");
+        try { parent.setIconImage(IconUtils.getDefault().getImage16("icon")); }
+        catch(Exception e) {}
     }
 
     public void initializeForm(final ChartFrame cf) {
@@ -145,11 +144,11 @@ public class ChartSettings extends javax.swing.JDialog {
 
     private void setSettings(ChartFrame cf) {
         cf.getChartProperties().setAxisColor(this.axisColor.getBackground());
-        cf.getChartProperties().setAxisStroke((Stroke) this.axisStyle.getSelectedItem());
+        cf.getChartProperties().setAxisStrokeIndex(this.axisStyle.getSelectedIndex());
 
         cf.getChartProperties().setBarWidth(Double.parseDouble(this.barWidth.getText()));
         cf.getChartProperties().setBarColor(this.borderColor.getBackground());
-        cf.getChartProperties().setBarStroke((Stroke) this.borderStyle.getSelectedItem());
+        cf.getChartProperties().setBarStrokeIndex(this.borderStyle.getSelectedIndex());
         cf.getChartProperties().setBarVisibility(this.borderVisibility.isSelected());
         cf.getChartProperties().setBarDownColor(this.downColor.getBackground());
         cf.getChartProperties().setBarDownVisibility(this.downVisibility.isSelected());
@@ -157,10 +156,10 @@ public class ChartSettings extends javax.swing.JDialog {
         cf.getChartProperties().setBarUpVisibility(this.upVisibility.isSelected());
 
         cf.getChartProperties().setGridHorizontalColor(this.hColor.getBackground());
-        cf.getChartProperties().setGridHorizontalStroke((Stroke) this.hStyle.getSelectedItem());
+        cf.getChartProperties().setGridHorizontalStrokeIndex(this.hStyle.getSelectedIndex());
         cf.getChartProperties().setGridHorizontalVisibility(this.hVisibility.isSelected());
         cf.getChartProperties().setGridVerticalColor(this.vColor.getBackground());
-        cf.getChartProperties().setGridVerticalStroke((Stroke) this.vStyle.getSelectedItem());
+        cf.getChartProperties().setGridVerticalStrokeIndex(this.vStyle.getSelectedIndex());
         cf.getChartProperties().setGridVerticalVisibility(this.vVisibility.isSelected());
 
         cf.getChartProperties().setBackgroundColor(this.backgroundColor.getBackground());
@@ -253,6 +252,8 @@ public class ChartSettings extends javax.swing.JDialog {
         vStyle = new org.chartsy.main.utils.StrokeComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.title")); // NOI18N
+        setResizable(false);
 
         lblAxis.setText(org.openide.util.NbBundle.getMessage(ChartSettings.class, "ChartSettings.lblAxis.text")); // NOI18N
 

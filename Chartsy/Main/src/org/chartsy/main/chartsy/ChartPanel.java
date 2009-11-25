@@ -19,14 +19,12 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.print.PageFormat;
-import java.awt.print.PrinterException;
+import java.io.Serializable;
 import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.RepaintManager;
 import org.chartsy.main.chartsy.axis.DateAxis;
 import org.chartsy.main.chartsy.axis.HorizontalGrid;
 import org.chartsy.main.chartsy.axis.PriceAxis;
@@ -35,11 +33,9 @@ import org.chartsy.main.chartsy.axis.VerticalGrid;
 import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
-import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.XMLUtils;
-import org.openide.windows.WindowManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -48,7 +44,9 @@ import org.w3c.dom.NodeList;
  *
  * @author viorel.gheba
  */
-public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class ChartPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final int NONE = 0;
     public static final int NEWANNOTATION = 1;
@@ -97,7 +95,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         // Select Time
         menu.add(menuitem = new JMenu("Select Time"));
         menuitem.setIcon(IconUtils.getDefault().getIcon16("time"));
-        list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
+        list = chartFrame.getUpdater().getTimes();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
                 final String name = (String) list.get(i);
@@ -204,6 +202,12 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     public Annotation getCurrent() { return current; }
     public void setCurrent(Annotation a) { current = a; }
     public boolean hasCurrent() { return (current != null); }
+
+    public void setExtraDayAnnotations(Annotation[] annotations) { this.annotations = annotations; }
+    public Annotation[] getExtraDayAnnotations() { return this.annotations; }
+    
+    public void setIntraDayAnnotations(Annotation[] annotations) { this.intraDayAnnotations = annotations; }
+    public Annotation[] getIntraDayAnnotations() { return this.intraDayAnnotations; }
 
     public void moveDown() {
         if (current != null && current.isSelected()) {

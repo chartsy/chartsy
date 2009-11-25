@@ -18,7 +18,7 @@ public class DatasetManager {
     public static final String DELIMITATOR = "-";
 
     protected static DatasetManager instance;
-    protected Hashtable<Object, Object> datasets;
+    protected Hashtable<Object, Object> datasets = new Hashtable<Object, Object>();;
 
     public static DatasetManager getDefault() {
         if (instance == null) instance = new DatasetManager();

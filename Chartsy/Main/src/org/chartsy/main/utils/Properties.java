@@ -1,10 +1,14 @@
 package org.chartsy.main.utils;
 
+import java.io.Serializable;
+
 /**
  *
  * @author viorel.gheba
  */
-public class Properties {
+public class Properties implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private PropertyItem[] data;
 

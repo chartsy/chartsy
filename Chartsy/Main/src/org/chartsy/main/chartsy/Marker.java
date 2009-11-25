@@ -4,9 +4,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -18,12 +20,15 @@ import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.utils.RectangleInsets;
+import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class Marker {
+public class Marker implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final int LEFT = 0;
     public static final int CENTER = 1;
@@ -58,6 +63,8 @@ public class Marker {
     public void paint(Graphics2D g) {
         if (cf.getChartProperties().getMarkerVisibility()) {
             if (index != -1 && index <= cf.getChartRenderer().getItems() && index >= 0) {
+                Stroke stroke = g.getStroke();
+                g.setStroke(StrokeGenerator.getStroke(0));
                 Dataset dataset = cf.getChartRenderer().getVisibleDataset();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(dataset.getDate(index));
@@ -148,6 +155,8 @@ public class Marker {
                 label.setFont(font);
                 label.setForeground(fontColor);
                 label.paint(g);
+
+                g.setStroke(stroke);
             }
         }
     }

@@ -3,12 +3,15 @@ package org.chartsy.main.utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
+import java.io.Serializable;
 
 /**
  *
  * @author viorel.gheba
  */
-public final class DefaultTheme {
+public final class DefaultTheme implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private DefaultTheme() {
         // does nothing

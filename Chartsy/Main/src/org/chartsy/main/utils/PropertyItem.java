@@ -1,15 +1,23 @@
 package org.chartsy.main.utils;
 
+import java.io.Serializable;
+
 /**
  *
  * @author viorel.gheba
  */
-public class PropertyItem {
+public class PropertyItem implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private String name;
     private String component;
     private String[] list;
     private Object value;
+
+    public PropertyItem(String name, Object value) {
+        this(name, null, null, value);
+    }
 
     public PropertyItem(String name, String component, Object value) {
         this(name, component, null, value);

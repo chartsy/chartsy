@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
  */
 public class RestoreSettings {
     
-    public static RestoreSettings newInstance() { return new RestoreSettings(); }
+    /*public static RestoreSettings newInstance() { return new RestoreSettings(); }
 
     protected RestoreSettings() {}
 
@@ -95,16 +95,6 @@ public class RestoreSettings {
             //chartFrame.setUndocked(docked);
             chartFrame.setID(ChartFrameManager.getDefault().getID());
             ChartFrameManager.getDefault().addChartFrame(chartFrame.preferredID(), chartFrame);
-
-            /*if (!docked) {
-                UndockFrame frame = new UndockFrame();
-                frame.addTopComponent(chartFrame);
-                frame.setBounds(bounds);
-                frame.setVisible(true);
-            }*/
-
-            /*if (!docked) chartFrame.open();
-            else */
             chartFrame.openAtTabPosition(tab);
             
             if (chartFrame.isOpened()) chartFrame.readXMLDocument(parent);
@@ -112,6 +102,6 @@ public class RestoreSettings {
             NotifyDescriptor nd = new NotifyDescriptor.Message("There is no data for " + stock.getKey() + " symbol.", NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
         }
-    }
+    }*/
 
 }

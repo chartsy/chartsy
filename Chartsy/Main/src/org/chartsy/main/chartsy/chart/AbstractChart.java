@@ -1,13 +1,16 @@
 package org.chartsy.main.chartsy.chart;
 
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 
 /**
  *
  * @author viorel.gheba
  */
-public abstract class AbstractChart extends Object {
+public abstract class AbstractChart extends Object implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private String name;
     private String description;

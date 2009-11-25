@@ -1,6 +1,8 @@
 package org.chartsy.main.icons;
 
 import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import org.openide.windows.WindowManager;
 
@@ -29,6 +31,7 @@ public final class IconUtils {
 
     public Image getMainIcon() { return mainIcon; }
 
+    public Image getImage16(final String name) throws IOException { return ImageIO.read(getClass().getResource("/org/chartsy/main/icons/" + name + "-16x16.png")); }
     public ImageIcon getIcon16(final String name) { return new javax.swing.ImageIcon(getClass().getResource("/org/chartsy/main/icons/" + name + "-16x16.png")); }
     public ImageIcon getIcon24(final String name) { return new javax.swing.ImageIcon(getClass().getResource("/org/chartsy/main/icons/" + name + "-24x24.png")); }
 

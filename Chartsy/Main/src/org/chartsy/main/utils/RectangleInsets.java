@@ -1,10 +1,14 @@
 package org.chartsy.main.utils;
 
+import java.io.Serializable;
+
 /**
  *
  * @author viorel.gheba
  */
-public class RectangleInsets {
+public class RectangleInsets implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public double top;
     public double bottom;

@@ -1,5 +1,6 @@
 package org.chartsy.main.dataset;
 
+import java.io.Serializable;
 import java.util.Date;
 import org.chartsy.main.managers.LoggerManager;
 
@@ -7,7 +8,9 @@ import org.chartsy.main.managers.LoggerManager;
  *
  * @author viorel.gheba
  */
-public class DataItem {
+public class DataItem implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private Date date;
     private long time;

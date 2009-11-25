@@ -23,7 +23,7 @@ public class InitializeApplication {
     public static void initialize() {
         initializeLocalFolder();
 
-        ChartFrameManager.getDefault().initialize();
+        //ChartFrameManager.getDefault().initialize();
         ChartManager.getDefault().initialize();
         DatasetManager.getDefault().initialize();
         IndicatorManager.getDefault().initialize();
@@ -34,7 +34,7 @@ public class InitializeApplication {
 
         initializeUserFile();
 
-        restore();
+        //restore();
     }
 
     protected static void initializeLocalFolder() {
@@ -55,7 +55,7 @@ public class InitializeApplication {
         }
     }
 
-    public static void restore() { RestoreSettings.newInstance().restore(); }
-    public static void save() { ChartFrameManager.getDefault().saveAll(); }
+    //public static void restore() { RestoreSettings.newInstance().restore(); }
+    //public static void save() { ChartFrameManager.getDefault().saveAll(); }
 
 }

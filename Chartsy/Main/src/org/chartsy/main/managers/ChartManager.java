@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-//import java.util.ServiceLoader;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Vector;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.openide.util.Lookup;
@@ -16,7 +17,7 @@ import org.openide.util.Lookup;
 public class ChartManager {
 
     protected static ChartManager instance;
-    protected Hashtable<Object, Object> charts;
+    protected LinkedHashMap<Object, Object> charts;
 
     public static ChartManager getDefault() {
         if (instance == null) instance = new ChartManager();
@@ -26,32 +27,32 @@ public class ChartManager {
     protected ChartManager() {}
 
     public void initialize() {
-        charts = new Hashtable<Object, Object>();
+        charts = new LinkedHashMap<Object, Object>();
         Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
         for (AbstractChart c : list) {
             addChart(c.getName(), c);
         }
-        /*ServiceLoader<AbstractChart> service = ServiceLoader.load(AbstractChart.class);
-        Iterator<AbstractChart> it = service.iterator();
-        while (it.hasNext()) {
-            AbstractChart c = it.next();
-            addChart(c.getName(), c);
-        }*/
     }
 
     public void addChart(Object key, Object value) { charts.put(key, value); }
     public void removeChart(Object key) { charts.remove(key); }
 
     public AbstractChart getChart(Object key) {
-        Object obj = charts.get(key);
-        if (obj != null && obj instanceof AbstractChart) return (AbstractChart) obj;
+        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
+        for (AbstractChart c : list) {
+            if (c.getName().equals((String) key)) return c;
+        }
         return null;
     }
 
     public Vector getCharts() {
+        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
         Vector v = new Vector();
-        Iterator it = charts.keySet().iterator();
-        while (it.hasNext()) v.add(it.next());
+
+        for (AbstractChart c : list) {
+            v.add(c.getName());
+        }
+        
         Collections.sort(v);
         return v;
     }

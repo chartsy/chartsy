@@ -36,7 +36,7 @@ public class Installer extends ModuleInstall {
         NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you really want to exit the application?", "Exit", NotifyDescriptor.YES_NO_OPTION);
         Object retval = DialogDisplayer.getDefault().notify(d);
         if (retval.equals(NotifyDescriptor.YES_OPTION)) {
-            InitializeApplication.save();
+            //InitializeApplication.save();
             return true;
         } else {
             return false;

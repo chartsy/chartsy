@@ -1,5 +1,6 @@
 package org.chartsy.main.dataset;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -10,7 +11,9 @@ import org.chartsy.main.utils.DateCompare;
  *
  * @author viorel.gheba
  */
-public class Dataset {
+public class Dataset implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private DataItem[] data;
     private Vector<DataItem> dataItems = new Vector<DataItem>();

@@ -11,7 +11,6 @@ import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
-import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.utils.ImageExporter;
 import org.netbeans.api.print.PrintManager;
 
@@ -42,7 +41,7 @@ public class MainActions {
     public static AbstractAction timeMenu(final ChartFrame chartFrame) {
         return new AbstractAction("Time", IconUtils.getDefault().getIcon24("time")) {
             public void actionPerformed(ActionEvent e) {
-                Vector list = UpdaterManager.getDefault().getActiveUpdater().getTimes();
+                Vector list = chartFrame.getUpdater().getTimes();
 
                 javax.swing.JButton button = (javax.swing.JButton)e.getSource();
                 javax.swing.JPopupMenu popup = new javax.swing.JPopupMenu();
@@ -95,7 +94,7 @@ public class MainActions {
     public static AbstractAction changeChart(final ChartFrame chartFrame, final String name) {
         return new AbstractAction(name) {
             public void actionPerformed(ActionEvent e) {
-                if (!chartFrame.getChart().getName().equals(name)) chartFrame.setChart(name);
+                if (!chartFrame.getChart().getName().equals(name)) chartFrame.setChart(ChartManager.getDefault().getChart(name));
             }
         };
     }

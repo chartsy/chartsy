@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
@@ -19,14 +20,16 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public abstract class Indicator extends Object implements XMLUtils.ToXML {
+public abstract class Indicator extends Object implements XMLUtils.ToXML, Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     private String name;
     private String description;
     private String dialogLabel;
     private Properties properties;
-    private Rectangle2D.Double bounds;
-    private Rectangle2D.Double axisBounds;
+    private transient Rectangle2D.Double bounds;
+    private transient Rectangle2D.Double axisBounds;
     private Dataset dataset;
     private Hashtable<Object, Object> datasets;
     private int areaIndex;
