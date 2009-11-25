@@ -5,8 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -14,7 +16,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class VerticalLine extends Annotation {
+public class VerticalLine extends Annotation implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public VerticalLine(ChartFrame chartFrame) {
         super(chartFrame);
@@ -28,7 +32,7 @@ public class VerticalLine extends Annotation {
         double x = getXCoord(getT1());
         Stroke old = g.getStroke();
         g.setPaint(color);
-        g.setStroke(stroke);
+        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
         g.draw(new Line2D.Double(x, getBounds().getMinY(), x, getBounds().getMaxY()));
         g.setStroke(old);
         if (isSelected()) paintInflectionPoints(g);
