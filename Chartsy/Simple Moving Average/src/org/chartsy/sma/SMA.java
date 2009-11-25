@@ -2,6 +2,7 @@ package org.chartsy.sma;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
@@ -12,7 +13,6 @@ import org.chartsy.main.utils.ComponentGenerator;
 import org.chartsy.main.utils.Properties;
 import org.chartsy.main.utils.PropertyItem;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -20,7 +20,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class SMA extends Overlay {
+public class SMA extends Overlay implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final String PERIOD = "Period";
     public static final String PRICE = "Price";
