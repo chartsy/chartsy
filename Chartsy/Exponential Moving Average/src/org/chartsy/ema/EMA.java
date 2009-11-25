@@ -2,6 +2,7 @@ package org.chartsy.ema;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
@@ -19,7 +20,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class EMA extends Overlay {
+public class EMA extends Overlay implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final String PERIOD = "Period";
     public static final String PRICE = "Price";
