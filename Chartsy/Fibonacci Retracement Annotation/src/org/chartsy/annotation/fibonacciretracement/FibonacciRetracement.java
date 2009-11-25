@@ -1,15 +1,16 @@
 package org.chartsy.annotation.fibonacciretracement;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Line2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -17,7 +18,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class FibonacciRetracement extends Annotation {
+public class FibonacciRetracement extends Annotation implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     protected DecimalFormat df = new DecimalFormat("#,##0.00");
     protected double[] defaultLines = new double[]{38.2, 50, 61.8, 127.2, 161.8};
@@ -47,7 +50,7 @@ public class FibonacciRetracement extends Annotation {
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
         g.setPaint(color);
-        g.setStroke(stroke);
+        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
         g.setFont(font);
         double max = Math.max(getV1(), getV2());
         double min = Math.min(getV1(), getV2());
