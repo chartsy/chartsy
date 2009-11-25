@@ -6,8 +6,10 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,7 +17,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class ArrowLine extends Annotation {
+public class ArrowLine extends Annotation implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     protected double arrowPosition = 1;
     protected double arrowSize = 14;
@@ -32,7 +36,7 @@ public class ArrowLine extends Annotation {
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
         g.setPaint(color);
-        g.setStroke(stroke);
+        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
         Point2D.Double p1 = getP1();
         Point2D.Double p2 = getP2();
         g.draw(new Line2D.Double(p1, p2));
