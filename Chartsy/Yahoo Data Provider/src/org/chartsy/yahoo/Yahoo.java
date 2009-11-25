@@ -2,6 +2,7 @@ package org.chartsy.yahoo;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -29,7 +30,9 @@ import org.w3c.dom.NodeList;
  *
  * @author viorel.gheba
  */
-public class Yahoo extends AbstractUpdater {
+public class Yahoo extends AbstractUpdater implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public Yahoo() { super(UpdaterKeys.UPDATER_NAME, UpdaterKeys.EXCHANGES, UpdaterKeys.SUFIXES, UpdaterKeys.TIMES); }
 
