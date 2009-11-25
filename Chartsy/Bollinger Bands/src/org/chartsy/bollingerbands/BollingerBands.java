@@ -2,6 +2,7 @@ package org.chartsy.bollingerbands;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -21,7 +22,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class BollingerBands extends Overlay {
+public class BollingerBands extends Overlay implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public static final String STD = "# x Std. Dev.";
     public static final String PERIOD = "Period";
