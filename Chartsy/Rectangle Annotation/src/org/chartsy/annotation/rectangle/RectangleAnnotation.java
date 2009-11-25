@@ -3,8 +3,10 @@ package org.chartsy.annotation.rectangle;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -12,7 +14,9 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public class RectangleAnnotation extends Annotation {
+public class RectangleAnnotation extends Annotation implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public RectangleAnnotation(ChartFrame chartFrame) {
         super(chartFrame);
@@ -41,7 +45,7 @@ public class RectangleAnnotation extends Annotation {
         Rectangle r = new Rectangle(); r.setFrameFromDiagonal(X1, Y1, X2, Y2);
         g.setPaint(fillColor);
         g.fill(r);
-        g.setStroke(stroke);
+        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
         g.setPaint(color);
         g.draw(r);
         g.setStroke(old);
