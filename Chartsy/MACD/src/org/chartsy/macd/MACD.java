@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -13,46 +14,25 @@ import org.chartsy.main.chartsy.DefaultPainter;
 import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.dataset.DataItem;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.utils.ComponentGenerator;
-import org.chartsy.main.utils.Properties;
-import org.chartsy.main.utils.PropertyItem;
 import org.chartsy.main.utils.Range;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public class MACD extends Indicator {
+public class MACD extends Indicator implements Serializable {
 
-    public static final String FAST = "Fast";
-    public static final String SLOW = "Slow";
-    public static final String SMOOTH = "Smooth";
-    public static final String LABEL = "Label";
-    public static final String MARKER = "Marker";
-    public static final String ZERO_COLOR = "Zero Line Color";
-    public static final String ZERO_STYLE = "Zero Line Style";
-    public static final String ZERO_VISIBILITY = "Zero Line Visibility";
-    public static final String HISTOGRAM_COLOR = "Histogram Color";
-    public static final String SIGNAL_COLOR = "Signal Color";
-    public static final String SIGNAL_STYLE = "Signal Style";
-    public static final String MACD_COLOR = "MACD Color";
-    public static final String MACD_STYLE = "MACD Style";
+    private static final long serialVersionUID = 101L;
     public static final String MACD = "macd";
     public static final String SIGNAL = "signal";
     public static final String HISTOGRAM = "histogram";
+
+    private IndicatorProperties properties = new IndicatorProperties();
     
     public MACD() { super("MACD", "Description", "MACD"); }
 
-    public String getLabel() {
-        if (getProperties() == null) {
-            return getDialogLabel();
-        } else {
-            String fast = getStringParam(FAST); String slow = getStringParam(SLOW); String smooth = getStringParam(SMOOTH); String label = getStringParam(LABEL);
-            return label + "(" + fast + ", " + slow + ", " + smooth + ")";
-        }
-    }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getFast() + ", " + properties.getSlow() + ", " + properties.getSmooth() + ")"; }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
         LinkedHashMap ht = new LinkedHashMap();
@@ -87,32 +67,12 @@ public class MACD extends Indicator {
         return null;
     }
 
-    public void initialize() {
-        PropertyItem[] data = new PropertyItem[] {
-            new PropertyItem(FAST, ComponentGenerator.JTEXTFIELD, "12"),
-            new PropertyItem(SLOW, ComponentGenerator.JTEXTFIELD, "26"),
-            new PropertyItem(SMOOTH, ComponentGenerator.JTEXTFIELD, "9"),
-            new PropertyItem(LABEL, ComponentGenerator.JTEXTFIELD, "MACD"),
-            new PropertyItem(MARKER, ComponentGenerator.JCHECKBOX, Boolean.TRUE),
-            new PropertyItem(ZERO_COLOR, ComponentGenerator.JLABEL, new Color(0xeeeeec)),
-            new PropertyItem(ZERO_STYLE, ComponentGenerator.JSTROKECOMBOBOX, "0"),
-            new PropertyItem(ZERO_VISIBILITY, ComponentGenerator.JCHECKBOX, Boolean.TRUE),
-            new PropertyItem(HISTOGRAM_COLOR, ComponentGenerator.JLABEL, new Color(0x204a87)),
-            new PropertyItem(SIGNAL_COLOR, ComponentGenerator.JLABEL, new Color(0x5c3566)),
-            new PropertyItem(SIGNAL_STYLE, ComponentGenerator.JSTROKECOMBOBOX, "0"),
-            new PropertyItem(MACD_COLOR, ComponentGenerator.JLABEL, new Color(0x4e9a06)),
-            new PropertyItem(MACD_STYLE, ComponentGenerator.JSTROKECOMBOBOX, "0")
-        };
-        Properties p = new Properties(data);
-        setProperties(p);
-    }
-
     public void calculate() {
         Dataset initial = getDataset();
         if (initial != null && !initial.isEmpty()) {
-            int fast = getIntParam(FAST);
-            int slow = getIntParam(SLOW);
-            int smooth = getIntParam(SMOOTH);
+            int fast = properties.getFast();
+            int slow = properties.getSlow();
+            int smooth = properties.getSmooth();
 
             Dataset fastEMA = initial.getEMA(fast);
             Dataset slowEMA = initial.getEMA(slow);
@@ -132,9 +92,9 @@ public class MACD extends Indicator {
             Range range = getRange(cf);
             Rectangle2D.Double bounds = getBounds();
 
-            DefaultPainter.bar(g, cf, range, bounds, histogram, getColorParam(HISTOGRAM_COLOR)); // paint the histogram
-            DefaultPainter.line(g, cf, range, bounds, signal, getColorParam(SIGNAL_COLOR), getStrokeParam(SIGNAL_STYLE)); // paint the signal
-            DefaultPainter.line(g, cf, range, bounds, macd, getColorParam(MACD_COLOR), getStrokeParam(MACD_STYLE)); // paint the MACD
+            DefaultPainter.bar(g, cf, range, bounds, histogram, properties.getHistogramColor()); // paint the histogram
+            DefaultPainter.line(g, cf, range, bounds, signal, properties.getSignalColor(), properties.getSignalStroke()); // paint the signal
+            DefaultPainter.line(g, cf, range, bounds, macd, properties.getMacdColor(), properties.getMacdStroke()); // paint the MACD
 
             LineMetrics lm = cf.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
             g.setFont(cf.getChartProperties().getFont());
@@ -192,27 +152,30 @@ public class MACD extends Indicator {
     }
 
     public boolean hasZeroLine() { return true; }
-    public boolean getZeroLineVisibility() { return getBooleanParam(ZERO_VISIBILITY); }
-    public Color getZeroLineColor() { return getColorParam(ZERO_COLOR); }
-    public Stroke getZeroLineStroke() { return getStrokeParam(ZERO_STYLE); }
-    public Color[] getColors() { return new Color[] {getColorParam(HISTOGRAM_COLOR), getColorParam(SIGNAL_COLOR), getColorParam(MACD_COLOR)}; }
+    public boolean getZeroLineVisibility() { return properties.getZeroLineVisibility(); }
+    public Color getZeroLineColor() { return properties.getZeroLineColor(); }
+    public Stroke getZeroLineStroke() { return properties.getZeroLineStroke(); }
+    public Color[] getColors() { return new Color[] {properties.getHistogramColor(), properties.getSignalColor(), properties.getMacdColor()}; }
     public double[] getValues(ChartFrame cf) {
         Dataset macd = visibleDataset(cf, MACD);
         Dataset signal = visibleDataset(cf, SIGNAL);
         Dataset histogram = visibleDataset(cf, HISTOGRAM);
-        if (histogram != null && signal != null && macd != null) return new double[] {histogram.getLastPriceValue(Dataset.CLOSE), signal.getLastPriceValue(Dataset.CLOSE), macd.getLastPriceValue(Dataset.CLOSE)};
+        if (histogram != null && signal != null && macd != null)
+            return new double[] {histogram.getLastPriceValue(Dataset.CLOSE), signal.getLastPriceValue(Dataset.CLOSE), macd.getLastPriceValue(Dataset.CLOSE)};
         return new double[] {};
     }
     public double[] getValues(ChartFrame cf, int i) {
         Dataset macd = visibleDataset(cf, MACD);
         Dataset signal = visibleDataset(cf, SIGNAL);
         Dataset histogram = visibleDataset(cf, HISTOGRAM);
-        if (histogram != null && signal != null && macd != null) return new double[] {histogram.getPriceValue(i, Dataset.CLOSE), signal.getPriceValue(i, Dataset.CLOSE), macd.getPriceValue(i, Dataset.CLOSE)};
+        if (histogram != null && signal != null && macd != null)
+            return new double[] {histogram.getPriceValue(i, Dataset.CLOSE), signal.getPriceValue(i, Dataset.CLOSE), macd.getPriceValue(i, Dataset.CLOSE)};
         return new double[] {};
     }
-    public boolean getMarkerVisibility() { return getBooleanParam(MARKER); }
+    public boolean getMarkerVisibility() { return properties.getMarker(); }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "MACD"); }
+    public AbstractNode getNode() {
+        return new IndicatorNode(properties);
+    }
 
 }
