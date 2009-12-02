@@ -10,9 +10,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
-import org.chartsy.main.utils.StrokeGenerator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
@@ -21,6 +19,8 @@ import org.w3c.dom.Element;
 public class FibonacciRetracement extends Annotation implements Serializable {
 
     private static final long serialVersionUID = 101L;
+
+    private AnnotationProperties properties = new AnnotationProperties();
 
     protected DecimalFormat df = new DecimalFormat("#,##0.00");
     protected double[] defaultLines = new double[]{38.2, 50, 61.8, 127.2, 161.8};
@@ -49,8 +49,8 @@ public class FibonacciRetracement extends Annotation implements Serializable {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        g.setPaint(color);
-        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
+        g.setPaint(properties.getColor());
+        g.setStroke(properties.getStroke());
         g.setFont(font);
         double max = Math.max(getV1(), getV2());
         double min = Math.min(getV1(), getV2());
@@ -76,7 +76,6 @@ public class FibonacciRetracement extends Annotation implements Serializable {
         g.drawString(label, x, y);
     }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "Fibonacci Retracement"); }
+    public AbstractNode getNode() { return new AnnotationNode(properties); }
 
 }
