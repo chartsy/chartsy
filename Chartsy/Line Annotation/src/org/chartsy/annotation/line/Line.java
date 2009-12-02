@@ -1,22 +1,25 @@
 package org.chartsy.annotation.line;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author Viorel
  */
-public class Line extends Annotation {
+public class Line extends Annotation implements Serializable {
+
+    private static final long serialVersionUID = 101L;
+
+    private AnnotationProperties properties = new AnnotationProperties();
 
     public Line(ChartFrame cf) {
         super(cf);
@@ -28,8 +31,8 @@ public class Line extends Annotation {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        g.setPaint(color);
-        g.setStroke(stroke);
+        g.setPaint(properties.getColor());
+        g.setStroke(properties.getStroke());
         Point2D.Double p1 = getP1();
         Point2D.Double p2 = getP2();
         g.draw(new Line2D.Double(p1, p2));
@@ -49,7 +52,6 @@ public class Line extends Annotation {
         addUpdateRectangle(r2, false);
     }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "Line"); }
+    public AbstractNode getNode() { return new AnnotationNode(properties); }
 
 }
