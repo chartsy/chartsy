@@ -3,6 +3,7 @@ package org.chartsy.ohlc;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.chartsy.main.dataset.Dataset;
@@ -11,7 +12,9 @@ import org.chartsy.main.dataset.Dataset;
  *
  * @author viorel.gheba
  */
-public class OHLC extends AbstractChart {
+public class OHLC extends AbstractChart implements Serializable {
+
+    private static final long serialVersionUID = 101L;
 
     public OHLC() { super("OHLC", "Description"); }
 
