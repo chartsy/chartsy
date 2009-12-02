@@ -6,9 +6,7 @@ import java.awt.Stroke;
 import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
-import org.chartsy.main.utils.StrokeGenerator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
@@ -17,6 +15,8 @@ import org.w3c.dom.Element;
 public class RectangleAnnotation extends Annotation implements Serializable {
 
     private static final long serialVersionUID = 101L;
+
+    private AnnotationProperties properties = new AnnotationProperties();
 
     public RectangleAnnotation(ChartFrame chartFrame) {
         super(chartFrame);
@@ -43,16 +43,17 @@ public class RectangleAnnotation extends Annotation implements Serializable {
         double X1 = getXCoord(getT1()), X2 = getXCoord(getT2());
         double Y1 = getYCoord(getV1()), Y2 = getYCoord(getV2());
         Rectangle r = new Rectangle(); r.setFrameFromDiagonal(X1, Y1, X2, Y2);
-        g.setPaint(fillColor);
-        g.fill(r);
-        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
-        g.setPaint(color);
+        if (properties.getInsideVisibility()) {
+            g.setPaint(properties.getFillColor());
+            g.fill(r);
+        }
+        g.setPaint(properties.getColor());
+        g.setStroke(properties.getStroke());
         g.draw(r);
         g.setStroke(old);
         if (isSelected()) paintInflectionPoints(g);
     }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "Rectangle"); }
+    public AbstractNode getNode() { return new AnnotationNode(properties); }
 
 }
