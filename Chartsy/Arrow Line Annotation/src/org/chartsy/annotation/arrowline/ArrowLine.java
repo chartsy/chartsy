@@ -9,9 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.Annotation;
-import org.chartsy.main.utils.StrokeGenerator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
@@ -20,6 +18,8 @@ import org.w3c.dom.Element;
 public class ArrowLine extends Annotation implements Serializable {
 
     private static final long serialVersionUID = 101L;
+
+    private AnnotationProperties properties = new AnnotationProperties();
 
     protected double arrowPosition = 1;
     protected double arrowSize = 14;
@@ -35,8 +35,8 @@ public class ArrowLine extends Annotation implements Serializable {
 
     public void paint(Graphics2D g) {
         Stroke old = g.getStroke();
-        g.setPaint(color);
-        g.setStroke(StrokeGenerator.getStroke(strokeIndex));
+        g.setPaint(properties.getColor());
+        g.setStroke(properties.getStroke());
         Point2D.Double p1 = getP1();
         Point2D.Double p2 = getP2();
         g.draw(new Line2D.Double(p1, p2));
@@ -79,7 +79,6 @@ public class ArrowLine extends Annotation implements Serializable {
         addUpdateRectangle(r2, false);
     }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "Arrow Line"); }
+    public AbstractNode getNode() { return new AnnotationNode(properties); }
 
 }
