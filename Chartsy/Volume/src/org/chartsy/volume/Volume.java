@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -13,37 +14,23 @@ import org.chartsy.main.chartsy.DefaultPainter;
 import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.dataset.DataItem;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.utils.ComponentGenerator;
-import org.chartsy.main.utils.Properties;
-import org.chartsy.main.utils.PropertyItem;
 import org.chartsy.main.utils.Range;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public class Volume extends Indicator {
+public class Volume extends Indicator implements Serializable {
 
-    public static final String LABEL = "Label";
-    public static final String MARKER = "Marker";
-    public static final String ZERO_COLOR = "Zero Line Color";
-    public static final String ZERO_STYLE = "Zero Line Style";
-    public static final String ZERO_VISIBILITY = "Zero Line Visibility";
-    public static final String COLOR = "Color";
+    private static final long serialVersionUID = 101L;
     public static final String VOLUME = "volume";
+
+    private IndicatorProperties properties = new IndicatorProperties();
 
     public Volume() { super("Volume", "Description", "Volume"); }
 
-    public String getLabel() {
-        if (getProperties() == null)
-            return getDialogLabel();
-        else {
-            String label = getStringParam(LABEL);
-            return label;
-        }
-    }
+    public String getLabel() { return properties.getLabel(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
         LinkedHashMap ht = new LinkedHashMap();
@@ -72,19 +59,6 @@ public class Volume extends Indicator {
         return range;
     }
 
-    public void initialize() {
-        PropertyItem[] data = new PropertyItem[] {
-            new PropertyItem(LABEL, ComponentGenerator.JTEXTFIELD, "Volume"),
-            new PropertyItem(MARKER, ComponentGenerator.JCHECKBOX, Boolean.TRUE),
-            new PropertyItem(ZERO_COLOR, ComponentGenerator.JLABEL, new Color(0xeeeeec)),
-            new PropertyItem(ZERO_STYLE, ComponentGenerator.JSTROKECOMBOBOX, "0"),
-            new PropertyItem(ZERO_VISIBILITY, ComponentGenerator.JCHECKBOX, Boolean.TRUE),
-            new PropertyItem(COLOR, ComponentGenerator.JLABEL, new Color(0xf57900))
-        };
-        Properties p = new Properties(data);
-        setProperties(p);
-    }
-
     public void calculate() {
         Dataset initial = getDataset();
         if (initial != null && !initial.isEmpty()) {
@@ -107,7 +81,7 @@ public class Volume extends Indicator {
             Range range = getRange(cf);
             Rectangle2D.Double bounds = getBounds();
 
-            DefaultPainter.bar(g, cf, range, bounds, volume, getColorParam(COLOR), Dataset.VOLUME); // paint volume bars
+            DefaultPainter.bar(g, cf, range, bounds, volume, properties.getColor(), Dataset.VOLUME); // paint volume bars
 
             DecimalFormat df = new DecimalFormat("###,###");
             LineMetrics lm = cf.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
@@ -122,10 +96,10 @@ public class Volume extends Indicator {
     private double getVolumeFactor(ChartFrame cf) { return Math.pow(10, String.valueOf(Math.round(cf.getChartRenderer().getVisibleDataset().getVolumeMax())).length() - 1); }
 
     public boolean hasZeroLine() { return true; }
-    public boolean getZeroLineVisibility() { return getBooleanParam(ZERO_VISIBILITY); }
-    public Color getZeroLineColor() { return getColorParam(ZERO_COLOR); }
-    public Stroke getZeroLineStroke() { return getStrokeParam(ZERO_STYLE); }
-    public Color[] getColors() { return new Color[] {getColorParam(COLOR)}; }
+    public boolean getZeroLineVisibility() { return properties.getZeroLineVisibility(); }
+    public Color getZeroLineColor() { return properties.getZeroLineColor(); }
+    public Stroke getZeroLineStroke() { return properties.getZeroLineStroke(); }
+    public Color[] getColors() { return new Color[] {properties.getColor()}; }
     public double[] getValues(ChartFrame cf) {
         Dataset volume = visibleDataset(cf, VOLUME);
         if (volume != null) return new double[] {volume.getLastPriceValue(Dataset.VOLUME)};
@@ -136,9 +110,10 @@ public class Volume extends Indicator {
         if (volume != null) return new double[] {volume.getPriceValue(i, Dataset.VOLUME)};
         return new double[] {};
     }
-    public boolean getMarkerVisibility() { return getBooleanParam(MARKER); }
+    public boolean getMarkerVisibility() { return properties.getMarker(); }
 
-    public void readXMLDocument(Element parent) { readFromXMLDocument(parent); }
-    public void writeXMLDocument(Document document, Element parent) { writeToXMLDocument(document, parent, "Volume"); }
+    public AbstractNode getNode() {
+        return new IndicatorNode(properties);
+    }
 
 }
