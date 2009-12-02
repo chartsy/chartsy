@@ -8,13 +8,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractOverlay;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.OverlayManager;
+import org.openide.explorer.propertysheet.PropertySheet;
+import org.openide.nodes.Node;
 
 /**
  *
@@ -49,8 +50,6 @@ public class AddOverlays extends javax.swing.JDialog {
         setSelectedIndicators();
         setUnselectedIndicators();
 
-        lblDescriptionValue.setText("");
-
         scrollPane.setLayout(new BorderLayout());
         scrollPane.setSize(324, 222);
 
@@ -65,7 +64,6 @@ public class AddOverlays extends javax.swing.JDialog {
                         int index = lstSelected.locationToIndex(e.getPoint());
                         if (index != -1) {
                             Overlay ind = selected[index];
-                            lblDescriptionValue.setText(ind.getDescription());
                             getPanel(ind);
                         }
                         break;
@@ -86,7 +84,6 @@ public class AddOverlays extends javax.swing.JDialog {
                         scrollPane.revalidate();
                         btnAdd.setEnabled(true);
                         btnRemove.setEnabled(false);
-                        lblDescriptionValue.setText("");
                         break;
                     case 2:
                         btnAdd.doClick();
@@ -110,7 +107,6 @@ public class AddOverlays extends javax.swing.JDialog {
                     selected = list;
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
-                    lblDescriptionValue.setText(ovr.getDescription());
                     getPanel(ovr);
                 }
             }
@@ -138,7 +134,6 @@ public class AddOverlays extends javax.swing.JDialog {
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
                 }
-                lblDescriptionValue.setText("");
                 scrollPane.removeAll();
                 scrollPane.revalidate();
                 repaint();
@@ -159,7 +154,6 @@ public class AddOverlays extends javax.swing.JDialog {
                     selected[i].calculate();
                 }
                 parent.getChartRenderer().setOverlays(selected);
-                //parent.getChartRenderer().setOverlaysBounds();
                 parent.getChartPanel().repaint();
                 setVisible(false);
             }
@@ -178,14 +172,12 @@ public class AddOverlays extends javax.swing.JDialog {
     }
 
     private void getPanel(Overlay o) {
-        PropertiesPanel p = new PropertiesPanel(o.getProperties());
-        p.initComponents();
-        p.setDialog(this);
-        JScrollPane jsp = new JScrollPane(p);
-        jsp.setPreferredSize(new Dimension(324, 222));
+        PropertySheet prop = new PropertySheet();
+        prop.setNodes(new Node[] {o.getNode()});
+        Dimension d = prop.getSize();
+        prop.setPreferredSize(new Dimension(436, d.height));
         scrollPane.removeAll();
-        scrollPane.add(jsp, BorderLayout.CENTER);
-        scrollPane.revalidate();
+        scrollPane.add(prop, BorderLayout.CENTER);
         repaint();
     }
 
@@ -222,7 +214,6 @@ public class AddOverlays extends javax.swing.JDialog {
 
         mainPanel = new javax.swing.JPanel();
         lblIO = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
         jScrollPane1 = new javax.swing.JScrollPane();
         lstUnselected = new javax.swing.JList();
         lblSelected = new javax.swing.JLabel();
@@ -231,12 +222,11 @@ public class AddOverlays extends javax.swing.JDialog {
         btnAdd = new javax.swing.JButton();
         btnRemove = new javax.swing.JButton();
         lblProperties = new javax.swing.JLabel();
-        lblDescription = new javax.swing.JLabel();
-        lblDescriptionValue = new javax.swing.JLabel();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
         btnOk = new javax.swing.JButton();
         scrollPane = new javax.swing.JPanel();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.title")); // NOI18N
@@ -244,8 +234,6 @@ public class AddOverlays extends javax.swing.JDialog {
 
         lblIO.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblIO.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblIO.text")); // NOI18N
-
-        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         jScrollPane1.setViewportView(lstUnselected);
 
@@ -261,16 +249,6 @@ public class AddOverlays extends javax.swing.JDialog {
         lblProperties.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblProperties.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblProperties.text")); // NOI18N
 
-        lblDescription.setFont(new java.awt.Font("Tahoma", 1, 11));
-        lblDescription.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblDescription.text")); // NOI18N
-
-        lblDescriptionValue.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        lblDescriptionValue.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.lblDescriptionValue.text")); // NOI18N
-        lblDescriptionValue.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        lblDescriptionValue.setMaximumSize(new java.awt.Dimension(325, 41));
-        lblDescriptionValue.setMinimumSize(new java.awt.Dimension(325, 41));
-        lblDescriptionValue.setPreferredSize(new java.awt.Dimension(325, 41));
-
         btnCancel.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.btnCancel.text")); // NOI18N
 
         btnApply.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.btnApply.text")); // NOI18N
@@ -278,20 +256,24 @@ public class AddOverlays extends javax.swing.JDialog {
         btnOk.setText(org.openide.util.NbBundle.getMessage(AddOverlays.class, "AddOverlays.btnOk.text")); // NOI18N
 
         scrollPane.setBackground(new java.awt.Color(255, 255, 255));
+        scrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51)));
         scrollPane.setAutoscrolls(true);
-        scrollPane.setMaximumSize(new java.awt.Dimension(324, 222));
-        scrollPane.setMinimumSize(new java.awt.Dimension(324, 222));
+        scrollPane.setMaximumSize(new java.awt.Dimension(436, 294));
+        scrollPane.setMinimumSize(new java.awt.Dimension(436, 294));
+        scrollPane.setPreferredSize(new java.awt.Dimension(436, 294));
 
         org.jdesktop.layout.GroupLayout scrollPaneLayout = new org.jdesktop.layout.GroupLayout(scrollPane);
         scrollPane.setLayout(scrollPaneLayout);
         scrollPaneLayout.setHorizontalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 325, Short.MAX_VALUE)
+            .add(0, 435, Short.MAX_VALUE)
         );
         scrollPaneLayout.setVerticalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 222, Short.MAX_VALUE)
+            .add(0, 292, Short.MAX_VALUE)
         );
+
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -300,15 +282,14 @@ public class AddOverlays extends javax.swing.JDialog {
             .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                    .add(lblIO, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                    .add(lblSelected, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(mainPanelLayout.createSequentialGroup()
                         .add(btnAdd)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnRemove)
-                        .add(176, 176, 176))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(btnRemove)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -319,10 +300,8 @@ public class AddOverlays extends javax.swing.JDialog {
                         .add(btnApply)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnCancel))
-                    .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblDescription)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -330,33 +309,33 @@ public class AddOverlays extends javax.swing.JDialog {
             .add(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
                     .add(mainPanelLayout.createSequentialGroup()
-                        .add(lblProperties)
-                        .add(11, 11, 11)
-                        .add(scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(11, 11, 11)
-                        .add(lblDescription)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 41, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(28, 28, 28)
-                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(btnCancel)
-                            .add(btnApply)
-                            .add(btnOk)))
-                    .add(mainPanelLayout.createSequentialGroup()
-                        .add(lblIO)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 129, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(lblSelected)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 27, Short.MAX_VALUE)
-                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(btnAdd)
-                            .add(btnRemove))))
-                .addContainerGap())
+                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 368, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(mainPanelLayout.createSequentialGroup()
+                            .add(lblIO)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 129, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                            .add(lblSelected)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(18, 18, 18)
+                            .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(btnAdd)
+                                .add(btnRemove))
+                            .addContainerGap())
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanelLayout.createSequentialGroup()
+                            .add(lblProperties)
+                            .add(11, 11, 11)
+                            .add(scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(18, 18, 18)
+                            .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(btnCancel)
+                                .add(btnApply)
+                                .add(btnOk))
+                            .add(82, 82, 82)))))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -367,7 +346,7 @@ public class AddOverlays extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(mainPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
         );
 
         pack();
@@ -396,8 +375,6 @@ public class AddOverlays extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel lblDescription;
-    private javax.swing.JLabel lblDescriptionValue;
     private javax.swing.JLabel lblIO;
     private javax.swing.JLabel lblProperties;
     private javax.swing.JLabel lblSelected;

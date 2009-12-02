@@ -2,8 +2,12 @@ package org.chartsy.main;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyEditorManager;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.intro.WelcomePage;
+import org.chartsy.main.utils.AlphaPropertyEditor;
+import org.chartsy.main.utils.PricePropertyEditor;
+import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.modules.ModuleInstall;
@@ -25,6 +29,9 @@ public class Installer extends ModuleInstall {
 
     public void restored() {
         super.restored();
+        PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
+        PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
+        PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 WindowManager.getDefault().getMainWindow().addWindowListener(windowListener);
@@ -36,7 +43,6 @@ public class Installer extends ModuleInstall {
         NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you really want to exit the application?", "Exit", NotifyDescriptor.YES_NO_OPTION);
         Object retval = DialogDisplayer.getDefault().notify(d);
         if (retval.equals(NotifyDescriptor.YES_OPTION)) {
-            //InitializeApplication.save();
             return true;
         } else {
             return false;

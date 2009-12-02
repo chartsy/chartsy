@@ -14,15 +14,13 @@ import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.ChartPanel;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public abstract class Annotation implements MouseListener, MouseMotionListener, XMLUtils.ToXML, Serializable {
+public abstract class Annotation implements MouseListener, MouseMotionListener, Serializable {
 
     private static final long serialVersionUID = 101L;
 
@@ -69,28 +67,12 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     protected Range range;
     protected transient Rectangle2D.Double bounds;
 
-    protected Color color;
-    protected Color fillColor;
-    protected int strokeIndex;
-
     public Annotation(ChartFrame chartFrame) {
         cf = chartFrame;
-        color = cf.getChartProperties().getAnnotationColor();
-        fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 30);
-        strokeIndex = 0;
         active = false;
         selected = false;
         inflectionSet = new BitSet(9);
     }
-
-    public void setColor(Color c) { color = c; }
-    public Color getColor() { return color; }
-
-    public void setFillColor(Color c) { fillColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), 30); }
-    public Color getFillColor() { return fillColor; }
-
-    public void setStrokeIndex(int i) { strokeIndex = i; }
-    public int getStrokeIndex() { return strokeIndex; }
 
     public String getIdentifier() { return getClass().getName(); }
 
@@ -104,10 +86,7 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
     public void setIndex(int i) { index = i; }
 
     public int getAreaIndex() { return areaIndex; }
-    public void setAreaIndex(int i) {
-        areaIndex = i;
-        
-    }
+    public void setAreaIndex(int i) { areaIndex = i; }
 
     public Range getRange() { return range; }
     public void setRange(Range r) { range = r; }
@@ -554,6 +533,8 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         return true;
     }
 
+    public abstract AbstractNode getNode();
+
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {}
     public void mouseClicked(MouseEvent e) {}
@@ -610,35 +591,6 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         AnnotationManager.getDefault().setNewAnnotationName("");
         chartPanel.setState(ChartPanel.NONE);
         chartPanel.repaint();
-    }
-
-    protected void readFromXMLDocument(Element parent) {
-        setIntraDay(XMLUtils.getIntegerParam(parent, "intraDay"));
-        setAreaIndex(XMLUtils.getIntegerParam(parent, "areaIndex"));
-        setColor(XMLUtils.getColorParam(parent, "color"));
-        setFillColor(XMLUtils.getColorParam(parent, "color"));
-        //setStroke(XMLUtils.getStrokeParam(parent, "stroke"));
-        Element element = XMLUtils.getAnnotationsParam(parent, "coords");
-        setT1(Long.parseLong(element.getAttribute("t1")));
-        setT2(Long.parseLong(element.getAttribute("t2")));
-        setV1(Double.parseDouble(element.getAttribute("v1")));
-        setV2(Double.parseDouble(element.getAttribute("v2")));
-    }
-
-    protected void writeToXMLDocument(Document document, Element parent, String name) {
-        Element element;
-        element = document.createElement("name");
-        parent.appendChild(XMLUtils.setStringParam(element, name));
-        element = document.createElement("intraDay");
-        parent.appendChild(XMLUtils.setIntegerParam(element, isIntraDay()));
-        element = document.createElement("color");
-        parent.appendChild(XMLUtils.setColorParam(element, getColor()));
-        /*element = document.createElement("stroke");
-        parent.appendChild(XMLUtils.setStrokeParam(element, getStroke()));*/
-        element = document.createElement("areaIndex");
-        parent.appendChild(XMLUtils.setIntegerParam(element, getAreaIndex()));
-        element = document.createElement("coords");
-        parent.appendChild(XMLUtils.setAnnotationParam(element, this));
     }
 
 }

@@ -180,8 +180,7 @@ public class MainActions {
         return new AbstractAction("Annotation Settings") {
             public void actionPerformed(ActionEvent e) {
                 AnnotationProperties dialog = new AnnotationProperties(new javax.swing.JFrame(), true);
-                dialog.setListener(a);
-                dialog.initializeForm(chartFrame);
+                dialog.initializeForm(a);
                 dialog.setLocationRelativeTo(chartFrame);
                 dialog.setVisible(true);
             }

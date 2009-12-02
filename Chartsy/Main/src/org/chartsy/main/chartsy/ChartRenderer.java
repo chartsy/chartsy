@@ -11,18 +11,12 @@ import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.dialogs.LoaderDialog;
-import org.chartsy.main.managers.IndicatorManager;
-import org.chartsy.main.managers.OverlayManager;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.RectangleInsets;
 import org.chartsy.main.utils.Stock;
-import org.chartsy.main.utils.XMLUtils;
 import org.openide.windows.WindowManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -54,9 +48,7 @@ public class ChartRenderer implements Serializable {
     private RectangleInsets axisOffset;
     private RectangleInsets dataOffset;
 
-    public static ChartRenderer newInstance(ChartFrame chartFrame) { return new ChartRenderer(chartFrame); }
-
-    private ChartRenderer(ChartFrame chartFrame) {
+    public ChartRenderer(ChartFrame chartFrame) {
         this.chartFrame = chartFrame;
         this.abstractUpdater = chartFrame.getUpdater();
         this.mainDataset = chartFrame.getDataset();
@@ -411,56 +403,6 @@ public class ChartRenderer implements Serializable {
         barWidth = newWidth;
         calculate();
         chartFrame.getChartPanel().repaint();
-    }
-
-    public void readOverlaysXMLDocument(Element parent) {
-        NodeList nodeList = parent.getElementsByTagName("overlay");
-        Overlay[] list = new Overlay[nodeList.getLength()];
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element element = (Element) nodeList.item(i);
-            String name = XMLUtils.getStringParam(element, "name");
-            Overlay overlay = OverlayManager.getDefault().getOverlay(name).newInstance();
-            overlay.readXMLDocument(element);
-            overlay.setDataset(mainDataset);
-            overlay.calculate();
-            overlay.setBounds(getChartBounds());
-            overlay.setAxisBounds(getPriceAxisBounds());
-            list[i] = overlay;
-        }
-        overlays = list;
-    }
-
-    public void writeOverlaysXMLDocument(Document document, Element parent) {
-        Element element;
-        for (int i = 0; i < overlays.length; i++) {
-            element = document.createElement("overlay");
-            overlays[i].writeXMLDocument(document, element);
-            parent.appendChild(element);
-        }
-    }
-
-    public void readIndicatorsXMLDocument(Element parent) {
-        NodeList nodeList = parent.getElementsByTagName("indicator");
-        Indicator[] list = new Indicator[nodeList.getLength()];
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element element = (Element) nodeList.item(i);
-            String name = XMLUtils.getStringParam(element, "name");
-            Indicator indicator = IndicatorManager.getDefault().getIndicator(name).newInstance();
-            indicator.readXMLDocument(element);
-            indicator.setDataset(mainDataset);
-            indicator.calculate();
-            list[indicator.getAreaIndex()] = indicator;
-        }
-        indicators = list;
-    }
-
-    public void writeIndicatorsXMLDocument(Document document, Element parent) {
-        Element element;
-        for (int i = 0; i < indicators.length; i++) {
-            element = document.createElement("indicator");
-            indicators[i].writeXMLDocument(document, element);
-            parent.appendChild(element);
-        }
     }
 
 }

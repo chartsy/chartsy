@@ -1,6 +1,9 @@
 package org.chartsy.main.chartsy;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.io.Serializable;
 import javax.swing.AbstractButton;
@@ -9,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.border.AbstractBorder;
 
 /**
  *
@@ -21,9 +25,7 @@ public class ChartToolbar extends JToolBar implements Serializable {
     private ChartFrame chartFrame;
     private Font font;
 
-    public static ChartToolbar newInstance(ChartFrame chartFrame) { return new ChartToolbar(chartFrame); }
-
-    private ChartToolbar(ChartFrame chartFrame) {
+    public ChartToolbar(ChartFrame chartFrame) {
         super("ChartToolbar", JToolBar.HORIZONTAL);
         this.chartFrame = chartFrame;
         Font f = chartFrame.getChartProperties().getFont();
@@ -32,6 +34,7 @@ public class ChartToolbar extends JToolBar implements Serializable {
         setFloatable(false);
         initComponents();
         setFloatable(false);
+        setBorder(new BottomBorder());
     }
 
     private void initComponents() {
@@ -102,6 +105,43 @@ public class ChartToolbar extends JToolBar implements Serializable {
         button.setMargin(new Insets(6,6,6,6));
         button.setBorderPainted(false);
         button.setToolTipText(tooltip);
+    }
+
+    class BottomBorder extends AbstractBorder implements Serializable {
+
+        private static final long serialVersionUID = 101L;
+        
+        protected Color color = new Color(0x898c95);
+        protected int thickness = 1;
+        protected int gap = 1;
+
+        public BottomBorder() {}
+
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Color old = g.getColor();
+
+            g.setColor(color);
+            for (int i = 0; i < thickness; i++) {
+                g.drawLine(x, y + height - i - 1, x + width, y + height - i - 1);
+            }
+
+            g.setColor(old);
+        }
+
+        public Insets getBorderInsets(Component c) { return new Insets(0, 0, gap, 0); }
+
+        public Insets getBorderInsets(Component c, Insets insets) {
+            insets.left = 0;
+            insets.top = 0;
+            insets.right = 0;
+            insets.bottom = gap;
+            return insets;
+        }
+
+        public boolean isBorderOpaque() {
+            return false;
+        }
+
     }
 
 }

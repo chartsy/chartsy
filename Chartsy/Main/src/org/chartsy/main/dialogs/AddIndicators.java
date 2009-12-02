@@ -8,13 +8,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractIndicator;
 import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.IndicatorManager;
+import org.openide.explorer.propertysheet.PropertySheet;
+import org.openide.nodes.Node;
 
 /**
  *
@@ -49,8 +50,6 @@ public class AddIndicators extends javax.swing.JDialog {
         setSelectedIndicators();
         setUnselectedIndicators();
 
-        lblDescriptionValue.setText("");
-
         scrollPane.setLayout(new BorderLayout());
         scrollPane.setSize(324, 222);
 
@@ -65,7 +64,6 @@ public class AddIndicators extends javax.swing.JDialog {
                         int index = lstSelected.locationToIndex(e.getPoint());
                         if (index != -1) {
                             Indicator ind = selected[index];
-                            lblDescriptionValue.setText(ind.getDescription());
                             getPanel(ind);
                         }
                         break;
@@ -86,7 +84,6 @@ public class AddIndicators extends javax.swing.JDialog {
                         scrollPane.revalidate();
                         btnAdd.setEnabled(true);
                         btnRemove.setEnabled(false);
-                        lblDescriptionValue.setText("");
                         break;
                     case 2:
                         btnAdd.doClick();
@@ -110,7 +107,6 @@ public class AddIndicators extends javax.swing.JDialog {
                     selected = list;
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
-                    lblDescriptionValue.setText(ind.getDescription());
                     getPanel(ind);
                 }
             }
@@ -138,7 +134,6 @@ public class AddIndicators extends javax.swing.JDialog {
                     setSelectedIndicators();
                     lstSelected.setListData(selectedItems);
                 }
-                lblDescriptionValue.setText("");
                 scrollPane.removeAll();
                 scrollPane.revalidate();
                 repaint();
@@ -178,14 +173,12 @@ public class AddIndicators extends javax.swing.JDialog {
     }
 
     private void getPanel(Indicator i) {
-        PropertiesPanel p = new PropertiesPanel(i.getProperties());
-        p.initComponents();
-        p.setDialog(this);
-        JScrollPane jsp = new JScrollPane(p);
-        jsp.setPreferredSize(new Dimension(324, 222));
+        PropertySheet prop = new PropertySheet();
+        prop.setNodes(new Node[] {i.getNode()});
+        Dimension d = prop.getSize();
+        prop.setPreferredSize(new Dimension(436, d.height));
         scrollPane.removeAll();
-        scrollPane.add(jsp, BorderLayout.CENTER);
-        scrollPane.revalidate();
+        scrollPane.add(prop, BorderLayout.CENTER);
         repaint();
     }
 
@@ -231,8 +224,6 @@ public class AddIndicators extends javax.swing.JDialog {
         btnAdd = new javax.swing.JButton();
         btnRemove = new javax.swing.JButton();
         lblProperties = new javax.swing.JLabel();
-        lblDescription = new javax.swing.JLabel();
-        lblDescriptionValue = new javax.swing.JLabel();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
         btnOk = new javax.swing.JButton();
@@ -261,16 +252,6 @@ public class AddIndicators extends javax.swing.JDialog {
         lblProperties.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblProperties.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.lblProperties.text")); // NOI18N
 
-        lblDescription.setFont(new java.awt.Font("Tahoma", 1, 11));
-        lblDescription.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.lblDescription.text")); // NOI18N
-
-        lblDescriptionValue.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        lblDescriptionValue.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.lblDescriptionValue.text")); // NOI18N
-        lblDescriptionValue.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        lblDescriptionValue.setMaximumSize(new java.awt.Dimension(325, 41));
-        lblDescriptionValue.setMinimumSize(new java.awt.Dimension(325, 41));
-        lblDescriptionValue.setPreferredSize(new java.awt.Dimension(325, 41));
-
         btnCancel.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.btnCancel.text")); // NOI18N
 
         btnApply.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.btnApply.text")); // NOI18N
@@ -278,19 +259,20 @@ public class AddIndicators extends javax.swing.JDialog {
         btnOk.setText(org.openide.util.NbBundle.getMessage(AddIndicators.class, "AddIndicators.btnOk.text")); // NOI18N
 
         scrollPane.setBackground(new java.awt.Color(255, 255, 255));
+        scrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51)));
         scrollPane.setAutoscrolls(true);
-        scrollPane.setMaximumSize(new java.awt.Dimension(324, 222));
-        scrollPane.setMinimumSize(new java.awt.Dimension(324, 222));
+        scrollPane.setMaximumSize(new java.awt.Dimension(436, 294));
+        scrollPane.setMinimumSize(new java.awt.Dimension(436, 294));
 
         org.jdesktop.layout.GroupLayout scrollPaneLayout = new org.jdesktop.layout.GroupLayout(scrollPane);
         scrollPane.setLayout(scrollPaneLayout);
         scrollPaneLayout.setHorizontalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 325, Short.MAX_VALUE)
+            .add(0, 436, Short.MAX_VALUE)
         );
         scrollPaneLayout.setVerticalGroup(
             scrollPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 222, Short.MAX_VALUE)
+            .add(0, 294, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
@@ -311,18 +293,20 @@ public class AddIndicators extends javax.swing.JDialog {
                     .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanelLayout.createSequentialGroup()
-                        .add(btnOk)
+                    .add(mainPanelLayout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnApply)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnCancel))
-                    .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 325, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblDescription)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanelLayout.createSequentialGroup()
+                                .add(btnOk)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnApply)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnCancel))
+                            .add(lblProperties, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)))
+                    .add(mainPanelLayout.createSequentialGroup()
+                        .add(14, 14, 14)
+                        .add(scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -335,11 +319,7 @@ public class AddIndicators extends javax.swing.JDialog {
                         .add(lblProperties)
                         .add(11, 11, 11)
                         .add(scrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(11, 11, 11)
-                        .add(lblDescription)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lblDescriptionValue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 41, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(28, 28, 28)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 26, Short.MAX_VALUE)
                         .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(btnCancel)
                             .add(btnApply)
@@ -396,8 +376,6 @@ public class AddIndicators extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel lblDescription;
-    private javax.swing.JLabel lblDescriptionValue;
     private javax.swing.JLabel lblIO;
     private javax.swing.JLabel lblProperties;
     private javax.swing.JLabel lblSelected;

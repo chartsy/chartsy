@@ -2,32 +2,26 @@ package org.chartsy.main.chartsy.chart;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.utils.Properties;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.StrokeGenerator;
-import org.chartsy.main.utils.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public abstract class Overlay extends Object implements XMLUtils.ToXML, Serializable {
+public abstract class Overlay extends Object implements Serializable {
 
     private static final long serialVersionUID = 101L;
 
     private String name;
     private String description;
     private String dialogLabel;
-    private Properties properties;
     private transient Rectangle2D.Double bounds;
     private transient Rectangle2D.Double axisBounds;
     private Range range;
@@ -39,7 +33,6 @@ public abstract class Overlay extends Object implements XMLUtils.ToXML, Serializ
         description = desc;
         dialogLabel = d;
         datasets = new Hashtable<Object, Object>();
-        initialize();
     }
 
     public String getName() { return name; }
@@ -52,14 +45,6 @@ public abstract class Overlay extends Object implements XMLUtils.ToXML, Serializ
     public abstract LinkedHashMap getHTML(ChartFrame cf, int i);
     public String getDialogLabel() { return dialogLabel; }
     public void setDialogLabel(String d) { dialogLabel = d; }
-
-    public Properties getProperties() { return properties; }
-    public void setProperties(Properties p) { properties = p; }
-    public String getStringParam(String s) { return (String) properties.getValue(s); }
-    public int getIntParam(String s) { return Integer.parseInt((String) properties.getValue(s)); }
-    public boolean getBooleanParam(String s) { return (Boolean) properties.getValue(s); }
-    public Color getColorParam(String s) { return (Color) properties.getValue(s); }
-    public Stroke getStrokeParam(String s) { return StrokeGenerator.getStroke(Integer.parseInt((String) properties.getValue(s))); }
 
     public Rectangle2D.Double getBounds() { return bounds; }
     public void setBounds(Rectangle2D.Double b) { bounds = b; }
@@ -93,29 +78,12 @@ public abstract class Overlay extends Object implements XMLUtils.ToXML, Serializ
         setAxisBounds(aB);
         paint(g, cf);
     }
-    public abstract void initialize();
     public abstract void calculate();
     public abstract void paint(Graphics2D g, ChartFrame cf);
     public abstract Color[] getColors();
     public abstract double[] getValues(ChartFrame cf);
     public abstract double[] getValues(ChartFrame cf, int i);
     public abstract boolean getMarkerVisibility();
-
-    protected void readFromXMLDocument(Element parent) {
-        setProperties(XMLUtils.getPropertiesParam(parent, "properties"));
-    }
-
-    protected void writeToXMLDocument(Document document, Element parent, String name) {
-        Element element;
-        element = document.createElement("name");
-        parent.appendChild(XMLUtils.setStringParam(element, getName()));
-        element = document.createElement("properties");
-        Element e;
-        for (int i = 0; i < getProperties().getItems(); i++) {
-            e = document.createElement("propertyItem");
-            element.appendChild(XMLUtils.setPropertiesParam(e, getProperties().getPropertyItem(i)));
-        }
-        parent.appendChild(element);
-    }
+    public abstract AbstractNode getNode();
 
 }

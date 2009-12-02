@@ -15,10 +15,9 @@ import javax.swing.event.HyperlinkListener;
  */
 public final class WebBrowser extends JPanel implements HyperlinkListener {
 
-    public JPanel window_pnl;
     public JEditorPane window_edp;
     public JScrollPane window_scrl;
-    private static final String LINK = "http://www.chartsy.org/index.php?template=startpage";
+    private static final String LINK = "http://www.chartsy.org/index.php?option=com_startpage&view=startpage";
 
     public WebBrowser() {
         SwingUtilities.invokeLater(new Runnable() {
@@ -27,14 +26,12 @@ public final class WebBrowser extends JPanel implements HyperlinkListener {
                 setLayout(new BorderLayout());
                 try {
                     System.out.println("Aquiring URL");
-                    window_edp = new JEditorPane(LINK);
-                    window_edp.setContentType("text/html");
+                    window_edp = new JEditorPane();
                     window_edp.setEditable(false);
-                    System.out.println("URL aquired");
+                    window_edp.setPage(LINK);
+
                     window_scrl = new JScrollPane(window_edp, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-                    window_pnl = new JPanel(new BorderLayout());
-                    window_pnl.add(window_scrl, BorderLayout.CENTER);
-                    add(window_pnl, BorderLayout.CENTER);
+                    add(window_scrl, BorderLayout.CENTER);
                 } catch (IOException e) {
                     System.err.println( "can't find URL" );
                 }

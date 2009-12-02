@@ -1,6 +1,7 @@
 package org.chartsy.main.chartsy;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -9,15 +10,20 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.JScrollBar;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.SwingConstants;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.chartsy.chart.Indicator;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.dialogs.LoaderDialog;
+import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
+import org.chartsy.main.utils.ChartNode;
 import org.chartsy.main.utils.Stock;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.nodes.AbstractNode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -25,31 +31,31 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
-public class ChartFrame extends TopComponent implements Cloneable, AdjustmentListener {
+public class ChartFrame extends TopComponent implements AdjustmentListener {
 
     private static ChartFrame instance;
     private static final String PREFERRED_ID = "ChartFrame";
 
-    protected Stock stock;
-    protected String updaterName;
-    protected String chartName;
-    protected String time;
+    private Stock stock;
+    private String updaterName;
+    private String chartName;
+    private String time;
 
-    protected AbstractUpdater updater;
-    protected AbstractChart chart;
+    private AbstractUpdater updater;
+    private AbstractChart chart;
     
-    protected ChartToolbar chartToolbar;
-    protected ChartPanel chartPanel;
-    protected ChartProperties chartProperties;
-    protected ChartRenderer chartRenderer;
-    protected JScrollBar jScrollBar;
-    protected Marker marker;
-    protected Timer timer;
+    private ChartToolbar chartToolbar;
+    private ChartPanel chartPanel;
+    private ChartProperties chartProperties;
+    private ChartRenderer chartRenderer;
+    private JScrollBar jScrollBar;
+    private Marker marker;
+    private Timer timer;
 
-    protected Indicator[] indicators;
-    protected Overlay[] overlays;
-    protected Annotation[] annotations;
-    protected Annotation[] intraDayAnnotations;
+    private Indicator[] indicators;
+    private Overlay[] overlays;
+    private Annotation[] annotations;
+    private Annotation[] intraDayAnnotations;
 
     private boolean restored = false;
 
@@ -65,25 +71,18 @@ public class ChartFrame extends TopComponent implements Cloneable, AdjustmentLis
         return getDefault();
     }
 
-    @Override
-    public ChartFrame clone() {
-        try { return (ChartFrame) super.clone(); }
-        catch (Exception e) { return getDefault(); }
-    }
-
     public ChartFrame() {}
 
     private void initComponents() {
         setLayout(new BorderLayout());
-
         if (updater != null && chart != null) {
-            if (!restored)
-                chartProperties = ChartProperties.newInstance();
-            chartRenderer = ChartRenderer.newInstance(this);
-            chartToolbar = ChartToolbar.newInstance(this);
-            chartPanel = ChartPanel.newInstance(this);
+            if (!restored) chartProperties = new ChartProperties();
+            else chartProperties.setMarkerVisibility(true);
+            chartRenderer = new ChartRenderer(this);
+            chartToolbar = new ChartToolbar(this);
+            chartPanel = new ChartPanel(this);
             jScrollBar = initHorizontalScrollBar();
-            marker = Marker.newInstance(this);
+            marker = new Marker(this);
 
             if (updater != null) {
                 timer = new Timer();
@@ -108,7 +107,10 @@ public class ChartFrame extends TopComponent implements Cloneable, AdjustmentLis
         }
 
         setRestored(false);
+        repaint();
     }
+
+    public AbstractNode getNode() {  return new ChartNode(chartProperties); }
 
     public void setRestored(boolean b) { 
         restored = b;
@@ -329,6 +331,16 @@ public class ChartFrame extends TopComponent implements Cloneable, AdjustmentLis
         }
     }
 
+    protected void paintLoading() {
+        setLayout(new BorderLayout());
+        javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + stock.getCompanyName(), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
+        label.setOpaque(true);
+        label.setBackground(Color.WHITE);
+        label.setVerticalTextPosition(SwingConstants.BOTTOM);
+        label.setHorizontalTextPosition(SwingConstants.CENTER);
+        add(label, BorderLayout.CENTER);
+    }
+
     @Override
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
@@ -336,12 +348,46 @@ public class ChartFrame extends TopComponent implements Cloneable, AdjustmentLis
 
     @Override
     protected void componentOpened() {
-        initComponents();
+        paintLoading();
+        final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring data for " + stock.getCompanyName());
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    handle.start();
+                    handle.switchToIndeterminate();
+                    boolean exists = updater.datasetExists(stock, time);
+                    if (!exists) {
+                        if (restored) {
+                            if (time.contains("Min")) {
+                                UpdaterManager.getDefault().updateIntraDay(stock, time, updater);
+                                UpdaterManager.getDefault().update(stock, updater);
+                            } else {
+                                UpdaterManager.getDefault().update(stock, updater);
+                            }
+                        } else {
+                            UpdaterManager.getDefault().update(stock, updater);
+                        }
+                    } else {
+                        UpdaterManager.getDefault().setUpdate(true);
+                    }
+                } finally {
+                    if (UpdaterManager.getDefault().isUpdated()) {
+                        UpdaterManager.getDefault().setUpdate(false);
+                        handle.finish();
+                        removeAll();
+                        initComponents();
+                    }
+                }
+            }
+        });
+        t.setPriority(Thread.MAX_PRIORITY);
+        t.start();
     }
 
     @Override
     protected void componentClosed() {
-        timer.cancel();
+        if (timer != null) timer.cancel();
+        super.close();
     }
 
     @Override
@@ -387,49 +433,29 @@ public class ChartFrame extends TopComponent implements Cloneable, AdjustmentLis
         public Object readResolve() {
             abstractUpdater.removeAllDatasets();
 
-            LoaderDialog loader = new LoaderDialog(new javax.swing.JFrame(), true);
-            loader.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-            if (time.contains("Min")) {
-                loader.updateIntraday(stock, time, abstractUpdater);
-                loader.update(stock, abstractUpdater);
-            } else {
-                loader.update(stock, abstractUpdater);
-            }
-            loader.setLabelText("Aquiring data for " + (!stock.getCompanyName().equals("") ? stock.getCompanyName() : stock.getKey()));
-            loader.setVisible(true);
+            try {
+                ChartFrame chartFrame = new ChartFrame();
+                chartFrame.setRestored(true);
 
-            if (!loader.isVisible()) {
-                try {
-                    ChartFrame chartFrame = new ChartFrame();
+                chartFrame.setStock(stock);
+                chartFrame.setUpdater(abstractUpdater);
+                chartFrame.setChart(abstractChart);
+                chartFrame.setTime(time);
 
-                    chartFrame.setRestored(true);
+                chartFrame.setChartProperties(chartProperties);
 
-                    chartFrame.setStock(stock);
-                    chartFrame.setUpdater(abstractUpdater);
-                    chartFrame.setChart(abstractChart);
-                    chartFrame.setTime(time);
+                chartFrame.setIndicators(indicators);
+                chartFrame.setOverlays(overlays);
 
-                    chartFrame.setChartProperties(chartProperties);
+                for (Annotation a : annotations) { a.setChartFrame(chartFrame); }
+                chartFrame.setExtraDayAnnotations(annotations);
 
-                    chartFrame.setIndicators(indicators);
-                    chartFrame.setOverlays(overlays);
+                for (Annotation a : intraDay) { a.setChartFrame(chartFrame); }
+                chartFrame.setIntraDayAnnotations(intraDay);
 
-                    for (Annotation a : annotations) {
-                        a.setChartFrame(chartFrame);
-                    }
-                    chartFrame.setExtraDayAnnotations(annotations);
+                return chartFrame;
+            } catch (Exception ex) {}
 
-                    for (Annotation a : intraDay) {
-                        a.setChartFrame(chartFrame);
-                    }
-                    chartFrame.setIntraDayAnnotations(intraDay);
-
-                    return chartFrame;
-                } catch (Exception e) {
-                    System.out.println(e.toString());
-                }
-            }
-            
             return null;
         }
 

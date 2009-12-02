@@ -45,8 +45,7 @@ public class Marker implements Serializable {
     private Color fontColor = new Color(0xffffff);
     private Font font;
 
-    public static Marker newInstance(ChartFrame cf) { return new Marker(cf); }
-    private Marker(ChartFrame c) {
+    public Marker(ChartFrame c) {
         cf = c;
         Font f = cf.getChartProperties().getFont();
         font = new Font(f.getName(), f.getStyle(), fontSize);
@@ -63,6 +62,9 @@ public class Marker implements Serializable {
     public void paint(Graphics2D g) {
         if (cf.getChartProperties().getMarkerVisibility()) {
             if (index != -1 && index <= cf.getChartRenderer().getItems() && index >= 0) {
+                Font f = cf.getChartProperties().getFont();
+                font = new Font(f.getName(), f.getStyle(), fontSize);
+
                 Stroke stroke = g.getStroke();
                 g.setStroke(StrokeGenerator.getStroke(0));
                 Dataset dataset = cf.getChartRenderer().getVisibleDataset();
@@ -173,7 +175,7 @@ public class Marker implements Serializable {
         float x = (float) p.getX() + 1;
         float y = (float) fm.getAscent() + 1;
 
-        g.setPaint(fontColor);
+        g.setPaint(cf.getChartProperties().getBackgroundColor());
         g.fill(new Rectangle2D.Double(p.getX(), 0, w, h));
 
         g.setPaint(lineColor);

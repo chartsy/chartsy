@@ -35,10 +35,6 @@ import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -60,9 +56,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     protected Annotation[] annotations;
     protected Annotation[] intraDayAnnotations;
 
-    public static ChartPanel newInstance(ChartFrame cf) { return new ChartPanel(cf); }
-
-    private ChartPanel(ChartFrame cf) {
+    public ChartPanel(ChartFrame cf) {
         state = NONE;
         chartFrame = cf;
         annotations = new Annotation[0];
@@ -73,9 +67,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         putClientProperty("print.printable", Boolean.TRUE);
         putClientProperty("print.name", chartFrame.preferredID());
 
-        setFocusable(true);
-        requestFocusInWindow();
-
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
@@ -83,6 +74,9 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
         setOpaque(true);
         setLayout(new BorderLayout());
+
+        setFocusable(true);
+        requestFocusInWindow();
     }
 
     protected void initMenu() {
@@ -164,8 +158,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
 
-        g2.setPaint(chartFrame.getChartProperties().getBackgroundColor());
-        g2.fillRect(0, 0, getWidth(), getHeight());
+        setBackground(chartFrame.getChartProperties().getBackgroundColor());
 
         chartFrame.getChartRenderer().setWidth(getWidth());
         chartFrame.getChartRenderer().setHeight(getHeight());
@@ -174,8 +167,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             chartFrame.getChartRenderer().calculate();
 
         if (chartFrame.getChartRenderer().getVisibleDataset() != null) {
-            g2.setColor(new Color(0x898c95));
-            g2.drawLine(0, 0, getWidth(), 0);
             g2.setPaintMode();
             HorizontalGrid.paint(g2, chartFrame); // paint horizontal grid
             VerticalGrid.paint(g2, chartFrame); // paint vertical grid
@@ -463,8 +454,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                             getCurrent().mousePressed(e);
                     }
                     if (chartFrame.getChartProperties().getMarkerVisibility() && !hasCurrent()) {
-                        int index = chartFrame.getMarker().getIndex(e.getX(), e.getY());
-                        chartFrame.getMarker().setIndex(index);
+                        chartFrame.getMarker().setIndex(chartFrame.getMarker().getIndex(e.getX(), e.getY()));
                         repaint();
                     }
                     break;
@@ -544,34 +534,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                 break;
         }
         repaint();
-    }
-
-    public void readAnnotationsXMLDocument(Element parent) {
-        NodeList nodeList = parent.getElementsByTagName("annotation");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element element = (Element) nodeList.item(i);
-            String name = XMLUtils.getStringParam(element, "name");
-            AnnotationManager.getDefault().setNewAnnotationName(name);
-            Annotation a = AnnotationManager.getDefault().getNewAnnotation(chartFrame);
-            a.readXMLDocument(element);
-            if (a.isIntraDay() == Annotation.NO) addExtraDayAnnotation(a);
-            else addIntraDayAnnotation(a);
-        }
-        AnnotationManager.getDefault().setNewAnnotationName("");
-    }
-
-    public void writeAnnotationsXMLDocument(Document document, Element parent) {
-        Element element;
-        for (int i = 0; i < annotations.length; i++) {
-            element = document.createElement("annotation");
-            annotations[i].writeXMLDocument(document, element);
-            parent.appendChild(element);
-        }
-        for (int i = 0; i < intraDayAnnotations.length; i++) {
-            element = document.createElement("annotation");
-            intraDayAnnotations[i].writeXMLDocument(document, element);
-            parent.appendChild(element);
-        }
     }
 
     public BufferedImage getBufferedImage(int width, int height) {
