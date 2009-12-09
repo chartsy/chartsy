@@ -107,7 +107,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
         }
 
         setRestored(false);
-        repaint();
+        revalidate();
     }
 
     public AbstractNode getNode() {  return new ChartNode(chartProperties); }
@@ -339,36 +339,22 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
         label.setVerticalTextPosition(SwingConstants.BOTTOM);
         label.setHorizontalTextPosition(SwingConstants.CENTER);
         add(label, BorderLayout.CENTER);
-    }
 
-    @Override
-    public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
-    }
-
-    @Override
-    protected void componentOpened() {
-        paintLoading();
         final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring data for " + stock.getCompanyName());
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
                     handle.start();
                     handle.switchToIndeterminate();
-                    boolean exists = updater.datasetExists(stock, time);
-                    if (!exists) {
-                        if (restored) {
-                            if (time.contains("Min")) {
-                                UpdaterManager.getDefault().updateIntraDay(stock, time, updater);
-                                UpdaterManager.getDefault().update(stock, updater);
-                            } else {
-                                UpdaterManager.getDefault().update(stock, updater);
-                            }
+                    if (restored) {
+                        if (time.contains("Min")) {
+                            UpdaterManager.getDefault().updateIntraDay(stock, time, updater);
+                            UpdaterManager.getDefault().update(stock, updater);
                         } else {
                             UpdaterManager.getDefault().update(stock, updater);
                         }
                     } else {
-                        UpdaterManager.getDefault().setUpdate(true);
+                        UpdaterManager.getDefault().update(stock, updater);
                     }
                 } finally {
                     if (UpdaterManager.getDefault().isUpdated()) {
@@ -382,6 +368,17 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
         });
         t.setPriority(Thread.MAX_PRIORITY);
         t.start();
+    }
+
+    @Override
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_ALWAYS;
+    }
+
+    @Override
+    protected void componentOpened() {
+        if (!updater.datasetExists(stock, time)) { paintLoading(); }
+        else { initComponents(); }
     }
 
     @Override
