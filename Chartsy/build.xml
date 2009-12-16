@@ -6,7 +6,7 @@
     <description>Builds the module suite Chartsy.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <condition property="isWindows">
+    <!--<condition property="isWindows">
         <os family="windows" />
     </condition>
 
@@ -19,7 +19,7 @@
         <exec executable="ReplaceVistaIcon.exe" resolveexecutable="true">
             <arg line="build/launcher/bin/${app.name}.exe ${app.name}.ico"/>
         </exec>
-    </target>
+    </target>-->
 
     <target name="build" depends="build-brand,suite.build"/>
 
