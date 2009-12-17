@@ -1,6 +1,9 @@
 package org.chartsy.main.updater;
 
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Vector;

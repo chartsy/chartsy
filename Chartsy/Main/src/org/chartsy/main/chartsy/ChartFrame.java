@@ -23,6 +23,8 @@ import org.chartsy.main.utils.ChartNode;
 import org.chartsy.main.utils.Stock;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.AbstractNode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -360,8 +362,16 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
                     if (UpdaterManager.getDefault().isUpdated()) {
                         UpdaterManager.getDefault().setUpdate(false);
                         handle.finish();
-                        removeAll();
-                        initComponents();
+                        if (updater.getDataset(stock, time) != null) {
+                            removeAll();
+                            initComponents();
+                        } else {
+                            NotifyDescriptor d = new NotifyDescriptor.Message("Can't find data for " + stock.getKey() + " symbol.", NotifyDescriptor.INFORMATION_MESSAGE);
+                            Object retval = DialogDisplayer.getDefault().notify(d);
+                            if (retval.equals(NotifyDescriptor.OK_OPTION)) {
+                                close();
+                            }
+                        }
                     }
                 }
             }

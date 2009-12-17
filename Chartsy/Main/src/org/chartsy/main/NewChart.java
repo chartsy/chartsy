@@ -9,6 +9,8 @@ import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.Stock;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.windows.WindowManager;
 
 /**
@@ -40,9 +42,12 @@ public class NewChart implements ActionListener {
             if (abstractUpdater != null) {
                 if (!symbol.equals("") && !chart.equals("")) {
                     AbstractChart abstractChart = ChartManager.getDefault().getChart(chart);
-                    if (abstractChart != null) {
-                        Stock stock = abstractUpdater.getStock(symbol, exchange);
+                    Stock stock = abstractUpdater.getStock(symbol, exchange);
+                    if (abstractChart != null && stock != null) {
                         newChartFrame(stock, abstractChart, abstractUpdater);
+                    } else {
+                        NotifyDescriptor d = new NotifyDescriptor.Message("Can't find data for " + symbol + " symbol.", NotifyDescriptor.INFORMATION_MESSAGE);
+                        DialogDisplayer.getDefault().notify(d);
                     }
                 }
             }
