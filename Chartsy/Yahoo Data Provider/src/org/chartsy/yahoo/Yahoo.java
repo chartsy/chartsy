@@ -3,7 +3,6 @@ package org.chartsy.yahoo;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -68,26 +67,28 @@ public class Yahoo extends AbstractUpdater implements Serializable {
         try {
             String strURL = getURL(symbol, time);
             URL url = new URL(strURL);
-            in = new BufferedReader(new InputStreamReader(url.openStream()));
-            if (in != null) {
-                String inputLine;
-                in.readLine();
-                while ((inputLine = in.readLine()) != null) {
-                    StringTokenizer st = new StringTokenizer(inputLine, ",");
-                    Date date = df.parse(st.nextToken());
-                    Double open = Double.parseDouble(st.nextToken());
-                    Double high = Double.parseDouble(st.nextToken());
-                    Double low = Double.parseDouble(st.nextToken());
-                    Double close = Double.parseDouble(st.nextToken());
-                    Double volume = Double.parseDouble(st.nextToken());
-                    Double adj = Double.parseDouble(st.nextToken());
-                    DataItem item = new DataItem(date, open, close, high, low, volume, adj);
-                    items.add(item);
+            if (URLChecker.checkURL(url)) {
+                in = new BufferedReader(new InputStreamReader(url.openStream()));
+                if (in != null) {
+                    String inputLine;
+                    in.readLine();
+                    while ((inputLine = in.readLine()) != null) {
+                        StringTokenizer st = new StringTokenizer(inputLine, ",");
+                        Date date = df.parse(st.nextToken());
+                        Double open = Double.parseDouble(st.nextToken());
+                        Double high = Double.parseDouble(st.nextToken());
+                        Double low = Double.parseDouble(st.nextToken());
+                        Double close = Double.parseDouble(st.nextToken());
+                        Double volume = Double.parseDouble(st.nextToken());
+                        Double adj = Double.parseDouble(st.nextToken());
+                        DataItem item = new DataItem(date, open, close, high, low, volume, adj);
+                        items.add(item);
+                    }
+                    Collections.sort(items, compare);
+                    DataItem[] data = items.toArray(new DataItem[items.size()]);
+                    Dataset dataset = new Dataset(data);
+                    return dataset;
                 }
-                Collections.sort(items, compare);
-                DataItem[] data = items.toArray(new DataItem[items.size()]);
-                Dataset dataset = new Dataset(data);
-                return dataset;
             }
         } catch (Exception ex) {
             LoggerManager.getDefault().log(ex);
@@ -104,43 +105,45 @@ public class Yahoo extends AbstractUpdater implements Serializable {
             String strURL = "http://download.finance.yahoo.com/d/quotes.csv?s=" + symbol + "&f=sl1d1t1c1ohgv&e=.csv";
             System.out.println(strURL);
             URL url = new URL(strURL);
-            in = new BufferedReader(new InputStreamReader(url.openStream()));
-            if (in != null) {
-                String inputLine;
-                //in.readLine();
-                while ((inputLine = in.readLine()) != null) {
-                    StringTokenizer st = new StringTokenizer(inputLine, ",");
-                    String sym = st.nextToken();
-                    System.out.println(sym);
-                    Double close = Double.parseDouble(st.nextToken());
-                    String d = st.nextToken(); d = d.substring(1, d.length()-1);
-                    Date date = df.parse(d);
-                    String t = st.nextToken();
-                    Double adj = Double.parseDouble(st.nextToken());
-                    t = st.nextToken();
-                    if (!t.equals("N/A")) {
-                        Double open = Double.parseDouble(t);
-                        Double high = Double.parseDouble(st.nextToken());
-                        Double low = Double.parseDouble(st.nextToken());
-                        Double volume = Double.parseDouble(st.nextToken());
-                        DataItem item = new DataItem(date, open, close, high, low, volume, adj);
-                        int c = compare(last.getDate(), item.getDate());
-                        switch (c) {
-                            case 0:
-                                data[data.length-1] = item;
-                                break;
-                            case 1:
-                                DataItem[] list = new DataItem[data.length+1];
-                                for (int i = 0; i < data.length; i++) list[i] = data[i];
-                                list[data.length] = item;
-                                data = list;
-                                break;
+            if (URLChecker.checkURL(url)) {
+                in = new BufferedReader(new InputStreamReader(url.openStream()));
+                if (in != null) {
+                    String inputLine;
+                    //in.readLine();
+                    while ((inputLine = in.readLine()) != null) {
+                        StringTokenizer st = new StringTokenizer(inputLine, ",");
+                        String sym = st.nextToken();
+                        System.out.println(sym);
+                        Double close = Double.parseDouble(st.nextToken());
+                        String d = st.nextToken(); d = d.substring(1, d.length()-1);
+                        Date date = df.parse(d);
+                        String t = st.nextToken();
+                        Double adj = Double.parseDouble(st.nextToken());
+                        t = st.nextToken();
+                        if (!t.equals("N/A")) {
+                            Double open = Double.parseDouble(t);
+                            Double high = Double.parseDouble(st.nextToken());
+                            Double low = Double.parseDouble(st.nextToken());
+                            Double volume = Double.parseDouble(st.nextToken());
+                            DataItem item = new DataItem(date, open, close, high, low, volume, adj);
+                            int c = compare(last.getDate(), item.getDate());
+                            switch (c) {
+                                case 0:
+                                    data[data.length-1] = item;
+                                    break;
+                                case 1:
+                                    DataItem[] list = new DataItem[data.length+1];
+                                    for (int i = 0; i < data.length; i++) list[i] = data[i];
+                                    list[data.length] = item;
+                                    data = list;
+                                    break;
+                            }
+                            return new Dataset(data);
                         }
-                        return new Dataset(data);
                     }
+                } else {
+                    System.out.println("in is null");
                 }
-            } else {
-                System.out.println("in is null");
             }
         } catch (Exception ex) {
             LoggerManager.getDefault().log(ex);
