@@ -3,6 +3,7 @@ package org.chartsy.yahoo;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -21,6 +22,7 @@ import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.DateCompare;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.Stock;
+import org.chartsy.main.utils.URLChecker;
 import org.chartsy.main.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,19 +39,21 @@ public class Yahoo extends AbstractUpdater implements Serializable {
     public Yahoo() { super(UpdaterKeys.UPDATER_NAME, UpdaterKeys.EXCHANGES, UpdaterKeys.SUFIXES, UpdaterKeys.TIMES); }
 
     public Stock getStock(String symbol, String exchange) {
-        Stock stock = new Stock(symbol, exchange);
+        Stock stock = null;
         try {
-            URL yahoo = new URL("http://finance.yahoo.com/q/pr?s=" + stock.getSymbol());
-            URLConnection yc = yahoo.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                if (inputLine.contains("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")) {
-                    String companyName = inputLine.split("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")[1].split("</b>")[0];
-                    stock.setCompanyName(companyName);
+            URL yahoo = new URL("http://finance.yahoo.com/q/pr?s=" + symbol);
+            if (URLChecker.checkURL(yahoo)) {
+                URLConnection yc = yahoo.openConnection();
+                BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    if (inputLine.contains("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")) {
+                        String companyName = inputLine.split("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")[1].split("</b>")[0];
+                        stock = new Stock(symbol, exchange, companyName);
+                    }
                 }
+                in.close();
             }
-            in.close();
         } catch (Exception ex) {
             LoggerManager.getDefault().log("Bad URL.", ex);
         }
