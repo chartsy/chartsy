@@ -9,7 +9,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.Calendar;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.utils.RectangleInsets;
 
 /**
@@ -50,7 +49,7 @@ public class DateAxis {
                     g.draw(new Line2D.Double(point.getX(), bounds.getMinY(), point.getX(), bounds.getMinY() + axisTick)); // paint tick
                     g.setPaint(cf.getChartProperties().getFontColor()); // set font color
                     String s = months[cal.get(Calendar.MONTH)];
-                    s = s.equals("Jan") ? String.valueOf(cal.get(Calendar.YEAR)).substring(2) : (cf.getTime().equals(DatasetManager.MONTHLY) ? s.substring(0, 1) : s);
+                    s = s.equals("Jan") ? String.valueOf(cal.get(Calendar.YEAR)).substring(2) : (cf.getTime().equals("Monthly") ? s.substring(0, 1) : s);
                     float w = (float)(cf.getChartProperties().getFont().getStringBounds(s, frc).getWidth());
                     g.drawString(s, (float)(point.getX() - w / 2), (float)(bounds.getMinY() + axisTick + axisStick + lm.getAscent())); // paint label
                     month = cal.get(Calendar.MONTH);

@@ -5,7 +5,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.Calendar;
 import org.chartsy.main.chartsy.ChartRenderer;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.managers.DatasetManager;
 
 /**
  *
@@ -89,12 +88,12 @@ public class CoordCalc {
         Integer index = null;
         Dataset dataset = cr.getMainDataset();
         int itemsCount = dataset.getItemCount();
-        if (cr.getTime().equals(DatasetManager.DAILY)) {
+        if (cr.getTime().equals("Daily")) {
             for (int i = 0; i < itemsCount; i++) {
                 long l = dataset.getDate(i).getTime();
                 if (l == t) { index = i; break; }
             }
-        } else if (cr.getTime().equals(DatasetManager.WEEKLY)) {
+        } else if (cr.getTime().equals("Weekly")) {
             Calendar c1 = Calendar.getInstance();
             Calendar c2 = Calendar.getInstance();
             c1.setTimeInMillis(t);
@@ -105,7 +104,7 @@ public class CoordCalc {
                     index = i; break;
                 }
             }
-        } else if (cr.getTime().equals(DatasetManager.MONTHLY)) {
+        } else if (cr.getTime().equals("Monthly")) {
             Calendar c1 = Calendar.getInstance();
             Calendar c2 = Calendar.getInstance();
             c1.setTimeInMillis(t);

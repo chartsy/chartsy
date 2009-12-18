@@ -56,9 +56,9 @@
                                   </Group>
                                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="lstExchange" pref="361" max="32767" attributes="1"/>
-                                      <Component id="lstChart" alignment="0" pref="361" max="32767" attributes="1"/>
-                                      <Component id="lstDataProvider" alignment="0" pref="361" max="32767" attributes="1"/>
+                                      <Component id="lstExchange" pref="362" max="32767" attributes="1"/>
+                                      <Component id="lstChart" alignment="0" pref="362" max="32767" attributes="1"/>
+                                      <Component id="lstDataProvider" alignment="0" pref="362" max="32767" attributes="1"/>
                                       <Group type="102" alignment="1" attributes="0">
                                           <Component id="btnNewChart" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -257,7 +258,6 @@ public final class XMLUtils {
             String n = e.getAttribute("name");
             String c = e.getAttribute("component");
             String[] l = e.getAttribute("list").equals("null") ? null : stringToList(e.getAttribute("list"));
-            Object v = null;
             if (c.equals(ComponentGenerator.JTEXTFIELD) || c.equals(ComponentGenerator.JCOMBOBOX) || c.equals(ComponentGenerator.JSLIDER) || c.equals(ComponentGenerator.JSTROKECOMBOBOX)) {
                 String string = e.getAttribute("stringvalue");
                 data[i] = new PropertyItem(n, c, l, string);
@@ -275,37 +275,6 @@ public final class XMLUtils {
         return new Properties(data);
     }
 
-    public static void setActiveDataProvider(String name) {
-        String path = FileUtils.DataProvider();
-        Document document = loadXMLDocument(path);
-
-        if (document != null) {
-            Element root = getRoot(document);
-            if (root.getChildNodes().getLength() == 0) {
-                Element element = document.createElement("active");
-                element.setAttribute("stringvalue", name);
-                root.appendChild(element);
-            } else {
-                Element element = (Element) root.getElementsByTagName("active").item(0);
-                element.setAttribute("stringvalue", name);
-            }
-        }
-
-        saveXMLDocument(document, path);
-    }
-
-    public static String getActiveDataProvider() {
-        String path = FileUtils.DataProvider();
-        Document document = loadXMLDocument(path);
-
-        if (document != null) {
-            Element root = getRoot(document);
-            return root.getChildNodes().getLength() == 0 ? null : ((Element) root.getElementsByTagName("active").item(0)).getAttribute("stringvalue");
-        }
-
-        return null;
-    }
-
     public static String listToString(String[] list) {
         String s = "";
         for (int i = 0; i < list.length; i++) s += list[i] + ",";
@@ -318,9 +287,39 @@ public final class XMLUtils {
         return string.split(",");
     }
 
-    public interface ToXML {
-        public void readXMLDocument(Element parent);
-        public void writeXMLDocument(Document document, Element parent);
+    public static void register(final String n, final String u, final String p) {
+        final String path = FileUtils.RegisterFile();
+        final Document document = loadXMLDocument(path);
+        if (document != null) {
+            final Element root = getRoot(document);
+
+            final Element registred = document.createElement("registred");
+            root.appendChild(setBooleanParam(registred, Boolean.TRUE));
+
+            final Element date = document.createElement("date");
+            root.appendChild(setLongParam(date, new Date().getTime()));
+
+            final Element name = document.createElement("name");
+            root.appendChild(setStringParam(name, n));
+
+            final Element user = document.createElement("user");
+            root.appendChild(setStringParam(user, u));
+
+            final Element pass = document.createElement("pass");
+            root.appendChild(setStringParam(pass, p));
+
+            saveXMLDocument(document, path);
+        }
+    }
+
+    public static boolean isRegistred() {
+        final String path = FileUtils.RegisterFile();
+        final Document document = loadXMLDocument(path);
+        if (document != null) {
+            final Element root = getRoot(document);
+            return (root.getChildNodes().getLength() > 0 ? true : false);
+        }
+        return false;
     }
 
 }

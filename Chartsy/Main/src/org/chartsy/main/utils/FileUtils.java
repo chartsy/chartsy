@@ -19,11 +19,6 @@ public final class FileUtils {
         return result;
     }
 
-    public static String DataProvider() {
-        String result = LocalFolder() + File.separator + "dataprovider.xml";
-        return result;
-    }
-
     public static String LogFolder() {
         String result = LocalFolder() + File.separator + "log";
         createFolder(result);
@@ -48,24 +43,13 @@ public final class FileUtils {
         return result;
     }
 
-    public static String SaveFolder() {
-        String result = SettingsFolder() + File.separator + "save";
-        createFolder(result);
-        return result;
-    }
-
     public static String UserFile() {
         String result = SettingsFolder() + File.separator + "user.xml";
         return result;
     }
 
-    public static String MainFrame() {
-        String result = SettingsFolder() + File.separator + "mainframe.xml";
-        return result;
-    }
-
-    public static String SaveFile(String name) {
-        String result = SaveFolder() + File.separator + name.toLowerCase() + ".xml";
+    public static String RegisterFile() {
+        String result = SettingsFolder() + File.separator + "registred.xml";
         return result;
     }
 

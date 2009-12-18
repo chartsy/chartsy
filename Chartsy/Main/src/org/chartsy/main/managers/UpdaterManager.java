@@ -6,13 +6,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Vector;
-import org.chartsy.main.RestoreSettings;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.Stock;
-import org.chartsy.main.utils.XMLUtils;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 
 /**
@@ -23,7 +19,6 @@ public class UpdaterManager {
 
     protected static UpdaterManager instance;
     protected Hashtable<Object, Object> updaters;
-    protected AbstractUpdater active;
     protected boolean update = false;
 
     public static UpdaterManager getDefault() {
@@ -51,25 +46,6 @@ public class UpdaterManager {
         }
         return null;
     }
-
-    public void setActiveUpdater(Object key) {
-        Object obj = updaters.get(key);
-        if (obj != null && obj instanceof AbstractUpdater) {
-            AbstractUpdater inactive = (AbstractUpdater) obj;
-            if (active == null) {
-                active = inactive;
-                XMLUtils.setActiveDataProvider(active.getName());
-            } else {
-                String activeName = active.getName();
-                String inactiveName = inactive.getName();
-                if (!activeName.equals(inactiveName)) {
-                    fireUpdaterChange(inactive);
-                }
-            }
-        }
-    }
-    public AbstractUpdater getActiveUpdater() { return active; }
-    public String getActiveUpdaterName() { return active != null ? active.getName() : null; }
 
     public Vector getUpdaters() {
         Vector v = new Vector();
@@ -166,18 +142,6 @@ public class UpdaterManager {
     public void print() {
         Iterator it = updaters.keySet().iterator();
         while (it.hasNext()) System.out.println(it.next().toString());
-    }
-
-    public void fireUpdaterChange(AbstractUpdater inactive) {
-        //NotifyDescriptor nd = new NotifyDescriptor.Message("Your tabs are saved and will be restored when you choose " + active.getName() + " data provider.", NotifyDescriptor.INFORMATION_MESSAGE);
-        //DialogDisplayer.getDefault().notify(nd);
-        
-        //ChartFrameManager.getDefault().saveAll(); // save settings
-        //ChartFrameManager.getDefault().closeAll(); // close all chart frames
-        //DatasetManager.getDefault().removeAll(); // remove datasets
-        //active = inactive;
-        //XMLUtils.setActiveDataProvider(active.getName());
-        //RestoreSettings.newInstance().restore();
     }
 
 }
