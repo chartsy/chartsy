@@ -15,7 +15,6 @@ import java.util.TimeZone;
 import java.util.Vector;
 import org.chartsy.main.dataset.DataItem;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.managers.DatasetManager;
 import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.updater.AbstractUpdater;
 import org.chartsy.main.utils.DateCompare;
@@ -163,9 +162,9 @@ public class Yahoo extends AbstractUpdater implements Serializable {
         c2.add(Calendar.YEAR, -4);
 
         String g = "";
-        if (time.equals(DatasetManager.DAILY)) g = "d";
-        else if (time.equals(DatasetManager.WEEKLY)) g = "w";
-        else if (time.equals(DatasetManager.MONTHLY)) g = "m";
+        if (time.equals("Daily")) g = "d";
+        else if (time.equals("Weekly")) g = "w";
+        else if (time.equals("Monthly")) g = "m";
 
         String strURL = "http://ichart.finance.yahoo.com/table.csv" +
                     "?s=" + symbol +
