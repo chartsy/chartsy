@@ -87,12 +87,12 @@ public class RegisterDialog extends javax.swing.JDialog {
         jScrollPane1.setBorder(null);
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        jScrollPane1.setViewportBorder(null);
 
+        editor.setBackground(new java.awt.Color(240, 240, 240));
         editor.setBorder(null);
         editor.setContentType(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.editor.contentType")); // NOI18N
         editor.setEditable(false);
-        editor.setFont(new java.awt.Font("Dialog", 0, 11));
+        editor.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
         editor.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.editor.text")); // NOI18N
         editor.setRequestFocusEnabled(false);
         jScrollPane1.setViewportView(editor);
@@ -106,10 +106,10 @@ public class RegisterDialog extends javax.swing.JDialog {
         lblPass.setFont(new java.awt.Font("Dialog", 1, 11));
         lblPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblPass.text")); // NOI18N
 
-        txtPass.setFont(new java.awt.Font("Dialog", 0, 11));
+        txtPass.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
         txtPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtPass.text")); // NOI18N
 
-        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11));
+        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
         lblResponce.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblResponce.text")); // NOI18N
         lblResponce.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
@@ -144,7 +144,7 @@ public class RegisterDialog extends javax.swing.JDialog {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(lblUser)
@@ -153,7 +153,7 @@ public class RegisterDialog extends javax.swing.JDialog {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(txtPass, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
                             .add(txtUser, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)))
-                    .add(lblResponce, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                    .add(lblResponce, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(btnClose)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -182,7 +182,7 @@ public class RegisterDialog extends javax.swing.JDialog {
                     .add(btnClose)
                     .add(btnRegister)
                     .add(btnLater))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         pack();

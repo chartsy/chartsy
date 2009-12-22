@@ -428,6 +428,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
     public void mouseClicked(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {
+        requestFocus();
         if (e.getButton() == MouseEvent.BUTTON1) {
             switch (getState()) {
                 case NONE:
@@ -500,8 +501,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         }
     }
     public void keyTyped(KeyEvent e) {}
-    public void keyPressed(KeyEvent e) {}
-    public void keyReleased(KeyEvent e) {
+    public void keyPressed(KeyEvent e) {
         if (current != null && current.isSelected()) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_DELETE:
@@ -534,6 +534,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         }
         repaint();
     }
+    public void keyReleased(KeyEvent e) {}
 
     public BufferedImage getBufferedImage(int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
