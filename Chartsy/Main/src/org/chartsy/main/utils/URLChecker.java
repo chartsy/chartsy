@@ -26,7 +26,6 @@ public class URLChecker {
                 HttpURLConnection httpConnection = (HttpURLConnection) connection;
                 httpConnection.connect();
                 int responce = httpConnection.getResponseCode() / 100;
-                System.out.println("Responce = " + responce);
                 switch (responce) {
                     case INFORMATIONAL:
                         ok = true;

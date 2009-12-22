@@ -167,7 +167,7 @@ public class CoordCalc {
     public static boolean hasNextT(ChartRenderer cr, long t) {
         int index = longIndex(cr, t);
         int itemsCount = cr.getMainDataset().getItemCount();
-        return (index + 1) <= itemsCount;
+        return (index + 1) < itemsCount;
     }
 
     public static long getNextT(ChartRenderer cr, long t) {

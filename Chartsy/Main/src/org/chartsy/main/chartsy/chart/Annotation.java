@@ -357,9 +357,11 @@ public abstract class Annotation implements MouseListener, MouseMotionListener, 
         double oldV1 = getV1();
         double oldV2 = getV2();
         if (dx != 0) {
-            X1 += dx; X2 += dx;
-            setT1(getXLong(X1)); setT2(getXLong(X2));
-            ok = true;
+            if ((dx > 0) ? (getT1() > getT2() ? hasNextT(getT1()) : hasNextT(getT2())) : (getT1() > getT2() ? hasPrevT(getT2()) : hasPrevT(getT1()))) {
+                X1 += dx; X2 += dx;
+                setT1(getXLong(X1)); setT2(getXLong(X2));
+                ok = true;
+            }
         }
         if (dy != 0) {
             Y1 += dy; Y2 += dy;
