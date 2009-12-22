@@ -37,17 +37,18 @@ public class Yahoo extends AbstractUpdater implements Serializable {
     public Yahoo() { super(UpdaterKeys.UPDATER_NAME, UpdaterKeys.EXCHANGES, UpdaterKeys.SUFIXES, UpdaterKeys.TIMES); }
 
     public Stock getStock(String symbol, String exchange) {
-        Stock stock = null;
+        Stock stock = new Stock(symbol, exchange);
         try {
-            URL yahoo = new URL("http://finance.yahoo.com/q/pr?s=" + symbol);
+            URL yahoo = new URL("http://finance.yahoo.com/q?s=" + symbol);
             if (URLChecker.checkURL(yahoo)) {
                 URLConnection yc = yahoo.openConnection();
                 BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    if (inputLine.contains("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")) {
-                        String companyName = inputLine.split("<td width=\"270\" class=\"yfnc_modtitlew2\"><b>")[1].split("</b>")[0];
-                        stock = new Stock(symbol, exchange, companyName);
+                    if (inputLine.contains("<title>")) {
+                        String title = inputLine.split("<title>")[1].split("</title>")[0];
+                        String companyName = title.split("Summary for ")[1].split("-")[0];
+                        stock.setCompanyName(companyName);
                     }
                 }
                 in.close();
