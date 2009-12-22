@@ -200,42 +200,28 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     public void setIntraDayAnnotations(Annotation[] annotations) { this.intraDayAnnotations = annotations; }
     public Annotation[] getIntraDayAnnotations() { return this.intraDayAnnotations; }
 
-    public void moveDown() {
-        if (current != null && current.isSelected()) {
-            current.moveDown();
-            repaint();
-        }
+    public void moveAnnotationDown() {
+        current.moveDown();
     }
 
-    public void moveUp() {
-        if (current != null && current.isSelected()) {
-            current.moveUp();
-            repaint();
-        }
+    public void moveAnnotationUp() {
+        current.moveUp();
     }
 
-    public void moveLeft() {
-        if (current != null && current.isSelected()) {
-            current.moveLeft();
-            repaint();
-        } else {
-            if (chartFrame.getChartProperties().getMarkerVisibility()) {
-                chartFrame.getMarker().moveLeft();
-                repaint();
-            }
-        }
+    public void moveAnnotationLeft() {
+        current.moveLeft();
     }
 
-    public void moveRight() {
-        if (current != null && current.isSelected()) {
-            current.moveRight();
-            repaint();
-        } else {
-            if (chartFrame.getChartProperties().getMarkerVisibility()) {
-                chartFrame.getMarker().moveRight();
-                repaint();
-            }
-        }
+    public void moveAnnotationRight() {
+        current.moveRight();
+    }
+
+    public void moveMarkerLeft() {
+        chartFrame.getMarker().moveLeft();
+    }
+
+    public void moveMarkerRight() {
+        chartFrame.getMarker().moveRight();
     }
 
     public void removeAllAnnotations() {
@@ -516,22 +502,35 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
     public void keyTyped(KeyEvent e) {}
     public void keyPressed(KeyEvent e) {}
     public void keyReleased(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_DELETE:
-                removeAnnotation();
-                break;
-            case KeyEvent.VK_UP:
-                moveUp();
-                break;
-            case KeyEvent.VK_DOWN:
-                moveDown();
-                break;
-            case KeyEvent.VK_LEFT:
-                moveLeft();
-                break;
-            case KeyEvent.VK_RIGHT:
-                moveRight();
-                break;
+        if (current != null && current.isSelected()) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_DELETE:
+                    removeAnnotation();
+                    break;
+                case KeyEvent.VK_UP:
+                    moveAnnotationUp();
+                    break;
+                case KeyEvent.VK_DOWN:
+                    moveAnnotationDown();
+                    break;
+                case KeyEvent.VK_LEFT:
+                    moveAnnotationLeft();
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    moveAnnotationRight();
+                    break;
+            }
+        } else {
+            if (chartFrame.getChartProperties().getMarkerVisibility()) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                        moveMarkerLeft();
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        moveMarkerRight();
+                        break;
+                }
+            }
         }
         repaint();
     }

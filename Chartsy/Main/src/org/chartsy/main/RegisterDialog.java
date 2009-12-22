@@ -1,16 +1,16 @@
 package org.chartsy.main;
 
-import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import org.chartsy.main.utils.XMLUtils;
@@ -21,6 +21,8 @@ import org.openide.windows.WindowManager;
  * @author viorelgheba
  */
 public class RegisterDialog extends javax.swing.JDialog {
+
+    static final String[] browsers = { "firefox", "opera", "konqueror", "epiphany", "seamonkey", "galeon", "kazehakase", "mozilla", "netscape" };
 
     public RegisterDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -35,71 +37,52 @@ public class RegisterDialog extends javax.swing.JDialog {
         editor.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    try {
-                        Desktop.getDesktop().browse(new URI(e.getURL().toString()));
-                    } catch (IOException io) {
-                        io.printStackTrace();
-                    } catch (URISyntaxException uri) {
-                        uri.printStackTrace();
-                    }
+                    openURL(e.getURL().toString());
                 }
             }
         });
+    }
+
+    private void openURL(String url) {
+        String osName = System.getProperty("os.name");
+        try {
+            if (osName.startsWith("Max OS")) {
+                Class<?> fileMgr = Class.forName("com.apple.eio.FileManager");
+                Method openURL = fileMgr.getDeclaredMethod("openURL", new Class[] {String.class});
+                openURL.invoke(null, new Object[] {url});
+            } else if (osName.startsWith("Windows")) {
+                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
+            } else {
+                boolean found = false;
+                for (String browser : browsers)
+                    if (!found) {
+                        found = Runtime.getRuntime().exec( new String[] {"which", browser}).waitFor() == 0;
+                        if (found) Runtime.getRuntime().exec(new String[] {browser, url});
+                    }
+                if (!found) throw new Exception(Arrays.toString(browsers));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error attempting to launch web browser\n" + e.toString());
+        }
     }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblUser = new javax.swing.JLabel();
-        lblPass = new javax.swing.JLabel();
-        txtUser = new javax.swing.JTextField();
-        txtPass = new javax.swing.JPasswordField();
-        btnRegister = new javax.swing.JButton();
-        btnLater = new javax.swing.JButton();
-        lblResponce = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         editor = new javax.swing.JEditorPane();
+        lblUser = new javax.swing.JLabel();
+        txtUser = new javax.swing.JTextField();
+        lblPass = new javax.swing.JLabel();
+        txtPass = new javax.swing.JPasswordField();
+        lblResponce = new javax.swing.JLabel();
         btnClose = new javax.swing.JButton();
+        btnRegister = new javax.swing.JButton();
+        btnLater = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.title")); // NOI18N
-        setAlwaysOnTop(true);
-        setLocationByPlatform(true);
-        setName("RegisterDialog"); // NOI18N
         setResizable(false);
-
-        lblUser.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
-        lblUser.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblUser.text")); // NOI18N
-
-        lblPass.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
-        lblPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblPass.text")); // NOI18N
-
-        txtUser.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        txtUser.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtUser.text")); // NOI18N
-
-        txtPass.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        txtPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtPass.text")); // NOI18N
-
-        btnRegister.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        btnRegister.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.btnRegister.text")); // NOI18N
-        btnRegister.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegisterActionPerformed(evt);
-            }
-        });
-
-        btnLater.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
-        btnLater.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.btnLater.text")); // NOI18N
-        btnLater.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLaterActionPerformed(evt);
-            }
-        });
-
-        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
-        lblResponce.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblResponce.text")); // NOI18N
-        lblResponce.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         jScrollPane1.setBorder(null);
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -109,12 +92,28 @@ public class RegisterDialog extends javax.swing.JDialog {
         editor.setBorder(null);
         editor.setContentType(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.editor.contentType")); // NOI18N
         editor.setEditable(false);
-        editor.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
+        editor.setFont(new java.awt.Font("Dialog", 0, 11));
         editor.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.editor.text")); // NOI18N
         editor.setRequestFocusEnabled(false);
         jScrollPane1.setViewportView(editor);
 
-        btnClose.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
+        lblUser.setFont(new java.awt.Font("Dialog", 1, 11));
+        lblUser.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblUser.text")); // NOI18N
+
+        txtUser.setFont(new java.awt.Font("Dialog", 0, 11));
+        txtUser.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtUser.text")); // NOI18N
+
+        lblPass.setFont(new java.awt.Font("Dialog", 1, 11));
+        lblPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblPass.text")); // NOI18N
+
+        txtPass.setFont(new java.awt.Font("Dialog", 0, 11));
+        txtPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtPass.text")); // NOI18N
+
+        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11));
+        lblResponce.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblResponce.text")); // NOI18N
+        lblResponce.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        btnClose.setFont(new java.awt.Font("Dialog", 0, 11));
         btnClose.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.btnClose.text")); // NOI18N
         btnClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -122,63 +121,76 @@ public class RegisterDialog extends javax.swing.JDialog {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        btnRegister.setFont(new java.awt.Font("Dialog", 0, 11));
+        btnRegister.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.btnRegister.text")); // NOI18N
+        btnRegister.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegisterActionPerformed(evt);
+            }
+        });
+
+        btnLater.setFont(new java.awt.Font("Dialog", 0, 11));
+        btnLater.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.btnLater.text")); // NOI18N
+        btnLater.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLaterActionPerformed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                            .addComponent(lblResponce, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblUser)
-                                    .addComponent(lblPass))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtPass, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                                    .addComponent(txtUser, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(btnClose)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRegister)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnLater)))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(lblUser)
+                            .add(lblPass))
+                        .add(18, 18, 18)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(txtPass, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                            .add(txtUser, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)))
+                    .add(lblResponce, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(btnClose)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnRegister)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnLater)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblUser)
-                    .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtPass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblPass))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblResponce, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnClose)
-                    .addComponent(btnRegister)
-                    .addComponent(btnLater))
-                .addContainerGap())
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lblUser)
+                    .add(txtUser, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(txtPass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(lblPass))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(lblResponce, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(btnClose)
+                    .add(btnRegister)
+                    .add(btnLater))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnLaterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLaterActionPerformed
+    private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         setVisible(false);
-    }//GEN-LAST:event_btnLaterActionPerformed
+}//GEN-LAST:event_btnCloseActionPerformed
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         String user = txtUser.getText();
@@ -213,11 +225,11 @@ public class RegisterDialog extends javax.swing.JDialog {
         } catch (IOException io) {
             io.printStackTrace();
         }
-    }//GEN-LAST:event_btnRegisterActionPerformed
+}//GEN-LAST:event_btnRegisterActionPerformed
 
-    private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
+    private void btnLaterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLaterActionPerformed
         setVisible(false);
-    }//GEN-LAST:event_btnCloseActionPerformed
+}//GEN-LAST:event_btnLaterActionPerformed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {

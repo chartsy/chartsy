@@ -163,8 +163,8 @@ public class ChartRenderer implements Serializable {
 
         Font font = new Font(chartFrame.getChartProperties().getFont().getName(), Font.BOLD, 12);
         g.setFont(font);
-        g.drawString(getStock().getKey() + " - " + getStock().getCompanyName() + " (" + getTime() + ")", (float) chartFrame.getChartProperties().getDataOffset().left, lm.getAscent());
-        g.drawString("Chartsy.org \u00a9 2009 MrSwing bvba", (float) chartFrame.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
+        g.drawString(getStock().getKey() + " - " + (getStock().getCompanyName().equals("") ? "" : getStock().getCompanyName() + " ") + "(" + getTime() + ")", (float) chartFrame.getChartProperties().getDataOffset().left, lm.getAscent());
+        g.drawString("Chartsy.org \u00a9 2009-2010 mrswing.com", (float) chartFrame.getChartProperties().getDataOffset().left, (float) (getHeight() - lm.getAscent()));
     }
 
     public Range getChartRange() { return chartRange; }

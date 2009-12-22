@@ -335,14 +335,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
 
     protected void paintLoading() {
         setLayout(new BorderLayout());
-        javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + stock.getCompanyName(), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
+        javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
         label.setOpaque(true);
         label.setBackground(Color.WHITE);
         label.setVerticalTextPosition(SwingConstants.BOTTOM);
         label.setHorizontalTextPosition(SwingConstants.CENTER);
         add(label, BorderLayout.CENTER);
 
-        final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring data for " + stock.getCompanyName());
+        final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()));
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
