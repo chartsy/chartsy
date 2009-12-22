@@ -548,7 +548,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, width, height);
 
-        String text = "Chartsy.org \u00a9 2009 MrSwing bvba";
+        String text = "Chartsy.org \u00a9 2009-2010 mrswing.com";
         Font font = new Font("Tahoma", Font.PLAIN, 24);
         FontRenderContext frc = g.getFontRenderContext();
         TextLayout layout = new TextLayout(text, font, frc);
