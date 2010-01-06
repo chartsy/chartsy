@@ -3,7 +3,6 @@ package org.chartsy.macd;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -96,10 +95,7 @@ public class MACD extends Indicator implements Serializable {
             DefaultPainter.line(g, cf, range, bounds, signal, properties.getSignalColor(), properties.getSignalStroke()); // paint the signal
             DefaultPainter.line(g, cf, range, bounds, macd, properties.getMacdColor(), properties.getMacdStroke()); // paint the MACD
 
-            LineMetrics lm = cf.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
-            g.setFont(cf.getChartProperties().getFont());
-            g.setPaint(cf.getChartProperties().getFontColor());
-            g.drawString(getLabel(), (float) cf.getChartProperties().getDataOffset().left, (float)(bounds.getMinY() - cf.getChartProperties().getAxisOffset().top + lm.getAscent()));
+            DefaultPainter.label(g, cf, getLabel(), bounds); // paint label
         }
     }
 
