@@ -84,11 +84,8 @@ public class Volume extends Indicator implements Serializable {
             DefaultPainter.bar(g, cf, range, bounds, volume, properties.getColor(), Dataset.VOLUME); // paint volume bars
 
             DecimalFormat df = new DecimalFormat("###,###");
-            LineMetrics lm = cf.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
             String factor = df.format((int) getVolumeFactor(cf));
-            g.setFont(cf.getChartProperties().getFont());
-            g.setPaint(cf.getChartProperties().getFontColor());
-            g.drawString(getLabel() + " x " + factor, (float) cf.getChartProperties().getDataOffset().left, (float)(bounds.getMinY() - cf.getChartProperties().getAxisOffset().top + lm.getAscent()));
+            DefaultPainter.label(g, cf, getLabel() + " x " + factor, bounds); // paint label
         }
     }
     
