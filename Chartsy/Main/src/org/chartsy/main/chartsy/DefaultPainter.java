@@ -3,6 +3,7 @@ package org.chartsy.main.chartsy;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.font.LineMetrics;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -17,6 +18,13 @@ import org.chartsy.main.utils.Range;
 public final class DefaultPainter {
 
     private DefaultPainter() {}
+
+    public static void label(Graphics2D g, ChartFrame cf, String s, Rectangle2D.Double bounds) {
+        LineMetrics lm = cf.getChartProperties().getFont().getLineMetrics("012345679", g.getFontRenderContext());
+        g.setFont(cf.getChartProperties().getFont());
+        g.setPaint(cf.getChartProperties().getFontColor());
+        g.drawString(s, (float) cf.getChartProperties().getDataOffset().left, (float)(bounds.getMinY() - cf.getChartProperties().getAxisOffset().top + lm.getAscent()));
+    }
 
     public static void line(Graphics2D g, ChartFrame cf, Dataset dataset, Color color, Stroke stroke) { line(g, cf, dataset, color, stroke, Dataset.CLOSE); }
     public static void line(Graphics2D g, ChartFrame cf, Dataset dataset, Color color, Stroke stroke, String price) {
