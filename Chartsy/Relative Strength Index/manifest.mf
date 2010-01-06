@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.rsi
+OpenIDE-Module-Layer: org/chartsy/rsi/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/rsi/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
