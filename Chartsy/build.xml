@@ -23,10 +23,11 @@
 
     <target name="build-mac" depends="suite.build-mac" description="Build Mac OS X Application">
         <property name="nbdist-contents.dir" value="${dist.dir}/${app.name}.app/Contents" />
-        <property name="nddist-resources.dir" value="${nbdist-contents.dir}/Resources" />
+        <property name="nbdist-resources.dir" value="${nbdist-contents.dir}/Resources" />
 
         <delete file="${nbdist-resources.dir}/${app.name}.icns"/>
         <copy tofile="${nbdist-resources.dir}/${app.name}.icns" file="${app.name}.icns"/>
+        <copy tofile="${nbdist-resources.dir}/${app.name}/${app.name}/core/user.ks" file="user.ks" />
     </target>
 
     <target name="build" depends="build-brand,suite.build"/>
