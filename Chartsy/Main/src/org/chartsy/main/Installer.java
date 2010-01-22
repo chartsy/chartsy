@@ -3,13 +3,8 @@ package org.chartsy.main;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.intro.WelcomePage;
@@ -81,8 +76,7 @@ public class Installer extends ModuleInstall {
     }
 
     private File getSrcFile() {
-        //return new File(new File(new File(System.getProperty("user.dir"), "chartsy"), "core"), "user.ks");
-        return new File(new File(new File(new File(System.getProperty("user.dir"), "chartsy"), "chartsy"), "core"), "user.ks");
+        return new File(new File(new File(new File(System.getProperty("netbeans.home")).getParentFile(), "chartsy"), "core"), "user.ks");
     }
 
     private File getDestFile() { return new File(getChacheDirectory(), "user.ks"); }
@@ -98,7 +92,7 @@ public class Installer extends ModuleInstall {
                 try {
                     getPreferences().put("userKS", "user.ks");
                     getPreferences().put("period", "1");
-                    System.out.println(System.getProperty("user.dir"));
+                    System.out.println(System.getProperty("netbeans.home"));
                     FileUtils.copyFile(getSrcFile(), getDestFile());
                 } catch (IOException ex) {
                     LoggerManager.getDefault().log(ex);
