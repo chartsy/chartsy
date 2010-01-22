@@ -52,4 +52,24 @@
         </propertyfile>
     </target>
 
+    <target name="build-zip" depends="suite.build-zip">
+        <property name="nbdist.dir" value="dist"/>
+        <property name="release.dir" value="${nbdist.dir}/${app.name}"/>
+
+        <unzip src="${nbdist.dir}/${app.name}.zip" dest="${nbdist.dir}"/>
+        <delete file="${nbdist.dir}/${app.name}.zip" />
+
+        <copy tofile="${nbdist.dir}/${app.name}/${app.name}/core/user.ks" file="user.ks"/>
+
+        <zip destfile="${nbdist.dir}/${app.name}-installer.zip">
+            <zipfileset dir="${nbdist.dir}/${app.name}" />
+        </zip>
+
+        <zip destfile="${nbdist.dir}/${app.name}-test.zip">
+            <zipfileset dir="${nbdist.dir}/${app.name}" prefix="${app.name}" />
+        </zip>
+        
+        <delete dir="${nbdist.dir}/${app.name}" />
+    </target>
+
 </project>
