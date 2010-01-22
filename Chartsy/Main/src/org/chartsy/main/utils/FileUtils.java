@@ -1,7 +1,10 @@
 package org.chartsy.main.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -63,16 +66,29 @@ public final class FileUtils {
         }
     }
 
-    protected static void createFile(String path) {
+    public static void createFile(String path) {
         File f = new File(path);
         try { FileObject file = FileUtil.createData(f); }
         catch (IOException ex) { ex.printStackTrace(); }
     }
 
-    protected static void createFolder(String path) {
+    public static void createFolder(String path) {
         File dir = new File(path);
         try { FileObject folder = FileUtil.createFolder(dir); }
         catch (IOException ex) { ex.printStackTrace(); }
+    }
+
+    public static void copyFile(File source, File destination) throws IOException {
+        FileChannel in = null;
+        FileChannel out = null;
+        try {
+            in = new FileInputStream(source).getChannel();
+            out = new FileOutputStream(destination).getChannel();
+            in.transferTo(0, in.size(), out);
+        } finally {
+            if (in != null) in.close();
+            if (out != null) out.close();
+        }
     }
 
 }
