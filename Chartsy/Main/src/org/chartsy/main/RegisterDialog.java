@@ -30,6 +30,8 @@ public class RegisterDialog extends javax.swing.JDialog {
         initForm();
         getRootPane().setDefaultButton(btnRegister);
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
+        editor.setBackground(new java.awt.Color(0, 0, 0, 0));
+        jScrollPane1.setBackground(new java.awt.Color(0, 0, 0, 0));
     }
 
     private void initForm() {
@@ -82,6 +84,8 @@ public class RegisterDialog extends javax.swing.JDialog {
         btnLater = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setAlwaysOnTop(true);
+        setMinimumSize(new java.awt.Dimension(398, 250));
         setResizable(false);
 
         jScrollPane1.setBorder(null);
@@ -106,10 +110,10 @@ public class RegisterDialog extends javax.swing.JDialog {
         lblPass.setFont(new java.awt.Font("Dialog", 1, 11));
         lblPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblPass.text")); // NOI18N
 
-        txtPass.setFont(new java.awt.Font("Dialog", 0, 11)); // NOI18N
+        txtPass.setFont(new java.awt.Font("Dialog", 0, 11));
         txtPass.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.txtPass.text")); // NOI18N
 
-        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
+        lblResponce.setFont(new java.awt.Font("Dialog", 1, 11));
         lblResponce.setText(org.openide.util.NbBundle.getMessage(RegisterDialog.class, "RegisterDialog.lblResponce.text")); // NOI18N
         lblResponce.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
@@ -182,7 +186,7 @@ public class RegisterDialog extends javax.swing.JDialog {
                     .add(btnClose)
                     .add(btnRegister)
                     .add(btnLater))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();
