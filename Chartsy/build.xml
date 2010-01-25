@@ -61,6 +61,7 @@
         <delete file="${nbdist.dir}/${app.name}.zip" />
 
         <copy tofile="${nbdist.dir}/${app.name}/${app.name}/core/user.ks" file="user.ks"/>
+        <copy tofile="${nbdist.dir}/${app.name}/bin/chartsy.png" file="chartsy.png"/>
 
         <zip destfile="${nbdist.dir}/${app.name}-installer.zip">
             <zipfileset dir="${nbdist.dir}/${app.name}" />
