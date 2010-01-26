@@ -63,7 +63,7 @@ public class ImageExporter {
                     fileChooser.addChoosableFileFilter(pngFilter);
                 }
 
-                fileChooser.setSelectedFile(new File("Untitled"));
+                fileChooser.setSelectedFile(new File(chartPanel.getChartFrame().getStock().getKey()));
                 defaultFolder = fileChooser.getCurrentDirectory();
 
                 if (fileChooser.showSaveDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {

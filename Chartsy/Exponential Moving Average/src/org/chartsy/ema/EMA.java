@@ -21,9 +21,9 @@ public class EMA extends Overlay implements Serializable {
     private static final long serialVersionUID = 101L;
     public static final String EMA = "ema";
 
-    private OverlayProperties properties = new OverlayProperties();
+    private OverlayProperties properties;
 
-    public EMA() { super("EMA", "Description", "EMA"); }
+    public EMA() { super("EMA", "Description", "EMA"); properties = new OverlayProperties(); }
 
     public String getLabel() { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 

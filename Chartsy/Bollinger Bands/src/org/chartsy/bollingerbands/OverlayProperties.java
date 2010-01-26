@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.utils.RandomColor;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
@@ -24,13 +25,13 @@ public class OverlayProperties implements Serializable {
     public static final String PRICE = Dataset.CLOSE;
     public static final String LABEL = "Bollinger";
     public static final boolean MARKER = true;
-    public static final Color LOWER_COLOR = new Color(0x204a87);
+    public static Color LOWER_COLOR;
     public static final int LOWER_STROKE_INDEX = 0;
-    public static final Color MIDDLE_COLOR = new Color(0x204a87);
+    public static Color MIDDLE_COLOR;
     public static final int MIDDLE_STROKE_INDEX = 0;
-    public static final Color UPPER_COLOR = new Color(0x204a87);
+    public static Color UPPER_COLOR;
     public static final int UPPER_STROKE_INDEX = 0;
-    public static final Color INSIDE_COLOR = new Color(0x204a87);
+    public static Color INSIDE_COLOR;
     public static final int INSIDE_ALPHA = 25;
     public static final boolean INSIDE_VISIBILITY = true;
 
@@ -39,13 +40,13 @@ public class OverlayProperties implements Serializable {
     private String price = PRICE;
     private String label = LABEL;
     private boolean marker = MARKER;
-    private Color lowerColor = LOWER_COLOR;
+    private Color lowerColor;
     private int lowerStrokeIndex = LOWER_STROKE_INDEX;
-    private Color middleColor = MIDDLE_COLOR;
+    private Color middleColor;
     private int middleStrokeIndex = MIDDLE_STROKE_INDEX;
-    private Color upperColor = UPPER_COLOR;
+    private Color upperColor;
     private int upperStrokeIndex = UPPER_STROKE_INDEX;
-    private Color insideColor = INSIDE_COLOR;
+    private Color insideColor;
     private int insideAlpha = INSIDE_ALPHA;
     private boolean insideVisibility = INSIDE_VISIBILITY;
 
@@ -66,7 +67,11 @@ public class OverlayProperties implements Serializable {
         }
     }
 
-    public OverlayProperties() {}
+    public OverlayProperties() {
+        Color c = RandomColor.getRandomColor();
+        LOWER_COLOR = c; MIDDLE_COLOR = c; UPPER_COLOR = c; INSIDE_COLOR = c;
+        lowerColor = c; middleColor = c; upperColor = c; insideColor = c;
+    }
 
     public int getStd() { return std; }
     public void setStd(int i) { std = i; }

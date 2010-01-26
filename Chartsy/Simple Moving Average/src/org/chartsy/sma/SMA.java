@@ -9,9 +9,6 @@ import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.DefaultPainter;
 import org.chartsy.main.chartsy.chart.Overlay;
 import org.chartsy.main.dataset.Dataset;
-import org.chartsy.main.utils.ComponentGenerator;
-import org.chartsy.main.utils.Properties;
-import org.chartsy.main.utils.PropertyItem;
 import org.chartsy.main.utils.Range;
 import org.openide.nodes.AbstractNode;
 
@@ -24,9 +21,9 @@ public class SMA extends Overlay implements Serializable {
     private static final long serialVersionUID = 101L;
     public static final String SMA = "sma";
 
-    private OverlayProperties properties = new OverlayProperties();
+    private OverlayProperties properties;
 
-    public SMA() { super("SMA", "Description", "SMA"); }
+    public SMA() { super("SMA", "Description", "SMA"); properties = new OverlayProperties(); }
 
     public String getLabel() { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 

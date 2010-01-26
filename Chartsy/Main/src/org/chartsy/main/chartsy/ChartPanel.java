@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import org.chartsy.main.chartsy.axis.DateAxis;
@@ -34,6 +35,7 @@ import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
+import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.Range;
 
 /**
@@ -65,7 +67,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         initMenu();
 
         putClientProperty("print.printable", Boolean.TRUE);
-        putClientProperty("print.name", chartFrame.preferredID());
+        putClientProperty("print.name", "");
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -176,7 +178,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             chartFrame.paintChart(g2); // paint chart
             chartFrame.getChartRenderer().paintOverlays(g2);// paint overlays
             chartFrame.getChartRenderer().paintIndicators(g2); // paint indicators
-            chartFrame.getChartRenderer().paintLabels(g2); // paint labels
+            chartFrame.getChartRenderer().paintLabels(g2, true); // paint labels
             chartFrame.getMarker().paint(g2); // paint marker
             paintAnnotations(g2); // paint annotations
             setFocusable(true);
@@ -519,6 +521,20 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                 case KeyEvent.VK_RIGHT:
                     moveAnnotationRight();
                     break;
+                case KeyEvent.VK_MINUS:
+                    chartFrame.getChartRenderer().zoomOut();
+                    break;
+                case KeyEvent.VK_SUBTRACT:
+                    chartFrame.getChartRenderer().zoomOut();
+                    break;
+                case KeyEvent.VK_ADD:
+                    chartFrame.getChartRenderer().zoomIn();
+                    break;
+            }
+            switch (e.getModifiers()) {
+                case KeyEvent.SHIFT_MASK:
+                    if (e.getKeyCode() == KeyEvent.VK_EQUALS) chartFrame.getChartRenderer().zoomIn();
+                    break;
             }
         } else {
             if (chartFrame.getChartProperties().getMarkerVisibility()) {
@@ -528,6 +544,20 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
                         break;
                     case KeyEvent.VK_RIGHT:
                         moveMarkerRight();
+                        break;
+                    case KeyEvent.VK_MINUS:
+                        chartFrame.getChartRenderer().zoomOut();
+                        break;
+                    case KeyEvent.VK_SUBTRACT:
+                        chartFrame.getChartRenderer().zoomOut();
+                        break;
+                    case KeyEvent.VK_ADD:
+                        chartFrame.getChartRenderer().zoomIn();
+                        break;
+                }
+                switch (e.getModifiers()) {
+                    case KeyEvent.SHIFT_MASK:
+                        if (e.getKeyCode() == KeyEvent.VK_EQUALS) chartFrame.getChartRenderer().zoomIn();
                         break;
                 }
             }
@@ -553,7 +583,35 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         FontRenderContext frc = g.getFontRenderContext();
         TextLayout layout = new TextLayout(text, font, frc);
 
-        paint(g);
+        //paint(g);
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
+        setDoubleBuffered(true);
+
+        setBackground(chartFrame.getChartProperties().getBackgroundColor());
+
+        chartFrame.getChartRenderer().setWidth(getWidth());
+        chartFrame.getChartRenderer().setHeight(getHeight());
+
+        if (chartFrame.getChartRenderer().getMainDataset() != null)
+            chartFrame.getChartRenderer().calculate();
+
+        if (chartFrame.getChartRenderer().getVisibleDataset() != null) {
+            g2.setPaintMode();
+            HorizontalGrid.paint(g2, chartFrame); // paint horizontal grid
+            VerticalGrid.paint(g2, chartFrame); // paint vertical grid
+            DateAxis.paint(g2, chartFrame); // date axis
+            PriceAxis.paint(g2, chartFrame); // paint price axis
+            PriceAxisMarker.paint(g2, chartFrame); // paint chart axis marker
+            chartFrame.paintChart(g2); // paint chart
+            chartFrame.getChartRenderer().paintOverlays(g2);// paint overlays
+            chartFrame.getChartRenderer().paintIndicators(g2); // paint indicators
+            chartFrame.getChartRenderer().paintLabels(g2, false); // paint labels
+            chartFrame.getMarker().paint(g2); // paint marker
+            paintAnnotations(g2); // paint annotations
+            setFocusable(true);
+            requestFocusInWindow();
+        }
 
         float x = (float) (width - layout.getVisibleAdvance() - chartFrame.getChartProperties().getDataOffset().right - layout.getAscent());
         float y = (float) (height - layout.getAscent() - chartFrame.getChartProperties().getDataOffset().bottom);

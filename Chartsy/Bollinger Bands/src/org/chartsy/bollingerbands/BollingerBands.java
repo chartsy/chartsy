@@ -25,9 +25,9 @@ public class BollingerBands extends Overlay implements Serializable {
     public static final String MIDDLE = "middle";
     public static final String LOWER = "lower";
 
-    private OverlayProperties properties = new OverlayProperties();
+    private OverlayProperties properties;
 
-    public BollingerBands() { super("Bollinger Bands", "Description", "Bollinger"); }
+    public BollingerBands() { super("Bollinger Bands", "Description", "Bollinger"); properties = new OverlayProperties(); }
 
     public String getLabel() { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getStd() + ", " + properties.getPeriod() + ")"; }
 

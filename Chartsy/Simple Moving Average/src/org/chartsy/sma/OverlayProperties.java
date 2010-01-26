@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.utils.RandomColor;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
@@ -23,14 +24,14 @@ public class OverlayProperties implements Serializable {
     public static final String PRICE = Dataset.CLOSE;
     public static final String LABEL = "SMA";
     public static final boolean MARKER = true;
-    public static final Color COLOR = new Color(0x204a87);
+    public static Color COLOR;
     public static final int STROKE_INDEX = 0;
 
     private int period = PERIOD;
     private String price = PRICE;
     private String label = LABEL;
     private boolean marker = MARKER;
-    private Color color = COLOR;
+    private Color color;
     private int strokeIndex = STROKE_INDEX;
 
     private List listeners = Collections.synchronizedList(new LinkedList());
@@ -50,7 +51,7 @@ public class OverlayProperties implements Serializable {
         }
     }
 
-    public OverlayProperties() {}
+    public OverlayProperties() { COLOR = RandomColor.getRandomColor(); color = COLOR; }
 
     public int getPeriod() { return period; }
     public void setPeriod(int i) { period = i; }
