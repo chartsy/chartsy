@@ -3,11 +3,16 @@ package org.chartsy.main.utils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.chartsy.main.chartsy.ChartPanel;
 import org.chartsy.main.managers.LoggerManager;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
 /**
@@ -33,6 +38,10 @@ public class ImageExporter {
     public void export(ChartPanel chartPanel) {
         if (chartPanel != null) {
             try {
+                Preferences p = NbPreferences.root().node("/org/chartsy/imageexporter");
+                String folder = p.get("default_folder", null);
+                if (folder != null) defaultFolder = new File(folder);
+                else defaultFolder = null;
                 if (fileChooser == null) {
                     fileChooser = new JFileChooser();
                     fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -65,6 +74,7 @@ public class ImageExporter {
 
                 fileChooser.setSelectedFile(new File(chartPanel.getChartFrame().getStock().getKey()));
                 defaultFolder = fileChooser.getCurrentDirectory();
+                p.put("default_folder", fileChooser.getCurrentDirectory().getAbsolutePath());
 
                 if (fileChooser.showSaveDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
@@ -84,7 +94,19 @@ public class ImageExporter {
                         }
                         format = "png";
                     }
-                    ImageIO.write(image, format, file);
+                    Object retval = NotifyDescriptor.YES_OPTION;
+                    if (file.exists()) {
+                        NotifyDescriptor d = new NotifyDescriptor.Confirmation(
+                            "This file already exists. Do you want to overwrite it?",
+                            "Overwrite",
+                            NotifyDescriptor.YES_NO_OPTION);
+                        retval = DialogDisplayer.getDefault().notify(d);
+                    }
+                    if (retval.equals(NotifyDescriptor.YES_OPTION)) {
+                        ImageIO.write(image, format, file);
+                    } else {
+                        export(chartPanel);
+                    }
                 }
             } catch (IOException ex) {
                 LoggerManager.getDefault().log(ex);
