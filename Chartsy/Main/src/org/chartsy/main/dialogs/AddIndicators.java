@@ -199,8 +199,10 @@ public class AddIndicators extends javax.swing.JDialog {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        int index = lstSelected.getSelectedIndex();
         setSelectedIndicators();
         lstSelected.setListData(selectedItems);
+        lstSelected.setSelectedIndex(index);
     }
 
     @Override
