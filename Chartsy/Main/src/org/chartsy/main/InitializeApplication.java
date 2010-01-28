@@ -8,7 +8,6 @@ import org.chartsy.main.managers.OverlayManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.XMLUtils;
-import org.openide.windows.WindowManager;
 
 
 /**
@@ -29,11 +28,11 @@ public class InitializeApplication {
         UpdaterManager.getDefault().initialize();
         LoggerManager.getDefault();
 
-        if (!XMLUtils.isRegistred()) {
+        /*if (!XMLUtils.isRegistred()) {
             RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
             register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             register.setVisible(true);
-        }
+        }*/
     }
 
     protected static void initializeLocalFolder() {
@@ -43,7 +42,7 @@ public class InitializeApplication {
         FileUtils.ErrorFile();
         FileUtils.SettingsFolder();
         XMLUtils.createXMLDocument(FileUtils.UserFile());
-        XMLUtils.createXMLDocument(FileUtils.RegisterFile());
+        //XMLUtils.createXMLDocument(FileUtils.RegisterFile());
     }
 
 }

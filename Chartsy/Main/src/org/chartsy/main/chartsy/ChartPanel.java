@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import org.chartsy.main.chartsy.axis.DateAxis;
@@ -35,7 +34,6 @@ import org.chartsy.main.chartsy.chart.Annotation;
 import org.chartsy.main.icons.IconUtils;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
-import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.Range;
 
 /**
@@ -67,7 +65,7 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
         initMenu();
 
         putClientProperty("print.printable", Boolean.TRUE);
-        putClientProperty("print.name", "");
+        putClientProperty("print.name", chartFrame.getStock().getKey());
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -590,8 +588,8 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
 
         setBackground(chartFrame.getChartProperties().getBackgroundColor());
 
-        chartFrame.getChartRenderer().setWidth(getWidth());
-        chartFrame.getChartRenderer().setHeight(getHeight());
+        chartFrame.getChartRenderer().setWidth(width);
+        chartFrame.getChartRenderer().setHeight(height);
 
         if (chartFrame.getChartRenderer().getMainDataset() != null)
             chartFrame.getChartRenderer().calculate();
@@ -607,7 +605,6 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             chartFrame.getChartRenderer().paintOverlays(g2);// paint overlays
             chartFrame.getChartRenderer().paintIndicators(g2); // paint indicators
             chartFrame.getChartRenderer().paintLabels(g2, false); // paint labels
-            chartFrame.getMarker().paint(g2); // paint marker
             paintAnnotations(g2); // paint annotations
             setFocusable(true);
             requestFocusInWindow();

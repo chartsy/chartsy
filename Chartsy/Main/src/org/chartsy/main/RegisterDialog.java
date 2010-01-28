@@ -10,10 +10,12 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import org.chartsy.main.utils.XMLUtils;
+import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
 /**
@@ -215,7 +217,12 @@ public class RegisterDialog extends javax.swing.JDialog {
                 String firstLine = br.readLine();
                 if (firstLine.equals("OK")) {
                     String name = br.readLine();
-                    XMLUtils.register(name, user, pass);
+                    Preferences p = NbPreferences.root().node("/org/chartsy/register");
+                    p.put("registred", "true");
+                    p.put("name", name);
+                    p.put("date", String.valueOf(new Date().getTime()));
+                    p.put("username", user);
+                    p.put("password", pass);
                     lblResponce.setText(name + ", thank you for the registration.");
                     btnLater.setVisible(false);
                     btnRegister.setVisible(false);

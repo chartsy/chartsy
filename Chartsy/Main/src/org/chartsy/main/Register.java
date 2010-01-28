@@ -2,9 +2,10 @@ package org.chartsy.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.chartsy.main.utils.XMLUtils;
+import java.util.prefs.Preferences;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
 /**
@@ -14,7 +15,9 @@ import org.openide.windows.WindowManager;
 public final class Register implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-        if (!XMLUtils.isRegistred()) {
+        Preferences p = NbPreferences.root().node("/org/chartsy/register");
+        boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
+        if (!registred) {
             RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
             register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             register.setVisible(true);

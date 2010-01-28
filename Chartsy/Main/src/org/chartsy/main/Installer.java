@@ -31,6 +31,13 @@ public class Installer extends ModuleInstall {
             welcome.requestActive();
             if (welcome.isOpened()) {
                 InitializeApplication.initialize();
+                Preferences p = NbPreferences.root().node("/org/chartsy/register");
+                boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
+                if (!registred) {
+                    RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
+                    register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+                    register.setVisible(true);
+                }
             }
         }
     };
@@ -38,6 +45,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
         super.restored();
         addKeystore();
+        addPrintProperties();
         PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
         PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
         PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
@@ -92,14 +100,51 @@ public class Installer extends ModuleInstall {
                 try {
                     getPreferences().put("userKS", "user.ks");
                     getPreferences().put("period", "1");
-                    System.out.println(System.getProperty("netbeans.home"));
-                    FileUtils.copyFile(getSrcFile(), getDestFile());
+                    if (getSrcFile().exists()) FileUtils.copyFile(getSrcFile(), getDestFile());
                 } catch (IOException ex) {
                     LoggerManager.getDefault().log(ex);
                 }
             }
         });
         t.start();
+    }
+
+    private void addPrintProperties() {
+        if (!(new File(new File(new File(new File(new File(new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties").exists())) {
+            Preferences p = NbPreferences.root().node("/org/netbeans/modules/print");
+            p.put("print.area.height", "697.8897637795276");
+            p.put("print.area.width", "451.2755905511811");
+            p.put("print.area.x", "72.0");
+            p.put("print.area.y", "72.0");
+            p.put("print.border", "false");
+            p.put("print.border.color", "0,0,0");
+            p.put("print.footer", "false");
+            p.put("print.footer.center", "");
+            p.put("print.footer.color", "0,0,0");
+            p.put("print.footer.font", "Serif,0,10");
+            p.put("print.footer.left", "%ROW%.%COLUMN% of %COUNT%");
+            p.put("print.footer.right", "%MODIFIED_DATE%  %MODIFIED_TIME%");
+            p.put("print.header", "false");
+            p.put("print.header.center", "");
+            p.put("print.header.color", "0,0,0");
+            p.put("print.header.font", "Serif,0,10");
+            p.put("print.header.left", "%NAME%");
+            p.put("print.header.right", "");
+            p.put("print.page.orientation", "0.0");
+            p.put("print.paper.height", "841.8897637795276");
+            p.put("print.paper.width", "595.275590551181");
+            p.put("print.text.as.editor", "false");
+            p.put("print.text.background.color", "255,250,255");
+            p.put("print.text.color", "0,0,0");
+            p.put("print.text.font", "Monospaced,0,10");
+            p.put("print.text.line.numbers", "false");
+            p.put("print.text.line.spacing", "1.0");
+            p.put("print.text.selection", "false");
+            p.put("print.text.use.color", "true");
+            p.put("print.text.use.font", "true");
+            p.put("print.text.wrap.lines", "false");
+            p.put("print.zoom", "0.0");
+        }
     }
 
 }
