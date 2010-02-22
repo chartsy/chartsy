@@ -3,6 +3,8 @@ package org.chartsy.main.intro;
 import java.awt.BorderLayout;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import org.chartsy.main.intro.ui.StartPageContent;
+//import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -10,6 +12,8 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
+//@ConvertAsProperties(dtd = "-//org.chartsy.main.intro//Welcome//EN",
+//autostore = false)
 public class WelcomePage extends TopComponent {
 
     private static WelcomePage instance;
@@ -32,38 +36,42 @@ public class WelcomePage extends TopComponent {
     }
 
     private WelcomePage() {
-        setLayout(new BorderLayout());
         initComponents();
-        setName("Welcome");
-        setToolTipText("Welcome");
-    }
+        
+        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
+        putClientProperty(TopComponent.PROP_DRAGGING_DISABLED, Boolean.TRUE);
+        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+        putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
 
-    @Override
-    public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
+        setLayout(new BorderLayout());
+        add(new StartPageContent(), BorderLayout.CENTER);
     }
-
-    @Override
-    public String preferredID() { return PREFERRED_ID; }
 
     private void initComponents() {
-        WebBrowser web = new WebBrowser();
-        add(web, BorderLayout.CENTER);
+        setName("Welcome");
+        setToolTipText("Welcome");
+        setDisplayName("Welcome");
+        setHtmlDisplayName("Welcome");
     }
 
-    @Override
-    protected Object writeReplace() throws ObjectStreamException {
-        return new WelcomeHelper();
+    public int getPersistenceType() { return TopComponent.PERSISTENCE_ALWAYS; }
+    public String preferredID() { return PREFERRED_ID; }
+    public void componentOpened() {}
+    public void componentClosed() {}
+
+    void writeProperties(java.util.Properties p) { p.setProperty("version", "1.0"); }
+    Object readProperties(java.util.Properties p) {
+        if (instance == null) instance = this;
+        instance.readPropertiesImpl(p);
+        return instance;
     }
+    private void readPropertiesImpl(java.util.Properties p) { String version = p.getProperty("version"); }
+
+    protected Object writeReplace() throws ObjectStreamException { return new WelcomeHelper(); }
 
     final static class WelcomeHelper implements Serializable {
-
         private static final long serialVersionUID = 101L;
-
-        public Object readResolve() {
-            return WelcomePage.getDefault();
-        }
-
+        public Object readResolve() { return WelcomePage.getDefault(); }
     }
 
 }

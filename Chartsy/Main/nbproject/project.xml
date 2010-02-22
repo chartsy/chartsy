@@ -138,10 +138,12 @@
                 <package>org.chartsy.main.chartsy.chart</package>
                 <package>org.chartsy.main.dataset</package>
                 <package>org.chartsy.main.dialogs</package>
-                <package>org.chartsy.main.editor</package>
                 <package>org.chartsy.main.fonts</package>
                 <package>org.chartsy.main.icons</package>
                 <package>org.chartsy.main.intro</package>
+                <package>org.chartsy.main.intro.content</package>
+                <package>org.chartsy.main.intro.feed</package>
+                <package>org.chartsy.main.intro.ui</package>
                 <package>org.chartsy.main.managers</package>
                 <package>org.chartsy.main.updater</package>
                 <package>org.chartsy.main.utils</package>
