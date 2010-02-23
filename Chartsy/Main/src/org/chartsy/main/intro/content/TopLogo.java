@@ -1,5 +1,7 @@
 package org.chartsy.main.intro.content;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,5 +39,17 @@ public class TopLogo extends JButton implements Constants, MouseListener, Action
     public void mouseEntered(MouseEvent e) { if (url != null) StatusDisplayer.getDefault().setStatusText(url); }
     public void mouseExited(MouseEvent e) { StatusDisplayer.getDefault().setStatusText(""); }
     public void actionPerformed(ActionEvent e) { Utils.openURL(url); }
+
+    public void paint(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setPaint(COLOR_CONTENT_BACKGROUND);
+
+        int width = getWidth();
+        int height = getHeight();
+
+        g2.fillRect(0, 0, width, height);
+
+        super.paint(g);
+    }
 
 }

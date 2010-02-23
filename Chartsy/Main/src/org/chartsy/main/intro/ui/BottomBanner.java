@@ -11,16 +11,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.CookieStore;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 //import java.util.Timer;
 //import java.util.TimerTask;
@@ -121,10 +129,8 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
 
     public Image getImageFromURL(String urlString) {
         try {
-            CookieManager cookieManager = new CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            CookieHandler.setDefault(cookieManager);
-
+            CookieHandler.setDefault(new ListCookieHandler());
+            
             URL urlLink = new URL(urlString);
             URLConnection connection = urlLink.openConnection();
             connection.setDoOutput(true);
@@ -135,10 +141,14 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
             connection.setDoInput(true);
             obj = connection.getContent();
 
-            CookieStore cookieStore = cookieManager.getCookieStore();
-            List<HttpCookie> cookies = cookieStore.getCookies();
-            for (HttpCookie cookie : cookies)
-                cookieValue = cookie.getName() + "=" + cookie.getValue();
+            Map<String, List<String>> map = CookieHandler.getDefault().get(urlLink.toURI(), new HashMap<String, List<String>>());
+            Iterator it = map.keySet().iterator();
+            while (it.hasNext()) {
+                Object key = it.next();
+                @SuppressWarnings("element-type-mismatch")
+                List<String> value = map.get(key);
+                cookieValue = value.get(0);
+            }
 
             if (obj instanceof URLImageSource) {
                 URLImageSource imageSource = (URLImageSource) obj;
@@ -169,5 +179,150 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
             }
         }
     }*/
+
+    private class ListCookieHandler extends CookieHandler {
+
+        private List<Cookie> cookieJar = new LinkedList<Cookie>();
+
+        public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException {
+            StringBuilder cookies = new StringBuilder();
+            for (Cookie cookie : cookieJar) {
+                // Remove cookies that have expired
+                if (cookie.hasExpired()) {
+                    cookieJar.remove(cookie);
+                } else if (cookie.matches(uri)) {
+                    if (cookies.length() > 0) {
+                      cookies.append(", ");
+                    }
+                    cookies.append(cookie.toString());
+                }
+            }
+
+            Map<String, List<String>> cookieMap = new HashMap<String, List<String>>(requestHeaders);
+
+            if (cookies.length() > 0) {
+                List<String> list = Collections.singletonList(cookies.toString());
+                cookieMap.put("Cookie", list);
+            }
+            
+            return Collections.unmodifiableMap(cookieMap);
+        }
+
+        public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException {
+            List<String> setCookieList = responseHeaders.get("Set-Cookie");
+            if (setCookieList != null) {
+                for (String item : setCookieList) {
+                    Cookie cookie = new Cookie(uri, item);
+                    for (Cookie existingCookie : cookieJar) {
+                        if ((cookie.getURI().equals(existingCookie.getURI())) && (cookie.getName().equals(existingCookie.getName()))) {
+                            cookieJar.remove(existingCookie);
+                            break;
+                        }
+                    }
+                    cookieJar.add(cookie);
+                }
+            }
+        }
+
+    }
+
+}
+
+class Cookie {
+
+    private String name;
+    private String value;
+    private URI uri;
+    private String domain;
+    private Date expires;
+    private String path;
+
+    private static DateFormat expiresFormat1 = new SimpleDateFormat("E, dd MMM yyyy k:m:s 'GMT'", Locale.US);
+    private static DateFormat expiresFormat2 = new SimpleDateFormat("E, dd-MMM-yyyy k:m:s 'GMT'", Locale.US);
+
+    public Cookie(URI uri, String header) {
+        String attributes[] = header.split(";");
+        String nameValue = attributes[0].trim();
+        this.uri = uri;
+        this.name = nameValue.substring(0, nameValue.indexOf('='));
+        this.value = nameValue.substring(nameValue.indexOf('=') + 1);
+        this.path = "/";
+        this.domain = uri.getHost();
+
+        for (int i = 1; i < attributes.length; i++) {
+            nameValue = attributes[i].trim();
+            int equals = nameValue.indexOf('=');
+            if (equals == -1) { continue; }
+
+            String n = nameValue.substring(0, equals);
+            String v = nameValue.substring(equals + 1);
+
+            if (n.equalsIgnoreCase("domain")) {
+                String uriDomain = uri.getHost();
+                if (uriDomain.equals(v)) {
+                    this.domain = v;
+                } else {
+                    if (!v.startsWith(".")) {
+                        v = "." + v;
+                    }
+                    uriDomain = uriDomain.substring(uriDomain.indexOf('.'));
+                    if (!uriDomain.equals(v)) {
+                        throw new IllegalArgumentException("Trying to set foreign cookie");
+                    }
+                    this.domain = v;
+                }
+            } else if (n.equalsIgnoreCase("path")) {
+                this.path = v;
+            } else if (n.equalsIgnoreCase("expires")) {
+                try {
+                    this.expires = expiresFormat1.parse(v);
+                } catch (ParseException e) {
+                    try {
+                        this.expires = expiresFormat2.parse(v);
+                    } catch (ParseException e2) {
+                        throw new IllegalArgumentException("Bad date format in header: " + v);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean hasExpired() {
+        if (expires == null) {
+            return false;
+        }
+        Date now = new Date();
+        return now.after(expires);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public URI getURI() {
+        return uri;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public boolean matches(URI uri) {
+        if (hasExpired()) {
+            return false;
+        }
+        String p = uri.getPath();
+        if (p == null) {
+            p = "/";
+        }
+        return p.startsWith(this.path);
+    }
+
+    public String toString() {
+        StringBuilder result = new StringBuilder(name);
+        result.append("=");
+        result.append(value);
+        return result.toString();
+    }
 
 }

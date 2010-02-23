@@ -41,17 +41,19 @@ public class ForumPanel extends JPanel implements Constants {
 
         RSSFeedParser parser = new RSSFeedParser(BundleSupport.getURL("Forum"));
         Feed feed = parser.readFeed();
-        for (FeedMessage feedMessage : feed.getMessages()) {
-            panel = new JPanel(new BorderLayout());
-            panel.setOpaque(false);
-            panel.add(new BulletLink(feedMessage.getTitle(), feedMessage.getLink()), BorderLayout.NORTH);
-            label = new JLabel("<html>" + feedMessage.getDescription() + "</html>");
-            label.setOpaque(false);
-            label.setFont(DESCRIPTION_FONT);
-            label.setForeground(COLOR_LINK);
-            panel.add(label, BorderLayout.CENTER);
-            main.add(panel, new GridBagConstraints(0, i, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
-            i++;
+        if (feed != null) {
+            for (FeedMessage feedMessage : feed.getMessages()) {
+                panel = new JPanel(new BorderLayout());
+                panel.setOpaque(false);
+                panel.add(new BulletLink(feedMessage.getTitle(), feedMessage.getLink()), BorderLayout.NORTH);
+                label = new JLabel("<html>" + feedMessage.getDescription() + "</html>");
+                label.setOpaque(false);
+                label.setFont(DESCRIPTION_FONT);
+                label.setForeground(COLOR_LINK);
+                panel.add(label, BorderLayout.CENTER);
+                main.add(panel, new GridBagConstraints(0, i, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
+                i++;
+            }
         }
 
         panel = new JPanel(new BorderLayout());

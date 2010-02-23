@@ -1,13 +1,15 @@
 package org.chartsy.main.intro.feed;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -24,108 +26,73 @@ public class RSSFeedParser {
     static final String PUB_DATE = "pubDate";
     static final String GUID = "guid";
 
-    final URL url;
+    URL url;
 
     public RSSFeedParser(String feedUrl) {
         try { this.url = new URL(feedUrl); }
-        catch (MalformedURLException e) { throw new RuntimeException(e); }
+        catch (MalformedURLException e) {}
     }
 
-    @SuppressWarnings("null")
     public Feed readFeed() {
         Feed feed = null;
 
         try {
-            boolean isFeedHeader = true;
+            HttpClient client = new HttpClient();
+            HttpMethod method = new GetMethod(url.toString());
 
-            String description = "";
-            String title = "";
-            String link = "";
-            String language = "";
-            String pubdate = "";
-            String guid = "";
+            int status = client.executeMethod(method);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(method.getResponseBodyAsStream());
+            document.normalizeDocument();
 
-            // First create a new XMLInputFactory
-            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-            // Setup a new eventReader
-            InputStream in = read();
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-            // Read the XML document
-            while (eventReader.hasNext()) {
+            if (document != null) {
+                Element rss = (Element) document.getElementsByTagName("rss").item(0);
+                Element channel = (Element) rss.getElementsByTagName(CHANNEL).item(0);
 
-                XMLEvent event = eventReader.nextEvent();
+                String title = "";
+                String link = "";
+                String desc = "";
+                String lang = "";
 
-                if (event.isStartElement()) {
-                    String s = event.asStartElement().getName().getLocalPart();
+                NodeList nodeList = channel.getChildNodes();
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    Element element = (Element) nodeList.item(i);
+                    if (element.getTagName().equals(TITLE)) title = element.getTextContent();
+                    if (element.getTagName().equals(LINK)) link = element.getTextContent();
+                    if (element.getTagName().equals(DESCRIPTION)) desc = element.getTextContent();
+                    if (element.getTagName().equals(LANGUAGE)) lang = element.getTextContent();
+                    if (element.getTagName().equals(ITEM)) break;
+                }
 
-                    if (event.asStartElement().getName().getLocalPart().equals(ITEM)) {
-                        if (isFeedHeader) {
-                            isFeedHeader = false;
-                            feed = new Feed(title, link, description, language);
+                feed = new Feed(title, link, desc, lang);
+
+                nodeList = channel.getChildNodes();
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    Element item = (Element) nodeList.item(i);
+
+                    if (item.getTagName().equals(ITEM)) {
+                        NodeList itemNodeList = item.getChildNodes();
+                        FeedMessage feedMessage = new FeedMessage();
+                        for (int j = 0; j < itemNodeList.getLength(); j++) {
+                            Element element = (Element) itemNodeList.item(j);
+
+                            if (element.getTagName().equals(TITLE)) feedMessage.setTitle(element.getTextContent());
+                            if (element.getTagName().equals(GUID)) feedMessage.setGuid(element.getTextContent());
+                            if (element.getTagName().equals(LINK)) feedMessage.setLink(element.getTextContent());
+                            if (element.getTagName().equals(DESCRIPTION)) feedMessage.setDescription(element.getTextContent());
+                            if (element.getTagName().equals(PUB_DATE)) feedMessage.setPubDate(element.getTextContent());
                         }
-                        event = eventReader.nextEvent();
-                        continue;
-                    }
 
-                    if (event.asStartElement().getName().getLocalPart().equals(TITLE)) {
-                            event = eventReader.nextEvent();
-                            title = event.asCharacters().getData();
-                            continue;
-                    }
-                    if (event.asStartElement().getName().getLocalPart().equals(DESCRIPTION)) {
-                            event = eventReader.nextEvent();
-                            description = event.asCharacters().getData();
-                            continue;
-                    }
-
-                    if (event.asStartElement().getName().getLocalPart().equals(LINK)) {
-                            event = eventReader.nextEvent();
-                            link = event.asCharacters().getData();
-                            continue;
-                    }
-
-                    if (event.asStartElement().getName().getLocalPart().equals(GUID)) {
-                            event = eventReader.nextEvent();
-                            guid = event.asCharacters().getData();
-                            continue;
-                    }
-                    if (event.asStartElement().getName().getLocalPart().equals(LANGUAGE)) {
-                            event = eventReader.nextEvent();
-                            language = event.asCharacters().getData();
-                            continue;
-                    }
-                    if (event.asStartElement().getName().getLocalPart().equals(PUB_DATE)) {
-                            event = eventReader.nextEvent();
-                            pubdate = event.asCharacters().getData();
-                            continue;
-                    }
-                } else if (event.isEndElement()) {
-                    String s = event.asEndElement().getName().getLocalPart();
-
-                    if (event.asEndElement().getName().getLocalPart().equals(ITEM)) {
-                        FeedMessage message = new FeedMessage();
-                        message.setDescription(description);
-                        message.setGuid(guid);
-                        message.setLink(link);
-                        message.setTitle(title);
-                        message.setPubDate(pubdate);
-                        feed.getMessages().add(message);
-                        event = eventReader.nextEvent();
-                        continue;
+                        feed.getMessages().add(feedMessage);
                     }
                 }
             }
-        } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return feed;
     }
-
-    private InputStream read() {
-        try { return url.openStream(); }
-        catch (IOException e) { throw new RuntimeException(e); }
-    }
-
 
 }
