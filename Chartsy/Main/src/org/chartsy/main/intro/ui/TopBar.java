@@ -2,8 +2,10 @@ package org.chartsy.main.intro.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -11,6 +13,7 @@ import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
 import org.chartsy.main.intro.content.TopLogo;
 import org.chartsy.main.intro.content.Utils;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -20,6 +23,7 @@ public class TopBar extends JPanel implements Constants {
 
     public TopBar() {
         super(new GridBagLayout());
+        setOpaque(false);
         setPreferredSize(new Dimension(1800, 74));
         ImageIcon imageIcon = Utils.getImageIcon(IMAGE_CHARTSY_LOGO);
         TopLogo topLogo = new TopLogo(BundleSupport.getURL(URL_CHARTSY));
@@ -31,14 +35,12 @@ public class TopBar extends JPanel implements Constants {
     protected void paintBorder(Graphics g) {}
 
     protected void paintComponent(Graphics g) {
-        int panelWidth = getWidth();
-        int panelHeight = getHeight();
+        super.paintComponent(g);
         
-        int imageWidth = 1800;
-        int imageHeight = 74;
+        Graphics2D g2 = (Graphics2D)g;
 
-        int panelCenterX = (panelWidth - imageWidth) / 2;
-        int panelCenterY = Math.min((panelHeight - imageHeight) / 2, 0);
+        Image image = ImageUtilities.loadImage(IMAGE_LIGHT_EFFECT, true);
+        g2.drawImage(image, 0, 0, this);
     }
 
 }

@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -52,14 +53,14 @@ public class StartPageContent extends JPanel implements Constants {
     }
 
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setPaint(COLOR_CONTENT_BACKGROUND);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         Image image = ImageUtilities.loadImage(IMAGE_LIGHT_EFFECT, true);
-        int w = image.getWidth(this);
-        int h = image.getHeight(this);
-        g2.drawImage(image, (getWidth()/2 - w/2), getHeight() - h, w, h, this);
+        g2.drawImage(image, 0, 0, this);
     }
 
     private static class TabPanel extends JPanel {

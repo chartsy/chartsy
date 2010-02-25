@@ -13,7 +13,7 @@ import javax.swing.border.Border;
 public interface Constants {
 
     // Images
-    public static final String IMAGE_LIGHT_EFFECT = "org/chartsy/main/intro/resources/light_effect.png";
+    public static final String IMAGE_LIGHT_EFFECT = "org/chartsy/main/intro/resources/bubles.png";
     public static final String IMAGE_CHARTSY_LOGO = "org/chartsy/main/intro/resources/chartsy_logo.png";
     
     public static final String IMAGE_TWITTER_LOGO = "org/chartsy/main/intro/resources/twitter.png";
