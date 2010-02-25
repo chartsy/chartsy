@@ -50,13 +50,13 @@ public class WelcomePanel extends JPanel implements Constants {
         label.setVerticalAlignment(SwingConstants.CENTER);
         label.setCursor(CURSOR_HAND);
         label.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) { Utils.openURL("http://www.google.com"); }
+            public void mouseClicked(MouseEvent e) { Utils.openURL(BundleSupport.getURL(URL_TUTORIAL)); }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {
                 JLabel label = (JLabel) e.getSource();
                 label.setText("<html><u>Watch the Tutorial</u></html>");
-                StatusDisplayer.getDefault().setStatusText("Watch the Tutorial");
+                StatusDisplayer.getDefault().setStatusText(BundleSupport.getURL(URL_TUTORIAL));
             }
             public void mouseExited(MouseEvent e) {
                 JLabel label = (JLabel) e.getSource();

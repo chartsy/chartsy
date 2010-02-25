@@ -66,6 +66,7 @@ public interface Constants {
 
     // URLs
     public static final String URL_CHARTSY = "Chartsy";
+    public static final String URL_TUTORIAL = "Tutorial";
     public static final String URL_TWITTER = "Twitter";
     public static final String URL_FACEBOOK = "Facebook";
     public static final String URL_BANNER_LINK = "BannerLink";
