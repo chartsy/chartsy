@@ -76,6 +76,38 @@ public class PluginsPanel extends JPanel implements Constants {
                 label.setOpaque(false);
                 label.setForeground(COLOR_LINK);
                 label.setFont(DESCRIPTION_FONT);
+                label.setPreferredSize(new Dimension(300, 150));
+                panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
+                panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
+                l.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
+            } else {
+                panel = new JPanel(new GridBagLayout());
+                panel.setOpaque(false);
+                label = new JLabel("Last Uploaded Plugin");
+                label.setOpaque(false);
+                label.setForeground(COLOR_LINK);
+                label.setFont(WELCOME_LABEL_FONT);
+                panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
+                panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
+                l.add(panel, new GridBagConstraints(0, 0, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
+
+                panel = new JPanel(new GridBagLayout());
+                panel.setOpaque(false);
+                label = new JLabel(" ");
+                label.setOpaque(false);
+                label.setForeground(COLOR_LINK);
+                label.setFont(WELCOME_LABEL_FONT);
+                panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
+                panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
+                l.add(panel, new GridBagConstraints(0, 1, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
+
+                panel = new JPanel(new GridBagLayout());
+                panel.setOpaque(false);
+                label = new JLabel("<html>There are no new plugins</html>");
+                label.setOpaque(false);
+                label.setForeground(COLOR_LINK);
+                label.setFont(DESCRIPTION_FONT);
+                label.setPreferredSize(new Dimension(300, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 l.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
