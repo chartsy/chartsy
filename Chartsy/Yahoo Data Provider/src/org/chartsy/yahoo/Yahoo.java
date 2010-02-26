@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -13,6 +12,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.dataset.DataItem;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.managers.LoggerManager;
@@ -41,8 +43,10 @@ public class Yahoo extends AbstractUpdater implements Serializable {
         try {
             URL yahoo = new URL("http://finance.yahoo.com/q?s=" + symbol);
             if (URLChecker.checkURL(yahoo)) {
-                URLConnection yc = yahoo.openConnection();
-                BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+                HttpClient client = new HttpClient();
+                HttpMethod method = new GetMethod(yahoo.toString());
+                client.executeMethod(method);
+                BufferedReader in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     if (inputLine.contains("<title>")) {
@@ -52,8 +56,10 @@ public class Yahoo extends AbstractUpdater implements Serializable {
                     }
                 }
                 in.close();
+                method.releaseConnection();
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             LoggerManager.getDefault().log("Bad URL.", ex);
         }
         return stock;
@@ -68,7 +74,10 @@ public class Yahoo extends AbstractUpdater implements Serializable {
             String strURL = getURL(symbol, time);
             URL url = new URL(strURL);
             if (URLChecker.checkURL(url)) {
-                in = new BufferedReader(new InputStreamReader(url.openStream()));
+                HttpClient client = new HttpClient();
+                HttpMethod method = new GetMethod(url.toString());
+                client.executeMethod(method);
+                in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
                 if (in != null) {
                     String inputLine;
                     in.readLine();
@@ -87,10 +96,12 @@ public class Yahoo extends AbstractUpdater implements Serializable {
                     Collections.sort(items, compare);
                     DataItem[] data = items.toArray(new DataItem[items.size()]);
                     Dataset dataset = new Dataset(data);
+                    method.releaseConnection();
                     return dataset;
                 }
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             LoggerManager.getDefault().log(ex);
         }
         return null;
@@ -106,7 +117,10 @@ public class Yahoo extends AbstractUpdater implements Serializable {
             System.out.println(strURL);
             URL url = new URL(strURL);
             if (URLChecker.checkURL(url)) {
-                in = new BufferedReader(new InputStreamReader(url.openStream()));
+                HttpClient client = new HttpClient();
+                HttpMethod method = new GetMethod(url.toString());
+                client.executeMethod(method);
+                in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
                 if (in != null) {
                     String inputLine;
                     //in.readLine();
@@ -138,6 +152,7 @@ public class Yahoo extends AbstractUpdater implements Serializable {
                                     data = list;
                                     break;
                             }
+                            method.releaseConnection();
                             return new Dataset(data);
                         }
                     }
@@ -151,7 +166,6 @@ public class Yahoo extends AbstractUpdater implements Serializable {
         return null;
     }
     public Dataset updateIntraDay(String symbol, String time) { return null; }
-    //public DataItem updateLastIntraDayItem(String symbol, String time) { return null; }
     public Dataset updateIntraDayLastValues(String symbol, String time, Dataset dataset) { return null; }
 
     private String getURL(final String symbol, final String time) {
