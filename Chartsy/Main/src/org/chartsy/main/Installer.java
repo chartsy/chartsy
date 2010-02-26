@@ -5,6 +5,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.intro.WelcomePage;
@@ -19,6 +20,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 public class Installer extends ModuleInstall {
@@ -26,21 +28,36 @@ public class Installer extends ModuleInstall {
     private static WindowAdapter windowListener = new WindowAdapter() {
         public void windowOpened(WindowEvent e) {
             WindowManager.getDefault().getMainWindow().removeWindowListener(this);
-            WelcomePage welcome = WelcomePage.getDefault();
-            welcome.open();
-            welcome.requestActive();
-            if (welcome.isOpened()) {
-                InitializeApplication.initialize();
-                Preferences p = NbPreferences.root().node("/org/chartsy/register");
-                boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
-                if (!registred) {
-                    RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
-                    register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-                    register.setVisible(true);
+            boolean opened = false;
+            Set<TopComponent> set = WindowManager.getDefault().getRegistry().getOpened();
+            for (TopComponent t : set) {
+                if (t instanceof WelcomePage) {
+                    WelcomePage welcomePage = (WelcomePage) t;
+                    welcomePage.requestActive();
+                    opened = true;
                 }
+            }
+            if (opened) {
+                init();
+            } else {
+                WelcomePage welcomePage = WelcomePage.getDefault();
+                welcomePage.open();
+                welcomePage.requestActive();
+                init();
             }
         }
     };
+
+    private static void init() {
+        InitializeApplication.initialize();
+        Preferences p = NbPreferences.root().node("/org/chartsy/register");
+        boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
+        if (!registred) {
+            RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
+            register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+            register.setVisible(true);
+        }
+    }
 
     public void restored() {
         super.restored();

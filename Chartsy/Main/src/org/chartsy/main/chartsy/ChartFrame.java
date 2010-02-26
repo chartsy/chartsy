@@ -335,7 +335,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
 
     protected void paintLoading() {
         setLayout(new BorderLayout());
-        javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
+        final javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
         label.setOpaque(true);
         label.setBackground(Color.WHITE);
         label.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -358,25 +358,31 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
                     } else {
                         UpdaterManager.getDefault().update(stock, updater);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 } finally {
-                    if (UpdaterManager.getDefault().isUpdated()) {
+                    boolean updated = UpdaterManager.getDefault().isUpdated();
+                    if (updated) {
                         UpdaterManager.getDefault().setUpdate(false);
                         handle.finish();
-                        if (updater.getDataset(stock, time) != null) {
+                        Dataset dataset = updater.getDataset(stock, time);
+                        if (dataset != null) {
                             removeAll();
                             initComponents();
                         } else {
-                            NotifyDescriptor d = new NotifyDescriptor.Message("Can't find data for " + stock.getKey() + " symbol.", NotifyDescriptor.INFORMATION_MESSAGE);
+                            //requestActive();
+                            label.setText("Can't find data for " + stock.getKey() + " symbol.");
+                            /*NotifyDescriptor d = new NotifyDescriptor.Message("Can't find data for " + stock.getKey() + " symbol.", NotifyDescriptor.INFORMATION_MESSAGE);
                             Object retval = DialogDisplayer.getDefault().notify(d);
                             if (retval.equals(NotifyDescriptor.OK_OPTION)) {
                                 close();
-                            }
+                            }*/
+                            repaint();
                         }
                     }
                 }
             }
         });
-        t.setPriority(Thread.MAX_PRIORITY);
         t.start();
     }
 
@@ -461,7 +467,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
                 chartFrame.setIntraDayAnnotations(intraDay);
 
                 return chartFrame;
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 
             return null;
         }

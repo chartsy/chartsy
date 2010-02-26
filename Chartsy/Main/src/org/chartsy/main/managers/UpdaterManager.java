@@ -56,10 +56,9 @@ public class UpdaterManager {
     }
 
     public void update(Stock stock, AbstractUpdater updater) {
-        Dataset dataset;
         if (updater != null) {
             for (String time : AbstractUpdater.LIST) {
-                dataset = updater.update(stock.getKey(), time);
+                Dataset dataset = updater.update(stock.getKey(), time);
                 if (dataset != null) {
                     updater.addDataset(updater.getKey(stock, time), dataset);
                 }
@@ -69,11 +68,10 @@ public class UpdaterManager {
     }
 
     public void update(Stock[] stocks, AbstractUpdater abstractUpdater) {
-        Dataset dataset;
         if (abstractUpdater != null) {
             for (Stock stock : stocks) {
                 for (String time : AbstractUpdater.LIST) {
-                    dataset = abstractUpdater.update(stock.getKey(), time);
+                    Dataset dataset = abstractUpdater.update(stock.getKey(), time);
                     if (dataset != null) {
                         abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
                     }
@@ -84,7 +82,6 @@ public class UpdaterManager {
     }
 
     public void update(LinkedHashMap stocks, AbstractUpdater abstractUpdater) {
-        Dataset dataset;
         if (abstractUpdater != null) {
             Iterator it = stocks.keySet().iterator();
             while (it.hasNext()) {
@@ -92,19 +89,19 @@ public class UpdaterManager {
                 String time = (String) stocks.get(stock);
                 if (!time.contains("Min")) {
                     for (String t : AbstractUpdater.LIST) {
-                        dataset = abstractUpdater.update(stock.getKey(), t);
+                        Dataset dataset = abstractUpdater.update(stock.getKey(), t);
                         if (dataset != null) {
                             abstractUpdater.addDataset(abstractUpdater.getKey(stock, t), dataset);
                         }
                     }
                 } else {
                     for (String t : AbstractUpdater.LIST) {
-                        dataset = abstractUpdater.update(stock.getKey(), t);
+                        Dataset dataset = abstractUpdater.update(stock.getKey(), t);
                         if (dataset != null) {
                             abstractUpdater.addDataset(abstractUpdater.getKey(stock, t), dataset);
                         }
                     }
-                    dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
+                    Dataset dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
                     if (dataset != null) {
                         abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
                     }
@@ -115,9 +112,8 @@ public class UpdaterManager {
     }
 
     public void update(Stock stock, String time, AbstractUpdater abstractUpdater) {
-        Dataset dataset;
         if (abstractUpdater != null) {
-            dataset = (!time.contains("Min")) ? abstractUpdater.update(stock.getKey(), time) : abstractUpdater.updateIntraDay(stock.getKey(), time);
+            Dataset dataset = (!time.contains("Min")) ? abstractUpdater.update(stock.getKey(), time) : abstractUpdater.updateIntraDay(stock.getKey(), time);
             if (dataset != null) {
                 abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
             }
@@ -126,9 +122,8 @@ public class UpdaterManager {
     }
 
     public void updateIntraDay(Stock stock, String time, AbstractUpdater abstractUpdater) {
-        Dataset dataset;
         if (abstractUpdater != null) {
-            dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
+            Dataset dataset = abstractUpdater.updateIntraDay(stock.getKey(), time);
             if (dataset != null) {
                 abstractUpdater.addDataset(abstractUpdater.getKey(stock, time), dataset);
             }

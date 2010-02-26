@@ -1,8 +1,10 @@
 package org.chartsy.main.utils;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
  *
@@ -10,42 +12,20 @@ import java.net.URLConnection;
  */
 public class URLChecker {
 
-    public static final int INFORMATIONAL = 1;
-    public static final int SUCCESSFUL = 2;
-    public static final int REDIRECTION = 3;
-    public static final int ERROR = 4;
-    public static final int SERVER_ERROR = 5;
-
     private URLChecker() {}
 
     public static boolean checkURL(URL url) {
         boolean ok = false;
         try {
-            URLConnection connection = url.openConnection();
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection httpConnection = (HttpURLConnection) connection;
-                httpConnection.connect();
-                int responce = httpConnection.getResponseCode() / 100;
-                switch (responce) {
-                    case INFORMATIONAL:
-                        ok = true;
-                        break;
-                    case SUCCESSFUL:
-                        ok = true;
-                        break;
-                    case REDIRECTION:
-                        ok = true;
-                        break;
-                    case ERROR:
-                        ok = false;
-                        break;
-                    case SERVER_ERROR:
-                        ok = false;
-                        break;
-                }
-            }
-        } catch (Exception e) {
+            HttpClient httpClient = new HttpClient();
+            HttpMethod method = new GetMethod(url.toString());
+
+            int responce = httpClient.executeMethod(method);
+            if (responce == HttpStatus.SC_OK) ok = true;
+            method.releaseConnection();
+        } catch (Exception ex) {
             ok = false;
+            ex.printStackTrace();
         }
         return ok;
     }

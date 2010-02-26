@@ -1,10 +1,8 @@
 package org.chartsy.main.intro;
 
 import java.awt.BorderLayout;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import org.chartsy.main.intro.ui.StartPageContent;
-//import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -12,8 +10,6 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
-//@ConvertAsProperties(dtd = "-//org.chartsy.main.intro//Welcome//EN",
-//autostore = false)
 public class WelcomePage extends TopComponent {
 
     private static WelcomePage instance;
@@ -26,12 +22,8 @@ public class WelcomePage extends TopComponent {
 
     public static synchronized WelcomePage findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
-        if (win == null) {
-            return getDefault();
-        }
-        if (win instanceof WelcomePage) {
-            return (WelcomePage) win;
-        }
+        if (win == null) { return getDefault(); }
+        if (win instanceof WelcomePage) { return (WelcomePage) win; }
         return getDefault();
     }
 
@@ -54,24 +46,31 @@ public class WelcomePage extends TopComponent {
         setHtmlDisplayName("Welcome");
     }
 
-    public int getPersistenceType() { return TopComponent.PERSISTENCE_ALWAYS; }
-    public String preferredID() { return PREFERRED_ID; }
-    public void componentOpened() {}
-    public void componentClosed() {}
-
-    void writeProperties(java.util.Properties p) { p.setProperty("version", "1.0"); }
-    Object readProperties(java.util.Properties p) {
-        if (instance == null) instance = this;
-        instance.readPropertiesImpl(p);
-        return instance;
+    @Override
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_ALWAYS;
     }
-    private void readPropertiesImpl(java.util.Properties p) { String version = p.getProperty("version"); }
 
-    protected Object writeReplace() throws ObjectStreamException { return new WelcomeHelper(); }
+    @Override
+    protected String preferredID() {
+        return PREFERRED_ID;
+    }
+    @Override
+    protected Object writeReplace() {
+        return new ResolvableHelper();
+    }
 
-    final static class WelcomeHelper implements Serializable {
-        private static final long serialVersionUID = 101L;
-        public Object readResolve() { return WelcomePage.getDefault(); }
+
+    final static class ResolvableHelper implements Serializable {
+
+        private static final long serialVersionUID = 111L;
+
+        private ResolvableHelper() {}
+
+        public Object readResolve() {
+            return WelcomePage.getDefault();
+        }
+
     }
 
 }

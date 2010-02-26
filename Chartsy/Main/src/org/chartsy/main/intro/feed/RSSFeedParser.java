@@ -40,7 +40,7 @@ public class RSSFeedParser {
             HttpClient client = new HttpClient();
             HttpMethod method = new GetMethod(url.toString());
 
-            int status = client.executeMethod(method);
+            client.executeMethod(method);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(method.getResponseBodyAsStream());
@@ -88,6 +88,8 @@ public class RSSFeedParser {
                     }
                 }
             }
+
+            method.releaseConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
