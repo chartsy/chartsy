@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
 /**
@@ -38,7 +39,11 @@ public class TopLogo extends JButton implements Constants, MouseListener, Action
     public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) { if (url != null) StatusDisplayer.getDefault().setStatusText(url); }
     public void mouseExited(MouseEvent e) { StatusDisplayer.getDefault().setStatusText(""); }
-    public void actionPerformed(ActionEvent e) { Utils.openURL(url); }
+    public void actionPerformed(ActionEvent e) { 
+        //Utils.openURL(url);
+        try { DesktopUtil.browse(url); }
+        catch (Exception ex) {}
+    }
 
     public void paint(Graphics g) { super.paint(g); }
 

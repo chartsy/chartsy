@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
 /**
@@ -48,7 +49,11 @@ public class ContentLogo extends JLabel implements Constants, MouseListener {
     }
 
 
-    public void mouseClicked(MouseEvent e) { Utils.openURL(url); }
+    public void mouseClicked(MouseEvent e) {
+        //Utils.openURL(url);
+        try { DesktopUtil.browse(url); }
+        catch (Exception ex) {}
+    }
     public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) { if (url != null) StatusDisplayer.getDefault().setStatusText(url); }

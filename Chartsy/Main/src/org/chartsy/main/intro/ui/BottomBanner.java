@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
 import org.chartsy.main.intro.content.Utils;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
 /**
@@ -108,7 +109,9 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
             method.setFollowRedirects(true);
             client.executeMethod(method);
 
-            Utils.openURL(method.getURI().getHost() + method.getURI().getPath());
+            //Utils.openURL(method.getURI().getHost() + method.getURI().getPath());
+            try { DesktopUtil.browse(method.getURI().getHost() + method.getURI().getPath()); }
+            catch (Exception exc) {}
             
             method.setFollowRedirects(false);
             method.releaseConnection();

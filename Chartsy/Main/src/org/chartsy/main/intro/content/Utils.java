@@ -23,7 +23,7 @@ public class Utils {
         String osName = System.getProperty("os.name");
         try {
             if (osName.startsWith("Max OS")) {
-                Class<?> fileMgr = Class.forName("com.apple.eio.FileManager");
+                Class fileMgr = Class.forName("com.apple.eio.FileManager");
                 Method openURL = fileMgr.getDeclaredMethod("openURL", new Class[] {String.class});
                 openURL.invoke(null, new Object[] {url});
             } else if (osName.startsWith("Windows")) {

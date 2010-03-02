@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
 import org.chartsy.main.intro.content.Utils;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
 /**
@@ -50,7 +51,11 @@ public class WelcomePanel extends JPanel implements Constants {
         label.setVerticalAlignment(SwingConstants.CENTER);
         label.setCursor(CURSOR_HAND);
         label.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) { Utils.openURL(BundleSupport.getURL(URL_TUTORIAL)); }
+            public void mouseClicked(MouseEvent e) {
+                //Utils.openURL(BundleSupport.getURL(URL_TUTORIAL));
+                try { DesktopUtil.browse(BundleSupport.getURL(URL_TUTORIAL)); }
+                catch (Exception ex) {}
+            }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {

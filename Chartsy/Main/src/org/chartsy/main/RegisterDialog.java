@@ -3,18 +3,17 @@ package org.chartsy.main;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.prefs.Preferences;
-import javax.swing.JOptionPane;
+import javax.swing.BorderFactory;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
@@ -24,16 +23,18 @@ import org.openide.windows.WindowManager;
  */
 public class RegisterDialog extends javax.swing.JDialog {
 
-    static final String[] browsers = { "firefox", "opera", "konqueror", "epiphany", "seamonkey", "galeon", "kazehakase", "mozilla", "netscape" };
-
     public RegisterDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         initForm();
         getRootPane().setDefaultButton(btnRegister);
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
-        editor.setBackground(new java.awt.Color(0, 0, 0, 0));
-        jScrollPane1.setBackground(new java.awt.Color(0, 0, 0, 0));
+        jScrollPane1.setBorder(BorderFactory.createEmptyBorder());
+        jScrollPane1.getViewport().setOpaque(false);
+        jScrollPane1.setOpaque(false);
+
+        editor.setBorder(BorderFactory.createEmptyBorder());
+        editor.setOpaque(false);
     }
 
     private void initForm() {
@@ -41,34 +42,13 @@ public class RegisterDialog extends javax.swing.JDialog {
         editor.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    openURL(e.getURL().toString());
+                    try { DesktopUtil.browse(e.getURL()); }
+                    catch (Exception ex) {}
                 }
             }
         });
     }
 
-    private void openURL(String url) {
-        String osName = System.getProperty("os.name");
-        try {
-            if (osName.startsWith("Max OS")) {
-                Class<?> fileMgr = Class.forName("com.apple.eio.FileManager");
-                Method openURL = fileMgr.getDeclaredMethod("openURL", new Class[] {String.class});
-                openURL.invoke(null, new Object[] {url});
-            } else if (osName.startsWith("Windows")) {
-                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
-            } else {
-                boolean found = false;
-                for (String browser : browsers)
-                    if (!found) {
-                        found = Runtime.getRuntime().exec( new String[] {"which", browser}).waitFor() == 0;
-                        if (found) Runtime.getRuntime().exec(new String[] {browser, url});
-                    }
-                if (!found) throw new Exception(Arrays.toString(browsers));
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error attempting to launch web browser\n" + e.toString());
-        }
-    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

@@ -19,6 +19,7 @@ import org.chartsy.main.intro.content.Utils;
 import org.chartsy.main.intro.feed.Feed;
 import org.chartsy.main.intro.feed.FeedMessage;
 import org.chartsy.main.intro.feed.RSSFeedParser;
+import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
 /**
@@ -123,7 +124,11 @@ public class PluginsPanel extends JPanel implements Constants {
         label.setForeground(COLOR_LINK);
         label.setHorizontalTextPosition(SwingConstants.RIGHT);
         label.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) { Utils.openURL(BundleSupport.getURL("AllPlugins")); }
+            public void mouseClicked(MouseEvent e) {
+                //Utils.openURL(BundleSupport.getURL("AllPlugins"));
+                try { DesktopUtil.browse(BundleSupport.getURL("AllPlugins")); }
+                catch (Exception ex) {}
+            }
             public void mouseEntered(MouseEvent e) {
                 JLabel label = (JLabel) e.getSource();
                 String s = label.getText();
