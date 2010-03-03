@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import org.chartsy.main.intro.ui.StartPageContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.util.ImageUtilities;
+import org.netbeans.api.settings.ConvertAsProperties;
 
 @ConvertAsProperties(dtd = "-//org.chartsy.main.intro//Welcome//EN",
 autostore = false)
@@ -38,15 +38,15 @@ public final class WelcomeTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

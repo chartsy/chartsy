@@ -101,6 +101,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
     public void mouseExited(MouseEvent e) { StatusDisplayer.getDefault().setStatusText(""); }
     public void actionPerformed(ActionEvent e) {
         try {
+            bottomLink.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             HttpClient client = new HttpClient();
             Cookie cookie = new Cookie(cookieDomain, cookieName, cookieValue, cookiePath, cookieExpires, cookieSecure);
             client.getState().addCookie(cookie);
@@ -115,6 +116,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
             
             method.setFollowRedirects(false);
             method.releaseConnection();
+            bottomLink.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

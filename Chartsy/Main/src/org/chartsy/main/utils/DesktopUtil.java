@@ -113,13 +113,6 @@ public class DesktopUtil {
     }
 
     private static void browseUnix(final String url) throws IOException, InterruptedException, Exception {
-        /*for (final String cmd : UNIX_BROWSE_CMDS) {
-            if (unixCommandExists(cmd)) {
-                Runtime.getRuntime().exec(new String[]{cmd, url});
-                return;
-            }
-        }
-        throw new IOException("Could not find a suitable web browser");*/
         boolean found = false;
         for (String browser : BROWSERS) {
             if (!found) {
