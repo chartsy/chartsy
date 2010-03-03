@@ -111,6 +111,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
 
             try {
                 String uri = method.getURI().getHost() + (method.getURI().getPath().equals("/") ? "" : method.getURI().getPath());
+                uri = (uri.startsWith("htpp://")) ? uri : "http://" + uri;
                 DesktopUtil.browse(uri);
             } catch (Exception exc) { exc.printStackTrace(); }
             
