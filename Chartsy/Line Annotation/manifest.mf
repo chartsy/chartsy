@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.chartsy.annotation.line
-OpenIDE-Module-Layer: org/chartsy/annotation/line/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/chartsy/annotation/line/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 

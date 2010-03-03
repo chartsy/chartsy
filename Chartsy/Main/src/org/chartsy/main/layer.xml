@@ -21,6 +21,13 @@
                 <attr name="noIconInMenu" stringvalue="false"/>
             </file>
         </folder>
+        <!--<folder name="Window">
+            <file name="org-chartsy-main-intro-WelcomeAction.instance">
+                <attr name="component" methodvalue="org.chartsy.main.intro.WelcomeTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.chartsy.main.intro.Bundle#CTL_WelcomeAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+        </folder>-->
     </folder>
     <folder name="Menu">
         <folder name="File">
@@ -35,6 +42,11 @@
                 <attr name="position" intvalue="100"/>
             </file>
         </folder>
+        <!--<folder name="Window">
+            <file name="WelcomeAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-chartsy-main-intro-WelcomeAction.instance"/>
+            </file>
+        </folder>-->
     </folder>
     <folder name="Toolbars">
         <folder name="File">
@@ -42,6 +54,16 @@
                 <attr name="originalFile" stringvalue="Actions/Edit/org-chartsy-main-NewChart.instance"/>
                 <attr name="position" intvalue="0"/>
             </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="WelcomeTopComponent.settings" url="WelcomeTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="WelcomeTopComponent.wstcref" url="WelcomeTopComponentWstcref.xml"/>
+            </folder>
         </folder>
     </folder>
 </filesystem>

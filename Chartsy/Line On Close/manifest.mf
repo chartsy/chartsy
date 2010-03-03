@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.chartsy.lineonclose
-OpenIDE-Module-Layer: org/chartsy/lineonclose/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/chartsy/lineonclose/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 

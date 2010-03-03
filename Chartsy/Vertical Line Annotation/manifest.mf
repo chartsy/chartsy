@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.chartsy.annotation.verticalline
-OpenIDE-Module-Layer: org/chartsy/annotation/verticalline/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/chartsy/annotation/verticalline/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 

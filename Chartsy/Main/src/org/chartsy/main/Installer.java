@@ -5,11 +5,9 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.chartsy.main.intro.WelcomePage;
 import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
@@ -21,7 +19,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
-import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 public class Installer extends ModuleInstall {
@@ -29,23 +26,7 @@ public class Installer extends ModuleInstall {
     private static WindowAdapter windowListener = new WindowAdapter() {
         public void windowOpened(WindowEvent e) {
             WindowManager.getDefault().getMainWindow().removeWindowListener(this);
-            boolean opened = false;
-            Set<TopComponent> set = WindowManager.getDefault().getRegistry().getOpened();
-            for (TopComponent t : set) {
-                if (t instanceof WelcomePage) {
-                    WelcomePage welcomePage = (WelcomePage) t;
-                    welcomePage.requestActive();
-                    opened = true;
-                }
-            }
-            if (opened) {
-                init();
-            } else {
-                WelcomePage welcomePage = WelcomePage.getDefault();
-                welcomePage.open();
-                welcomePage.requestActive();
-                init();
-            }
+            init();
         }
     };
 

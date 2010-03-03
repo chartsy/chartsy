@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -22,10 +23,11 @@ public class DesktopUtil {
 
     private static final String[] UNIX_BROWSE_CMDS = {"www-browser", "firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape", "w3m", "lynx"};
     private static final String[] UNIX_OPEN_CMDS = {"run-mailcap", "pager", "less", "more"};
+    private static final String[] BROWSERS = { "firefox", "opera", "konqueror", "epiphany", "seamonkey", "galeon", "kazehakase", "mozilla", "netscape" };
 
     private DesktopUtil() {}
 
-    public static void browse(final String url) throws IOException {
+    public static void browse(final String url) throws IOException, InterruptedException, Exception {
         final String osName = System.getProperty("os.name");
         if (osName.startsWith(OS_MACOS)) { browseMac(url); }
         else if (osName.startsWith(OS_WINDOWS)) { browseWindows(url); }
@@ -110,14 +112,22 @@ public class DesktopUtil {
         Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url.toString()});
     }
 
-    private static void browseUnix(final String url) throws IOException {
-        for (final String cmd : UNIX_BROWSE_CMDS) {
+    private static void browseUnix(final String url) throws IOException, InterruptedException, Exception {
+        /*for (final String cmd : UNIX_BROWSE_CMDS) {
             if (unixCommandExists(cmd)) {
                 Runtime.getRuntime().exec(new String[]{cmd, url});
                 return;
             }
         }
-        throw new IOException("Could not find a suitable web browser");
+        throw new IOException("Could not find a suitable web browser");*/
+        boolean found = false;
+        for (String browser : BROWSERS) {
+            if (!found) {
+                found = Runtime.getRuntime().exec(new String[] {"which", browser}).waitFor() == 0;
+                if (found) Runtime.getRuntime().exec(new String[] {browser, url});
+            }
+        }
+        if (!found) throw new Exception(Arrays.toString(BROWSERS));
     }
 
     private static void browseUnix(final URL url) throws IOException {

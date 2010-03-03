@@ -3,20 +3,16 @@ package org.chartsy.main.intro.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import org.chartsy.main.intro.content.Constants;
 import org.chartsy.main.intro.content.Utils;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -36,7 +32,8 @@ public class StartPageContent extends JPanel implements Constants {
         TabPanel panel = new TabPanel(tabbedPane);
 
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setBorder(EMPTY_BORDER);
+        scrollPane.setBorder(null);
+        scrollPane.setViewportBorder(null);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setPreferredSize(new Dimension(700, 100));
@@ -54,13 +51,6 @@ public class StartPageContent extends JPanel implements Constants {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        /*Graphics2D g2 = (Graphics2D)g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setPaint(COLOR_CONTENT_BACKGROUND);
-        g2.fillRect(0, 0, getWidth(), getHeight());
-
-        Image image = ImageUtilities.loadImage(IMAGE_LIGHT_EFFECT, true);
-        g2.drawImage(image, 0, 0, this);*/
     }
 
     private static class TabPanel extends JPanel {

@@ -2,10 +2,8 @@ package org.chartsy.main.intro.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -13,7 +11,6 @@ import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
 import org.chartsy.main.intro.content.TopLogo;
 import org.chartsy.main.intro.content.Utils;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -36,11 +33,6 @@ public class TopBar extends JPanel implements Constants {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
-        /*Graphics2D g2 = (Graphics2D)g;
-
-        Image image = ImageUtilities.loadImage(IMAGE_LIGHT_EFFECT, true);
-        g2.drawImage(image, 0, 0, this);*/
     }
 
 }
