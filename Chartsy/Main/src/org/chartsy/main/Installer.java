@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.prefs.Preferences;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.intro.WelcomePage;
 import org.chartsy.main.managers.LoggerManager;
@@ -53,7 +54,7 @@ public class Installer extends ModuleInstall {
         Preferences p = NbPreferences.root().node("/org/chartsy/register");
         boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
         if (!registred) {
-            RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
+            RegisterForm register = new RegisterForm(new JFrame(), true);
             register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             register.setVisible(true);
         }

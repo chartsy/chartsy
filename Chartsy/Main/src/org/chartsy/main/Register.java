@@ -18,7 +18,7 @@ public final class Register implements ActionListener {
         Preferences p = NbPreferences.root().node("/org/chartsy/register");
         boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
         if (!registred) {
-            RegisterDialog register = new RegisterDialog(new javax.swing.JFrame(), true);
+            RegisterForm register = new RegisterForm(new javax.swing.JFrame(), true);
             register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
             register.setVisible(true);
         } else {
