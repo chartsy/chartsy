@@ -116,7 +116,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
             
             method.setFollowRedirects(false);
             method.releaseConnection();
-            bottomLink.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            bottomLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
