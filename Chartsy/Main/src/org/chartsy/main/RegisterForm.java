@@ -4,15 +4,15 @@ import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.prefs.Preferences;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.chartsy.main.utils.DesktopUtil;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
@@ -151,32 +151,29 @@ public class RegisterForm extends javax.swing.JDialog {
     }//GEN-LAST:event_btnRemindActionPerformed
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        String username = txtUsername.getText();
+        String user = txtUsername.getText();
         String pass = new String(txtPassword.getPassword());
-        if (username.equals("")) {
-            lblMessage.setText("<html>Username field is empty!</html>");
-            return;
-        }
-        if (pass.equals("")) {
-            lblMessage.setText("<html>Password field is empty!</html>");
-            return;
-        }
-        String password = getMD5(pass);
-        if (password == null) return;
+        String password = null;
         try {
-            HttpClient client = new HttpClient();
-            HttpMethod method = new PostMethod("http://www.chartsy.org/checkregistration.php?username=" + username + "&password=" + password);
-            client.executeMethod(method);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
-            if (bufferedReader != null) {
-                String firstLine = bufferedReader.readLine();
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(new String(txtPassword.getPassword()).getBytes());
+            BigInteger hash = new BigInteger(1, md5.digest());
+            password = hash.toString(16);
+        } catch (NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            URL url = new URL("http://www.chartsy.org/checkregistration.php?username=" + user + "&password=" + password);
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            if (br != null) {
+                String firstLine = br.readLine();
                 if (firstLine.equals("OK")) {
-                    String name = bufferedReader.readLine();
+                    String name = br.readLine();
                     Preferences p = NbPreferences.root().node("/org/chartsy/register");
                     p.put("registred", "true");
                     p.put("name", name);
                     p.put("date", String.valueOf(new Date().getTime()));
-                    p.put("username", username);
+                    p.put("username", user);
                     p.put("password", pass);
                     lblMessage.setText(name + ", thank you for the registration.");
                     btnRegister.setVisible(false);
@@ -185,24 +182,12 @@ public class RegisterForm extends javax.swing.JDialog {
                     lblMessage.setText("Error, could not register. Check your username and password.");
                 }
             }
-            method.releaseConnection();
-        } catch (Exception ex) {
+        } catch (MalformedURLException ex) {
             ex.printStackTrace();
-            return;
+        } catch (IOException io) {
+            io.printStackTrace();
         }
     }//GEN-LAST:event_btnRegisterActionPerformed
-
-    private String getMD5(String password) {
-        try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update(password.getBytes());
-            BigInteger hash = new BigInteger(1, md5.digest());
-            return hash.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
