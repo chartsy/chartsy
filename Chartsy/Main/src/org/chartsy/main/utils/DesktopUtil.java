@@ -26,15 +26,15 @@ public class DesktopUtil {
     private DesktopUtil() {}
 
     public static void browse(final String url) throws IOException {
-        browse(new URL(url));
+        final String osName = System.getProperty("os.name");
+        if (osName.startsWith(OS_MACOS)) { browseMac(url); }
+        else if (osName.startsWith(OS_WINDOWS)) { browseWindows(url); }
+        else { browseUnix(url); }
     }
 
     public static void browse(final URL url) throws IOException {
-
         if (browseDesktop(url)) return;
-
         final String osName = System.getProperty("os.name");
-
         if (osName.startsWith(OS_MACOS)) { browseMac(url); }
         else if (osName.startsWith(OS_WINDOWS)) { browseWindows(url); }
         else { browseUnix(url); }
@@ -102,8 +102,22 @@ public class DesktopUtil {
         }
     }
 
+    private static void browseWindows(final String url) throws IOException {
+        Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
+    }
+
     private static void browseWindows(final URL url) throws IOException {
         Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url.toString()});
+    }
+
+    private static void browseUnix(final String url) throws IOException {
+        for (final String cmd : UNIX_BROWSE_CMDS) {
+            if (unixCommandExists(cmd)) {
+                Runtime.getRuntime().exec(new String[]{cmd, url});
+                return;
+            }
+        }
+        throw new IOException("Could not find a suitable web browser");
     }
 
     private static void browseUnix(final URL url) throws IOException {
@@ -114,7 +128,17 @@ public class DesktopUtil {
             }
         }
         throw new IOException("Could not find a suitable web browser");
-  }
+    }
+
+    private static void browseMac(final String url) throws IOException {
+        try {
+            final Class fileMgr = getAppleFileManagerClass();
+            final Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
+            openURL.invoke(null, url);
+        } catch (Exception e) {
+            throw new IOException("Could not launch Mac URL: " + e.getLocalizedMessage());
+        }
+    }
 
     private static void browseMac(final URL url) throws IOException {
         try {

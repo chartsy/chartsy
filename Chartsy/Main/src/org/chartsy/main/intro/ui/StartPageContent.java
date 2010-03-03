@@ -54,13 +54,13 @@ public class StartPageContent extends JPanel implements Constants {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
+        /*Graphics2D g2 = (Graphics2D)g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setPaint(COLOR_CONTENT_BACKGROUND);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         Image image = ImageUtilities.loadImage(IMAGE_LIGHT_EFFECT, true);
-        g2.drawImage(image, 0, 0, this);
+        g2.drawImage(image, 0, 0, this);*/
     }
 
     private static class TabPanel extends JPanel {
