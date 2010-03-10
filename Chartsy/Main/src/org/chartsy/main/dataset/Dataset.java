@@ -26,6 +26,11 @@ public class Dataset implements Serializable {
     }
 
     public boolean isEmpty() { return (data.length == 0); }
+    public boolean isItemNull(int i) {
+        if (i < 0 || i > getItemCount()) return true;
+        DataItem d = getData()[i];
+        return (d.getOpenValue() == 0 && d.getCloseValue() == 0 && d.getHighValue() == 0 && d.getLowValue() == 0);
+    }
     public DataItem[] getData() { return data; }
     public Number getX(int item) { return new Long(data[item].getDate().getTime()); }
     public Date getDate(int item) { return data[item].getDate(); }
@@ -198,50 +203,256 @@ public class Dataset implements Serializable {
 
     public Dataset getSMA(int period) {
         Vector<DataItem> list = new Vector<DataItem>();
-        for (int i = 0; i < period; i++) {
-            DataItem item = new DataItem(getDate(i), 0, 0, 0, 0, 0, 0);
-            list.add(item);
-        }
-        for (int i = period; i < getItemCount(); i++) {
-            double open = 0; double close = 0; double high = 0; double low = 0;
-            for (int j = 0; j < period; j++) {
-                open += getOpenValue(i-j);
-                close += getCloseValue(i-j);
-                high += getHighValue(i-j);
-                low += getLowValue(i-j);
+        for (int i = 0; i < period - 1; i++)
+            list.add(new DataItem(getDate(i), 0, 0, 0, 0, 0, 0));
+        
+        for (int i = period - 1; i < getItemCount(); i++) {
+            double open = 0;
+            double close = 0;
+            double high = 0;
+            double low = 0;
+            
+            for (int j = i - period + 1; j <= i; j++) {
+                open += getOpenValue(j);
+                close += getCloseValue(j);
+                high += getHighValue(j);
+                low += getLowValue(j);
             }
-            open /= period; close /= period; high /= period; low /= period;
-            DataItem item = new DataItem(getDate(i), open, close, high, low, 0, 0);
-            list.add(item);
+            
+            open /= (double)period;
+            close /= (double)period;
+            high /= (double)period;
+            low /= (double)period;
+            
+            list.add(new DataItem(getDate(i), open, close, high, low, 0, 0));
         }
+        
         DataItem[] items = list.toArray(new DataItem[list.size()]);
         return new Dataset(items);
     }
 
     public Dataset getEMA(int period) {
         Vector<DataItem> list = new Vector<DataItem>();
-        for (int i = 0; i < period; i++) {
-            DataItem item = new DataItem(getDate(i), 0, 0, 0, 0, 0, 0);
-            list.add(item);
-        }
-        double open = 0; double close = 0; double high = 0; double low = 0;
+        
+        double open = 0;
+        double close = 0;
+        double high = 0;
+        double low = 0;
+        
         for (int i = 0; i < period; i++) {
             open += getOpenValue(i);
             close += getCloseValue(i);
             high += getHighValue(i);
             low += getLowValue(i);
+
+            if (i == period - 1) {
+                open /= (double)period;
+                close /= (double)period;
+                high /= (double)period;
+                low /= (double)period;
+                
+                list.add(new DataItem(getDate(i), open, close, high, low, 0, 0));
+            } else {
+                list.add(new DataItem(getDate(i), 0, 0, 0, 0, 0, 0));
+            }
         }
-        close /= period; open /= period; high /= period; low /= period;
+
+        double k = 2 / ((double)(period + 1));
         for (int i = period; i < getItemCount(); i++) {
-            double open2 = 0; double close2 = 0; double high2 = 0; double low2 = 0;
-            open2 = (2 * (getOpenValue(i) - open))/(1 + period) + open;
-            close2 = (2 * (getCloseValue(i) - close))/(1 + period) + close;
-            high2 = (2 * (getHighValue(i) - high))/(1 + period) + high;
-            low2 = (2 * (getLowValue(i) - low))/(1 + period) + low;
-            open = open2; close = close2; high = high2; low = low2;
-            DataItem item = new DataItem(getDate(i), open2, close2, high2, low2, 0, 0);
-            list.add(item);
+            open = (getOpenValue(i) - open) * k + open;
+            close = (getCloseValue(i) - close) * k + close;
+            high = (getHighValue(i) - high) * k + high;
+            low = (getLowValue(i) - low) * k + low;
+            
+            list.add(new DataItem(getDate(i), open, close, high, low, 0, 0));
         }
+        
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset SUM(Dataset d1, Dataset d2) {
+        if (d1==null || d2==null) return null;
+
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        for (int i = 0; i < d1.getItemCount(); i++) {
+            double open = d1.getOpenValue(i) + d2.getOpenValue(i);
+            double close = d1.getCloseValue(i) + d2.getCloseValue(i);
+            double high = d1.getHighValue(i) + d2.getHighValue(i);
+            double low = d1.getLowValue(i) + d2.getLowValue(i);
+
+            list.add(new DataItem(d1.getDate(i), open, close, high, low, 0, 0));
+        }
+
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset DIFF(Dataset d1, Dataset d2) {
+        if (d1==null || d2==null) return null;
+
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        for (int i = 0; i < d1.getItemCount(); i++) {
+            double open = d1.getOpenValue(i) - d2.getOpenValue(i);
+            double close = d1.getCloseValue(i) - d2.getCloseValue(i);
+            double high = d1.getHighValue(i) - d2.getHighValue(i);
+            double low = d1.getLowValue(i) - d2.getLowValue(i);
+            
+            list.add(new DataItem(d1.getDate(i), open, close, high, low, 0, 0));
+        }
+
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset SMA(Dataset dataset, int period) {
+        if (dataset == null) return null;
+
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        for (int i = 0; i < period - 1; i++)
+            list.add(new DataItem(dataset.getDate(i), 0, 0, 0, 0, 0, 0));
+
+        for (int i = period - 1; i < dataset.getItemCount(); i++) {
+            double open = 0;
+            double close = 0;
+            double high = 0;
+            double low = 0;
+
+            for (int j = i - period + 1; j <= i; j++) {
+                open += dataset.getOpenValue(j);
+                close += dataset.getCloseValue(j);
+                high += dataset.getHighValue(j);
+                low += dataset.getLowValue(j);
+            }
+
+            open /= (double)period;
+            close /= (double)period;
+            high /= (double)period;
+            low /= (double)period;
+
+            list.add(new DataItem(dataset.getDate(i), open, close, high, low, 0, 0));
+        }
+        
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset EMA(Dataset dataset, int period) {
+        if (dataset == null) return null;
+
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        int j = 0;
+        for (j = 0; j < dataset.getItemCount() && (dataset.getCloseValue(j)==0); j++)
+            list.add(new DataItem(dataset.getDate(j), 0, 0, 0, 0, 0, 0));
+
+        double open = 0;
+        double close = 0;
+        double high = 0;
+        double low = 0;
+        
+        for (int i = j; i < period + j && i < dataset.getItemCount(); i++) {
+            open += dataset.getOpenValue(i);
+            close += dataset.getCloseValue(i);
+            high += dataset.getHighValue(i);
+            low += dataset.getLowValue(i);
+
+            if (i == period + j - 1) {
+                open /= (double)period;
+                close /= (double)period;
+                high /= (double)period;
+                low /= (double)period;
+                
+                list.add(new DataItem(dataset.getDate(i), open, close, high, low, 0, 0));
+            } else {
+                list.add(new DataItem(dataset.getDate(i), 0, 0, 0, 0, 0, 0));
+            }
+        }
+
+        double k = 2 / ((double)(period + 1));
+        for (int i = period + j; i < dataset.getItemCount(); i++) {
+            open = (dataset.getOpenValue(i) - open) * k + open;
+            close = (dataset.getCloseValue(i) - close) * k + close;
+            high = (dataset.getHighValue(i) - high) * k + high;
+            low = (dataset.getLowValue(i) - low) * k + low;
+            
+            list.add(new DataItem(dataset.getDate(i), open, close, high, low, 0, 0));
+        }
+
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset WMA(Dataset dataset, int period) {
+        if (dataset == null) return null;
+        
+        Vector<DataItem> list = new Vector<DataItem>();
+        double denominator = (period * (period + 1)) / 2;
+
+        int j = 0;
+        for (j = 0; j < dataset.getItemCount() && (dataset.getCloseValue(j)==0); j++)
+            list.add(new DataItem(dataset.getDate(j), 0, 0, 0, 0, 0, 0));
+
+        for (int i = j; i < period + j; i++)
+            list.add(new DataItem(dataset.getDate(i), 0, 0, 0, 0, 0, 0));
+
+        for (int i = period + j; i < dataset.getItemCount(); i++) {
+            double open = 0;
+            double close = 0;
+            double high = 0;
+            double low = 0;
+            
+            for (int k = i - period; k < i; k++) {
+                open += (period - i + k + 1) * dataset.getOpenValue(k);
+                close += (period - i + k + 1) * dataset.getCloseValue(k);
+                high += (period - i + k + 1) * dataset.getHighValue(k);
+                low += (period - i + k + 1) * dataset.getLowValue(k);
+            }
+
+            open /= denominator;
+            close /= denominator;
+            high /= denominator;
+            low /= denominator;
+
+            list.add(new DataItem(dataset.getDate(i), open, close, high, low, 0, 0));
+        }
+
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public static Dataset TEMA(Dataset dataset, int period) {
+        if (dataset == null) return null;
+
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        Dataset ema1 = EMA(dataset, period);
+        Dataset ema2 = EMA(ema1, period);
+        Dataset ema3 = EMA(ema2, period);
+
+        int j = 0;
+        for (j = 0; j < dataset.getItemCount() && (dataset.getCloseValue(j)==0 || ema1.getCloseValue(j)==0 || ema2.getCloseValue(j)==0 || ema3.getCloseValue(j)==0); j++)
+            list.add(new DataItem(dataset.getDate(j), 0, 0, 0, 0, 0, 0));
+
+        for (int i = j; i < dataset.getItemCount(); i++) {
+            double open = 0;
+            double close = 0;
+            double high = 0;
+            double low = 0;
+
+            if (ema1.getCloseValue(i)!=0 && ema2.getCloseValue(i)!=0 && ema3.getCloseValue(i)!=0) {
+                open = 3*ema1.getOpenValue(i) - 3*ema2.getOpenValue(i) + ema3.getOpenValue(i);
+                close = 3*ema1.getCloseValue(i) - 3*ema2.getCloseValue(i) + ema3.getCloseValue(i);
+                high = 3*ema1.getHighValue(i) - 3*ema2.getHighValue(i) + ema3.getHighValue(i);
+                low = 3*ema1.getLowValue(i) - 3*ema2.getLowValue(i) + ema3.getLowValue(i);
+            }
+
+            list.add(new DataItem(dataset.getDate(i), open, close, high, low, 0, 0));
+        }
+
         DataItem[] items = list.toArray(new DataItem[list.size()]);
         return new Dataset(items);
     }
