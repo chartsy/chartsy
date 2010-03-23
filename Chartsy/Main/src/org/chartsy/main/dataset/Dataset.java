@@ -307,6 +307,16 @@ public class Dataset implements Serializable {
         return new Dataset(items);
     }
 
+    public static Dataset DIV(Dataset dataset, double d) {
+        if (dataset==null) return null;
+
+        Dataset result = Dataset.EMPTY(dataset);
+        for (int i = 0; i < dataset.getItemCount(); i++)
+            result.setData(dataset.getOpenValue(i)/d, dataset.getCloseValue(i)/d, dataset.getHighValue(i)/d, dataset.getLowValue(i)/d, dataset.getVolumeValue(i)/d, dataset.getAdjCloseValue(i)/d, i);
+
+        return result;
+    }
+
     public static Dataset SMA(Dataset dataset, int period) {
         if (dataset == null) return null;
 
@@ -455,6 +465,83 @@ public class Dataset implements Serializable {
 
         DataItem[] items = list.toArray(new DataItem[list.size()]);
         return new Dataset(items);
+    }
+
+    public static Dataset[] ADX(Dataset dataset, int period) {
+        if (dataset == null) return null;
+
+        Dataset pdi = Dataset.EMPTY(dataset);
+        Dataset mdi = Dataset.EMPTY(dataset);
+        Dataset dx = Dataset.EMPTY(dataset);
+
+        Dataset tr = Dataset.EMPTY(dataset);
+        Dataset hmhp = Dataset.EMPTY(dataset);
+        Dataset lmlp = Dataset.EMPTY(dataset);
+
+        for (int i = 1; i < dataset.getItemCount(); i++) {
+            double tr0 = dataset.getHighValue(i) - dataset.getCloseValue(i-1);
+            double tr1 = Math.abs(dataset.getHighValue(i) - dataset.getCloseValue(i-1));
+            tr0 = Math.max(tr0, tr1);
+            tr1 = Math.abs(dataset.getLowValue(i) - dataset.getCloseValue(i-1));
+            tr.setData(0, Math.max(tr0, tr1), 0, 0, 0, 0, i);
+
+            if (dataset.getHighValue(i) <= dataset.getHighValue(i-1) && dataset.getLowValue(i) < dataset.getLowValue(i-1)) {
+                lmlp.setData(0, dataset.getLowValue(i-1) - dataset.getLowValue(i), 0, 0, 0, 0, i);
+            } else if (dataset.getHighValue(i) > dataset.getHighValue(i-1) && dataset.getLowValue(i) >= dataset.getLowValue(i-1)) {
+                hmhp.setData(0, dataset.getHighValue(i) - dataset.getHighValue(i-1), 0, 0, 0, 0, i);
+            } else {
+                double tempH = Math.abs(dataset.getHighValue(i) - dataset.getHighValue(i-1));
+                double tempL = Math.abs(dataset.getLowValue(i) - dataset.getLowValue(i-1));
+                
+                if (tempH > tempL) hmhp.setData(0, tempH, 0, 0, 0, 0, i);
+                else lmlp.setData(0, tempL, 0, 0, 0, 0, i);
+            }
+        }
+
+        Dataset strDS = Dataset.EMA(tr, period);
+        Dataset shmhpDS = Dataset.EMA(hmhp, period);
+        Dataset slmlpDS = Dataset.EMA(lmlp, period);
+
+        for (int i = period; i < dataset.getItemCount(); i++) {
+            double curPDI = 0;
+            double curMDI = 0;
+
+            if (strDS.getCloseValue(i) != 0) {
+                curPDI = (shmhpDS.getCloseValue(i) / strDS.getCloseValue(i)) * 100;
+                curMDI = (slmlpDS.getCloseValue(i) / strDS.getCloseValue(i)) * 100;
+            }
+
+            pdi.setData(0, curPDI, 0, 0, 0, 0, i);
+            mdi.setData(0, curMDI, 0, 0, 0, 0, i);
+
+            if (curPDI + curMDI != 0)
+                dx.setData(0, (Math.abs(curPDI - curMDI) / (curPDI + curMDI) * 100), 0, 0, 0, 0, i);
+        }
+
+        Dataset adx = Dataset.EMA(dx, period);
+
+        Dataset[] result = new Dataset[3];
+        result[0] = pdi;
+        result[1] = mdi;
+        result[2] = adx;
+        return result;
+    }
+
+    public static Dataset EMPTY(Dataset dataset) {
+        Vector<DataItem> list = new Vector<DataItem>();
+
+        for (int i = 0; i < dataset.getItemCount(); i++)
+            list.add(new DataItem(dataset.getDate(i), 0, 0, 0, 0, 0, 0));
+
+        DataItem[] items = list.toArray(new DataItem[list.size()]);
+        return new Dataset(items);
+    }
+
+    public void setData(double open, double close, double high, double low, double volume, double adjclose, int i) {
+        if (this.data.length < i) return;
+        DataItem dataItem = data[i];
+        dataItem.update(open, close, high, low, volume, adjclose);
+        data[i] = dataItem;
     }
 
     public void enterData(DataItem item) { enterData(item.getDate(), item.getOpenValue(), item.getCloseValue(), item.getHighValue(), item.getLowValue(), item.getVolumeValue(), item.getAdjCloseValue()); }
