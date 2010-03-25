@@ -427,7 +427,6 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
                         handle.finish();
                         Dataset dataset = updater.getDataset(stock, time);
                         if (dataset != null) {
-                            removeAll();
                             for (int i = 0; i < overs.length; i++) {
                                 overs[i].setDataset(dataset);
                                 overs[i].calculate();
@@ -441,6 +440,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
                             setIndicators(inds);
                             setExtraDayAnnotations(annos);
                             setIntraDayAnnotations(intraAnnos);
+                            removeAll();
                             initComponents();
                         } else {
                             label.setText("Can't find data for " + stock.getKey() + " symbol.");
@@ -451,26 +451,6 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
             }
         });
         t.start();
-
-        /*Dataset dataset = updater.getDataset(stock, time);
-        if (dataset != null) {
-            for (int i = 0; i < overs.length; i++) {
-                overs[i].setDataset(dataset);
-                overs[i].calculate();
-            }
-            for (int i = 0; i < inds.length; i++) { 
-                inds[i].setDataset(dataset);
-                inds[i].calculate();
-                inds[i].setAreaIndex(i);
-            }
-        } else {
-            System.out.println("Dataset is null");
-        }
-        chartRenderer.setOverlays(overs);
-        chartRenderer.setIndicators(inds);
-        chartPanel.setExtraDayAnnotations(annos);
-        chartPanel.setIntraDayAnnotations(intraAnnos);
-        chartPanel.repaint();*/
     }
 
     @Override

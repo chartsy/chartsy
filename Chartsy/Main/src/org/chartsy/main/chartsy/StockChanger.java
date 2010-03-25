@@ -26,7 +26,6 @@ public class StockChanger extends javax.swing.JPanel {
     }
 
     public void setListener(ChartFrame cf) { listener = cf; }
-
     public void setStock(String s) { stock.setText(s); }
 
     @SuppressWarnings("unchecked")
@@ -36,11 +35,12 @@ public class StockChanger extends javax.swing.JPanel {
         stock = new javax.swing.JTextField();
         submit = new javax.swing.JButton();
 
-        setMaximumSize(new java.awt.Dimension(108, 53));
+        setMaximumSize(new java.awt.Dimension(101, 53));
 
         stock.setText(org.openide.util.NbBundle.getMessage(StockChanger.class, "StockChanger.stock.text")); // NOI18N
-        stock.setMinimumSize(new java.awt.Dimension(6, 24));
-        stock.setPreferredSize(new java.awt.Dimension(6, 30));
+        stock.setMaximumSize(new java.awt.Dimension(2147483647, 31));
+        stock.setMinimumSize(new java.awt.Dimension(36, 31));
+        stock.setPreferredSize(new java.awt.Dimension(36, 31));
         stock.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 stockMouseClicked(evt);
@@ -49,6 +49,7 @@ public class StockChanger extends javax.swing.JPanel {
 
         submit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/chartsy/main/icons/submit.png"))); // NOI18N
         submit.setText(org.openide.util.NbBundle.getMessage(StockChanger.class, "StockChanger.submit.text")); // NOI18N
+        submit.setToolTipText(org.openide.util.NbBundle.getMessage(StockChanger.class, "StockChanger.submit.toolTipText")); // NOI18N
         submit.setBorder(null);
         submit.setBorderPainted(false);
         submit.setContentAreaFilled(false);
@@ -58,46 +59,48 @@ public class StockChanger extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(8, 8, 8)
-                .addComponent(stock, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(submit)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(stock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(submit)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(stock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(submit))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(stock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(submit))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitActionPerformed
-        listener.getTimer().cancel();
-        String s = stock.getText().toUpperCase();
-        Stock newStock;
-        if (!s.contains(".")) newStock = listener.getUpdater().getStock(s, "");
-        else {
-            String[] strings = s.split(".");
-            newStock = listener.getUpdater().getStock(strings[0], strings[1]);
-        }
-        listener.setStock(newStock);
-        listener.setFocus(true);
-        listener.setRestored(true);
-        listener.refresh();
-    }//GEN-LAST:event_submitActionPerformed
 
     private void stockMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stockMouseClicked
         listener.setFocus(false);
     }//GEN-LAST:event_stockMouseClicked
+
+    private void submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitActionPerformed
+        if (!stock.getText().toUpperCase().equals(listener.getStock().getKey())) {
+            listener.getTimer().cancel();
+            String s = stock.getText().toUpperCase();
+            Stock newStock;
+            if (!s.contains(".")) newStock = listener.getUpdater().getStock(s, "");
+            else {
+                String[] strings = s.split(".");
+                newStock = listener.getUpdater().getStock(strings[0], strings[1]);
+            }
+            listener.setStock(newStock);
+            listener.setFocus(true);
+            listener.setRestored(true);
+            listener.refresh();
+        }
+    }//GEN-LAST:event_submitActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
