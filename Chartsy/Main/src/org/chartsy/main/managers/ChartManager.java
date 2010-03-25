@@ -2,10 +2,8 @@ package org.chartsy.main.managers;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Vector;
 import org.chartsy.main.chartsy.chart.AbstractChart;
 import org.openide.util.Lookup;
@@ -17,7 +15,7 @@ import org.openide.util.Lookup;
 public class ChartManager {
 
     protected static ChartManager instance;
-    protected LinkedHashMap<Object, Object> charts;
+    protected LinkedHashMap<String, AbstractChart> charts;
 
     public static ChartManager getDefault() {
         if (instance == null) instance = new ChartManager();
@@ -27,20 +25,21 @@ public class ChartManager {
     protected ChartManager() {}
 
     public void initialize() {
-        charts = new LinkedHashMap<Object, Object>();
+        charts = new LinkedHashMap<String, AbstractChart>();
         Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
         for (AbstractChart c : list) {
             addChart(c.getName(), c);
         }
     }
 
-    public void addChart(Object key, Object value) { charts.put(key, value); }
-    public void removeChart(Object key) { charts.remove(key); }
+    public void addChart(String key, AbstractChart value) { charts.put(key, value); }
+    public void removeChart(String key) { charts.remove(key); }
 
-    public AbstractChart getChart(Object key) {
+    public AbstractChart getChart(String key) {
         Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
         for (AbstractChart c : list) {
-            if (c.getName().equals((String) key)) return c;
+            if (c.getName().equals(key))
+                return c;
         }
         return null;
     }

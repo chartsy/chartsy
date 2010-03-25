@@ -57,10 +57,16 @@ public class MoneyFlow extends Indicator implements Serializable {
     public Range getRange(ChartFrame cf) {
         Dataset mfh = visibleDataset(cf, MFH);
         Dataset mfl = visibleDataset(cf, MFL);
+        double factor = getFactor(cf);
 
         if (mfh != null && mfl != null) {
-            Range range = new Range(mfh.getMin(Dataset.CLOSE), mfh.getMax(Dataset.CLOSE));
-            range = Range.combine(range, new Range(mfl.getMin(Dataset.CLOSE), mfl.getMax(Dataset.CLOSE)));
+            double max = mfh.getCloseValue(0);
+            double min = mfl.getCloseValue(0);
+            for (int i = 1; i < mfh.getItemCount(); i++) {
+                if (max < mfh.getCloseValue(i)) max = mfh.getCloseValue(i);
+                if (min > mfl.getCloseValue(i)) min = mfl.getCloseValue(i);
+            }
+            Range range = new Range((min - (max - min) * 0.2d)/factor, (max + (max - min) * 0.2d)/factor);
             return range;
         }
         
@@ -75,10 +81,12 @@ public class MoneyFlow extends Indicator implements Serializable {
             if (mfh != null && mfl != null) {
                 Range range = getRange(cf);
                 Rectangle2D.Double bounds = getBounds();
+                double factor = getFactor(cf);
 
-                DefaultPainter.bar(g, cf, range, bounds, mfh, properties.getMFHColor());
-                DefaultPainter.bar(g, cf, range, bounds, mfl, properties.getMFLColor());
-                DefaultPainter.label(g, cf, getLabel(), bounds); // paint label
+                DefaultPainter.bar(g, cf, range, bounds, Dataset.DIV(mfh, factor), properties.getMFHColor());
+                DefaultPainter.bar(g, cf, range, bounds, Dataset.DIV(mfl, factor), properties.getMFLColor());
+                DecimalFormat df = new DecimalFormat("###,###");
+                DefaultPainter.label(g, cf, getLabel() + " x " + df.format((int)factor), bounds); // paint label
             }
         } else {
             Rectangle2D.Double bounds = getBounds();
@@ -92,13 +100,14 @@ public class MoneyFlow extends Indicator implements Serializable {
             Dataset mfh = Dataset.EMPTY(initial);
             Dataset mfl = Dataset.EMPTY(initial);
 
+            mfh.setData(0, ((initial.getCloseValue(0) + initial.getHighValue(0) + initial.getLowValue(0)) / 3) * initial.getVolumeValue(0), 0, 0, 0, 0, 0);
             for (int i = 1; i < initial.getItemCount(); i++) {
                 double tp1 = (initial.getCloseValue(i) + initial.getHighValue(i) + initial.getLowValue(i)) / 3;
                 double tp2 = (initial.getCloseValue(i-1) + initial.getHighValue(i-1) + initial.getLowValue(i-1)) / 3;
                 double rmf = tp1 * initial.getVolumeValue(i);
 
                 if (tp1 > tp2) mfh.setData(0, rmf, 0, 0, 0, 0, i);
-                else mfl.setData(0, -1*rmf, 0, 0, 0, 0, i);
+                else if (tp1 < tp2) mfl.setData(0, -1*rmf, 0, 0, 0, 0, i);
             }
 
             addDataset(MFH, mfh);
@@ -116,18 +125,41 @@ public class MoneyFlow extends Indicator implements Serializable {
     public double[] getValues(ChartFrame cf) {
         Dataset mfh = visibleDataset(cf, MFH);
         Dataset mfl = visibleDataset(cf, MFL);
+        double factor = getFactor(cf);
         if (mfh != null && mfl != null)
-            return new double[] {mfh.getLastPriceValue(Dataset.CLOSE), mfl.getLastPriceValue(Dataset.CLOSE)};
+            return new double[] {mfh.getLastPriceValue(Dataset.CLOSE)/factor, mfl.getLastPriceValue(Dataset.CLOSE)/factor};
         return new double[] {};
     }
     public double[] getValues(ChartFrame cf, int i) {
         Dataset mfh = visibleDataset(cf, MFH);
         Dataset mfl = visibleDataset(cf, MFL);
+        double factor = getFactor(cf);
         if (mfh != null && mfl != null)
-            return new double[] {mfh.getPriceValue(i, Dataset.CLOSE), mfl.getPriceValue(i, Dataset.CLOSE)};
+            return new double[] {mfh.getPriceValue(i, Dataset.CLOSE)/factor, mfl.getPriceValue(i, Dataset.CLOSE)/factor};
         return new double[] {};
     }
     public boolean getMarkerVisibility() { return properties.getMarker(); }
     public AbstractNode getNode() { return new IndicatorNode(properties); }
+
+    private double getFactor(ChartFrame cf) {
+        Dataset mfh = visibleDataset(cf, MFH);
+        Dataset mfl = visibleDataset(cf, MFL);
+
+        if (mfh != null && mfl != null) {
+            double max = mfh.getCloseValue(0);
+            double min = mfl.getCloseValue(0);
+            for (int i = 1; i < mfh.getItemCount(); i++) {
+                if (max < mfh.getCloseValue(i)) max = mfh.getCloseValue(i);
+                if (min > mfl.getCloseValue(i)) min = mfl.getCloseValue(i);
+            }
+            int scaleMax = Integer.toString((int)Math.round(max + (max - min) * 0.2d)).length() - 1;
+            int scaleMin = Integer.toString((int)Math.round(min - (max - min) * 0.2d)).length() - 1;
+            int scale = Math.min(scaleMin, scaleMax);
+            if (scale > 1) scale--;
+            return Math.pow(10, scale);
+        }
+
+        return 1;
+    }
 
 }

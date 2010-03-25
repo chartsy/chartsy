@@ -22,6 +22,7 @@ public class ChartToolbar extends JToolBar implements Serializable {
 
     private static final long serialVersionUID = 101L;
 
+    
     private ChartFrame chartFrame;
     private Font font;
 
@@ -39,6 +40,13 @@ public class ChartToolbar extends JToolBar implements Serializable {
 
     private void initComponents() {
         AbstractButton button;
+
+        // Stock Changer Panel
+        StockChanger panel = new StockChanger();
+        panel.setListener(chartFrame);
+        panel.setStock(chartFrame.getStock().getKey());
+        add(panel);
+        
 
         // Zoom in button
         button = new JButton(MainActions.zoomIn(chartFrame));

@@ -1,9 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.Collections;
 import java.util.Iterator;
-//import java.util.ServiceLoader;
+import java.util.LinkedHashMap;
+import java.util.List;
 import org.chartsy.main.chartsy.chart.AbstractOverlay;
 import org.openide.util.Lookup;
 
@@ -14,7 +16,7 @@ import org.openide.util.Lookup;
 public class OverlayManager {
 
     protected static OverlayManager instance;
-    protected Hashtable<Object, Object> overlays;
+    protected LinkedHashMap<String, AbstractOverlay> overlays;
 
     public static OverlayManager getDefault() {
         if (instance == null) instance = new OverlayManager();
@@ -24,40 +26,44 @@ public class OverlayManager {
     protected OverlayManager() {}
 
     public void initialize() {
-        overlays = new Hashtable<Object, Object>();
+        overlays = new LinkedHashMap<String, AbstractOverlay>();
         Collection<? extends AbstractOverlay> list = Lookup.getDefault().lookupAll(AbstractOverlay.class);
         for (AbstractOverlay ao : list) {
             addOverlay(ao.getName(), ao);
         }
-        /*ServiceLoader<AbstractOverlay> service = ServiceLoader.load(AbstractOverlay.class);
-        Iterator<AbstractOverlay> it = service.iterator();
-        while (it.hasNext()) {
-            AbstractOverlay ao = it.next();
-            addOverlay(ao.getName(), ao);
-        }*/
+        sort();
     }
 
-    public void addOverlay(Object key, Object value) { overlays.put(key, value); }
-    public void removeOverlay(Object key) { overlays.remove(key); }
+    protected void sort() {
+        List<String> mapKeys = new ArrayList<String>(overlays.keySet());
+        Collections.sort(mapKeys);
+
+        LinkedHashMap<String, AbstractOverlay> someMap = new LinkedHashMap<String, AbstractOverlay>();
+        for (int i = 0; i < mapKeys.size(); i++)
+            someMap.put(mapKeys.get(i), overlays.get(mapKeys.get(i)));
+        overlays = someMap;
+    }
+
+    public void addOverlay(String key, AbstractOverlay value) { overlays.put(key, value); }
+    public void removeOverlay(String key) { overlays.remove(key); }
 
     public AbstractOverlay[] getOverlays() {
         AbstractOverlay[] list = new AbstractOverlay[overlays.size()];
         int i = 0;
         Iterator it = overlays.keySet().iterator();
         while (it.hasNext()) {
-            Object obj = overlays.get(it.next());
-            if (obj != null && obj instanceof AbstractOverlay) {
-                list[i] = (AbstractOverlay) obj;
+            String key = (String) it.next();
+            AbstractOverlay value = overlays.get(key);
+            if (value != null) {
+                list[i] = value;
                 i++;
             }
         }
         return list;
     }
 
-    public AbstractOverlay getOverlay(Object key) {
-        Object obj = overlays.get(key);
-        if (obj != null && obj instanceof AbstractOverlay) return (AbstractOverlay) obj;
-        return null;
+    public AbstractOverlay getOverlay(String key) {
+        return overlays.get(key);
     }
 
     public void print() {

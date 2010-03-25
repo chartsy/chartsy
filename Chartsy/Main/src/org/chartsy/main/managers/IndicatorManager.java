@@ -1,9 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.Collections;
 import java.util.Iterator;
-//import java.util.ServiceLoader;
+import java.util.LinkedHashMap;
+import java.util.List;
 import org.chartsy.main.chartsy.chart.AbstractIndicator;
 import org.openide.util.Lookup;
 
@@ -14,7 +16,7 @@ import org.openide.util.Lookup;
 public class IndicatorManager {
 
     protected static IndicatorManager instance;
-    protected Hashtable<Object, Object> indicators;
+    protected LinkedHashMap<String, AbstractIndicator> indicators;
 
     public static IndicatorManager getDefault() {
         if (instance == null) instance = new IndicatorManager();
@@ -24,40 +26,44 @@ public class IndicatorManager {
     protected IndicatorManager() {}
 
     public void initialize() {
-        indicators = new Hashtable<Object, Object>();
+        indicators = new LinkedHashMap<String, AbstractIndicator>();
         Collection<? extends AbstractIndicator> list = Lookup.getDefault().lookupAll(AbstractIndicator.class);
         for (AbstractIndicator ai : list) {
             addIndicator(ai.getName(), ai);
         }
-        /*ServiceLoader<AbstractIndicator> service = ServiceLoader.load(AbstractIndicator.class);
-        Iterator<AbstractIndicator> it = service.iterator();
-        while (it.hasNext()) {
-            AbstractIndicator ai = it.next();
-            addIndicator(ai.getName(), ai);
-        }*/
+        sort();
     }
 
-    public void addIndicator(Object key, Object value) { indicators.put(key, value); }
-    public void removeIndicator(Object key) { indicators.remove(key); }
+    protected void sort() {
+        List<String> mapKeys = new ArrayList<String>(indicators.keySet());
+        Collections.sort(mapKeys);
+        
+        LinkedHashMap<String, AbstractIndicator> someMap = new LinkedHashMap<String, AbstractIndicator>();
+        for (int i = 0; i < mapKeys.size(); i++)
+            someMap.put(mapKeys.get(i), indicators.get(mapKeys.get(i)));
+        indicators = someMap;
+    }
+
+    public void addIndicator(String key, AbstractIndicator value) { indicators.put(key, value); }
+    public void removeIndicator(String key) { indicators.remove(key); }
     
     public AbstractIndicator[] getIndicators() {
         AbstractIndicator[] list = new AbstractIndicator[indicators.size()];
         int i = 0;
         Iterator it = indicators.keySet().iterator();
         while (it.hasNext()) {
-            Object obj = indicators.get(it.next());
-            if (obj != null && obj instanceof AbstractIndicator) {
-                list[i] = (AbstractIndicator) obj;
+            String key = (String) it.next();
+            AbstractIndicator value = indicators.get(key);
+            if (value != null) {
+                list[i] = value;
                 i++;
             }
         }
         return list;
     }
 
-    public AbstractIndicator getIndicator(Object key) {
-        Object obj = indicators.get(key);
-        if (obj != null && obj instanceof AbstractIndicator) return (AbstractIndicator) obj;
-        return null;
+    public AbstractIndicator getIndicator(String key) {
+        return indicators.get(key);
     }
 
     public void print() {

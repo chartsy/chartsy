@@ -52,12 +52,13 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
     private Marker marker;
     private Timer timer;
 
-    private Indicator[] indicators;
-    private Overlay[] overlays;
-    private Annotation[] annotations;
-    private Annotation[] intraDayAnnotations;
+    private Indicator[] indicators = new Indicator[0];
+    private Overlay[] overlays = new Overlay[0];
+    private Annotation[] annotations = new Annotation[0];
+    private Annotation[] intraDayAnnotations = new Annotation[0];
 
     private boolean restored = false;
+    private boolean focus = true;
 
     public static synchronized ChartFrame getDefault() {
         if (instance == null) { instance = new ChartFrame(); }
@@ -114,6 +115,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
 
     public void setRestored(boolean b) { 
         restored = b;
+    }
+
+    public void setFocus(boolean b) {
+        focus = b;
+    }
+
+    public boolean getFocus() {
+        return focus;
     }
 
     public void setStock(Stock stock) {
@@ -376,6 +385,92 @@ public class ChartFrame extends TopComponent implements AdjustmentListener {
             }
         });
         t.start();
+    }
+
+    public void refresh() {
+        final Indicator[] inds = chartRenderer.getIndicators();
+        final Overlay[] overs = chartRenderer.getOverlays();
+        final Annotation[] annos = chartPanel.getExtraDayAnnotations();
+        final Annotation[] intraAnnos = chartPanel.getIntraDayAnnotations();
+
+        removeAll();
+        setLayout(new BorderLayout());
+        final javax.swing.JLabel label = new javax.swing.JLabel("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()), IconUtils.getDefault().getLogo(), SwingConstants.CENTER);
+        label.setOpaque(true);
+        label.setBackground(Color.WHITE);
+        label.setVerticalTextPosition(SwingConstants.BOTTOM);
+        label.setHorizontalTextPosition(SwingConstants.CENTER);
+        add(label, BorderLayout.CENTER);
+
+        final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring data for " + (stock.getCompanyName().equals("") ? stock.getKey() : stock.getCompanyName()));
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    handle.start();
+                    handle.switchToIndeterminate();
+                    if (restored) {
+                        if (time.contains("Min")) {
+                            UpdaterManager.getDefault().updateIntraDay(stock, time, updater);
+                            UpdaterManager.getDefault().update(stock, updater);
+                        } else {
+                            UpdaterManager.getDefault().update(stock, updater);
+                        }
+                    } else {
+                        UpdaterManager.getDefault().update(stock, updater);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    boolean updated = UpdaterManager.getDefault().isUpdated();
+                    if (updated) {
+                        UpdaterManager.getDefault().setUpdate(false);
+                        handle.finish();
+                        Dataset dataset = updater.getDataset(stock, time);
+                        if (dataset != null) {
+                            removeAll();
+                            for (int i = 0; i < overs.length; i++) {
+                                overs[i].setDataset(dataset);
+                                overs[i].calculate();
+                            }
+                            for (int i = 0; i < inds.length; i++) {
+                                inds[i].setDataset(dataset);
+                                inds[i].calculate();
+                                inds[i].setAreaIndex(i);
+                            }
+                            setOverlays(overs);
+                            setIndicators(inds);
+                            setExtraDayAnnotations(annos);
+                            setIntraDayAnnotations(intraAnnos);
+                            initComponents();
+                        } else {
+                            label.setText("Can't find data for " + stock.getKey() + " symbol.");
+                            repaint();
+                        }
+                    }
+                }
+            }
+        });
+        t.start();
+
+        /*Dataset dataset = updater.getDataset(stock, time);
+        if (dataset != null) {
+            for (int i = 0; i < overs.length; i++) {
+                overs[i].setDataset(dataset);
+                overs[i].calculate();
+            }
+            for (int i = 0; i < inds.length; i++) { 
+                inds[i].setDataset(dataset);
+                inds[i].calculate();
+                inds[i].setAreaIndex(i);
+            }
+        } else {
+            System.out.println("Dataset is null");
+        }
+        chartRenderer.setOverlays(overs);
+        chartRenderer.setIndicators(inds);
+        chartPanel.setExtraDayAnnotations(annos);
+        chartPanel.setIntraDayAnnotations(intraAnnos);
+        chartPanel.repaint();*/
     }
 
     @Override

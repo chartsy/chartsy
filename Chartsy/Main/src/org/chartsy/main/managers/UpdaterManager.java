@@ -1,10 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 import org.chartsy.main.dataset.Dataset;
 import org.chartsy.main.updater.AbstractUpdater;
@@ -18,7 +19,7 @@ import org.openide.util.Lookup;
 public class UpdaterManager {
 
     protected static UpdaterManager instance;
-    protected Hashtable<Object, Object> updaters;
+    protected LinkedHashMap<String, AbstractUpdater> updaters;
     protected boolean update = false;
 
     public static UpdaterManager getDefault() {
@@ -29,20 +30,31 @@ public class UpdaterManager {
     protected UpdaterManager() {}
 
     public void initialize() {
-        updaters = new Hashtable<Object, Object>();
+        updaters = new LinkedHashMap<String, AbstractUpdater>();
         Collection<? extends AbstractUpdater> list = Lookup.getDefault().lookupAll(AbstractUpdater.class);
         for (AbstractUpdater au : list) {
             addUpdater(au.getName(), au);
         }
     }
 
-    public void addUpdater(Object key, Object value) { updaters.put(key, value); }
-    public void removeUpdater(Object key) { updaters.remove(key); }
+    protected void sort() {
+        List<String> mapKeys = new ArrayList<String>(updaters.keySet());
+        Collections.sort(mapKeys);
 
-    public AbstractUpdater getUpdater(Object key) {
+        LinkedHashMap<String, AbstractUpdater> someMap = new LinkedHashMap<String, AbstractUpdater>();
+        for (int i = 0; i < mapKeys.size(); i++)
+            someMap.put(mapKeys.get(i), updaters.get(mapKeys.get(i)));
+        updaters = someMap;
+    }
+
+    public void addUpdater(String key, AbstractUpdater value) { updaters.put(key, value); }
+    public void removeUpdater(String key) { updaters.remove(key); }
+
+    public AbstractUpdater getUpdater(String key) {
         Collection<? extends AbstractUpdater> list = Lookup.getDefault().lookupAll(AbstractUpdater.class);
         for (AbstractUpdater au : list) {
-            if (au.getName().equals((String) key)) return au;
+            if (au.getName().equals(key))
+                return au;
         }
         return null;
     }

@@ -1,10 +1,11 @@
 package org.chartsy.main.managers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
-//import java.util.ServiceLoader;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 import org.chartsy.main.chartsy.ChartFrame;
 import org.chartsy.main.chartsy.chart.AbstractAnnotation;
@@ -18,7 +19,7 @@ import org.openide.util.Lookup;
 public class AnnotationManager {
 
     protected static AnnotationManager instance;
-    protected Hashtable<Object, Object> annotations;
+    protected LinkedHashMap<String, AbstractAnnotation> annotations;
     protected String newAnnotationName = "";
 
     public static AnnotationManager getDefault() {
@@ -29,29 +30,32 @@ public class AnnotationManager {
     protected AnnotationManager() {}
 
     public void initialize() {
-        annotations = new Hashtable<Object, Object>();
+        annotations = new LinkedHashMap<String, AbstractAnnotation>();
         Collection<? extends AbstractAnnotation> list = Lookup.getDefault().lookupAll(AbstractAnnotation.class);
         for (AbstractAnnotation aa : list) {
             addAnnotation(aa.getName(), aa);
         }
-        /*ServiceLoader<AbstractAnnotation> service = ServiceLoader.load(AbstractAnnotation.class);
-        Iterator<AbstractAnnotation> it = service.iterator();
-        while (it.hasNext()) {
-            AbstractAnnotation aa = it.next();
-            addAnnotation(aa.getName(), aa);
-        }*/
+        sort();
+    }
+
+    protected void sort() {
+        List<String> mapKeys = new ArrayList<String>(annotations.keySet());
+        Collections.sort(mapKeys);
+
+        LinkedHashMap<String, AbstractAnnotation> someMap = new LinkedHashMap<String, AbstractAnnotation>();
+        for (int i = 0; i < mapKeys.size(); i++)
+            someMap.put(mapKeys.get(i), annotations.get(mapKeys.get(i)));
+        annotations = someMap;
     }
 
     public String getNewAnnotationName() { return newAnnotationName; }
     public void setNewAnnotationName(String s) { newAnnotationName = s; }
 
-    public void addAnnotation(Object key, Object value) { annotations.put(key, value); }
-    public void removeAnnotation(Object key) { annotations.remove(key); }
+    public void addAnnotation(String key, AbstractAnnotation value) { annotations.put(key, value); }
+    public void removeAnnotation(String key) { annotations.remove(key); }
 
-    public AbstractAnnotation getAbstractAnnotation(Object key) {
-        Object obj = annotations.get(key);
-        if (obj != null && obj instanceof AbstractAnnotation) return (AbstractAnnotation) obj;
-        return null;
+    public AbstractAnnotation getAbstractAnnotation(String key) {
+        return annotations.get(key);
     }
 
     public Vector getAnnotations() {

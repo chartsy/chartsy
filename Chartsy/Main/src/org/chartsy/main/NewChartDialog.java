@@ -4,9 +4,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Vector;
 import javax.swing.JComboBox;
+import javax.swing.text.AbstractDocument;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.UpdaterManager;
 import org.chartsy.main.updater.AbstractUpdater;
+import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.openide.windows.WindowManager;
 
 /**
@@ -43,11 +45,7 @@ public class NewChartDialog extends javax.swing.JDialog {
             lstDataProvider.addItem(obj);
         }
 
-        this.txtSymbol.addKeyListener(new KeyListener() {
-            public void keyTyped(KeyEvent e) { txtSymbol.setText(txtSymbol.getText().toUpperCase()); }
-            public void keyPressed(KeyEvent e) { txtSymbol.setText(txtSymbol.getText().toUpperCase()); }
-            public void keyReleased(KeyEvent e) { txtSymbol.setText(txtSymbol.getText().toUpperCase()); }
-        });
+        ((AbstractDocument) txtSymbol.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
     }
 
     @SuppressWarnings("unchecked")
@@ -207,7 +205,7 @@ public class NewChartDialog extends javax.swing.JDialog {
     private void lstDataProviderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lstDataProviderActionPerformed
         JComboBox list = (JComboBox) evt.getSource();
         Object obj = list.getSelectedItem();
-        Vector exchanges = UpdaterManager.getDefault().getUpdater(obj).getExchanges();
+        Vector exchanges = UpdaterManager.getDefault().getUpdater((String) obj).getExchanges();
         for (Object item : exchanges)
             lstExchange.addItem(item);
         if (exchanges == null) {

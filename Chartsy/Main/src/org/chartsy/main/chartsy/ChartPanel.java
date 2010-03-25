@@ -179,8 +179,10 @@ public class ChartPanel extends JPanel implements MouseListener, MouseMotionList
             chartFrame.getChartRenderer().paintLabels(g2, true); // paint labels
             chartFrame.getMarker().paint(g2); // paint marker
             paintAnnotations(g2); // paint annotations
-            setFocusable(true);
-            requestFocusInWindow();
+            if (chartFrame.getFocus()) {
+                setFocusable(true);
+                requestFocusInWindow();
+            }
         }
     }
 
