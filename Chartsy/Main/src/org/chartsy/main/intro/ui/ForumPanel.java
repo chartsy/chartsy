@@ -15,7 +15,6 @@ import javax.swing.SwingConstants;
 import org.chartsy.main.intro.content.BulletLink;
 import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
-import org.chartsy.main.intro.content.Utils;
 import org.chartsy.main.intro.feed.Feed;
 import org.chartsy.main.intro.feed.FeedMessage;
 import org.chartsy.main.intro.feed.RSSFeedParser;
@@ -67,7 +66,6 @@ public class ForumPanel extends JPanel implements Constants {
         label.setHorizontalTextPosition(SwingConstants.RIGHT);
         label.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                //Utils.openURL(BundleSupport.getURL("AllTopics"));
                 try { DesktopUtil.browse(BundleSupport.getURL("AllTopics")); }
                 catch (Exception ex) {}
             }

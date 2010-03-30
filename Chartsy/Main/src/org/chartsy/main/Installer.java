@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import org.chartsy.main.intro.WelcomeTopComponent;
 import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
@@ -26,6 +27,7 @@ public class Installer extends ModuleInstall {
     private static WindowAdapter windowListener = new WindowAdapter() {
         public void windowOpened(WindowEvent e) {
             WindowManager.getDefault().getMainWindow().removeWindowListener(this);
+            WelcomeTopComponent.findInstance().requestActive();
             init();
         }
     };

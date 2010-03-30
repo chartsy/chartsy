@@ -34,22 +34,32 @@ public class GetStartedPanel extends JPanel implements Constants {
         leftPanel.setOpaque(false);
         leftPanel.setPreferredSize(new Dimension(300, 130));
 
-        JLabel leftLabel = new JLabel();
+        JLabel leftLabel = new JLabel("<html>Watch the Tutorial</html>");
         leftLabel.setOpaque(false);
-        leftLabel.setIcon(Utils.getImageIcon(IMAGE_CHARTSY_SITE));
+        leftLabel.setFont(WELCOME_LABEL_FONT);
+        leftLabel.setIcon(Utils.getImageIcon(IMAGE_VIDEO_THUMBNAIL));
+        leftLabel.setVerticalTextPosition(SwingConstants.TOP);
+        leftLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
         leftLabel.setVerticalAlignment(SwingConstants.CENTER);
         leftLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         leftLabel.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                //Utils.openURL(BundleSupport.getURL(URL_CHARTSY));
-                try { DesktopUtil.browse(BundleSupport.getURL(URL_CHARTSY)); }
+                try { DesktopUtil.browse(BundleSupport.getURL(URL_TUTORIAL)); }
                 catch (Exception ex) {}
             }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) { StatusDisplayer.getDefault().setStatusText(BundleSupport.getURL(URL_CHARTSY)); }
-            public void mouseExited(MouseEvent e) { StatusDisplayer.getDefault().setStatusText(""); }
+            public void mouseEntered(MouseEvent e) {
+                JLabel label = (JLabel) e.getSource();
+                label.setText("<html><u>Watch the Tutorial</u></html>");
+                StatusDisplayer.getDefault().setStatusText(BundleSupport.getURL(URL_TUTORIAL));
+            }
+            public void mouseExited(MouseEvent e) {
+                JLabel label = (JLabel) e.getSource();
+                label.setText("<html>Watch the Tutorial</html>");
+                StatusDisplayer.getDefault().setStatusText("");
+            }
         });
         leftPanel.add(leftLabel, BorderLayout.CENTER);
 

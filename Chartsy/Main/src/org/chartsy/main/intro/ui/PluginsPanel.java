@@ -15,7 +15,6 @@ import javax.swing.SwingConstants;
 import org.chartsy.main.intro.content.BulletLink;
 import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
-import org.chartsy.main.intro.content.Utils;
 import org.chartsy.main.intro.feed.Feed;
 import org.chartsy.main.intro.feed.FeedMessage;
 import org.chartsy.main.intro.feed.RSSFeedParser;
@@ -77,6 +76,7 @@ public class PluginsPanel extends JPanel implements Constants {
                 label.setOpaque(false);
                 label.setForeground(COLOR_LINK);
                 label.setFont(DESCRIPTION_FONT);
+                label.setVerticalAlignment(SwingConstants.TOP);
                 label.setPreferredSize(new Dimension(300, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -108,6 +108,7 @@ public class PluginsPanel extends JPanel implements Constants {
                 label.setOpaque(false);
                 label.setForeground(COLOR_LINK);
                 label.setFont(DESCRIPTION_FONT);
+                label.setVerticalAlignment(SwingConstants.TOP);
                 label.setPreferredSize(new Dimension(300, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));

@@ -1,6 +1,8 @@
 package org.chartsy.main.intro.content;
 
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -25,21 +27,25 @@ public class BulletLink extends JButton implements Constants, MouseListener, Act
     private ImageIcon BULLET_ICON;
     private String label;
     private String url;
+    private boolean bulleted;
 
-    public BulletLink(String label, String url) {
+    public BulletLink(String label, String url) { this(label, url, true); }
+
+    public BulletLink(String label, String url, boolean bulleted) {
         super("<html>" + label + "</html>");
         BULLET_ICON = ImageUtilities.loadImageIcon(IMAGE_BULLET, true);
         this.label = label;
         this.url = url;
+        this.bulleted = bulleted;
 
         setBorder(new EmptyBorder(1, 1, 1, 1));
-        setCursor(Cursor.getPredefinedCursor(12));
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setFont(GET_STARTED_FONT);
         setForeground(COLOR_BULLET);
         setHorizontalAlignment(2);
         addMouseListener(this);
         setFocusable(true);
-        setIcon(BULLET_ICON);
+        if (bulleted) setIcon(BULLET_ICON);
         setMargin(new Insets(0, 0, 0, 0));
         setBorderPainted(false);
         setFocusPainted(false);
@@ -48,6 +54,9 @@ public class BulletLink extends JButton implements Constants, MouseListener, Act
         addActionListener(this);
         addFocusListener(this);
     }
+
+    public void setLinkFont(Font font) { setFont(font); }
+    public void setLinkColor(Color color) { setForeground(color); }
 
     public void mouseClicked(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {}
@@ -61,14 +70,15 @@ public class BulletLink extends JButton implements Constants, MouseListener, Act
         StatusDisplayer.getDefault().setStatusText("");
     }
     public void actionPerformed(ActionEvent e) {
-        //Utils.openURL(url);
         try { DesktopUtil.browse(url); }
         catch (Exception ex) {}
     }
     public void focusGained(FocusEvent e) {
-        Rectangle rectangle = getBounds();
-        rectangle.grow(0, 12);
-        scrollRectToVisible(rectangle);
+        if (bulleted) {
+            Rectangle rectangle = getBounds();
+            rectangle.grow(0, 12);
+            scrollRectToVisible(rectangle);
+        }
     }
     public void focusLost(FocusEvent e) {}
 
