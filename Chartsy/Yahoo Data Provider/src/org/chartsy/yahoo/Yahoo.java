@@ -41,7 +41,7 @@ public class Yahoo extends AbstractUpdater implements Serializable {
     public Stock getStock(String symbol, String exchange) {
         Stock stock = new Stock(symbol, exchange);
         try {
-            URL yahoo = new URL("http://finance.yahoo.com/q?s=" + symbol);
+            URL yahoo = new URL("http://finance.yahoo.com/q?s=" + stock.getKey());
             if (URLChecker.checkURL(yahoo)) {
                 HttpClient client = new HttpClient();
                 HttpMethod method = new GetMethod(yahoo.toString());

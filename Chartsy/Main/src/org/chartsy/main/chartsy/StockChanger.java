@@ -86,15 +86,10 @@ public class StockChanger extends javax.swing.JPanel {
     }//GEN-LAST:event_stockMouseClicked
 
     private void submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitActionPerformed
-        if (!stock.getText().toUpperCase().equals(listener.getStock().getKey())) {
+        if (!stock.getText().equals(listener.getStock().getKey())) {
             listener.getTimer().cancel();
-            String s = stock.getText().toUpperCase();
-            Stock newStock;
-            if (!s.contains(".")) newStock = listener.getUpdater().getStock(s, "");
-            else {
-                String[] strings = s.split(".");
-                newStock = listener.getUpdater().getStock(strings[0], strings[1]);
-            }
+            String s = stock.getText();
+            Stock newStock = listener.getUpdater().getStock(s, "");
             listener.setStock(newStock);
             listener.setFocus(true);
             listener.setRestored(true);
