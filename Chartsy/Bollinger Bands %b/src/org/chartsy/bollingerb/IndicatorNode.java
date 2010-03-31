@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditorSupport;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -102,6 +103,7 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
                 public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.LABEL); }
                 public boolean supportsDefaultValue() { return true; }
             };
+            label.setPropertyEditorClass(PropertyEditorSupport.class);
             label.setName("Label");
             set.put(label);
 

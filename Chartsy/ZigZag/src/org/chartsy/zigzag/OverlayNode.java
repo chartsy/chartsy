@@ -4,13 +4,13 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditorSupport;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import org.chartsy.main.managers.LoggerManager;
-import org.chartsy.main.utils.PricePropertyEditor;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.nodes.AbstractNode;
@@ -53,6 +53,7 @@ public class OverlayNode extends AbstractNode implements PropertyChangeListener,
                 public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.LABEL); }
                 public boolean supportsDefaultValue() { return true; }
             };
+            label.setPropertyEditorClass(PropertyEditorSupport.class);
             label.setName("Label");
             set.put(label);
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditorSupport;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -70,12 +71,13 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
 
             // Label
             @SuppressWarnings(value = "unchecked")
-            Property label = new PropertySupport.Reflection(indicatorProperties, String.class, "getLabel", "setLabel") {
+            PropertySupport.Reflection label = new PropertySupport.Reflection(indicatorProperties, String.class, "getLabel", "setLabel") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
                 public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.LABEL); }
                 public boolean supportsDefaultValue() { return true; }
             };
+            label.setPropertyEditorClass(PropertyEditorSupport.class);
             label.setName("Label");
             set.put(label);
 

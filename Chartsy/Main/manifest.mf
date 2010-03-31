@@ -4,5 +4,5 @@ OpenIDE-Module: org.chartsy.main
 OpenIDE-Module-Install: org/chartsy/main/Installer.class
 OpenIDE-Module-Layer: org/chartsy/main/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/chartsy/main/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.0.3
+OpenIDE-Module-Specification-Version: 1.1.1.1
 OpenIDE-Module-Java-Dependencies: Java > 1.5
