@@ -43,6 +43,7 @@ public class MACD extends Indicator implements Serializable {
         ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
+            colors[0] = values[0] > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
             for (int j = 0; j < values.length; j++) {
                 ht.put(getFontHTML(colors[j], labels[j]),
                         getFontHTML(colors[j], df.format(values[j])));
@@ -91,7 +92,7 @@ public class MACD extends Indicator implements Serializable {
             Range range = getRange(cf);
             Rectangle2D.Double bounds = getBounds();
 
-            DefaultPainter.bar(g, cf, range, bounds, histogram, properties.getHistogramColor()); // paint the histogram
+            DefaultPainter.histogram(g, cf, range, bounds, histogram, properties.getHistogramPositiveColor(), properties.getHistogramNegativeColor()); // paint the histogram
             DefaultPainter.line(g, cf, range, bounds, signal, properties.getSignalColor(), properties.getSignalStroke()); // paint the signal
             DefaultPainter.line(g, cf, range, bounds, macd, properties.getMacdColor(), properties.getMacdStroke()); // paint the MACD
 
@@ -151,7 +152,7 @@ public class MACD extends Indicator implements Serializable {
     public boolean getZeroLineVisibility() { return properties.getZeroLineVisibility(); }
     public Color getZeroLineColor() { return properties.getZeroLineColor(); }
     public Stroke getZeroLineStroke() { return properties.getZeroLineStroke(); }
-    public Color[] getColors() { return new Color[] {properties.getHistogramColor(), properties.getSignalColor(), properties.getMacdColor()}; }
+    public Color[] getColors() { return new Color[] {null, properties.getSignalColor(), properties.getMacdColor()}; }
     public double[] getValues(ChartFrame cf) {
         Dataset macd = visibleDataset(cf, MACD);
         Dataset signal = visibleDataset(cf, SIGNAL);

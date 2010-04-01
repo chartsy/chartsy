@@ -99,4 +99,20 @@ public final class DefaultPainter {
         }
     }
 
+    public static void histogram(Graphics2D g, ChartFrame cf, Range range, Rectangle2D.Double bounds, Dataset dataset, Color c1, Color c2) { histogram(g, cf, range, bounds, dataset, c1, c2, Dataset.CLOSE); }
+    public static void histogram(Graphics2D g, ChartFrame cf, Range range, Rectangle2D.Double bounds, Dataset dataset, Color c1, Color c2, String price) {
+        Point2D.Double zero = cf.getChartRenderer().valueToJava2D(0, 0, bounds, range);
+        for (int i = 0; i < dataset.getItemCount(); i++) {
+            double value = dataset.getPriceValue(i, price);
+            if (value != 0) {
+                Point2D.Double p = cf.getChartRenderer().valueToJava2D(i, value, bounds, range);
+                double width = cf.getChartProperties().getBarWidth();
+                double height = Math.abs(p.getY() - zero.getY());
+                Rectangle2D.Double rect = value > 0 ? new Rectangle2D.Double(p.getX() - (width/2), p.getY(), width, height) : new Rectangle2D.Double(p.getX() - (width/2), p.getY() - height, width, height);
+                g.setColor(value > 0 ? c1 : c2);
+                g.fill(rect);
+            }
+        }
+    }
+
 }

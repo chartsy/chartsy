@@ -137,16 +137,27 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             zeroLineVisibility.setName("Zero Line Visibility");
             set.put(zeroLineVisibility);
 
-            // Histogram Color
+            // Histogram Positive Color
             @SuppressWarnings(value = "unchecked")
-            Property histogramColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getHistogramColor", "setHistogramColor") {
+            Property histogramPositiveColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getHistogramPositiveColor", "setHistogramPositiveColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.HISTOGRAM_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.HISTOGRAM_POSITIVE_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
-            histogramColor.setName("Histogram Color");
-            set.put(histogramColor);
+            histogramPositiveColor.setName("Histogram Positive Color");
+            set.put(histogramPositiveColor);
+
+            // Histogram Negative Color
+            @SuppressWarnings(value = "unchecked")
+            Property histogramNegativeColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getHistogramNegativeColor", "setHistogramNegativeColor") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.HISTOGRAM_NEGATIVE_COLOR); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            histogramNegativeColor.setName("Histogram Negative Color");
+            set.put(histogramNegativeColor);
 
             // Signal Color
             @SuppressWarnings(value = "unchecked")

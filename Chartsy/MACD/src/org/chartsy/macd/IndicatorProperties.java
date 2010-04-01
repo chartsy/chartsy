@@ -26,7 +26,8 @@ public class IndicatorProperties implements Serializable {
     public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
     public static int ZERO_STROKE_INDEX = 0;
     public static boolean ZERO_LINE_VISIBILITY = true;
-    public static Color HISTOGRAM_COLOR = new Color(0x204a87);
+    public static Color HISTOGRAM_POSITIVE_COLOR = new Color(0x73880A);
+    public static Color HISTOGRAM_NEGATIVE_COLOR = new Color(0xCC0000);
     public static Color SIGNAL_COLOR = new Color(0x5c3566);
     public static int SIGNAL_STROKE_INDEX = 0;
     public static Color MACD_COLOR = new Color(0x4e9a06);
@@ -40,7 +41,8 @@ public class IndicatorProperties implements Serializable {
     private Color zeroLineColor = ZERO_LINE_COLOR;
     private int zeroLineStrokeIndex = ZERO_STROKE_INDEX;
     private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
-    private Color histogramColor = HISTOGRAM_COLOR;
+    private Color histogramPositiveColor = HISTOGRAM_POSITIVE_COLOR;
+    private Color histogramNegativeColor = HISTOGRAM_NEGATIVE_COLOR;
     private Color signalColor = SIGNAL_COLOR;
     private int signalStrokeIndex = SIGNAL_STROKE_INDEX;
     private Color macdColor = MACD_COLOR;
@@ -74,8 +76,11 @@ public class IndicatorProperties implements Serializable {
     public boolean getZeroLineVisibility() { return zeroLineVisibility; }
     public void setZeroLineVisibility(boolean b) { zeroLineVisibility = b; }
 
-    public Color getHistogramColor() { return histogramColor; }
-    public void setHistogramColor(Color c) { histogramColor = c; }
+    public Color getHistogramPositiveColor() { return histogramPositiveColor; }
+    public void setHistogramPositiveColor(Color c) { histogramPositiveColor = c; }
+
+    public Color getHistogramNegativeColor() { return histogramNegativeColor; }
+    public void setHistogramNegativeColor(Color c) { histogramNegativeColor = c; }
 
     public Color getSignalColor() { return signalColor; }
     public void setSignalColor(Color c) { signalColor = c; }
