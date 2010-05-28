@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.dots
+OpenIDE-Module-Localizing-Bundle: org/chartsy/dots/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.2.0.0
+

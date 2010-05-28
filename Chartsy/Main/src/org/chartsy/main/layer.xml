@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="File">
+            <file name="org-chartsy-main-NewChart.instance">
+                <attr name="delegate" newvalue="org.chartsy.main.NewChart"/>
+                <attr name="displayName" bundlevalue="org.chartsy.main.Bundle#CTL_NewChart"/>
+                <attr name="iconBase" stringvalue="org/chartsy/main/resources/newchart.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
+        <folder name="Help">
+            <file name="org-chartsy-main-Register.instance">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.chartsy.main.Bundle"/>
+                <attr name="delegate" newvalue="org.chartsy.main.Register"/>
+                <attr name="displayName" bundlevalue="org.chartsy.main.Bundle#CTL_Register"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" stringvalue="false"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-chartsy-main-NewChart-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="50"/>
+            </file>
+            <file name="org-chartsy-main-NewChart.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-chartsy-main-NewChart.instance"/>
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+        <folder name="Help">
+            <file name="org-chartsy-main-Register.shadow">
+                <attr name="originalFile" stringvalue="Actions/Help/org-chartsy-main-Register.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-N.shadow">
+            <attr name="originalFile" stringvalue="Actions/File/org-chartsy-main-NewChart.instance"/>
+        </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="org-chartsy-main-NewChart.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-chartsy-main-NewChart.instance"/>
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="WelcomeTopComponent.settings" url="WelcomeTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="WelcomeTopComponent.wstcref" url="WelcomeTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

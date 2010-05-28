@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: org.chartsy.updatecenter
+OpenIDE-Module-Layer: org/chartsy/updatecenter/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/updatecenter/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.2.0
+

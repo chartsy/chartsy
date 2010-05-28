@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.annotation.arrowline
+OpenIDE-Module-Localizing-Bundle: org/chartsy/annotation/arrowline/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.2.0.0
