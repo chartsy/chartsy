@@ -6,7 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.util.logging.Logger;
+import org.chartsy.main.intro.ui.NoConnection;
 import org.chartsy.main.intro.ui.StartPageContent;
+import org.chartsy.main.utils.URLChecker;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
@@ -32,7 +34,10 @@ public final class WelcomeTopComponent extends TopComponent {
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
 
         setLayout(new BorderLayout());
-        add(new StartPageContent(), BorderLayout.CENTER);
+        if (URLChecker.isInternetReachable())
+            add(new StartPageContent(), BorderLayout.CENTER);
+        else
+            add(new NoConnection(), BorderLayout.CENTER);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

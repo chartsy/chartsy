@@ -1,6 +1,9 @@
 package org.chartsy.main.utils;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -45,6 +48,28 @@ public class URLChecker {
             ex.printStackTrace();
         }
         return ok;
+    }
+
+    public static boolean isInternetReachable()
+    {
+        try
+        {
+            URL url = new URL("http://www.google.com");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            Object obj = urlConnection.getContent();
+            urlConnection.disconnect();
+        }
+        catch (UnknownHostException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 }

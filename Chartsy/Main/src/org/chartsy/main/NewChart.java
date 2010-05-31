@@ -9,6 +9,7 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.intervals.DailyInterval;
+import org.chartsy.main.utils.URLChecker;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -31,78 +32,81 @@ public class NewChart implements ActionListener
     private boolean newChart = true;
 
     public void actionPerformed(final ActionEvent e)
-    {   
-        if (newChart)
-            dialog = new NewChartDialog(new JFrame(), true);
-        dialog.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-        dialog.setVisible(true);
-
-        if (!dialog.isVisible())
+    {
+        if (URLChecker.isInternetReachable())
         {
-            final Stock stock = dialog.getStock();
-            final DataProvider dataProvider = dialog.getDataProvider();
-            final Chart chart = dialog.getChart();
-            
-            if (dataProvider != null && stock != null && chart != null)
+            if (newChart)
+                dialog = new NewChartDialog(new JFrame(), true);
+            dialog.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+            dialog.setVisible(true);
+
+            if (!dialog.isVisible())
             {
-                stockInfo = null;
-                final RequestProcessor.Task stockTask = RP.create(new Runnable()
-                {
-                    public void run()
-                    {
-                        stockInfo = dataProvider.getStock(stock.getSymbol(), stock.getExchange());
-                    }
-                });
+                final Stock stock = dialog.getStock();
+                final DataProvider dataProvider = dialog.getDataProvider();
+                final Chart chart = dialog.getChart();
 
-                final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", stockTask);
-                stockTask.addTaskListener(new TaskListener()
+                if (dataProvider != null && stock != null && chart != null)
                 {
-                    public void taskFinished(Task task)
+                    stockInfo = null;
+                    final RequestProcessor.Task stockTask = RP.create(new Runnable()
                     {
-                        handle.finish();
-                        if (stockInfo != null)
+                        public void run()
                         {
-                            if (!stockInfo.getKey().equals(""))
+                            stockInfo = dataProvider.getStock(stock.getSymbol(), stock.getExchange());
+                        }
+                    });
+
+                    final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", stockTask);
+                    stockTask.addTaskListener(new TaskListener()
+                    {
+                        public void taskFinished(Task task)
+                        {
+                            handle.finish();
+                            if (stockInfo != null)
                             {
-                                SwingUtilities.invokeLater(new Runnable()
+                                if (!stockInfo.getKey().equals(""))
                                 {
-                                    public void run()
+                                    SwingUtilities.invokeLater(new Runnable()
                                     {
-                                        dataProvider.addStock(stockInfo);
-                                        openNewChart(stockInfo, dataProvider, chart);
-                                    }
-                                });
+                                        public void run()
+                                        {
+                                            dataProvider.addStock(stockInfo);
+                                            openNewChart(stockInfo, dataProvider, chart);
+                                        }
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                NotifyDescriptor d = new NotifyDescriptor.Exception(new IllegalArgumentException("The symbol is invalid. Please enter a valid symbol."));
+                                Object ret = DialogDisplayer.getDefault().notify(d);
+                                if (ret.equals(NotifyDescriptor.OK_OPTION))
+                                {
+                                    newChart = false;
+                                    SwingUtilities.invokeLater(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            actionPerformed(e);
+                                        }
+                                    });
+                                }
                             }
                         }
-                        else
-                        {
-                            NotifyDescriptor d = new NotifyDescriptor.Exception(new IllegalArgumentException("The symbol is invalid. Please enter a valid symbol."));
-                            Object ret = DialogDisplayer.getDefault().notify(d);
-                            if (ret.equals(NotifyDescriptor.OK_OPTION))
-                            {
-                                newChart = false;
-                                SwingUtilities.invokeLater(new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        actionPerformed(e);
-                                    }
-                                });
-                            }
-                        }
+                    });
+
+
+                    if (dataProvider.hasStock(stock))
+                    {
+                        stockInfo = dataProvider.getStock(stock);
+                        openNewChart(stockInfo, dataProvider, chart);
                     }
-                });
-
-
-                if (dataProvider.hasStock(stock))
-                {
-                    stockInfo = dataProvider.getStock(stock);
-                    openNewChart(stockInfo, dataProvider, chart);
-                }
-                else
-                {
-                    handle.start();
-                    stockTask.schedule(0);
+                    else
+                    {
+                        handle.start();
+                        stockTask.schedule(0);
+                    }
                 }
             }
         }
