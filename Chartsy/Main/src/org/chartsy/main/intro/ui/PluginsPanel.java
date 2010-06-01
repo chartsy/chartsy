@@ -77,7 +77,7 @@ public class PluginsPanel extends JPanel implements Constants {
                 label.setForeground(COLOR_TEXT);
                 label.setFont(DESCRIPTION_FONT);
                 label.setVerticalAlignment(SwingConstants.TOP);
-                label.setPreferredSize(new Dimension(300, 150));
+                label.setPreferredSize(new Dimension(250, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 l.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
@@ -109,7 +109,7 @@ public class PluginsPanel extends JPanel implements Constants {
                 label.setForeground(COLOR_TEXT);
                 label.setFont(DESCRIPTION_FONT);
                 label.setVerticalAlignment(SwingConstants.TOP);
-                label.setPreferredSize(new Dimension(300, 150));
+                label.setPreferredSize(new Dimension(250, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 l.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));

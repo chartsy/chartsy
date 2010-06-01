@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -68,7 +67,6 @@ public class WelcomePanel extends JPanel implements Constants {
 
                 panel = new JPanel(new GridBagLayout());
                 panel.setOpaque(false);
-                //panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
                 label = new JLabel("<html>" + feedMessage.getDescription() + "</html>");
                 label.setOpaque(false);
                 label.setForeground(COLOR_TEXT);
@@ -103,9 +101,8 @@ public class WelcomePanel extends JPanel implements Constants {
                 label = new JLabel("<html>There are no new plugins</html>");
                 label.setOpaque(false);
                 label.setForeground(COLOR_TEXT);
-                //label.setFont(DESCRIPTION_FONT);
                 label.setFont(WELCOME_LABEL_FONT);
-                label.setPreferredSize(new Dimension(300, 150));
+                label.setPreferredSize(new Dimension(250, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 leftLabel.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
