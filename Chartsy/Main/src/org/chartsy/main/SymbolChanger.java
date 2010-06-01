@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -20,7 +19,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.EventListenerList;
@@ -78,7 +76,7 @@ public class SymbolChanger extends JToolBar implements Serializable
         txtSymbol = new JTextField(6);
         ((AbstractDocument)txtSymbol.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
         txtSymbol.setMargin(margins);
-        txtSymbol.setToolTipText("Press 'Ctrl+SPACE' for symbol search");
+        //txtSymbol.setToolTipText("Press 'Ctrl+SPACE' for symbol search");
         txtSymbol.setText(chartFrame.getChartData().getStock().getKey());
         Dimension d = new Dimension(50, 20);
         txtSymbol.setPreferredSize(d);
@@ -135,28 +133,6 @@ public class SymbolChanger extends JToolBar implements Serializable
             }
         });
 
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), "controlEspace");
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.CTRL_MASK), "home");
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_END, InputEvent.CTRL_MASK), "end");
-
-        txtSymbol.getActionMap().put("controlEspace", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { onControlSpace(); }
-        });
-
-        txtSymbol.getActionMap().put("home", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { menuWindow.moveStart(); }
-        });
-
-        txtSymbol.getActionMap().put("end", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { menuWindow.moveEnd(); }
-        });
-
         txtSymbol.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -175,6 +151,7 @@ public class SymbolChanger extends JToolBar implements Serializable
             {
                 if (e.isConsumed())
                     return;
+                
                 if (menuWindow.isVisible())
                 {
                     switch (e.getKeyCode())
@@ -203,8 +180,17 @@ public class SymbolChanger extends JToolBar implements Serializable
                 }
                 else
                 {
-                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
-                        btnSubmit.doClick();
+                    switch (e.getKeyCode())
+                    {
+                        case KeyEvent.VK_ENTER:
+                            btnSubmit.doClick();
+                            e.consume();
+                            break;
+                        default:
+                            if (!dataProvider.getName().equals("Yahoo"))
+                                onControlSpace();
+                            break;
+                    }
                 }
             }
         });

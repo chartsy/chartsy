@@ -142,8 +142,16 @@ public class NewChartDialog extends javax.swing.JDialog {
                 }
                 else
                 {
-                    if (!dataProvider.getName().equals("Yahoo"))
-                        onControlSpace();
+                    switch (e.getKeyCode())
+                    {
+                        case KeyEvent.VK_ENTER:
+                            btnNewChart.doClick();
+                            break;
+                        default:
+                            if (!dataProvider.getName().equals("Yahoo"))
+                                onControlSpace();
+                            break;
+                    }
                 }
             }
         });
