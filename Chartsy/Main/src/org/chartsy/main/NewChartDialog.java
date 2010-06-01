@@ -2,21 +2,17 @@ package org.chartsy.main;
 
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
-import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
@@ -68,6 +64,7 @@ public class NewChartDialog extends javax.swing.JDialog {
 
     private void initForm()
     {
+        autocompleteLbl.setVisible(false);
         dataProvider = DataProviderManager.getDefault().getDataProvider(defaultDataProvider);
         List<String> dataProviders = DataProviderManager.getDefault().getDataProviders();
         Collections.sort(dataProviders);
@@ -98,28 +95,6 @@ public class NewChartDialog extends javax.swing.JDialog {
             }
         });
 
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), "controlEspace");
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.CTRL_MASK), "home");
-        txtSymbol.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_END, InputEvent.CTRL_MASK), "end");
-
-        txtSymbol.getActionMap().put("controlEspace", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { onControlSpace(); }
-        });
-
-        txtSymbol.getActionMap().put("home", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { menuWindow.moveStart(); }
-        });
-
-        txtSymbol.getActionMap().put("end", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            { menuWindow.moveEnd(); }
-        });
-
         txtSymbol.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -138,6 +113,7 @@ public class NewChartDialog extends javax.swing.JDialog {
             {
                 if (e.isConsumed())
                     return;
+                
                 if (menuWindow.isVisible())
                 {
                     switch (e.getKeyCode())
@@ -163,6 +139,11 @@ public class NewChartDialog extends javax.swing.JDialog {
                             e.consume();
                             break;
                     }
+                }
+                else
+                {
+                    if (!dataProvider.getName().equals("Yahoo"))
+                        onControlSpace();
                 }
             }
         });
@@ -324,7 +305,7 @@ public class NewChartDialog extends javax.swing.JDialog {
         lblDataProvider = new javax.swing.JLabel();
         btnCancel = new javax.swing.JButton();
         btnNewChart = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        autocompleteLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -378,8 +359,8 @@ public class NewChartDialog extends javax.swing.JDialog {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.jLabel1.text")); // NOI18N
+        autocompleteLbl.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        autocompleteLbl.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.autocompleteLbl.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -395,7 +376,7 @@ public class NewChartDialog extends javax.swing.JDialog {
                                 .add(lblSymbol)
                                 .add(56, 56, 56)
                                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel1)
+                                    .add(autocompleteLbl)
                                     .add(txtSymbol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 361, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(27, 27, 27)))
                         .addContainerGap())
@@ -427,7 +408,7 @@ public class NewChartDialog extends javax.swing.JDialog {
                     .add(lblSymbol)
                     .add(txtSymbol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(3, 3, 3)
-                .add(jLabel1)
+                .add(autocompleteLbl)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lblDataProvider)
@@ -480,8 +461,8 @@ public class NewChartDialog extends javax.swing.JDialog {
         JComboBox list = (JComboBox) evt.getSource();
         String provider = (String) list.getSelectedItem();
         lstExchange.removeAllItems();
-        DataProvider dp = DataProviderManager.getDefault().getDataProvider(provider);
-        Exchange[] exchanges = dp.getExchanges();
+        dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
+        Exchange[] exchanges = dataProvider.getExchanges();
         if (exchanges == null || exchanges.length == 0)
         {
             lblExchange.setVisible(false);
@@ -537,9 +518,9 @@ public class NewChartDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel autocompleteLbl;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnNewChart;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblChart;
     private javax.swing.JLabel lblDataProvider;
     private javax.swing.JLabel lblExchange;

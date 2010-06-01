@@ -103,6 +103,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public ChartFrame(ChartData data)
     {
+        setIgnoreRepaint(true);
         setLayout(new BorderLayout());
         chartData = data;
         if (!chartData.isStockNull())

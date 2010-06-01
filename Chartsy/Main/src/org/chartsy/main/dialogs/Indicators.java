@@ -120,7 +120,6 @@ public class Indicators extends javax.swing.JDialog
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(Indicators.class, "Indicators.title")); // NOI18N
-        setResizable(false);
 
         lblIO.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblIO.setText(org.openide.util.NbBundle.getMessage(Indicators.class, "Indicators.lblIO.text")); // NOI18N

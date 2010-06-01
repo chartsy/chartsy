@@ -143,10 +143,10 @@
                 <package>org.chartsy.main</package>
                 <package>org.chartsy.main.axis</package>
                 <package>org.chartsy.main.chart</package>
-                <package>org.chartsy.main.chartsy</package>
                 <package>org.chartsy.main.data</package>
                 <package>org.chartsy.main.dialogs</package>
                 <package>org.chartsy.main.events</package>
+                <package>org.chartsy.main.favorites</package>
                 <package>org.chartsy.main.history</package>
                 <package>org.chartsy.main.intervals</package>
                 <package>org.chartsy.main.intro</package>
