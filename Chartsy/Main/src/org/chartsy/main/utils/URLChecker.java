@@ -1,7 +1,6 @@
 package org.chartsy.main.utils;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import org.apache.commons.httpclient.HttpClient;
@@ -54,10 +53,11 @@ public class URLChecker {
     {
         try
         {
-            URL url = new URL("http://www.google.com");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            Object obj = urlConnection.getContent();
-            urlConnection.disconnect();
+            HttpClient client = ProxyManager.getDefault().getHttpClient();
+            GetMethod method = new GetMethod("http://www.google.com");
+            int responce = client.executeMethod(method);
+            System.out.println(HttpStatus.getStatusText(responce));
+            method.releaseConnection();
         }
         catch (UnknownHostException ex)
         {
