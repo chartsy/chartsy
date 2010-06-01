@@ -312,6 +312,7 @@ public class NewChartDialog extends javax.swing.JDialog {
         lblDataProvider = new javax.swing.JLabel();
         btnCancel = new javax.swing.JButton();
         btnNewChart = new javax.swing.JButton();
+        autocompleteLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -365,6 +366,9 @@ public class NewChartDialog extends javax.swing.JDialog {
             }
         });
 
+        autocompleteLbl.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        autocompleteLbl.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.autocompleteLbl.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -378,7 +382,9 @@ public class NewChartDialog extends javax.swing.JDialog {
                             .add(mainPanelLayout.createSequentialGroup()
                                 .add(lblSymbol)
                                 .add(56, 56, 56)
-                                .add(txtSymbol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 361, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(autocompleteLbl)
+                                    .add(txtSymbol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 361, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(27, 27, 27)))
                         .addContainerGap())
                     .add(mainPanelLayout.createSequentialGroup()
@@ -408,6 +414,8 @@ public class NewChartDialog extends javax.swing.JDialog {
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lblSymbol)
                     .add(txtSymbol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(3, 3, 3)
+                .add(autocompleteLbl)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lblDataProvider)
@@ -517,6 +525,7 @@ public class NewChartDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel autocompleteLbl;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnNewChart;
     private javax.swing.JLabel lblChart;
