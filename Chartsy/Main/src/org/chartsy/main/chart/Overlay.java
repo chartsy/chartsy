@@ -21,52 +21,80 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public abstract class Overlay 
+public abstract class Overlay
         implements Serializable, DatasetListener, LogListener
 {
 
     private static final long serialVersionUID = 2L;
-
     protected Dataset dataset;
     protected LinkedHashMap<String, Dataset> datasets;
     private boolean logarithmic = false;
 
-    public Overlay() {
+    public Overlay()
+    {
         datasets = new LinkedHashMap<String, Dataset>();
     }
 
     public boolean isLogarithmic()
-    { return logarithmic; }
+    {
+        return logarithmic;
+    }
 
     public void setLogarithmic(boolean b)
-    { logarithmic = b; }
+    {
+        logarithmic = b;
+    }
 
-    public String getFontHTML(Color color, String text) {
+    public String getFontHTML(Color color, String text)
+    {
         String html = "<font color=\"" + Integer.toHexString(color.getRGB() & 0x00ffffff) + "\">" + text + "</font>";
         return html;
     }
 
-    public Dataset getDataset() {
+    public Dataset getDataset()
+    {
         if (logarithmic)
+        {
             return Dataset.LOG(dataset);
+        }
         return dataset;
     }
-    public void setDataset(Dataset d) { dataset = d; }
 
-    public void addDataset(String key, Dataset value) { datasets.put(key, value); }
-    public Dataset getDataset(String key) { return datasets.get(key); }
-    public Dataset visibleDataset(ChartFrame cf, String key) {
-        if (datasets.containsKey(key)) {
+    public void setDataset(Dataset d)
+    {
+        dataset = d;
+    }
+
+    public void addDataset(String key, Dataset value)
+    {
+        datasets.put(key, value);
+    }
+
+    public Dataset getDataset(String key)
+    {
+        return datasets.get(key);
+    }
+
+    public Dataset visibleDataset(ChartFrame cf, String key)
+    {
+        if (datasets.containsKey(key))
+        {
             Dataset d = getDataset(key);
             if (d == null)
+            {
                 return null;
-            
+            }
+
             Dataset v = d.getVisibleDataset(cf.getChartData().getPeriod(), cf.getChartData().getLast());
             return v;
         }
         return null;
     }
-    public void removeDatasets() { datasets.clear(); }
+
+    public void removeDatasets()
+    {
+        datasets.clear();
+    }
 
     public abstract String getName();
 
@@ -79,7 +107,9 @@ public abstract class Overlay
     public Range getRange(ChartFrame cf, String price)
     {
         if (datasets.isEmpty())
+        {
             return new Range();
+        }
 
         Range range = null;
         Iterator<String> it = datasets.keySet().iterator();
@@ -89,11 +119,14 @@ public abstract class Overlay
             Dataset d = visibleDataset(cf, it.next());
             double min = d.getMinNotZero(price);
             double max = d.getMaxNotZero(price);
-            
+
             if (range == null)
-                range = new Range(min - (max - min)*0.01, max + (max - min)*0.01);
-            else
-                range = Range.combine(range, new Range(min - (max - min)*0.01, max + (max - min)*0.01));
+            {
+                range = new Range(min - (max - min) * 0.01, max + (max - min) * 0.01);
+            } else
+            {
+                range = Range.combine(range, new Range(min - (max - min) * 0.01, max + (max - min) * 0.01));
+            }
         }
 
         return range;
@@ -132,4 +165,14 @@ public abstract class Overlay
         calculate();
     }
 
+    /**
+     * If an override in the overlay class sets this to false
+     * that overlay is not included in the range calculation of the chart.
+     *
+     * @return whether to include this overlay in chart range
+     */
+    public boolean isIncludedInRange()
+    {
+        return true;
+    }
 }
