@@ -1,27 +1,32 @@
 package org.chartsy.main.favorites;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.awt.LayoutManager;
+import java.awt.BorderLayout;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 //import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 
 @ConvertAsProperties(dtd = "-//org.chartsy.main.favorites//Favorites//EN",
 autostore = false)
-public final class FavoritesTopComponent extends TopComponent
+public final class FavoritesTopComponent extends TopComponent implements ExplorerManager.Provider
 {
 
     private static FavoritesTopComponent instance;
+    private static final Logger LOG = Logger.getLogger(FavoritesTopComponent.class.getPackage().getName());
     //static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
     private static final String PREFERRED_ID = "FavoritesTopComponent";
 
-    private FavoritesPanel mainPanel;
+    private transient ExplorerManager explorerManager = new ExplorerManager();
+    private BeanTreeView beanTreeView;
 
     public FavoritesTopComponent()
     {
@@ -33,34 +38,18 @@ public final class FavoritesTopComponent extends TopComponent
         putClientProperty(TopComponent.PROP_DRAGGING_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
-
         initializeUIElements();
     }
 
     private void initializeUIElements()
     {
-        mainPanel = new FavoritesPanel();
-        add(mainPanel);
+        setLayout(new BorderLayout());
+        beanTreeView = new BeanTreeView();
+        add(beanTreeView, BorderLayout.CENTER);
 
-        setLayout(new LayoutManager()
-        {
-            public void addLayoutComponent(String name, Component comp)
-            {}
-            public void removeLayoutComponent(Component comp)
-            {}
-            public Dimension preferredLayoutSize(Container parent)
-            {return new Dimension(0, 0);}
-            public Dimension minimumLayoutSize(Container parent)
-            {return new Dimension(0, 0);}
-            public void layoutContainer(Container parent)
-            {
-                Insets insets = parent.getInsets();
-                int width = parent.getWidth() - insets.left - insets.right;
-                int height = parent.getHeight() - insets.top - insets.bottom;
-
-                mainPanel.setBounds(insets.left, insets.top, width, height);
-            }
-        });
+        associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
+        explorerManager.setRootContext(new AbstractNode(new FolderChildren()));
+        explorerManager.getRootContext().setDisplayName("Favorites");
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -84,58 +73,70 @@ public final class FavoritesTopComponent extends TopComponent
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 
-    public static synchronized FavoritesTopComponent getDefault() {
-        if (instance == null) {
+    public static synchronized FavoritesTopComponent getDefault()
+    {
+        if (instance == null)
+        {
             instance = new FavoritesTopComponent();
         }
         return instance;
     }
 
-    public static synchronized FavoritesTopComponent findInstance() {
+    public static synchronized FavoritesTopComponent findInstance()
+    {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
-        if (win == null) {
-            Logger.getLogger(FavoritesTopComponent.class.getName()).warning(
-                    "Cannot find " + PREFERRED_ID + " component. It will not be located properly in the window system.");
+        if (win == null)
+        {
+            LOG.warning("Cannot find " + PREFERRED_ID + " component. It will not be located properly in the window system.");
             return getDefault();
         }
-        if (win instanceof FavoritesTopComponent) {
+        if (win instanceof FavoritesTopComponent)
+        {
             return (FavoritesTopComponent) win;
         }
-        Logger.getLogger(FavoritesTopComponent.class.getName()).warning(
-                "There seem to be multiple components with the '" + PREFERRED_ID
-                + "' ID. That is a potential source of errors and unexpected behavior.");
+        LOG.warning("There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
     }
 
-    public @Override int getPersistenceType() {
+    public @Override int getPersistenceType()
+    {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
 
-    public @Override void componentOpened() {
+    public @Override void componentOpened()
+    {
         // TODO add custom code on component opening
     }
 
-    public @Override void componentClosed() {
+    public @Override void componentClosed()
+    {
         // TODO add custom code on component closing
     }
 
-    void writeProperties(java.util.Properties p) {
+    void writeProperties(java.util.Properties p)
+    {
         p.setProperty("version", "1.0");
     }
 
-    Object readProperties(java.util.Properties p) {
-        if (instance == null) {
+    Object readProperties(java.util.Properties p)
+    {
+        if (instance == null)
+        {
             instance = this;
         }
         instance.readPropertiesImpl(p);
         return instance;
     }
 
-    private void readPropertiesImpl(java.util.Properties p) {
+    private void readPropertiesImpl(java.util.Properties p)
+    {
         String version = p.getProperty("version");
     }
 
-    protected @Override String preferredID() {
-        return PREFERRED_ID;
-    }
+    protected @Override String preferredID() 
+    { return PREFERRED_ID; }
+
+    public ExplorerManager getExplorerManager() 
+    { return explorerManager; }
+    
 }

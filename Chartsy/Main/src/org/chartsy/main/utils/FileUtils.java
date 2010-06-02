@@ -78,6 +78,20 @@ public final class FileUtils {
         return result;
     }
 
+    public static String favoritesFolder()
+    {
+        String result = LocalFolder() + File.separator + "favorites";
+        createFolder(result);
+        return result;
+    }
+
+    public static String favoritesFile()
+    {
+        String result = favoritesFolder() + File.separator + "favorites.xml";
+        createFile(result);
+        return result;
+    }
+
     public static boolean fileExists(String path)
     {
         File file = new File(path);
