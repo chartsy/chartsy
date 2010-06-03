@@ -85,7 +85,7 @@ public class VolumeOverlay
             int height =  bounds.getSize().height/4;
             bounds.setLocation(bounds.getLocation().x, bounds.getLocation().y+height*3);
             bounds.setSize(bounds.getSize().width, height);
-            Color colorVolume = new Color(properties.getColor().getRed(),properties.getColor().getGreen(),properties.getColor().getBlue(),128);
+            Color colorVolume = new Color(properties.getColor().getRed(),properties.getColor().getGreen(),properties.getColor().getBlue(),properties.getAlpha());
             DefaultPainter.bar(g, cf, range, bounds, d, colorVolume);
         }
     }

@@ -96,6 +96,7 @@ public class OverlayNode extends AbstractNode implements PropertyChangeListener,
             };
             marker.setName("Marker");
             set.put(marker);
+
             @SuppressWarnings(value = "unchecked")
             PropertySupport.Reflection color = new PropertySupport.Reflection(overlayProperties, Color.class, "getColor", "setColor")
             {
@@ -122,6 +123,34 @@ public class OverlayNode extends AbstractNode implements PropertyChangeListener,
             };
             color.setName("Color");
             set.put(color);
+
+            @SuppressWarnings(value = "unchecked")
+            PropertySupport.Reflection alpha = new PropertySupport.Reflection(overlayProperties, Integer.class, "getAlpha", "setAlpha")
+            {
+
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+                {
+                    return super.getValue();
+                }
+
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+                {
+                    super.setValue(obj);
+                }
+
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException
+                {
+                    super.setValue(OverlayProperties.ALPHA);
+                }
+
+                public boolean supportsDefaultValue()
+                {
+                    return true;
+                }
+            };
+            alpha.setName("Alpha");
+            set.put(alpha);
+
 
         } catch (Exception ex)
         {

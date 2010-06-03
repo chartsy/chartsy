@@ -20,12 +20,14 @@ public class OverlayProperties implements Serializable
     public static final int ZERO_LINE_STROKE = 0;
     public static final boolean ZERO_LINE_VISIBILITY = true;
     public static final Color COLOR = new Color(0xf57900);
+    public static final int ALPHA = 128;
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color zeroLineColor = ZERO_LINE_COLOR;
     private int zeroLineStrokeIndex = ZERO_LINE_STROKE;
     private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
     private Color color = COLOR;
+    private int alpha = ALPHA;
 
     public OverlayProperties()
     {
@@ -100,6 +102,17 @@ public class OverlayProperties implements Serializable
     {
         color = c;
     }
+
+    public Integer getAlpha()
+    {
+        return alpha;
+    }
+
+    public void setAlpha(Integer a)
+    {
+        alpha = a;
+    }
+    
     private List listeners = Collections.synchronizedList(new LinkedList());
 
     public void addPropertyChangeListener(PropertyChangeListener pcl)
