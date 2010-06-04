@@ -3,24 +3,24 @@ package org.chartsy.volumeoverlay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Stroke;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 public class VolumeOverlay
         extends Overlay
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+    
     public static final String VOLUME = "volume";
     private OverlayProperties properties;
 
@@ -85,7 +85,7 @@ public class VolumeOverlay
             int height =  bounds.getSize().height/4;
             bounds.setLocation(bounds.getLocation().x, bounds.getLocation().y+height*3);
             bounds.setSize(bounds.getSize().width, height);
-            Color colorVolume = new Color(properties.getColor().getRed(),properties.getColor().getGreen(),properties.getColor().getBlue(),properties.getAlpha());
+            Color colorVolume = ColorGenerator.getTransparentColor(properties.getColor(), properties.getAlpha());
             DefaultPainter.bar(g, cf, range, bounds, d, colorVolume);
         }
     }
@@ -105,53 +105,6 @@ public class VolumeOverlay
             }
             addDataset(VOLUME, d);
         }
-    }
-
-    public boolean hasZeroLine()
-    {
-        return true;
-    }
-
-    public boolean getZeroLineVisibility()
-    {
-        return properties.getZeroLineVisibility();
-    }
-
-    public Color getZeroLineColor()
-    {
-        return properties.getZeroLineColor();
-    }
-
-    public Stroke getZeroLineStroke()
-    {
-        return properties.getZeroLineStroke();
-    }
-
-    public boolean hasDelimiters()
-    {
-        return false;
-    }
-
-    public boolean getDelimitersVisibility()
-    {
-        return false;
-    }
-
-    public double[] getDelimitersValues()
-    {
-        return new double[]
-                {
-                };
-    }
-
-    public Color getDelimitersColor()
-    {
-        return null;
-    }
-
-    public Stroke getDelimitersStroke()
-    {
-        return null;
     }
 
     public Color[] getColors()
@@ -194,7 +147,7 @@ public class VolumeOverlay
 
     public boolean getMarkerVisibility()
     {
-        return properties.getMarker();
+        return false;
     }
 
     public AbstractNode getNode()
