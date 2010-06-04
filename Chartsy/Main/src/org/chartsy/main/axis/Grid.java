@@ -12,6 +12,7 @@ import org.chartsy.main.IndicatorPanel;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -20,8 +21,8 @@ import org.chartsy.main.utils.Range;
 public class Grid extends AbstractComponent
 {
 
-    private static final long serialVersionUID = 2L;
-    private transient ChartFrame chartFrame;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+    private ChartFrame chartFrame;
 
     public Grid(ChartFrame frame)
     {

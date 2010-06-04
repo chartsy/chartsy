@@ -18,6 +18,7 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.intervals.MonthlyInterval;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -26,9 +27,9 @@ import org.chartsy.main.utils.CoordCalc;
 public class DateAxis extends AbstractComponent
 {
 
-    private static final long serialVersionUID = 2L;
-    private transient ChartFrame chartFrame;
-    private transient JLabel copyright;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+    private ChartFrame chartFrame;
+    private JLabel copyright;
 
     public DateAxis(ChartFrame frame)
     {

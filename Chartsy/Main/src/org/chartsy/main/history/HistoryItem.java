@@ -3,6 +3,7 @@ package org.chartsy.main.history;
 import java.io.Serializable;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.intervals.Interval;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -11,7 +12,7 @@ import org.chartsy.main.intervals.Interval;
 public class HistoryItem implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private Stock stock;
     private Interval interval;

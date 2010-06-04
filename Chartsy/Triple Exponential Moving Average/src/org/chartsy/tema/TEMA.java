@@ -3,7 +3,6 @@ package org.chartsy.tema;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
@@ -11,6 +10,7 @@ import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -19,10 +19,10 @@ import org.openide.nodes.AbstractNode;
  */
 public class TEMA 
         extends Overlay
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+
     public static final String TEMA = "tema";
     private OverlayProperties properties;
 

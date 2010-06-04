@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.utils.FileUtils;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -27,7 +28,7 @@ import org.chartsy.main.utils.FileUtils;
 public class History implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     protected static final Logger LOG = Logger.getLogger(History.class.getPackage().getName());
     private HistoryItem current;

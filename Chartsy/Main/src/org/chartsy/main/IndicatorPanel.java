@@ -1,6 +1,7 @@
 package org.chartsy.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -27,14 +28,18 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.resources.ResourcesUtils;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
  * @author Administrator
  */
-public class IndicatorPanel extends AbstractComponent implements Serializable {
+public class IndicatorPanel 
+        extends JPanel
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
@@ -42,13 +47,19 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
     private JLabel label;
     private Indicator indicator = null;
 
-    private transient Toolbox toolbox;
+    private Toolbox toolbox;
 
-    public IndicatorPanel(ChartFrame frame, Indicator i) {
+    public IndicatorPanel(ChartFrame frame, Indicator i)
+    {
         chartFrame = frame;
         indicator = i;
+        initializeUIElements();
+    }
 
+    private void initializeUIElements()
+    {
         annotationPanel = new AnnotationPanel(chartFrame);
+
         top = new JPanel();
         top.setOpaque(false);
         top.setLayout(new BorderLayout());
@@ -59,6 +70,7 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
         label.setHorizontalTextPosition(SwingConstants.LEFT);
         label.setVerticalTextPosition(SwingConstants.CENTER);
         label.setFont(chartFrame.getChartProperties().getFont());
+        label.setForeground(chartFrame.getChartProperties().getFontColor());
         toolbox = new Toolbox(this);
 
         top.add(label, BorderLayout.WEST);
@@ -109,14 +121,17 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
     public void setIndicator(Indicator ind) 
     { indicator = ind; }
 
-    public boolean isMaximized() {
+    public boolean isMaximized()
+    {
         if (indicator != null)
             return indicator.isMaximized();
         return true;
     }
 
-    public void setMaximized(boolean b) {
-        if (indicator.isMaximized() != b) {
+    public void setMaximized(boolean b)
+    {
+        if (indicator.isMaximized() != b)
+        {
             indicator.setMaximized(b);
             if (toolbox != null)
                 toolbox.update();
@@ -127,68 +142,97 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
     }
 
     public void toggleVisible() 
-    { setMaximized(!isMaximized()); }
+    { 
+        setMaximized(!isMaximized());
+    }
 
     public Toolbox getToolbox() 
-    { return toolbox; }
+    { 
+        return toolbox;
+    }
 
-    public void updateToolbox() {
+    public void updateToolbox() 
+    { 
         toolbox.update();
     }
 
     public void setMaximizedHeight(int height)
     { this.indicator.setMaximizedHeight(height); }
 
-    public int getPanelHeight() {
-        if (isMaximized()) {
+    public int getPanelHeight()
+    {
+        if (isMaximized())
+        {
             return indicator.getMaximizedHeight();
-        } else {
+        }
+        else
+        {
             return top.getHeight();
         }
     }
 
-    private AbstractAction moveUp(final ChartFrame frame, final IndicatorPanel panel) {
-        return new AbstractAction("Move Indicator Up", ResourcesUtils.getIcon("up")) {
-            public void actionPerformed(ActionEvent e) {
+    private AbstractAction moveUp(final ChartFrame frame, final IndicatorPanel panel)
+    {
+        return new AbstractAction("Move Indicator Up", ResourcesUtils.getIcon("up"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 frame.getSplitPanel().getIndicatorsPanel().moveUp(panel);
             }
         };
     }
 
-    private AbstractAction moveDown(final ChartFrame frame, final IndicatorPanel panel) {
-        return new AbstractAction("Move Indicator Down", ResourcesUtils.getIcon("down")) {
-            public void actionPerformed(ActionEvent e) {
+    private AbstractAction moveDown(final ChartFrame frame, final IndicatorPanel panel)
+    {
+        return new AbstractAction("Move Indicator Down", ResourcesUtils.getIcon("down"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 frame.getSplitPanel().getIndicatorsPanel().moveDown(panel);
             }
         };
     }
 
-    private AbstractAction minimize(final IndicatorPanel panel) {
-        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("minimize")) {
-            public void actionPerformed(ActionEvent e) {
+    private AbstractAction minimize(final IndicatorPanel panel)
+    {
+        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("minimize"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 panel.setMaximized(false);
             }
         };
     }
 
-    private AbstractAction maximize(final IndicatorPanel panel) {
-        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("maximize")) {
-            public void actionPerformed(ActionEvent e) {
+    private AbstractAction maximize(final IndicatorPanel panel)
+    {
+        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("maximize"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 panel.setMaximized(true);
             }
         };
     }
 
-    private AbstractAction removeAction(final ChartFrame frame, final IndicatorPanel panel) {
-        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("remove")) {
-            public void actionPerformed(ActionEvent e) {
+    private AbstractAction removeAction(final ChartFrame frame, final IndicatorPanel panel)
+    {
+        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("remove"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 frame.getSplitPanel().getIndicatorsPanel().remove(panel);
             }
         };
     }
 
-    protected void paintAbstractComponent(Graphics g)
+    public void paint(Graphics g)
     {
+        label.setFont(chartFrame.getChartProperties().getFont());
+        label.setForeground(chartFrame.getChartProperties().getFontColor());
+
+        super.paint(g);
+
         int width = getWidth();
 
         Graphics2D g2 = (Graphics2D) g.create();
@@ -221,16 +265,17 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
         g2.dispose();
     }
 
-    @Override
-    public Rectangle getBounds()
+    public @Override Rectangle getBounds()
     { return new Rectangle(0, 0, getWidth(), getPanelHeight()); }
 
-    public class Toolbox extends JComponent implements Serializable
+    public class Toolbox 
+            extends JComponent
+            implements Serializable
     {
 
-        private static final long serialVersionUID = 2L;
-        private transient IndicatorPanel indicatorPanel;
-        private transient JPanel container;
+        private static final long serialVersionUID = SerialVersion.APPVERSION;
+        private IndicatorPanel indicatorPanel;
+        private JPanel container;
 
         public Toolbox(IndicatorPanel panel)
         {
@@ -279,10 +324,12 @@ public class IndicatorPanel extends AbstractComponent implements Serializable {
             repaint();
         }
 
-        public class ToolboxButton extends JButton implements Serializable
+        public class ToolboxButton 
+                extends JButton
+                implements Serializable
         {
 
-            private static final long serialVersionUID = 2L;
+            private static final long serialVersionUID = SerialVersion.APPVERSION;
 
             public ToolboxButton(Action action)
             {

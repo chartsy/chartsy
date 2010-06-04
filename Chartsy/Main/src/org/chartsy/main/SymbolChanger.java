@@ -33,6 +33,7 @@ import org.chartsy.main.events.StockListener;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.AutocompletePopup;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.Word;
 
@@ -43,7 +44,7 @@ import org.chartsy.main.utils.Word;
 public class SymbolChanger extends JToolBar implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private static final char[] WORD_SEPARATORS = {' ', '\n', '\t', ',', ';', '!', '?', '\'', '(', ')', '[', ']', '\"', '{', '}', '/', '\\', '<', '>'};
 
     private ChartFrame chartFrame;
@@ -157,7 +158,13 @@ public class SymbolChanger extends JToolBar implements Serializable
                     switch (e.getKeyCode())
                     {
                         case KeyEvent.VK_ENTER:
-                            menuWindow.onSelected();
+                            if (menuWindow.hasSelected())
+                                menuWindow.onSelected();
+                            else
+                            {
+                                menuWindow.setVisible(false);
+                                btnSubmit.doClick();
+                            }
                             e.consume();
                             break;
                         case KeyEvent.VK_DOWN:

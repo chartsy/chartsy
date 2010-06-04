@@ -61,6 +61,12 @@ public class AutocompletePopup extends JPopupMenu
         list.addMouseListener(new WordMenuMouseListener());
     }
 
+    public boolean hasSelected()
+    {
+        Object obj = list.getSelectedValue();
+        return obj != null;
+    }
+
     public void onSelected()
     {
         Object obj = list.getSelectedValue();

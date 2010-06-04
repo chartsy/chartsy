@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -27,7 +28,7 @@ import org.chartsy.main.utils.Range;
 public class AnnotationPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int NONE = 0;
     public static final int NEWANNOTATION = 1;

@@ -6,11 +6,11 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.font.LineMetrics;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -19,10 +19,10 @@ import org.openide.nodes.AbstractNode;
  */
 public class HorizontalLine
         extends Annotation
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+
     private AnnotationProperties properties;
 
     private DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -41,7 +41,7 @@ public class HorizontalLine
         properties = new AnnotationProperties();
     }
 
-    public String getName()
+    public @Override String getName()
     { return "Horizontal Line"; }
 
     public Annotation newInstance(ChartFrame frame)
@@ -76,7 +76,7 @@ public class HorizontalLine
             paintActionPoints(g);
     }
 
-    protected void paintActionPoints(Graphics2D g)
+    protected @Override void paintActionPoints(Graphics2D g)
     {
         Rectangle bounds = getAnnotationPanel().getBounds();
         double y = getYFromValue(getV1());

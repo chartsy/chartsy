@@ -2,222 +2,204 @@ package org.chartsy.macd;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditorSupport;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import org.chartsy.main.chart.AbstractPropertiesNode;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author viorel.gheba
  */
-public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
+public class IndicatorNode 
+        extends AbstractPropertiesNode
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public IndicatorNode() {
-        super(Children.LEAF);
-        setDisplayName("MACD Properties");
+    public IndicatorNode()
+    {
+        super("MACD Properties");
     }
 
-    public IndicatorNode(IndicatorProperties indicatorProperties) {
-        super(Children.LEAF, Lookups.singleton(indicatorProperties));
-        setDisplayName("MACD Properties");
-        indicatorProperties.addPropertyChangeListener(this);
+    public IndicatorNode(IndicatorProperties indicatorProperties)
+    {
+        super("MACD Properties", indicatorProperties);
     }
 
-    @Override
-    protected Sheet createSheet() {
+    @SuppressWarnings("unchecked")
+    protected @Override Sheet createSheet()
+    {
         Sheet sheet = Sheet.createDefault();
-
-        Sheet.Set set = Sheet.createPropertiesSet();
-        final IndicatorProperties indicatorProperties = getLookup().lookup(IndicatorProperties.class);
-
-        try {
-            // Fast
-            @SuppressWarnings(value = "unchecked")
-            Property fast = new PropertySupport.Reflection(indicatorProperties, int.class, "getFast", "setFast") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.FAST); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            fast.setName("Fast");
-            set.put(fast);
-            
-            // Slow
-            @SuppressWarnings(value = "unchecked")
-            Property slow = new PropertySupport.Reflection(indicatorProperties, int.class, "getSlow", "setSlow") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.SLOW); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            slow.setName("Slow");
-            set.put(slow);
-
-            // Smooth
-            @SuppressWarnings(value = "unchecked")
-            Property smooth = new PropertySupport.Reflection(indicatorProperties, int.class, "getSmooth", "setSmooth") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.SMOOTH); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            smooth.setName("Smooth");
-            set.put(smooth);
-
-            
-            // Label
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection label = new PropertySupport.Reflection(indicatorProperties, String.class, "getLabel", "setLabel") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.LABEL); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            label.setPropertyEditorClass(PropertyEditorSupport.class);
-            label.setName("Label");
-            set.put(label);
-
-            // Marker
-            @SuppressWarnings(value = "unchecked")
-            Property marker = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getMarker", "setMarker") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.MARKER); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            marker.setName("Marker");
-            set.put(marker);
-
-            // Zero Line Color
-            @SuppressWarnings(value = "unchecked")
-            Property zeroLineColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getZeroLineColor", "setZeroLineColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.ZERO_LINE_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            zeroLineColor.setName("Zero Line Color");
-            set.put(zeroLineColor);
-
-            // Zero Line Stroke
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection zeroLineStroke = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getZeroLineStroke", "setZeroLineStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.ZERO_STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            zeroLineStroke.setPropertyEditorClass(StrokePropertyEditor.class);
-            zeroLineStroke.setName("Zero Line Style");
-            set.put(zeroLineStroke);
-
-            // Zero Line Visibility
-            @SuppressWarnings(value = "unchecked")
-            Property zeroLineVisibility = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getZeroLineVisibility", "setZeroLineVisibility") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.ZERO_LINE_VISIBILITY); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            zeroLineVisibility.setName("Zero Line Visibility");
-            set.put(zeroLineVisibility);
-
-            // Histogram Positive Color
-            @SuppressWarnings(value = "unchecked")
-            Property histogramPositiveColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getHistogramPositiveColor", "setHistogramPositiveColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.HISTOGRAM_POSITIVE_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            histogramPositiveColor.setName("Histogram Positive Color");
-            set.put(histogramPositiveColor);
-
-            // Histogram Negative Color
-            @SuppressWarnings(value = "unchecked")
-            Property histogramNegativeColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getHistogramNegativeColor", "setHistogramNegativeColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.HISTOGRAM_NEGATIVE_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            histogramNegativeColor.setName("Histogram Negative Color");
-            set.put(histogramNegativeColor);
-
-            // Signal Color
-            @SuppressWarnings(value = "unchecked")
-            Property signalColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getSignalColor", "setSignalColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.SIGNAL_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            signalColor.setName("Signal Color");
-            set.put(signalColor);
-
-            // Signal Stroke
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection signalStroke = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getSignalStroke", "setSignalStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.SIGNAL_STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            signalStroke.setPropertyEditorClass(StrokePropertyEditor.class);
-            signalStroke.setName("Signal Style");
-            set.put(signalStroke);
-
-            // MACD Color
-            @SuppressWarnings(value = "unchecked")
-            Property macdColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getMacdColor", "setMacdColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.MACD_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            macdColor.setName("MACD Color");
-            set.put(macdColor);
-
-            // MACD Stroke
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection macdStroke = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getMacdStroke", "setMacdStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.MACD_STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            macdStroke.setPropertyEditorClass(StrokePropertyEditor.class);
-            macdStroke.setName("MACD Style");
-            set.put(macdStroke);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        Sheet.Set set = getPropertiesSet();
         sheet.put(set);
+
+        try
+        {
+            // Fast
+            set.put(getProperty(
+                    "Fast", // property name
+                    "Sets the fast value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getFast", // get method name
+                    "setFast", // set method name
+                    IndicatorProperties.FAST // default property value
+                    ));
+            // Slow
+            set.put(getProperty(
+                    "Slow", // property name
+                    "Sets the slow value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getSlow", // get method name
+                    "setSlow", // set method name
+                    IndicatorProperties.SLOW // default property value
+                    ));
+            // Smooth
+            set.put(getProperty(
+                    "Smooth", // property name
+                    "Sets the smooth value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getSmooth", // get method name
+                    "setSmooth", // set method name
+                    IndicatorProperties.SMOOTH // default property value
+                    ));
+            // Label
+            set.put(getProperty(
+                    "Label", // property name
+                    "Sets the label", // property description
+                    IndicatorProperties.class, // properties class
+                    String.class, // property class
+                    PropertyEditorSupport.class, // property editor class (null if none)
+                    "getLabel", // get method name
+                    "setLabel", // set method name
+                    IndicatorProperties.LABEL // default property value
+                    ));
+            // Marker Visibility
+            set.put(getProperty(
+                    "Marker Visibility", // property name
+                    "Sets the marker visibility", // property description
+                    IndicatorProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getMarker", // get method name
+                    "setMarker", // set method name
+                    IndicatorProperties.MARKER // default property value
+                    ));
+            // Zero Line Color
+            set.put(getProperty(
+                    "Zero Line Color", // property name
+                    "Sets the zero line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getZeroLineColor", // get method name
+                    "setZeroLineColor", // set method name
+                    IndicatorProperties.ZERO_LINE_COLOR // default property value
+                    ));
+            // Zero Line Style
+            set.put(getProperty(
+                    "Zero Line Style", // property name
+                    "Sets the zero line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getZeroLineStroke", // get method name
+                    "setZeroLineStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.ZERO_LINE_STROKE_INDEX) // default property value
+                    ));
+            // Zero Line Visibility
+            set.put(getProperty(
+                    "Zero Line Visibility", // property name
+                    "Sets the zero line visibility flag", // property description
+                    IndicatorProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getZeroLineVisibility", // get method name
+                    "setZeroLineVisibility", // set method name
+                    IndicatorProperties.ZERO_LINE_VISIBILITY // default property value
+                    ));
+            // Histogram Positive Color
+            set.put(getProperty(
+                    "Histogram Positive Color", // property name
+                    "Sets the histogram positive color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getHistogramPositiveColor", // get method name
+                    "setHistogramPositiveColor", // set method name
+                    IndicatorProperties.HISTOGRAM_POSITIVE_COLOR // default property value
+                    ));
+            // Histogram Negative Color
+            set.put(getProperty(
+                    "Histogram Negative Color", // property name
+                    "Sets the histogram negative color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getHistogramNegativeColor", // get method name
+                    "setHistogramNegativeColor", // set method name
+                    IndicatorProperties.HISTOGRAM_NEGATIVE_COLOR // default property value
+                    ));
+            // Signal Line Color
+            set.put(getProperty(
+                    "Signal Line Color", // property name
+                    "Sets the signal line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getSignalColor", // get method name
+                    "setSignalColor", // set method name
+                    IndicatorProperties.SIGNAL_COLOR // default property value
+                    ));
+            // Signal Line Style
+            set.put(getProperty(
+                    "Signal Line Style", // property name
+                    "Sets the signal line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getSignalStroke", // get method name
+                    "setSignalStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.SIGNAL_STROKE_INDEX) // default property value
+                    ));
+            // MACD Line Color
+            set.put(getProperty(
+                    "MACD Line Color", // property name
+                    "Sets the macd line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getMacdColor", // get method name
+                    "setMacdColor", // set method name
+                    IndicatorProperties.MACD_COLOR // default property value
+                    ));
+            // MACD Line Style
+            set.put(getProperty(
+                    "MACD Line Style", // property name
+                    "Sets the macd line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getMacdStroke", // get method name
+                    "setMacdStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.MACD_STROKE_INDEX) // default property value
+                    ));
+        }
+        catch (NoSuchMethodException ex)
+        {
+            LOG.log(Level.SEVERE, "[MACDNode] : Method does not exist.", ex);
+        }
 
         return sheet;
     }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, getPropertySets());
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException {}
-
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {}
 
 }

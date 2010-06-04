@@ -11,9 +11,6 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
 
 @ConvertAsProperties(dtd = "-//org.chartsy.main.favorites//Favorites//EN",
 autostore = false)

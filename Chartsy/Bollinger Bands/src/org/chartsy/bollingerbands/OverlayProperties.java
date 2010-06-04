@@ -2,23 +2,21 @@ package org.chartsy.bollingerbands;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import org.chartsy.main.chart.AbstractPropertyListener;
 import org.chartsy.main.data.Dataset;
-import org.chartsy.main.utils.RandomColor;
+import org.chartsy.main.utils.ColorGenerator;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class OverlayProperties implements Serializable {
+public class OverlayProperties 
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int STD = 2;
     public static final int PERIOD = 20;
@@ -50,27 +48,18 @@ public class OverlayProperties implements Serializable {
     private int insideAlpha = INSIDE_ALPHA;
     private boolean insideVisibility = INSIDE_VISIBILITY;
 
-    private List listeners = Collections.synchronizedList(new LinkedList());
+    public OverlayProperties()
+    {
+        Color c = ColorGenerator.getRandomColor();
+        LOWER_COLOR = c;
+        MIDDLE_COLOR = c;
+        UPPER_COLOR = c;
+        INSIDE_COLOR = c;
 
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.add(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.remove(pcl);
-    }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
-
-    public OverlayProperties() {
-        Color c = RandomColor.getRandomColor();
-        LOWER_COLOR = c; MIDDLE_COLOR = c; UPPER_COLOR = c; INSIDE_COLOR = c;
-        lowerColor = c; middleColor = c; upperColor = c; insideColor = c;
+        lowerColor = c;
+        middleColor = c;
+        upperColor = c;
+        insideColor = c;
     }
 
     public int getStd() { return std; }
@@ -114,7 +103,7 @@ public class OverlayProperties implements Serializable {
 
     public Color getInsideColor() { return insideColor; }
     public void setInsideColor(Color c) { insideColor = c; }
-    public Color getInsideTransparentColor() { return new Color(insideColor.getRed(), insideColor.getGreen(), insideColor.getBlue(), insideAlpha); }
+    public Color getInsideTransparentColor() { return ColorGenerator.getTransparentColor(insideColor, insideAlpha); }
 
     public int getInsideAlpha() { return insideAlpha; }
     public void setInsideAlpha(int i) { insideAlpha = i; }

@@ -3,24 +3,22 @@ package org.chartsy.main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import javax.swing.event.EventListenerList;
+import org.chartsy.main.chart.AbstractPropertyListener;
 import org.chartsy.main.events.LogEvent;
 import org.chartsy.main.events.LogListener;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author Administrator
  */
-public class ChartProperties implements Serializable {
+public class ChartProperties
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final double AXIS_TICK = 6;
     public static final double AXIS_DATE_STICK = 10;
@@ -179,21 +177,6 @@ public class ChartProperties implements Serializable {
 
     public boolean getToolbarShowLabels() { return toolbarShowLabels; }
     public void setToolbarShowLabels(boolean b) { toolbarShowLabels = b; }
-
-    private List<PropertyChangeListener> listeners = Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) 
-    { listeners.add(pcl); }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) 
-    { listeners.remove(pcl); }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
 
     private transient EventListenerList logListeners = new EventListenerList();
 

@@ -2,7 +2,6 @@ package org.chartsy.ohlc;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.io.Serializable;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
 import org.chartsy.main.chart.Chart;
@@ -10,6 +9,7 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -17,10 +17,9 @@ import org.chartsy.main.utils.Range;
  */
 public class OHLC 
         extends Chart
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public OHLC()
     {}

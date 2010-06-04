@@ -9,6 +9,7 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -17,6 +18,8 @@ import org.chartsy.main.utils.Range;
 public class HLBars 
         extends Chart
 {
+
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public HLBars()
     {}

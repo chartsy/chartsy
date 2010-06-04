@@ -5,11 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.font.LineMetrics;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -18,10 +18,10 @@ import org.openide.nodes.AbstractNode;
  */
 public class FibonacciRetracement
         extends Annotation
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+
     private AnnotationProperties properties;
 
     protected DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -44,7 +44,7 @@ public class FibonacciRetracement
         properties = new AnnotationProperties();
     }
 
-    public String getName()
+    public @Override String getName()
     { return "Fibonacci Retracement"; }
 
     public Annotation newInstance(ChartFrame frame) 

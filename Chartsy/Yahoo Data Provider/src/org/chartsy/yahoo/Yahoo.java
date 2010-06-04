@@ -3,7 +3,6 @@ package org.chartsy.yahoo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
@@ -28,16 +27,18 @@ import org.chartsy.main.data.Stock;
 import org.chartsy.main.data.StockSet;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.ProxyManager;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.URLChecker;
 
 /**
  *
  * @author viorel.gheba
  */
-public class Yahoo extends DataProvider implements Serializable
+public class Yahoo
+        extends DataProvider
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public Yahoo()
     {

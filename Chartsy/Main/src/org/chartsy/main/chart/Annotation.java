@@ -20,16 +20,18 @@ import org.chartsy.main.intervals.WeeklyInterval;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public abstract class Annotation implements Serializable, MouseListener, MouseMotionListener
+public abstract class Annotation
+        implements Serializable, MouseListener, MouseMotionListener
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int NO = 0;
     public static final int YES = 1;

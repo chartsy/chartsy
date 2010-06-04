@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import javax.swing.JComponent;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -12,7 +13,7 @@ import javax.swing.JComponent;
 public abstract class AbstractComponent extends JComponent implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     protected transient Object obj = new Object();
     private transient BufferedImage img = null;

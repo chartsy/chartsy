@@ -17,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.data.ChartData;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -25,7 +26,7 @@ import org.chartsy.main.data.ChartData;
 public class IndicatorsPanel extends JPanel implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
 

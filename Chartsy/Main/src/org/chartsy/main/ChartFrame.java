@@ -41,6 +41,7 @@ import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ChartNode;
 import org.chartsy.main.utils.MainActions;
+import org.chartsy.main.utils.SerialVersion;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -806,7 +807,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     final static class ResolvableHelper implements Serializable
     {
 
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = SerialVersion.APPVERSION;
 
         private ChartProperties chartProperties;
         private ChartData chartData;

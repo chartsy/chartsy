@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public class Dataset implements Serializable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private List<DataItem> data;
 

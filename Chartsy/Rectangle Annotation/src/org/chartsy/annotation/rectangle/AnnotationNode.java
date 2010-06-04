@@ -2,104 +2,93 @@ package org.chartsy.annotation.rectangle;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import org.chartsy.main.chart.AbstractPropertiesNode;
 import org.chartsy.main.utils.AlphaPropertyEditor;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author viorel.gheba
  */
-public class AnnotationNode extends AbstractNode implements PropertyChangeListener, Externalizable {
+public class AnnotationNode 
+        extends AbstractPropertiesNode
+{
     
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public AnnotationNode() {
-        super(Children.LEAF);
-        setDisplayName("Rectangle Properties");
+    public AnnotationNode()
+    {
+        super("Rectangle Properties");
     }
 
-    public AnnotationNode(AnnotationProperties annotationProperties) {
-        super(Children.LEAF, Lookups.singleton(annotationProperties));
-        setDisplayName("Rectangle Properties");
-        annotationProperties.addPropertyChangeListener(this);
+    public AnnotationNode(AnnotationProperties annotationProperties)
+    {
+        super("Rectangle Properties", annotationProperties);
     }
 
-    @Override
-    protected Sheet createSheet() {
+    @SuppressWarnings("unchecked")
+    protected @Override Sheet createSheet()
+    {
         Sheet sheet = Sheet.createDefault();
+        Sheet.Set set = getPropertiesSet();
 
-        Sheet.Set set = Sheet.createPropertiesSet();
-        final AnnotationProperties annotationProperties = getLookup().lookup(AnnotationProperties.class);
-
-        try {
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection color = new PropertySupport.Reflection(annotationProperties, Color.class, "getColor", "setColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(AnnotationProperties.COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            color.setName("Color");
-            set.put(color);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stroke = new PropertySupport.Reflection(annotationProperties, Stroke.class, "getStroke", "setStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(AnnotationProperties.STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stroke.setPropertyEditorClass(StrokePropertyEditor.class);
-            stroke.setName("Line Style");
-            set.put(stroke);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection insideAlpha = new PropertySupport.Reflection(annotationProperties, int.class, "getInsideAlpha", "setInsideAlpha") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(AnnotationProperties.INSIDE_ALPHA); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            insideAlpha.setPropertyEditorClass(AlphaPropertyEditor.class);
-            insideAlpha.setName("Inside Opacity");
-            set.put(insideAlpha);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection insideVisibility = new PropertySupport.Reflection(annotationProperties, boolean.class, "getInsideVisibility", "setInsideVisibility") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(AnnotationProperties.INSIDE_VISIBILITY); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            insideVisibility.setName("Inside Visibility");
-            set.put(insideVisibility);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        try
+        {
+            // Color
+            set.put(getProperty(
+                    "Color", // property name
+                    "Sets the color", // property description
+                    AnnotationProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getColor", // get method name
+                    "setColor", // set method name
+                    AnnotationProperties.COLOR // default property value
+                    ));
+            // Border Line Style
+            set.put(getProperty(
+                    "Border Line Style", // property name
+                    "Sets the border line style", // property description
+                    AnnotationProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getStroke", // get method name
+                    "setStroke", // set method name
+                    StrokeGenerator.getStroke(AnnotationProperties.STROKE_INDEX) // default property value
+                    ));
+            // Inside Alpha
+            set.put(getProperty(
+                    "Inside Alpha", // property name
+                    "Sets the inside alpha value", // property description
+                    AnnotationProperties.class, // properties class
+                    int.class, // property class
+                    AlphaPropertyEditor.class, // property editor class (null if none)
+                    "getInsideAlpha", // get method name
+                    "setInsideAlpha", // set method name
+                    AnnotationProperties.INSIDE_ALPHA // default property value
+                    ));
+            // Inside Visibility
+            set.put(getProperty(
+                    "Inside Visibility", // property name
+                    "Sets the inside visibility flag", // property description
+                    AnnotationProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getInsideVisibility", // get method name
+                    "setInsideVisibility", // set method name
+                    AnnotationProperties.INSIDE_VISIBILITY // default property value
+                    ));
         }
-
-        sheet.put(set);
+        catch (NoSuchMethodException ex)
+        {
+            LOG.log(Level.SEVERE, "[RectangleNode] : Method does not exist.", ex);
+        }
 
         return sheet;
     }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, getPropertySets());
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException {}
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {}
 
 }

@@ -2,126 +2,117 @@ package org.chartsy.tema;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditorSupport;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import org.chartsy.main.chart.AbstractPropertiesNode;
 import org.chartsy.main.utils.PricePropertyEditor;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author viorel.gheba
  */
-public class OverlayNode extends AbstractNode implements PropertyChangeListener, Externalizable {
+public class OverlayNode
+        extends AbstractPropertiesNode
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public OverlayNode() {
-        super(Children.LEAF);
-        setDisplayName("TEMA Properties");
+    public OverlayNode()
+    {
+        super("TEMA Properties");
     }
 
-    public OverlayNode(OverlayProperties overlayProperties) {
-        super(Children.LEAF, Lookups.singleton(overlayProperties));
-        setDisplayName("TEMA Properties");
-        overlayProperties.addPropertyChangeListener(this);
+    public OverlayNode(OverlayProperties overlayProperties)
+    {
+        super("TEMA Properties", overlayProperties);
     }
 
-    @Override
-    protected Sheet createSheet() {
+    @SuppressWarnings("unchecked")
+    protected @Override Sheet createSheet()
+    {
         Sheet sheet = Sheet.createDefault();
-
-        Sheet.Set set = Sheet.createPropertiesSet();
-        final OverlayProperties overlayProperties = getLookup().lookup(OverlayProperties.class);
-
-        try {
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection period = new PropertySupport.Reflection(overlayProperties, int.class, "getPeriod", "setPeriod") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.PERIOD); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            period.setName("Period");
-            set.put(period);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection price = new PropertySupport.Reflection(overlayProperties, String.class, "getPrice", "setPrice") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.PRICE); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            price.setPropertyEditorClass(PricePropertyEditor.class);
-            price.setName("Price");
-            set.put(price);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection label = new PropertySupport.Reflection(overlayProperties, String.class, "getLabel", "setLabel") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.LABEL); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            label.setPropertyEditorClass(PropertyEditorSupport.class);
-            label.setName("Label");
-            set.put(label);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection marker = new PropertySupport.Reflection(overlayProperties, boolean.class, "getMarker", "setMarker") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.MARKER); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            marker.setName("Marker");
-            set.put(marker);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection color = new PropertySupport.Reflection(overlayProperties, Color.class, "getColor", "setColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(OverlayProperties.COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            color.setName("Color");
-            set.put(color);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stroke = new PropertySupport.Reflection(overlayProperties, Stroke.class, "getStroke", "setStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(OverlayProperties.STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stroke.setPropertyEditorClass(StrokePropertyEditor.class);
-            stroke.setName("Style");
-            set.put(stroke);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
+        Sheet.Set set = getPropertiesSet();
         sheet.put(set);
+
+        try
+        {
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the period value", // property description
+                    OverlayProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    OverlayProperties.PERIOD // default property value
+                    ));
+            // Price
+            set.put(getProperty(
+                    "Price", // property name
+                    "Sets the price type", // property description
+                    OverlayProperties.class, // properties class
+                    String.class, // property class
+                    PricePropertyEditor.class, // property editor class (null if none)
+                    "getPrice", // get method name
+                    "setPrice", // set method name
+                    OverlayProperties.PRICE // default property value
+                    ));
+            // Label
+            set.put(getProperty(
+                    "Label", // property name
+                    "Sets the label", // property description
+                    OverlayProperties.class, // properties class
+                    String.class, // property class
+                    PropertyEditorSupport.class, // property editor class (null if none)
+                    "getLabel", // get method name
+                    "setLabel", // set method name
+                    OverlayProperties.LABEL // default property value
+                    ));
+            // Marker Visibility
+            set.put(getProperty(
+                    "Marker Visibility", // property name
+                    "Sets the marker visibility", // property description
+                    OverlayProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getMarker", // get method name
+                    "setMarker", // set method name
+                    OverlayProperties.MARKER // default property value
+                    ));
+            // Line Color
+            set.put(getProperty(
+                    "Line Color", // property name
+                    "Sets the line color", // property description
+                    OverlayProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getColor", // get method name
+                    "setColor", // set method name
+                    OverlayProperties.COLOR // default property value
+                    ));
+            // Line Style
+            set.put(getProperty(
+                    "Line Style", // property name
+                    "Sets the line style", // property description
+                    OverlayProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getStroke", // get method name
+                    "setStroke", // set method name
+                    StrokeGenerator.getStroke(OverlayProperties.STROKE_INDEX) // default property value
+                    ));
+        }
+        catch (NoSuchMethodException ex)
+        {
+            LOG.log(Level.SEVERE, "[SMANode] : Method does not exist.", ex);
+        }
 
         return sheet;
     }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, getPropertySets());
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException {}
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {}
 
 }

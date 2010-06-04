@@ -4,7 +4,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.io.IOException;
 import java.util.List;
-import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -67,12 +66,12 @@ public class FolderNode extends AbstractNode
             s.add(paste);
     }
 
-    public Action[] getActions(boolean context) {
+    /*public Action[] getActions(boolean context) {
         return new Action[] {
             //SystemAction.get(NewAction.class),
             //SystemAction.get(PasteAction.class)
         };
-    }
+    }*/
 
     public boolean canDestroy() 
     { return true; }

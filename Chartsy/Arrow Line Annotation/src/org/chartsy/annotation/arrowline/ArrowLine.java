@@ -8,6 +8,7 @@ import java.io.Serializable;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -19,7 +20,7 @@ public class ArrowLine
         implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private AnnotationProperties properties;
 
     private double arrowPosition = 1;
@@ -37,7 +38,7 @@ public class ArrowLine
         properties = new AnnotationProperties();
     }
 
-    public String getName()
+    public @Override String getName()
     { return "Arrow Line"; }
 
     public Annotation newInstance(ChartFrame frame)
@@ -83,7 +84,7 @@ public class ArrowLine
         g.draw(CoordCalc.line(secondArrowTailX, secondArrowTailY, arrowHeadX, arrowHeadY));
     }
 
-    protected void updateRectangles(long oldT1, long newT1, long oldT2, long newT2, double oldV1, double newV1, double oldV2, double newV2)
+    protected @Override void updateRectangles(long oldT1, long newT1, long oldT2, long newT2, double oldV1, double newV1, double oldV2, double newV2)
     {
         Rectangle r;
         r = getRectangle(oldT1, oldV1, oldT2, oldV2);

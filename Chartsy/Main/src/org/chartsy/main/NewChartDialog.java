@@ -118,7 +118,13 @@ public class NewChartDialog extends javax.swing.JDialog {
                     switch (e.getKeyCode())
                     {
                         case KeyEvent.VK_ENTER:
-                            menuWindow.onSelected();
+                            if (menuWindow.hasSelected())
+                                menuWindow.onSelected();
+                            else
+                            {
+                                menuWindow.setVisible(false);
+                                btnNewChart.doClick();
+                            }
                             e.consume();
                             break;
                         case KeyEvent.VK_DOWN:

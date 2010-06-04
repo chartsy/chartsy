@@ -6,7 +6,6 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
@@ -38,6 +37,7 @@ import org.chartsy.main.data.StockSet;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.URLChecker;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -47,9 +47,11 @@ import org.openide.util.NbPreferences;
  *
  * @author viorel.gheba
  */
-public class MrSwing extends DataProvider implements Serializable {
+public class MrSwing
+        extends DataProvider
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public MrSwing()
     {

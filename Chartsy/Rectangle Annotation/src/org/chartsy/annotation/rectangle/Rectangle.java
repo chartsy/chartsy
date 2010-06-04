@@ -2,9 +2,9 @@ package org.chartsy.annotation.rectangle;
 
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.io.Serializable;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Annotation;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -13,10 +13,9 @@ import org.openide.nodes.AbstractNode;
  */
 public class Rectangle
         extends Annotation
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private AnnotationProperties properties;
 
     public Rectangle()
@@ -36,7 +35,7 @@ public class Rectangle
         properties = new AnnotationProperties();
     }
 
-    public String getName()
+    public @Override String getName()
     { return "Rectangle"; }
 
     public Annotation newInstance(ChartFrame frame) 

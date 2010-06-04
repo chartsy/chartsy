@@ -18,6 +18,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.AbstractBorder;
 import org.chartsy.main.utils.MainActions;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -26,7 +27,7 @@ import org.chartsy.main.utils.MainActions;
 public class ChartToolbar extends JToolBar implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private SymbolChanger symbolChanger;
@@ -182,7 +183,7 @@ public class ChartToolbar extends JToolBar implements Serializable
     class BottomBorder extends AbstractBorder implements Serializable
     {
 
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = SerialVersion.APPVERSION;
 
         protected Color color = new Color(0x898c95);
         protected int thickness = 1;

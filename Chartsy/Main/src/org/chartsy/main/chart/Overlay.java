@@ -15,6 +15,7 @@ import org.chartsy.main.events.DatasetListener;
 import org.chartsy.main.events.LogEvent;
 import org.chartsy.main.events.LogListener;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -25,7 +26,8 @@ public abstract class Overlay
         implements Serializable, DatasetListener, LogListener
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+    
     protected Dataset dataset;
     protected LinkedHashMap<String, Dataset> datasets;
     private boolean logarithmic = false;

@@ -1,5 +1,6 @@
 package org.chartsy.main;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -18,15 +19,18 @@ import javax.swing.JPanel;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
  * @author viorel.gheba
  */
-public class ChartPanel extends AbstractComponent implements Serializable
+public class ChartPanel 
+        extends JPanel
+        implements Serializable
 {
     
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
@@ -111,8 +115,21 @@ public class ChartPanel extends AbstractComponent implements Serializable
     public Range getRange()
     { return chartFrame.getChartData().getVisibleRange(); }
 
-    protected void paintAbstractComponent(Graphics g)
+    public void paint(Graphics g)
     {
+        Font font = chartFrame.getChartProperties().getFont();
+        Color fontColor = chartFrame.getChartProperties().getFontColor();
+        
+        stockInfo.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+        stockInfo.setForeground(fontColor);
+        
+        overlayLabels.setFont(font);
+        overlayLabels.setForeground(fontColor);
+
+        setOverlaysLabel();
+
+        super.paint(g);
+
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
 
@@ -136,7 +153,6 @@ public class ChartPanel extends AbstractComponent implements Serializable
             {
                 overlay.paint(g2, chartFrame, bounds);
             }
-            setOverlaysLabel();
         }
 
         g2.dispose();
@@ -160,15 +176,26 @@ public class ChartPanel extends AbstractComponent implements Serializable
         }
     }
 
-    private void setOverlaysLabel() {
-        StringBuffer sb = new StringBuffer();
-        String d = ", ";
-        for (Overlay o : overlays) {
-            sb.append(o.getLabel());
-            sb.append(d);
+    private void setOverlaysLabel() 
+    {
+        if (!overlays.isEmpty())
+        {
+            StringBuffer sb = new StringBuffer();
+            String d = ", ";
+            int count = overlays.size() - 1;
+            for (int i = 0; i < overlays.size(); i++)
+            {
+                Overlay o = overlays.get(i);
+                sb.append(o.getLabel());
+                if (i < count)
+                    sb.append(d);
+            }
+            overlayLabels.setText(sb.toString());
         }
-        sb.delete(sb.length() - d.length(), sb.length());
-        overlayLabels.setText(sb.toString());
+        else
+        {
+            overlayLabels.setText(" ");
+        }
     }
 
     public synchronized void setOverlays(List<Overlay> list)
@@ -184,32 +211,49 @@ public class ChartPanel extends AbstractComponent implements Serializable
         }
     }
 
-    public List<Overlay> getOverlays() {
+    public List<Overlay> getOverlays()
+    {
         List<Overlay> list = new ArrayList<Overlay>();
         for (Overlay overlay : overlays)
             list.add(overlay);
         return list;
     }
 
-    public Overlay getOverlay(int index) {
-        if (index < 0 || index > overlays.size()) return null;
+    public Overlay getOverlay(int index)
+    {
+        if (index < 0 || index > overlays.size())
+            return null;
         return overlays.get(index);
     }
 
     public int getOverlaysCount()
     { return overlays.size(); }
 
-    public void addOverlay(Overlay overlay) {
+    public void addOverlay(Overlay overlay)
+    {
         chartFrame.getChartProperties().addLogListener(overlay);
         chartFrame.getChartData().addOverlaysDatasetListeners(overlay);
         overlays.add(overlay);
     }
 
     public void clearOverlays()
-    { overlays.clear(); }
+    {
+        overlays.clear();
+        overlays = new ArrayList<Overlay>();
+    }
 
     @Override
     public Rectangle getBounds()
     { return new Rectangle(0, 0, getWidth(), getHeight()); }
+
+    /*public class OverlayLabel
+            extends JLabel
+            implements Serializable
+    {
+
+        private static final long serialVersionUID = SerialVersion.APPVERSION;
+        private boolean rollOver = false;
+
+    }*/
 
 }

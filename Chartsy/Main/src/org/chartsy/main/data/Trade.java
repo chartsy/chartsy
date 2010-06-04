@@ -1,6 +1,7 @@
 package org.chartsy.main.data;
 
 import java.io.Serializable;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -9,7 +10,7 @@ import java.io.Serializable;
 public abstract class Trade implements Serializable
 {
     
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public abstract double getPrice();
     public abstract long getSize();

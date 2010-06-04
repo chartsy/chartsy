@@ -2,6 +2,7 @@ package org.chartsy.main.data;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -10,7 +11,7 @@ import java.util.Date;
 public class DataItem implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private long time;
     private double open;

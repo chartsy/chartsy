@@ -2,21 +2,19 @@ package org.chartsy.macd;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import org.chartsy.main.chart.AbstractPropertyListener;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class IndicatorProperties implements Serializable {
+public class IndicatorProperties 
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int FAST = 12;
     public static int SLOW = 26;
@@ -24,7 +22,7 @@ public class IndicatorProperties implements Serializable {
     public static String LABEL = "MACD";
     public static boolean MARKER = true;
     public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
-    public static int ZERO_STROKE_INDEX = 0;
+    public static int ZERO_LINE_STROKE_INDEX = 0;
     public static boolean ZERO_LINE_VISIBILITY = true;
     public static Color HISTOGRAM_POSITIVE_COLOR = new Color(0x73880A);
     public static Color HISTOGRAM_NEGATIVE_COLOR = new Color(0xCC0000);
@@ -39,7 +37,7 @@ public class IndicatorProperties implements Serializable {
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color zeroLineColor = ZERO_LINE_COLOR;
-    private int zeroLineStrokeIndex = ZERO_STROKE_INDEX;
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
     private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
     private Color histogramPositiveColor = HISTOGRAM_POSITIVE_COLOR;
     private Color histogramNegativeColor = HISTOGRAM_NEGATIVE_COLOR;
@@ -97,22 +95,5 @@ public class IndicatorProperties implements Serializable {
     public void setMacdStrokeIndex(int i) { macdStrokeIndex = i; }
     public Stroke getMacdStroke() { return StrokeGenerator.getStroke(macdStrokeIndex); }
     public void setMacdStroke(Stroke s) { macdStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    private List listeners = Collections.synchronizedList(new LinkedList());
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.add(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.remove(pcl);
-    }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
 
 }

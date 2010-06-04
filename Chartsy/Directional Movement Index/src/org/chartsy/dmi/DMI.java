@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
@@ -12,6 +11,7 @@ import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -20,13 +20,14 @@ import org.openide.nodes.AbstractNode;
  */
 public class DMI 
         extends Indicator
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+
     public static final String PDI = "pdi";
     public static final String MDI = "mdi";
     public static final String ADX = "adx";
+    
     private IndicatorProperties properties;
 
     public DMI()
@@ -66,8 +67,7 @@ public class DMI
         return ht;
     }
 
-    @Override
-    public Range getRange(ChartFrame cf)
+    public @Override Range getRange(ChartFrame cf)
     {
         Range range = super.getRange(cf);
         range = new Range(0, range.getUpperBound());
@@ -171,8 +171,7 @@ public class DMI
     public AbstractNode getNode()
     { return new IndicatorNode(properties); }
 
-    @Override
-    public Double[] getPriceValues(ChartFrame cf)
+    public @Override Double[] getPriceValues(ChartFrame cf)
     { return new Double[] {new Double(20), new Double(40), new Double(60), new Double(80)}; }
 
 }

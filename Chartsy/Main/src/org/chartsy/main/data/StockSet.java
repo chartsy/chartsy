@@ -5,6 +5,7 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -13,7 +14,7 @@ import java.util.List;
 public class StockSet extends AbstractSet<StockNode> implements Serializable, Cloneable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private ArrayList<StockNode> stocks;
 
     public StockSet()

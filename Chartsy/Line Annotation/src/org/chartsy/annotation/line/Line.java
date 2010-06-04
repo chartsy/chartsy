@@ -5,10 +5,10 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.Serializable;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -17,10 +17,9 @@ import org.openide.nodes.AbstractNode;
  */
 public class Line
         extends Annotation
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private AnnotationProperties properties;
 
     public Line()
@@ -34,7 +33,7 @@ public class Line
         properties = new AnnotationProperties();
     }
 
-    public String getName()
+    public @Override String getName()
     { return "Line"; }
 
     public Annotation newInstance(ChartFrame frame)
@@ -56,7 +55,7 @@ public class Line
             paintActionPoints(g);
     }
 
-    protected void updateRectangles(long oldT1, long newT1, long oldT2, long newT2, double oldV1, double newV1, double oldV2, double newV2) {
+    protected @Override void updateRectangles(long oldT1, long newT1, long oldT2, long newT2, double oldV1, double newV1, double oldV2, double newV2) {
         Rectangle2D r;
         
         r = getRectangle(oldT1, oldV1, oldT2, oldV2);

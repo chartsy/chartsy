@@ -20,6 +20,7 @@ import org.chartsy.main.intervals.MonthlyInterval;
 import org.chartsy.main.utils.Bounds;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.RectangleInsets;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -28,7 +29,7 @@ import org.chartsy.main.utils.RectangleInsets;
 public class ChartData implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final int MIN_ITEMS = 40;
     public static final int MAX_ITEMS = 1000;
     public static RectangleInsets axisOffset = new RectangleInsets(2.0, 2.0, 2.0, 2.0);

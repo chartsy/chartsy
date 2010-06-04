@@ -2,176 +2,171 @@ package org.chartsy.bollingerb;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditorSupport;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import org.chartsy.main.chart.AbstractPropertiesNode;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.lookup.Lookups;
 
 /**
  *
  * @author viorel.gheba
  */
-public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
+public class IndicatorNode 
+        extends AbstractPropertiesNode
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public IndicatorNode() {
-        super(Children.LEAF);
-        setDisplayName("SVE_BB%b Properties");
+    public IndicatorNode()
+    {
+        super("SVE_BB%b Properties");
     }
 
-    public IndicatorNode(IndicatorProperties indicatorProperties) {
-        super(Children.LEAF, Lookups.singleton(indicatorProperties));
-        setDisplayName("SVE_BB%b Properties");
-        indicatorProperties.addPropertyChangeListener(this);
+    public IndicatorNode(IndicatorProperties indicatorProperties)
+    {
+        super("SVE_BB%b Properties", indicatorProperties);
     }
 
-    @Override
-    protected Sheet createSheet() {
+    @SuppressWarnings("unchecked")
+    protected @Override Sheet createSheet()
+    {
         Sheet sheet = Sheet.createDefault();
-
-        Sheet.Set set = Sheet.createPropertiesSet();
-        final IndicatorProperties indicatorProperties = getLookup().lookup(IndicatorProperties.class);
-
-        try {
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection period = new PropertySupport.Reflection(indicatorProperties, int.class, "getPeriod", "setPeriod") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.PERIOD); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            period.setName("Period");
-            set.put(period);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stdPeriod = new PropertySupport.Reflection(indicatorProperties, int.class, "getStdPeriod", "setStdPeriod") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.STDPERIOD); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stdPeriod.setName("Std. Dev. Period");
-            set.put(stdPeriod);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stdHigh = new PropertySupport.Reflection(indicatorProperties, double.class, "getStdHigh", "setStdHith") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.STDHIGH); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stdHigh.setName("Std. Dev. High");
-            set.put(stdHigh);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stdLow = new PropertySupport.Reflection(indicatorProperties, double.class, "getStdLow", "setStdLow") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.STDLOW); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stdLow.setName("Std. Dev. Low");
-            set.put(stdLow);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection temaPeriod = new PropertySupport.Reflection(indicatorProperties, int.class, "getTemaPeriod", "setTemaPeriod") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.TEMAPERIOD); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            temaPeriod.setName("TEMA Period");
-            set.put(temaPeriod);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection label = new PropertySupport.Reflection(indicatorProperties, String.class, "getLabel", "setLabel") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.LABEL); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            label.setPropertyEditorClass(PropertyEditorSupport.class);
-            label.setName("Label");
-            set.put(label);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection marker = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getMarker", "setMarker") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.MARKER); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            marker.setName("Marker");
-            set.put(marker);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection color = new PropertySupport.Reflection(indicatorProperties, Color.class, "getColor", "setColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            color.setName("Color");
-            set.put(color);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection strokeIndex = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getStroke", "setStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            strokeIndex.setPropertyEditorClass(StrokePropertyEditor.class);
-            strokeIndex.setName("Style");
-            set.put(strokeIndex);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stdColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getStdColor", "setStdColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.STD_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stdColor.setName("Standard Deviation Color");
-            set.put(stdColor);
-
-            @SuppressWarnings(value = "unchecked")
-            PropertySupport.Reflection stdStrokeIndex = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getStdStroke", "setStdStroke") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.STD_STROKE_INDEX)); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            stdStrokeIndex.setPropertyEditorClass(StrokePropertyEditor.class);
-            stdStrokeIndex.setName("Standard Deviation Style");
-            set.put(stdStrokeIndex);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        Sheet.Set set = getPropertiesSet();
         sheet.put(set);
+        
+        try
+        {
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    IndicatorProperties.PERIOD // default property value
+                    ));
+            // Std. Period
+            set.put(getProperty(
+                    "Std. Dev. Period", // property name
+                    "Sets the std. dev. period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getStdPeriod", // get method name
+                    "setStdPeriod", // set method name
+                    IndicatorProperties.STDPERIOD // default property value
+                    ));
+            // Std. High Period
+            set.put(getProperty(
+                    "Std. Dev. High", // property name
+                    "Sets the std. dev. high period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getStdHigh", // get method name
+                    "setStdHigh", // set method name
+                    IndicatorProperties.STDHIGH // default property value
+                    ));
+            // Std. Low Period
+            set.put(getProperty(
+                    "Std. Dev. Low", // property name
+                    "Sets the std. dev. low period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getStdLow", // get method name
+                    "setStdLow", // set method name
+                    IndicatorProperties.STDLOW // default property value
+                    ));
+            // Tema Period
+            set.put(getProperty(
+                    "TEMA Period", // property name
+                    "Sets the tema period period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getTemaPeriod", // get method name
+                    "setTemaPeriod", // set method name
+                    IndicatorProperties.TEMAPERIOD // default property value
+                    ));
+            // Label
+            set.put(getProperty(
+                    "Label", // property name
+                    "Sets the label", // property description
+                    IndicatorProperties.class, // properties class
+                    String.class, // property class
+                    PropertyEditorSupport.class, // property editor class (null if none)
+                    "getLabel", // get method name
+                    "setLabel", // set method name
+                    IndicatorProperties.LABEL // default property value
+                    ));
+            // Marker Visibility
+            set.put(getProperty(
+                    "Marker Visibility", // property name
+                    "Sets the marker visibility", // property description
+                    IndicatorProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getMarker", // get method name
+                    "setMarker", // set method name
+                    IndicatorProperties.MARKER // default property value
+                    ));
+            // Line Color
+            set.put(getProperty(
+                    "Line Color", // property name
+                    "Sets the line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getColor", // get method name
+                    "setColor", // set method name
+                    IndicatorProperties.COLOR // default property value
+                    ));
+            // Line Style
+            set.put(getProperty(
+                    "Line Style", // property name
+                    "Sets the line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getStroke", // get method name
+                    "setStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.STROKE_INDEX) // default property value
+                    ));
+            // Std. Line Color
+            set.put(getProperty(
+                    "Std. Line Color", // property name
+                    "Sets the std. line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getStdColor", // get method name
+                    "setStdColor", // set method name
+                    IndicatorProperties.STD_COLOR // default property value
+                    ));
+            // Std. Line Style
+            set.put(getProperty(
+                    "Std. Line Style", // property name
+                    "Sets the std. line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getStdStroke", // get method name
+                    "setStdStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.STD_STROKE_INDEX) // default property value
+                    ));
+        }
+        catch (NoSuchMethodException ex)
+        {
+            LOG.log(Level.SEVERE, "[SVE_BB%bNode] : Method does not exist.", ex);
+        }
 
         return sheet;
     }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, getPropertySets());
-    }
-
-    public void writeExternal(ObjectOutput out) throws IOException {}
-
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {}
 
 }

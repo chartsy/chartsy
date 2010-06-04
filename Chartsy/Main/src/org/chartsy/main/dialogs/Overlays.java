@@ -331,6 +331,7 @@ public class Overlays extends javax.swing.JDialog
 
     private void btnApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApplyActionPerformed
         parent.getSplitPanel().getChartPanel().clearOverlays();
+        parent.getChartData().removeAllOverlaysDatasetListeners();
         if (selected.size() > 0) {
             for (int i = 0; i < selected.size(); i++) {
                 Overlay o = selected.get(i);

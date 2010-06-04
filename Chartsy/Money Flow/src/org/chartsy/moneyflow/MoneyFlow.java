@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,6 +15,7 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -24,14 +24,15 @@ import org.openide.nodes.AbstractNode;
  */
 public class MoneyFlow
         extends Indicator
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+
     public static final String MFH = "mfh";
     public static final String MFL = "mfl";
     private boolean toggle = false;
     private boolean toggle2 = false;
+
     private IndicatorProperties properties;
 
     public MoneyFlow()

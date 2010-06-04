@@ -16,27 +16,27 @@ import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
  * @author viorel.gheba
  */
-public class PriceAxis extends AbstractComponent {
+public class PriceAxis extends AbstractComponent
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private ChartFrame chartFrame;
 
-    public PriceAxis(ChartFrame frame) {
+    public PriceAxis(ChartFrame frame)
+    {
         chartFrame = frame;
         setOpaque(false);
     }
 
-    protected void paintAbstractComponent(Graphics g) {
-        int width = getWidth();
+    protected void paintAbstractComponent(Graphics g)
+    {
         int height = getHeight();
-
-        g.setColor(chartFrame.getChartProperties().getBackgroundColor());
-        g.fillRect(0, 0, width, height);
 
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);

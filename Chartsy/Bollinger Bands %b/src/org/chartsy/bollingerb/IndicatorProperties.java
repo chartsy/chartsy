@@ -2,21 +2,19 @@ package org.chartsy.bollingerb;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import org.chartsy.main.chart.AbstractPropertyListener;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class IndicatorProperties implements Serializable {
+public class IndicatorProperties 
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int PERIOD = 18;
     public static final int STDPERIOD = 63;
@@ -51,7 +49,7 @@ public class IndicatorProperties implements Serializable {
     public void setStdPeriod(int i) { stdPeriod = i; }
 
     public double getStdHigh() { return stdHigh; }
-    public void setStdHith(double i) { stdHigh = i; }
+    public void setStdHigh(double i) { stdHigh = i; }
 
     public double getStdLow() { return stdLow; }
     public void setStdLow(double i) { stdLow = i; }
@@ -80,22 +78,5 @@ public class IndicatorProperties implements Serializable {
     public void setStdStrokeIndex(int i) { stdStrokeIndex = i; }
     public Stroke getStdStroke() { return StrokeGenerator.getStroke(stdStrokeIndex); }
     public void setStdStroke(Stroke s) { stdStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    private List listeners = Collections.synchronizedList(new LinkedList());
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.add(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.remove(pcl);
-    }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
 
 }

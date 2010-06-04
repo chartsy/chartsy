@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
@@ -13,6 +12,7 @@ import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.SerialVersion;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -21,10 +21,10 @@ import org.openide.nodes.AbstractNode;
  */
 public class ForceIndex
         extends Indicator
-        implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
+    
     public static final String FI1 = "fi1";
     public static final String FI2 = "fi2";
     private IndicatorProperties properties;
@@ -75,8 +75,7 @@ public class ForceIndex
         return ht;
     }
 
-    @Override
-    public Range getRange(ChartFrame cf)
+    public @Override Range getRange(ChartFrame cf)
     {
         Range range = super.getRange(cf);
         double factor = getFactor(cf);

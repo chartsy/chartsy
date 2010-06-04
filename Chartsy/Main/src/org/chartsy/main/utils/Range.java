@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public strictfp class Range implements Serializable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private double lower;
     private double upper;

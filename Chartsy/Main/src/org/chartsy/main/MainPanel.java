@@ -13,6 +13,7 @@ import org.chartsy.main.axis.DateAxis;
 import org.chartsy.main.axis.Grid;
 import org.chartsy.main.axis.PriceAxis;
 import org.chartsy.main.data.ChartData;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -21,7 +22,7 @@ import org.chartsy.main.data.ChartData;
 public class MainPanel extends JLayeredPane implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private ChartSplitPanel sPane;
@@ -82,6 +83,9 @@ public class MainPanel extends JLayeredPane implements Serializable
     {
         chartFrame.getChartData().calculate(chartFrame);
         chartFrame.getChartData().calculateRange(chartFrame, sPane.getChartPanel().getOverlays());
+
+        setBackground(chartFrame.getChartProperties().getBackgroundColor());
+
         super.paint(g);
     }
 

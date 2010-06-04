@@ -27,7 +27,9 @@ import javax.swing.JLayeredPane;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.ChartData;
+import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -36,7 +38,7 @@ import org.chartsy.main.utils.CoordCalc;
 public class ChartSplitPanel extends JLayeredPane implements Serializable
 {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private ChartPanel chartPanel;
@@ -50,7 +52,7 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
 
     private Color lineColor = new Color(0xef2929);
     private Color color = new Color(0x1C2331);
-    private Color backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100);
+    private Color backgroundColor = ColorGenerator.getTransparentColor(color, 100);
     private Color fontColor = new Color(0xffffff);
 
     private Font font;

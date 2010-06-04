@@ -2,22 +2,20 @@ package org.chartsy.zigzag;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import org.chartsy.main.utils.RandomColor;
+import org.chartsy.main.chart.AbstractPropertyListener;
+import org.chartsy.main.utils.ColorGenerator;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class OverlayProperties implements Serializable {
+public class OverlayProperties 
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String LABEL = "ZigZag";
     public static final boolean MARKER = true;
@@ -29,24 +27,10 @@ public class OverlayProperties implements Serializable {
     private Color color;
     private int strokeIndex = STROKE_INDEX;
 
-    private List listeners = Collections.synchronizedList(new LinkedList());
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.add(pcl);
+    public OverlayProperties() {
+        COLOR = ColorGenerator.getRandomColor();
+        color = COLOR;
     }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.remove(pcl);
-    }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
-
-    public OverlayProperties() { COLOR = RandomColor.getRandomColor(); color = COLOR; }
 
     public String getLabel() { return label; }
     public void setLabel(String s) { label = s; }

@@ -2,6 +2,7 @@ package org.chartsy.main.intervals;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
@@ -9,7 +10,7 @@ import java.util.Calendar;
  */
 public class WeeklyInterval extends Interval implements Serializable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public WeeklyInterval() {
         super("Weekly");

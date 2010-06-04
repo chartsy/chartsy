@@ -2,23 +2,21 @@ package org.chartsy.sma;
 
 import java.awt.Color;
 import java.awt.Stroke;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import org.chartsy.main.chart.AbstractPropertyListener;
 import org.chartsy.main.data.Dataset;
-import org.chartsy.main.utils.RandomColor;
+import org.chartsy.main.utils.ColorGenerator;
+import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 
 /**
  *
  * @author viorel.gheba
  */
-public class OverlayProperties implements Serializable {
+public class OverlayProperties 
+        extends AbstractPropertyListener
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final int PERIOD = 20;
     public static final String PRICE = Dataset.CLOSE;
@@ -34,7 +32,7 @@ public class OverlayProperties implements Serializable {
     private Color color;
     private int strokeIndex = STROKE_INDEX;
 
-    public OverlayProperties() { COLOR = RandomColor.getRandomColor(); color = COLOR; }
+    public OverlayProperties() { COLOR = ColorGenerator.getRandomColor(); color = COLOR; }
 
     public int getPeriod() { return period; }
     public void setPeriod(int i) { period = i; }
@@ -55,22 +53,5 @@ public class OverlayProperties implements Serializable {
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    private List listeners = Collections.synchronizedList(new LinkedList());
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.add(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        listeners.remove(pcl);
-    }
-
-    private void fire(String propertyName, Object old, Object nue) {
-        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
-    }
 
 }
