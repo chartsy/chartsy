@@ -21,9 +21,11 @@ import org.chartsy.main.intro.feed.RSSFeedParser;
  *
  * @author viorel.gheba
  */
-public class WelcomePanel extends JPanel implements Constants {
+public class WelcomePanel extends JPanel implements Constants
+{
 
-    public WelcomePanel() {
+    public WelcomePanel()
+    {
         super(new BorderLayout());
         setOpaque(false);
 
@@ -41,8 +43,10 @@ public class WelcomePanel extends JPanel implements Constants {
 
         RSSFeedParser parser = new RSSFeedParser(BundleSupport.getURL("LastPlugin"));
         Feed feed = parser.readFeed();
-        if (feed != null) {
-            if (feed.getMessages().size() > 0) {
+        if (feed != null)
+        {
+            if (feed.getMessages().size() > 0)
+            {
                 FeedMessage feedMessage = feed.getMessages().get(0);
 
                 panel = new JPanel(new GridBagLayout());
@@ -75,7 +79,8 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 leftLabel.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
-            } else {
+            } else
+            {
                 panel = new JPanel(new GridBagLayout());
                 panel.setOpaque(false);
                 label = new JLabel("Last Uploaded Plugin");
@@ -108,7 +113,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 leftLabel.add(panel, new GridBagConstraints(0, 2, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
             }
         }
-        
+
         leftPanel.add(leftLabel, BorderLayout.CENTER);
 
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -125,8 +130,11 @@ public class WelcomePanel extends JPanel implements Constants {
 
         parser = new RSSFeedParser(BundleSupport.getURL("Announcements"));
         feed = parser.readFeed();
-        if (feed != null) {
-            if (feed.getMessages().size() > 0) {
+        if (feed != null)
+        {
+            if (feed.getMessages().size() > 0)
+            {
+                /*
                 rpanel = new JPanel(new GridBagLayout());
                 rpanel.setOpaque(false);
                 rlabel = new JLabel("Last Forum Topics");
@@ -136,10 +144,12 @@ public class WelcomePanel extends JPanel implements Constants {
                 rpanel.add(rlabel, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 rpanel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
                 rightLabel.add(rpanel, new GridBagConstraints(0, 0, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
+                 *
+                 */
 
                 rpanel = new JPanel(new GridBagLayout());
                 rpanel.setOpaque(false);
-                rlabel = new JLabel("Announcements");
+                rlabel = new JLabel("Chartsy Announcements");
                 rlabel.setOpaque(false);
                 rlabel.setForeground(COLOR_TEXT);
                 rlabel.setFont(GET_STARTED_FONT);
@@ -157,8 +167,9 @@ public class WelcomePanel extends JPanel implements Constants {
                 rlabel.setFont(WELCOME_LABEL_FONT);
                 rlabel.setVerticalAlignment(SwingConstants.TOP);
                 rlabel.setPreferredSize(new Dimension(300, 150));
-                for (FeedMessage feedMessage : feed.getMessages()) {
-                    BulletLink bl = new BulletLink(feedMessage.getTitle(), feedMessage.getLink(), false);
+                for (FeedMessage feedMessage : feed.getMessages())
+                {
+                    BulletLink bl = new BulletLink(feedMessage.getPubDate() + " " + feedMessage.getTitle(), feedMessage.getLink(), false);
                     bl.setLinkFont(WELCOME_LABEL_FONT);
                     bl.setLinkColor(COLOR_LINK);
                     rlabel.add(bl, new GridBagConstraints(0, i, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
@@ -178,12 +189,11 @@ public class WelcomePanel extends JPanel implements Constants {
 
     public void paint(Graphics g)
     {
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
 
         g2.setColor(COLOR_TAB_CONTENT_BACKGROUND);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         super.paint(g);
     }
-
 }
