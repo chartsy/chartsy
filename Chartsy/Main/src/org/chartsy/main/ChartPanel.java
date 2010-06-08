@@ -128,8 +128,6 @@ public class ChartPanel
 
         setOverlaysLabel();
 
-        super.paint(g);
-
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
 
@@ -154,6 +152,8 @@ public class ChartPanel
                 overlay.paint(g2, chartFrame, bounds);
             }
         }
+
+        super.paint(g);
 
         g2.dispose();
     }

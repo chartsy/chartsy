@@ -577,8 +577,14 @@ public class Dataset implements Serializable {
 
         int count = dataset.getItemsCount();
         Dataset result = Dataset.EMPTY(count);
+
+        int j = 0;
+        for (j = 0; j < count && (dataset.getDataItem(j)==null); j++)
+        {
+            result.setDataItem(j, null);
+        }
         
-        for (int i = period - 1; i < count; i++) {
+        for (int i = j + period - 1; i < count; i++) {
             long time = dataset.getTimeAt(i);
             double open = 0;
             double high = 0;
@@ -586,12 +592,12 @@ public class Dataset implements Serializable {
             double close = 0;
             double volume = 0;
 
-            for (int j = i - period + 1; j <= i; j++) {
-                open += dataset.getOpenAt(j);
-                high += dataset.getHighAt(j);
-                low += dataset.getLowAt(j);
-                close += dataset.getCloseAt(j);
-                volume += dataset.getVolumeAt(j);
+            for (int k = 0; k < period; k++) {
+                open += dataset.getOpenAt(i-k);
+                high += dataset.getHighAt(i-k);
+                low += dataset.getLowAt(i-k);
+                close += dataset.getCloseAt(i-k);
+                volume += dataset.getVolumeAt(i-k);
             }
 
             open /= (double)period;

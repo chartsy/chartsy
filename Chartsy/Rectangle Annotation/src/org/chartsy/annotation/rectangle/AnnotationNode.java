@@ -35,6 +35,7 @@ public class AnnotationNode
     {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = getPropertiesSet();
+        sheet.put(set);
 
         try
         {

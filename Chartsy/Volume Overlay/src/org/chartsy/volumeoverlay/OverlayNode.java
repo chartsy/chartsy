@@ -27,9 +27,16 @@ public class OverlayNode
     @SuppressWarnings("unchecked")
     protected @Override Sheet createSheet()
     {
-        Sheet sheet = Sheet.createDefault();
+        Sheet sheet = new Sheet();
+        sheet.put(getSets()[0]);
+        return sheet;
+    }
+
+    public @Override Sheet.Set[] getSets()
+    {
+        Sheet.Set[] sets = new Sheet.Set[1];
         Sheet.Set set = getPropertiesSet();
-        sheet.put(set);
+        sets[0] = set;
 
         try
         {
@@ -60,7 +67,7 @@ public class OverlayNode
                     "Bars Alpha", // property name
                     "Sets the bars alpha value", // property description
                     OverlayProperties.class, // properties class
-                    int.class, // property class
+                    Integer.class, // property class
                     AlphaPropertyEditor.class, // property editor class (null if none)
                     "getAlpha", // get method name
                     "setAlpha", // set method name
@@ -72,7 +79,7 @@ public class OverlayNode
             LOG.log(Level.SEVERE, "[VolumeOverlayNode] : Method does not exist.", ex);
         }
 
-        return sheet;
+        return sets;
     }
     
 }

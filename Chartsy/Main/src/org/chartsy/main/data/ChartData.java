@@ -32,7 +32,7 @@ public class ChartData implements Serializable
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final int MIN_ITEMS = 40;
     public static final int MAX_ITEMS = 1000;
-    public static RectangleInsets axisOffset = new RectangleInsets(2.0, 2.0, 2.0, 2.0);
+    public static RectangleInsets axisOffset = new RectangleInsets(5.0, 5.0, 5.0, 5.0);
     public static RectangleInsets dataOffset = new RectangleInsets(2.0, 20.0, 60.0, 50.0);
     private Stock stock = null;
     private Interval interval = null;

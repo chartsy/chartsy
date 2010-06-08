@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.List;
-import org.chartsy.main.AbstractComponent;
+import javax.swing.JPanel;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
 import org.chartsy.main.IndicatorPanel;
@@ -18,7 +18,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class Grid extends AbstractComponent
+public class Grid extends JPanel
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -30,8 +30,9 @@ public class Grid extends AbstractComponent
         setOpaque(false);
     }
 
-    protected void paintAbstractComponent(Graphics g)
+    public void paint(Graphics g)
     {
+        super.paint(g);
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
 

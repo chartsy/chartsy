@@ -35,9 +35,16 @@ public class OverlayNode
     @SuppressWarnings("unchecked")
     protected @Override Sheet createSheet()
     {
-        Sheet sheet = Sheet.createDefault();
+        Sheet sheet = new Sheet();
+        sheet.put(getSets()[0]);
+        return sheet;
+    }
+
+    public @Override Sheet.Set[] getSets()
+    {
+        Sheet.Set[] sets = new Sheet.Set[1];
         Sheet.Set set = getPropertiesSet();
-        sheet.put(set);
+        sets[0] = set;
 
         try
         {
@@ -195,13 +202,13 @@ public class OverlayNode
                     "setInsideVisibility", // set method name
                     OverlayProperties.INSIDE_VISIBILITY // default property value
                     ));
-        } 
+        }
         catch (NoSuchMethodException ex)
         {
             LOG.log(Level.SEVERE, "[BollingerBandsNode] : Method does not exist.", ex);
         }
 
-        return sheet;
+        return sets;
     }
 
 }

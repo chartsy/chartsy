@@ -171,27 +171,30 @@ public class Yahoo
                         StringTokenizer st = new StringTokenizer(inputLine, ",");
                         st.nextToken(); // ignore symbol name
                         double close = Double.parseDouble(st.nextToken());
-                        String d = st.nextToken();
-                        d = d.substring(1, d.length()-1);
-                        long time = df.parse(d).getTime();
-                        if (time == lastTime)
+                        String date = st.nextToken();
+                        date = date.substring(1, date.length()-1);
+                        if (!date.equals("N/A"))
                         {
-                            int index = dataset.getLastIndex();
-                            dataset.setCloseAt(index, close);
-                        }
-                        else if (time > lastTime)
-                        {
-                            String t = st.nextToken();
-                            st.nextToken(); // ignore value
-                            t = st.nextToken();
-                            if (!t.equals("N/A"))
+                            long time = df.parse(date).getTime();
+                            if (time == lastTime)
                             {
-                                double open = Double.parseDouble(t);
-                                double high = Double.parseDouble(st.nextToken());
-                                double low = Double.parseDouble(st.nextToken());
-                                double volume = Double.parseDouble(st.nextToken());
-                                DataItem item = new DataItem(time, open, high, low, close, volume);
-                                dataset.addDataItem(item);
+                                int index = dataset.getLastIndex();
+                                dataset.setCloseAt(index, close);
+                            }
+                            else if (time > lastTime)
+                            {
+                                String t = st.nextToken();
+                                st.nextToken(); // ignore value
+                                t = st.nextToken();
+                                if (!t.equals("N/A"))
+                                {
+                                    double open = Double.parseDouble(t);
+                                    double high = Double.parseDouble(st.nextToken());
+                                    double low = Double.parseDouble(st.nextToken());
+                                    double volume = Double.parseDouble(st.nextToken());
+                                    DataItem item = new DataItem(time, open, high, low, close, volume);
+                                    dataset.addDataItem(item);
+                                }
                             }
                         }
                         method.releaseConnection();

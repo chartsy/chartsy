@@ -10,7 +10,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.util.Calendar;
 import javax.swing.JLabel;
-import org.chartsy.main.AbstractComponent;
+import javax.swing.JPanel;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
 import org.chartsy.main.data.ChartData;
@@ -24,7 +24,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class DateAxis extends AbstractComponent
+public class DateAxis extends JPanel
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -43,8 +43,9 @@ public class DateAxis extends AbstractComponent
         add(copyright, BorderLayout.PAGE_END);
     }
 
-    protected void paintAbstractComponent(Graphics g)
+    public void paint(Graphics g)
     {
+        super.paint(g);
         int width = getWidth();
 
         Graphics2D g2 = (Graphics2D) g.create();

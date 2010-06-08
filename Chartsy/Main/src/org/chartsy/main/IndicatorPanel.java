@@ -1,7 +1,6 @@
 package org.chartsy.main;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -231,8 +230,6 @@ public class IndicatorPanel
         label.setFont(chartFrame.getChartProperties().getFont());
         label.setForeground(chartFrame.getChartProperties().getFontColor());
 
-        super.paint(g);
-
         int width = getWidth();
 
         Graphics2D g2 = (Graphics2D) g.create();
@@ -260,6 +257,8 @@ public class IndicatorPanel
             indicator.paint(g2, chartFrame, rect);
             setLabel(indicator.getPaintedLabel(chartFrame));
         }
+
+        super.paint(g);
 
         g2.setClip(old);
         g2.dispose();

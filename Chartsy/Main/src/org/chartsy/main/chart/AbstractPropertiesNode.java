@@ -40,6 +40,13 @@ public abstract class AbstractPropertiesNode
         listener.addPropertyChangeListener(this);
     }
 
+    public Sheet.Set[] getSets()
+    {
+        return new Sheet.Set[] {
+            getPropertiesSet()
+        };
+    }
+
     protected Sheet.Set getPropertiesSet()
     { return getPropertiesSet(getDisplayName()); }
 
@@ -48,7 +55,7 @@ public abstract class AbstractPropertiesNode
 
     protected Sheet.Set getPropertiesSet(String name, String description)
     {
-        Sheet.Set set = Sheet.createPropertiesSet();
+        Sheet.Set set = new Sheet.Set();
         set.setName(name);
         set.setDisplayName(name);
         set.setShortDescription(description);

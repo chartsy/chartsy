@@ -15,8 +15,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.chartsy.main.chart.Annotation;
+import org.chartsy.main.dialogs.AnnotationProperties;
+import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
@@ -185,7 +188,7 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
         if (e.isConsumed())
             return;
 
-        if (e.getButton() == MouseEvent.BUTTON1)
+        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1)
         {
             if (getCursor().equals(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)))
                 getParent().requestFocus();
@@ -255,6 +258,31 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
                     break;
             }
         }
+        /*if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
+        {
+            if (!isCurrentNull())
+            {
+                AnnotationProperties dialog = new AnnotationProperties(new JFrame(), true);
+                dialog.initializeForm(getCurrent());
+                dialog.setLocationRelativeTo(chartFrame);
+                dialog.setVisible(true);
+            }
+            else
+            {
+                ChartSettings dialog = new ChartSettings(new JFrame(), true);
+                dialog.setLocationRelativeTo(chartFrame);
+                if (getParent() instanceof IndicatorPanel)
+                {
+                    IndicatorPanel panel = (IndicatorPanel) getParent();
+                    dialog.forIndicator(chartFrame, panel.getIndicator());
+                }
+                else
+                {
+                    dialog.initializeForm(chartFrame);
+                }
+                dialog.setVisible(true);
+            }
+        }*/
         if (e.getButton() == MouseEvent.BUTTON3)
         {
             switch (getState())
