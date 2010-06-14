@@ -2,6 +2,7 @@ package org.chartsy.main.dialogs;
 
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.chart.Overlay;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.Node;
 import org.openide.windows.WindowManager;
@@ -42,45 +43,14 @@ public class ChartSettings extends javax.swing.JDialog
         setContentPane(prop);
     }
 
-    /*private Node[] getNodes(ChartFrame chartFrame)
+    public void forOverlay(ChartFrame chartFrame, Overlay overlay)
     {
-        Node[] nodes = new Node[1];
-        final AbstractPropertiesNode chartNode = (AbstractPropertiesNode) chartFrame.getNode();
-        final List<Overlay> overlays = chartFrame.getMainPanel().getSplitPanel().getChartPanel().getOverlays();
-
-        AbstractPropertiesNode node = new AbstractPropertiesNode("Chart Properties")
-        {
-            @SuppressWarnings("unchecked")
-            protected @Override Sheet createSheet()
-            {
-                Sheet sheet = new Sheet();
-
-                Sheet.Set[] chartSets = chartNode.getSets();
-                for (Sheet.Set chartSet : chartSets)
-                {
-                    sheet.put(chartSet);
-                    chartSet.setPreferred(true);
-                }
-                
-                if (overlays.size() > 0)
-                {
-                    for (Overlay overlay : overlays)
-                    {
-                        AbstractPropertiesNode overlayNode = (AbstractPropertiesNode) overlay.getNode();
-                        Sheet.Set overlaySet = overlayNode.getSets()[0];
-                        overlaySet.setValue("tabName", overlay.getName());
-                        sheet.put(overlaySet);
-                    }
-                }
-
-                return sheet;
-            }
-        };
-
-        nodes[0] = node;
-
-        return nodes;
-    }*/
+        this.chartFrame = chartFrame;
+        setTitle(overlay.getName() + " Properties");
+        PropertySheet prop = new PropertySheet();
+        prop.setNodes(new Node[] {overlay.getNode()});
+        setContentPane(prop);
+    }
 
     public @Override void setVisible(boolean b)
     {

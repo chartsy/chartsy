@@ -63,7 +63,6 @@ public class SymbolChanger extends JToolBar implements Serializable
     {
         super(JToolBar.HORIZONTAL);
         chartFrame = frame;
-        addStockListeners(frame);
         setFloatable (false);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         initComponents();
@@ -77,7 +76,6 @@ public class SymbolChanger extends JToolBar implements Serializable
         txtSymbol = new JTextField(6);
         ((AbstractDocument)txtSymbol.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
         txtSymbol.setMargin(margins);
-        //txtSymbol.setToolTipText("Press 'Ctrl+SPACE' for symbol search");
         txtSymbol.setText(chartFrame.getChartData().getStock().getKey());
         Dimension d = new Dimension(50, 20);
         txtSymbol.setPreferredSize(d);
@@ -370,7 +368,8 @@ public class SymbolChanger extends JToolBar implements Serializable
                         newStock = new Stock(newSymbol);
                     }
                     HistoryItem item = new HistoryItem(newStock, chartFrame.getChartData().getInterval());
-                    fireStockEvent(new StockEvent(item));
+                    //fireStockEvent(new StockEvent(item));
+                    chartFrame.stockChanged(new StockEvent(item));
                 }
             }
         };
@@ -383,7 +382,8 @@ public class SymbolChanger extends JToolBar implements Serializable
                 if (item != null)
                 {
                     chartFrame.getTimer().cancel();
-                    fireStockEvent(new StockEvent(item));
+                    //fireStockEvent(new StockEvent(item));
+                    chartFrame.stockChanged(new StockEvent(item));
                 }
             }
         };
@@ -396,7 +396,8 @@ public class SymbolChanger extends JToolBar implements Serializable
                 if (item != null)
                 {
                     chartFrame.getTimer().cancel();
-                    fireStockEvent(new StockEvent(item));
+                    //fireStockEvent(new StockEvent(item));
+                    chartFrame.stockChanged(new StockEvent(item));
                 }
             }
         };
@@ -471,7 +472,8 @@ public class SymbolChanger extends JToolBar implements Serializable
                 if (item != null)
                 {
                     chartFrame.getTimer().cancel();
-                    fireStockEvent(new StockEvent(item));
+                    //fireStockEvent(new StockEvent(item));
+                    chartFrame.stockChanged(new StockEvent(item));
                 }
             }
         };
@@ -490,7 +492,7 @@ public class SymbolChanger extends JToolBar implements Serializable
         };
     }
 
-    private transient EventListenerList stockListeners = new EventListenerList();
+    /*private transient EventListenerList stockListeners = new EventListenerList();
 
     public void addStockListeners(StockListener listener)
     {
@@ -530,6 +532,6 @@ public class SymbolChanger extends JToolBar implements Serializable
             for (int i = 0; i < listeners.length; i++)
                 listeners[i].stockChanged(evt);
         }
-    }
+    }*/
 
 }

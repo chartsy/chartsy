@@ -3,21 +3,40 @@ package org.chartsy.main;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
+import org.chartsy.main.dialogs.ChartSettings;
+import org.chartsy.main.resources.ResourcesUtils;
+import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
@@ -25,39 +44,42 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class ChartPanel 
-        extends JPanel
-        implements Serializable
+public class ChartPanel extends JLayeredPane implements Serializable
 {
     
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
-    private JPanel top;
     private JLabel stockInfo;
-    private JLabel overlayLabels;
+    private JToolBar overlayToolboxes;
     private List<Overlay> overlays;
+    private boolean overlayToolboxesUpdated = false;
 
     public ChartPanel(ChartFrame frame)
     {
         chartFrame = frame;
         overlays = new ArrayList<Overlay>();
+        initializeUIElements();
+    }
 
-        Font f = chartFrame.getChartProperties().getFont();
-
+    private void initializeUIElements()
+    {
         annotationPanel = new AnnotationPanel(chartFrame);
-        top = new JPanel();
-        top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
-        top.setOpaque(false);
+
+        overlayToolboxes = new JToolBar(JToolBar.HORIZONTAL);
+        overlayToolboxes.setBorder(BorderFactory.createEmptyBorder());
+        overlayToolboxes.setOpaque(false);
+        overlayToolboxes.setFloatable(false);
 
         stockInfo = new JLabel();
         stockInfo.setOpaque(false);
-        stockInfo.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD));
-
-        overlayLabels = new JLabel(" ");
-        overlayLabels.setOpaque(false);
-        overlayLabels.setFont(f);
+        stockInfo.setHorizontalAlignment(SwingConstants.LEFT);
+        stockInfo.setVerticalAlignment(SwingConstants.TOP);
+        Font font = chartFrame.getChartProperties().getFont();
+        font = font.deriveFont(font.getStyle() ^ Font.BOLD);
+        stockInfo.setFont(font);
+        stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
 
         if (!chartFrame.getChartData().isStockNull())
         {
@@ -74,9 +96,6 @@ public class ChartPanel
             stockInfo.setText("No data for this symbol");
         }
 
-        top.add(stockInfo);
-        top.add(overlayLabels);
-
         setOpaque(false);
         setLayout(new LayoutManager() {
             public void addLayoutComponent(String name, Component comp)
@@ -91,42 +110,53 @@ public class ChartPanel
             {
                 int width = parent.getWidth();
                 int height = parent.getHeight();
-                top.setBounds(0, 0, width, 32);
+
+                stockInfo.setBounds(0, 0, width, stockInfo.getPreferredSize().height);
                 annotationPanel.setBounds(0, 2, width - 4, height - 4);
+                overlayToolboxes.setLocation(0, stockInfo.getPreferredSize().height + 1);
             }
         });
 
-        add(top);
+        add(overlayToolboxes);
         add(annotationPanel);
+        add(stockInfo);
+        doLayout();
     }
 
     public ChartFrame getChartFrame()
-    { return chartFrame; }
+    {
+        return chartFrame;
+    }
 
     public void setChartFrame(ChartFrame frame)
-    { chartFrame = frame; }
+    {
+        chartFrame = frame;
+    }
 
     public AnnotationPanel getAnnotationPanel()
-    { return annotationPanel; }
+    {
+        return annotationPanel;
+    }
 
     public void setAnnotationPanel(AnnotationPanel panel)
-    { annotationPanel = panel; }
+    {
+        annotationPanel = panel;
+    }
 
     public Range getRange()
-    { return chartFrame.getChartData().getVisibleRange(); }
+    {
+        return chartFrame.getChartData().getVisibleRange();
+    }
 
     public void paint(Graphics g)
     {
         Font font = chartFrame.getChartProperties().getFont();
-        Color fontColor = chartFrame.getChartProperties().getFontColor();
-        
-        stockInfo.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
-        stockInfo.setForeground(fontColor);
-        
-        overlayLabels.setFont(font);
-        overlayLabels.setForeground(fontColor);
+        font = font.deriveFont(font.getStyle() ^ Font.BOLD);
+        stockInfo.setFont(font);
+        stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
 
-        setOverlaysLabel();
+        if (!overlayToolboxesUpdated)
+            updateOverlayToolbar();
 
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
@@ -176,28 +206,6 @@ public class ChartPanel
         }
     }
 
-    private void setOverlaysLabel() 
-    {
-        if (!overlays.isEmpty())
-        {
-            StringBuffer sb = new StringBuffer();
-            String d = ", ";
-            int count = overlays.size() - 1;
-            for (int i = 0; i < overlays.size(); i++)
-            {
-                Overlay o = overlays.get(i);
-                sb.append(o.getLabel());
-                if (i < count)
-                    sb.append(d);
-            }
-            overlayLabels.setText(sb.toString());
-        }
-        else
-        {
-            overlayLabels.setText(" ");
-        }
-    }
-
     public synchronized void setOverlays(List<Overlay> list)
     {
         clearOverlays();
@@ -209,6 +217,7 @@ public class ChartPanel
             chartFrame.getChartData().addOverlaysDatasetListeners(o);
             addOverlay(o);
         }
+        overlayToolboxesUpdated = false;
     }
 
     public List<Overlay> getOverlays()
@@ -227,33 +236,236 @@ public class ChartPanel
     }
 
     public int getOverlaysCount()
-    { return overlays.size(); }
+    {
+        return overlays.size();
+    }
 
     public void addOverlay(Overlay overlay)
     {
         chartFrame.getChartProperties().addLogListener(overlay);
         chartFrame.getChartData().addOverlaysDatasetListeners(overlay);
         overlays.add(overlay);
+        overlayToolboxesUpdated = false;
+    }
+
+    public void removeOverlay(Overlay overlay)
+    {
+        overlays.remove(overlay);
+        overlayToolboxesUpdated = false;
     }
 
     public void clearOverlays()
     {
         overlays.clear();
         overlays = new ArrayList<Overlay>();
+        overlayToolboxesUpdated = false;
     }
 
-    @Override
-    public Rectangle getBounds()
-    { return new Rectangle(0, 0, getWidth(), getHeight()); }
+    public void updateOverlayToolbar()
+    {
+        int width = 0;
+        int height = 0;
 
-    /*public class OverlayLabel
-            extends JLabel
-            implements Serializable
+        overlayToolboxes.removeAll();
+        for (Overlay overlay : overlays)
+        {
+            OverlayToolbox overlayToolbox = new OverlayToolbox(overlay);
+            overlayToolboxes.add(overlayToolbox);
+            overlayToolbox.update();
+
+            width += overlayToolbox.getWidth() + 16;
+            height = overlayToolbox.getHeight() + 4;
+        }
+
+        overlayToolboxes.validate();
+        overlayToolboxes.repaint();
+
+        overlayToolboxesUpdated = true;
+
+        overlayToolboxes.setBounds(overlayToolboxes.getX(), overlayToolboxes.getY(), width, height);
+    }
+
+    public @Override Rectangle getBounds()
+    {
+        return new Rectangle(0, 0, getWidth(), getHeight());
+    }
+
+    public class OverlayToolbox extends JToolBar implements Serializable
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
-        private boolean rollOver = false;
+        private Overlay overlay;
+        private JLabel overlayLabel;
+        private JComponent container;
+        public boolean mouseOver = false;
+        private final Color backColor = ColorGenerator.getTransparentColor(new Color(0x1C2331), 50);
 
-    }*/
+        public OverlayToolbox(Overlay overlay)
+        {
+            super(JToolBar.HORIZONTAL);
+            this.overlay = overlay;
+            setOpaque(false);
+            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+            overlayLabel = new JLabel(overlay.getLabel());
+            overlayLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+            overlayLabel.setVerticalTextPosition(SwingConstants.CENTER);
+            overlayLabel.setOpaque(false);
+            overlayLabel.setBorder(BorderFactory.createEmptyBorder());
+            add(overlayLabel);
+
+            container = new JPanel();
+            container.setOpaque(false);
+            container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+            add(container);
+            update();
+
+            addMouseListener(new MouseAdapter()
+            {
+                public @Override void mouseEntered(MouseEvent e)
+                {
+                    mouseOver = true;
+                    revalidate();
+                    repaint();
+                }
+                public @Override void mouseExited(MouseEvent e)
+                {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    mouseOver = false;
+                    revalidate();
+                    repaint();
+                }
+            });
+        }
+
+        public @Override int getWidth()
+        {
+            return getLayout().preferredLayoutSize(this).width;
+        }
+
+        public @Override int getHeight()
+        {
+            return getLayout().preferredLayoutSize(this).height;
+        }
+
+        public void update()
+        {
+            // remove all buttons
+            container.removeAll();
+
+            OverlayToolboxButton button;
+
+            // Settings
+            container.add(button = new OverlayToolboxButton(overlaySettings(overlay)));
+            button.setText("");
+            button.setToolTipText("Settings");
+
+            // Remove
+            container.add(button = new OverlayToolboxButton(removeAction(overlay)));
+            button.setText("");
+            button.setToolTipText("Remove");
+
+            revalidate();
+            repaint();
+        }
+
+        public void paint(Graphics g)
+        {
+            overlayLabel.setFont(ChartPanel.this.chartFrame.getChartProperties().getFont());
+            overlayLabel.setForeground(ChartPanel.this.chartFrame.getChartProperties().getFontColor());
+            overlayLabel.setText(overlay.getLabel());
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
+            g2.setPaintMode();
+
+            if (mouseOver)
+            {
+                g2.setColor(backColor);
+                int x = overlayLabel.getLocation().x - getInsets().left;
+                int y = overlayLabel.getLocation().y - getInsets().top;
+                RoundRectangle2D roundRectangle = new RoundRectangle2D.Double(x, y, getWidth(), getHeight(), 10, 10);
+                g2.fill(roundRectangle);
+            }
+
+            super.paint(g);
+
+            g2.dispose();
+        }
+
+        public class OverlayToolboxButton extends JButton implements Serializable
+        {
+
+            private static final long serialVersionUID = SerialVersion.APPVERSION;
+            
+            public OverlayToolboxButton(Action action)
+            {
+                super(action);
+                setOpaque(false);
+                setFocusPainted(false);
+                setBorderPainted(false);
+                setMargin(new Insets(0, 0, 0, 0));
+                setBorder(new Border()
+                {
+                    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
+                    {}
+                    public Insets getBorderInsets(Component c)
+                    {
+                        return new Insets(0, 2, 0, 2);
+                    }
+                    public boolean isBorderOpaque()
+                    {
+                        return true;
+                    }
+                });
+                addMouseListener(new MouseAdapter()
+                {
+                    public @Override void mouseExited(MouseEvent e)
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        mouseOver = false;
+                    }
+                    public @Override void mouseEntered(MouseEvent e)
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        mouseOver = true;
+                    }
+                });
+            }
+
+        }
+
+    }
+
+    private AbstractAction overlaySettings(final Overlay overlay)
+    {
+        return new AbstractAction("Overlay Settings", ResourcesUtils.getIcon("settings"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ChartSettings dialog = new ChartSettings(new javax.swing.JFrame(), true);
+                dialog.setLocationRelativeTo(ChartPanel.this.chartFrame);
+                dialog.forOverlay(ChartPanel.this.chartFrame, overlay);
+                dialog.setVisible(true);
+            }
+        };
+    }
+
+    private AbstractAction removeAction(final Overlay overlay)
+    {
+        return new AbstractAction("Remove Indicator", ResourcesUtils.getIcon("remove"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ChartPanel.this.removeOverlay(overlay);
+                ChartPanel.this.validate();
+                ChartPanel.this.repaint();
+            }
+        };
+    }
 
 }

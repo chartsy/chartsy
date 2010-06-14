@@ -27,8 +27,7 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public abstract class Annotation
-        implements Serializable, MouseListener, MouseMotionListener
+public abstract class Annotation implements Serializable, MouseListener, MouseMotionListener
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;

@@ -19,7 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.dialogs.AnnotationProperties;
-import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
@@ -258,7 +257,7 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
                     break;
             }
         }
-        /*if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
+        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
         {
             if (!isCurrentNull())
             {
@@ -267,22 +266,7 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
                 dialog.setLocationRelativeTo(chartFrame);
                 dialog.setVisible(true);
             }
-            else
-            {
-                ChartSettings dialog = new ChartSettings(new JFrame(), true);
-                dialog.setLocationRelativeTo(chartFrame);
-                if (getParent() instanceof IndicatorPanel)
-                {
-                    IndicatorPanel panel = (IndicatorPanel) getParent();
-                    dialog.forIndicator(chartFrame, panel.getIndicator());
-                }
-                else
-                {
-                    dialog.initializeForm(chartFrame);
-                }
-                dialog.setVisible(true);
-            }
-        }*/
+        }
         if (e.getButton() == MouseEvent.BUTTON3)
         {
             switch (getState())

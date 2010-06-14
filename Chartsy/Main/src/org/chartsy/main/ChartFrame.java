@@ -31,7 +31,6 @@ import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.events.StockEvent;
-import org.chartsy.main.events.StockListener;
 import org.chartsy.main.history.History;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
@@ -57,7 +56,7 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
-public class ChartFrame extends TopComponent implements AdjustmentListener, MouseWheelListener, StockListener
+public class ChartFrame extends TopComponent implements AdjustmentListener, MouseWheelListener//, StockListener
 {
 
     private static ChartFrame instance;

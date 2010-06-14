@@ -18,27 +18,41 @@ public final class ResourcesUtils {
 
     private ResourcesUtils() {}
 
-    public static Image getImage16(final String name) throws IOException {
+    public static Image getImage(final String name)
+            throws IOException
+    {
+        return ImageIO.read(ResourcesUtils.class.getResource(path+name+image));
+    }
+
+    public static Image getImage16(final String name)
+            throws IOException
+    {
         return ImageIO.read(ResourcesUtils.class.getResource(path+name+image_16));
     }
 
-    public static Image getImage24(final String name) throws IOException {
+    public static Image getImage24(final String name)
+            throws IOException
+    {
         return ImageIO.read(ResourcesUtils.class.getResource(path+name+image_24));
     }
 
-    public static ImageIcon getIcon(final String name) {
+    public static ImageIcon getIcon(final String name)
+    {
         return new ImageIcon(ResourcesUtils.class.getResource(path+name+image));
     }
 
-    public static ImageIcon getIcon16(final String name) {
+    public static ImageIcon getIcon16(final String name)
+    {
         return new ImageIcon(ResourcesUtils.class.getResource(path+name+image_16));
     }
 
-    public static ImageIcon getIcon24(final String name) {
+    public static ImageIcon getIcon24(final String name)
+    {
         return new ImageIcon(ResourcesUtils.class.getResource(path+name+image_24));
     }
 
-    public static ImageIcon getLogo() {
+    public static ImageIcon getLogo()
+    {
         return new ImageIcon(ResourcesUtils.class.getResource(path+"logo"+image));
     }
 

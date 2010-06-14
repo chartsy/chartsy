@@ -45,7 +45,10 @@ public class Utils {
 
     public static int getDefaultFontSize() {
         Integer integer = (Integer)UIManager.get("customFontSize");
-        if (integer != null) { return integer.intValue(); }
+        if (integer != null)
+        {
+            return integer.intValue();
+        }
         else {
             Font font = UIManager.getFont("TextField.font");
             return font == null ? 12 : font.getSize();

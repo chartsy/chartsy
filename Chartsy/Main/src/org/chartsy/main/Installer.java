@@ -1,5 +1,6 @@
 package org.chartsy.main;
 
+import java.awt.SplashScreen;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;

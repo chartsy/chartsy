@@ -420,34 +420,9 @@ public class ChartData implements Serializable
 
     public Point2D.Double valueToJava2D(final double xvalue, final double yvalue, Rectangle bounds, Range range)
     {
-        double x = (bounds.getWidth() / getPeriod()) * xvalue;
-        double c = bounds.getWidth() / (2 * getVisible().getItemsCount());
-        double px = bounds.getMinX() + x + c;
-
-        double dif = range.getUpperBound() - range.getLowerBound();
-        double percent = ((range.getUpperBound() - yvalue) / dif) * 100;
-        double py = bounds.getMinY() + (bounds.getHeight() * percent) / 100;
-
-        if (range.contains(0))
-        {
-            dif = Math.abs(range.getUpperBound()) + Math.abs(range.getLowerBound());
-
-            double h1 = (Math.abs(range.getUpperBound()) * bounds.getHeight()) / dif;
-            double h2 = (Math.abs(range.getLowerBound()) * bounds.getHeight()) / dif;
-
-            if (yvalue >= 0)
-            {
-                percent = ((range.getUpperBound() - yvalue) / range.getUpperBound()) * 100;
-                py = bounds.getMinY() + (h1 * percent) / 100;
-            } else
-            {
-                percent = ((Math.abs(range.getLowerBound()) - Math.abs(yvalue)) / Math.abs(range.getLowerBound())) * 100;
-                py = bounds.getMinY() + h1 + (h2 - ((h2 * percent) / 100));
-            }
-        }
-
+        double px = getX(xvalue, bounds);
+        double py = getY(yvalue, bounds, range);
         Point2D.Double p = new Point2D.Double(px, py);
-
         return p;
     }
 
@@ -458,35 +433,21 @@ public class ChartData implements Serializable
 
     public double getX(double value, Rectangle rect)
     {
-        double x = (rect.getWidth() / getPeriod()) * value;
-        double c = rect.getWidth() / (2 * getPeriod());
-        return rect.getMinX() + x + c;
+        return rect.getMinX() + (((value + 0.5D) / (double) getPeriod()) * rect.getWidth());
     }
 
     public double getY(double value, Rectangle rect, Range range)
     {
-        double dif = range.getUpperBound() - range.getLowerBound();
-        double percent = ((range.getUpperBound() - value) / dif) * 100;
-        double py = rect.getMinY() + (rect.getHeight() * percent) / 100;
+        return rect.getMinY() + (range.getUpperBound() - value) / (range.getUpperBound() - range.getLowerBound()) * rect.getHeight();
+    }
 
-        if (range.contains(0))
-        {
-            dif = Math.abs(range.getUpperBound()) + Math.abs(range.getLowerBound());
-            double h1 = (Math.abs(range.getUpperBound()) * rect.getHeight()) / dif;
-            double h2 = (Math.abs(range.getLowerBound()) * rect.getHeight()) / dif;
-
-            if (value >= 0)
-            {
-                percent = ((range.getUpperBound() - value) / range.getUpperBound()) * 100;
-                py = rect.getMinY() + (h1 * percent) / 100;
-            } else
-            {
-                percent = ((Math.abs(range.getLowerBound()) - Math.abs(value)) / Math.abs(range.getLowerBound())) * 100;
-                py = rect.getMinY() + h1 + (h2 - ((h2 * percent) / 100));
-            }
-        }
-
-        return py;
+    public double getLogY(double value, Rectangle rect, Range range)
+    {
+        double base = 0;
+        if (range.getLowerBound() < 0)
+            base = -1 * range.getLowerBound() + 0.1D;
+        double scale = rect.getHeight() / (Math.log(range.getUpperBound() + base) - Math.log(range.getLowerBound() + base));
+        return Math.round((Math.log(range.getUpperBound() + base) - Math.log(value + base)) * scale);
     }
 
     public int getIndex(int x, Rectangle rect)

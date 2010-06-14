@@ -99,7 +99,7 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
                 indicatorsPanel.setBounds(insets.left, insets.top + chartHeight, w, indicatorsHeight);
                 chartPanel.setBounds(insets.left, insets.top, w, chartHeight);
 
-                Point dp = new Point(0, 18);
+                Point dp = new Point(0, 50);
                 Point p = label.getLocation();
                 if (!dp.equals(p))
                     label.setBounds(p.x, p.y, width + 2, height * lines + 2);
@@ -111,7 +111,7 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
         add(label);
         add(indicatorsPanel);
         add(chartPanel);
-        label.setLocation(0, 18);
+        label.setLocation(0, 50);
     }
 
     public ChartFrame getChartFrame()

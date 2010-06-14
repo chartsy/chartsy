@@ -1,11 +1,10 @@
 package org.chartsy.main;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -15,65 +14,51 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
 import java.io.Serializable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.resources.ResourcesUtils;
+import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.SerialVersion;
 
 /**
  *
  * @author Administrator
  */
-public class IndicatorPanel 
-        extends JPanel
-        implements Serializable
+public class IndicatorPanel extends JPanel implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
-    private JPanel top;
-    private JLabel label;
+    private IndicatorToolbox toolbox;
     private Indicator indicator = null;
 
-    private Toolbox toolbox;
-
-    public IndicatorPanel(ChartFrame frame, Indicator i)
+    public IndicatorPanel(ChartFrame frame, Indicator indicator)
     {
-        chartFrame = frame;
-        indicator = i;
+        this.chartFrame = frame;
+        this.indicator = indicator;
         initializeUIElements();
     }
 
     private void initializeUIElements()
     {
         annotationPanel = new AnnotationPanel(chartFrame);
-
-        top = new JPanel();
-        top.setOpaque(false);
-        top.setLayout(new BorderLayout());
-        top.setLocation(0, 0);
-
-        label = new JLabel(" ");
-        label.setOpaque(false);
-        label.setHorizontalTextPosition(SwingConstants.LEFT);
-        label.setVerticalTextPosition(SwingConstants.CENTER);
-        label.setFont(chartFrame.getChartProperties().getFont());
-        label.setForeground(chartFrame.getChartProperties().getFontColor());
-        toolbox = new Toolbox(this);
-
-        top.add(label, BorderLayout.WEST);
-        top.add(toolbox, BorderLayout.EAST);
+        toolbox = new IndicatorToolbox();
+        toolbox.setLocation(0, 0);
 
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
@@ -90,35 +75,48 @@ public class IndicatorPanel
             {
                 int width = parent.getWidth();
                 int height = parent.getHeight();
-                top.setBounds(0, 0, width, 24);
+                int toolboxWidth = toolbox.getWidth();
+                int toolboxHeight = toolbox.getHeight();
+                
                 annotationPanel.setBounds(0, 2, width - 4, height - 4);
+                toolbox.setBounds(0, 0, toolboxWidth, toolboxHeight);
             }
         });
 
-        add(top);
+        add(toolbox);
         add(annotationPanel);
+        doLayout();
     }
 
     public ChartFrame getChartFrame() 
-    { return chartFrame; }
+    {
+        return chartFrame;
+    }
 
     public void setChartFrame(ChartFrame frame)
-    { chartFrame = frame; }
+    {
+        chartFrame = frame;
+    }
 
     public AnnotationPanel getAnnotationPanel() 
-    { return annotationPanel; }
+    {
+        return annotationPanel;
+    }
 
     public void setAnnotationPanel(AnnotationPanel panel)
-    { annotationPanel = panel; }
-
-    public void setLabel(String text)
-    { label.setText(text); }
+    {
+        annotationPanel = panel;
+    }
 
     public Indicator getIndicator()
-    { return indicator; }
+    {
+        return indicator;
+    }
     
     public void setIndicator(Indicator ind) 
-    { indicator = ind; }
+    {
+        indicator = ind;
+    }
 
     public boolean isMaximized()
     {
@@ -145,7 +143,7 @@ public class IndicatorPanel
         setMaximized(!isMaximized());
     }
 
-    public Toolbox getToolbox() 
+    public IndicatorToolbox getToolbox()
     { 
         return toolbox;
     }
@@ -156,7 +154,9 @@ public class IndicatorPanel
     }
 
     public void setMaximizedHeight(int height)
-    { this.indicator.setMaximizedHeight(height); }
+    {
+        this.indicator.setMaximizedHeight(height);
+    }
 
     public int getPanelHeight()
     {
@@ -166,8 +166,22 @@ public class IndicatorPanel
         }
         else
         {
-            return top.getHeight();
+            return toolbox.getHeight();
         }
+    }
+
+    private AbstractAction indicatorSettings(final ChartFrame frame, final IndicatorPanel panel)
+    {
+        return new AbstractAction("Indicator Settings", ResourcesUtils.getIcon("settings"))
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ChartSettings dialog = new ChartSettings(new javax.swing.JFrame(), true);
+                dialog.setLocationRelativeTo(frame);
+                dialog.forIndicator(frame, panel.getIndicator());
+                dialog.setVisible(true);
+            }
+        };
     }
 
     private AbstractAction moveUp(final ChartFrame frame, final IndicatorPanel panel)
@@ -216,7 +230,7 @@ public class IndicatorPanel
 
     private AbstractAction removeAction(final ChartFrame frame, final IndicatorPanel panel)
     {
-        return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("remove"))
+        return new AbstractAction("Remove Indicator", ResourcesUtils.getIcon("remove"))
         {
             public void actionPerformed(ActionEvent e)
             {
@@ -227,9 +241,6 @@ public class IndicatorPanel
 
     public void paint(Graphics g)
     {
-        label.setFont(chartFrame.getChartProperties().getFont());
-        label.setForeground(chartFrame.getChartProperties().getFontColor());
-
         int width = getWidth();
 
         Graphics2D g2 = (Graphics2D) g.create();
@@ -253,10 +264,7 @@ public class IndicatorPanel
         g2.setClip(rect);
 
         if (indicator != null)
-        {
             indicator.paint(g2, chartFrame, rect);
-            setLabel(indicator.getPaintedLabel(chartFrame));
-        }
 
         super.paint(g);
 
@@ -265,67 +273,139 @@ public class IndicatorPanel
     }
 
     public @Override Rectangle getBounds()
-    { return new Rectangle(0, 0, getWidth(), getPanelHeight()); }
+    {
+        return new Rectangle(0, 0, getWidth(), getPanelHeight());
+    }
 
-    public class Toolbox 
-            extends JComponent
-            implements Serializable
+    public class IndicatorToolbox extends JToolBar implements Serializable
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
-        private IndicatorPanel indicatorPanel;
-        private JPanel container;
+        private JLabel indicatorLabel;
+        private JComponent container;
+        public boolean mouseOver = false;
+        private final Color backColor = ColorGenerator.getTransparentColor(new Color(0x1C2331), 50);
 
-        public Toolbox(IndicatorPanel panel)
+        public IndicatorToolbox()
         {
-            indicatorPanel = panel;
+            super(JToolBar.HORIZONTAL);
             setOpaque(false);
-            setLayout(new BorderLayout());
+            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+
+            indicatorLabel = new JLabel(indicator.getLabel());
+            indicatorLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+            indicatorLabel.setVerticalTextPosition(SwingConstants.CENTER);
+            indicatorLabel.setOpaque(false);
+            add(indicatorLabel);
+
             container = new JPanel();
             container.setOpaque(false);
-            container.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 5));
-            add(container, BorderLayout.CENTER);
+            container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+            add(container);
             update();
+            
+            addMouseListener(new MouseAdapter()
+            {
+                public @Override void mouseEntered(MouseEvent e)
+                {
+                    mouseOver = true;
+                    validate();
+                    repaint();
+                }
+                public @Override void mouseExited(MouseEvent e)
+                {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    mouseOver = false;
+                    validate();
+                    repaint();
+                }
+            });
+        }
+
+        public @Override int getWidth()
+        {
+            return this.getLayout().preferredLayoutSize(this).width;
+        }
+
+        public @Override int getHeight()
+        {
+            return this.getLayout().preferredLayoutSize(this).height;
         }
 
         public void update()
         {
-            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            // remove all buttons
             container.removeAll();
 
-            int count = chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsCount();
+            // number of indicators
+            int count = IndicatorPanel.this.chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsCount();
+
             ToolboxButton button;
+
+            // Settings
+            container.add(button = new ToolboxButton(indicatorSettings(IndicatorPanel.this.chartFrame, IndicatorPanel.this)));
+            button.setText("");
+            button.setToolTipText("Settings");
+
             if (count > 1)
             {
                 // Move Up
-                button = new ToolboxButton(moveUp(chartFrame, indicatorPanel));
+                container.add(button = new ToolboxButton(moveUp(IndicatorPanel.this.chartFrame, IndicatorPanel.this)));
                 button.setText("");
                 button.setToolTipText("Move Up");
-                container.add(button);
+
                 // Move Down
-                button = new ToolboxButton(moveDown(chartFrame, indicatorPanel));
+                container.add(button = new ToolboxButton(moveDown(IndicatorPanel.this.chartFrame, IndicatorPanel.this)));
                 button.setText("");
                 button.setToolTipText("Move Down");
-                container.add(button);
             }
+
             // Toggle Maximize/Minimize
-            button = new ToolboxButton(isMaximized() ? minimize(indicatorPanel) : maximize(indicatorPanel));
+            container.add(button = new ToolboxButton(isMaximized() ? minimize(IndicatorPanel.this) : maximize(IndicatorPanel.this)));
             button.setText("");
             button.setToolTipText(isMaximized() ? "Minimize" : "Maximize");
-            container.add(button);
+            
             // Remove
-            button = new ToolboxButton(removeAction(chartFrame, indicatorPanel));
+            container.add(button = new ToolboxButton(removeAction(IndicatorPanel.this.chartFrame, IndicatorPanel.this)));
             button.setText("");
             button.setToolTipText("Remove");
-            container.add(button);
 
-            validate();
+            revalidate();
             repaint();
         }
 
-        public class ToolboxButton 
-                extends JButton
-                implements Serializable
+        public void paint(Graphics g)
+        {
+            indicatorLabel.setFont(IndicatorPanel.this.chartFrame.getChartProperties().getFont());
+            indicatorLabel.setForeground(IndicatorPanel.this.chartFrame.getChartProperties().getFontColor());
+            indicatorLabel.setText(IndicatorPanel.this.indicator.getLabel());
+            
+            Rectangle oldClip = g.getClipBounds();
+            Rectangle newClip = getBounds();
+            g.setClip(newClip);
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
+            g2.setPaintMode();
+
+            if (mouseOver)
+            {
+                g2.setColor(backColor);
+                RoundRectangle2D roundRectangle = new RoundRectangle2D.Double(getX(), getY(), getWidth(), getHeight(), 10, 10);
+                g2.fill(roundRectangle);
+            }
+
+            super.paint(g);
+
+            g2.dispose();
+            g.setClip(oldClip);
+        }
+
+        public class ToolboxButton extends JButton implements Serializable
         {
 
             private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -343,7 +423,7 @@ public class IndicatorPanel
                     {}
                     public Insets getBorderInsets(Component c)
                     {
-                        return new Insets(0, 0, 0, 0);
+                        return new Insets(0, 2, 0, 2);
                     }
                     public boolean isBorderOpaque()
                     {
@@ -352,8 +432,26 @@ public class IndicatorPanel
                 });
                 addMouseListener(new MouseAdapter()
                 {
+                    public @Override void mouseExited(MouseEvent e)
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        IndicatorToolbox.this.mouseOver = false;
+                        IndicatorToolbox.this.validate();
+                        IndicatorToolbox.this.repaint();
+                    }
                     public @Override void mouseEntered(MouseEvent e)
-                    { setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); }
+                    {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        IndicatorToolbox.this.mouseOver = true;
+                        IndicatorToolbox.this.validate();
+                        IndicatorToolbox.this.repaint();
+                    }
+                    public @Override void mousePressed(MouseEvent e)
+                    {
+                        IndicatorToolbox.this.mouseOver = false;
+                        IndicatorToolbox.this.validate();
+                        IndicatorToolbox.this.repaint();
+                    }
                 });
             }
 

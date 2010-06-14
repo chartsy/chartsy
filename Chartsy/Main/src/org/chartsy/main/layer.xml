@@ -20,13 +20,6 @@
                 <attr name="noIconInMenu" stringvalue="false"/>
             </file>
         </folder>
-        <!--<folder name="Window">
-            <file name="org-chartsy-main-favorites-FavoritesAction.instance">
-                <attr name="component" methodvalue="org.chartsy.main.favorites.FavoritesTopComponent.findInstance"/>
-                <attr name="displayName" bundlevalue="org.chartsy.main.favorites.Bundle#CTL_FavoritesAction"/>
-                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
-            </file>
-        </folder>-->
     </folder>
     <folder name="Menu">
         <folder name="File">
@@ -45,11 +38,6 @@
                 <attr name="position" intvalue="100"/>
             </file>
         </folder>
-        <!--<folder name="Window">
-            <file name="FavoritesAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-chartsy-main-favorites-FavoritesAction.instance"/>
-            </file>
-        </folder>-->
     </folder>
     <folder name="Shortcuts">
         <file name="D-N.shadow">
@@ -66,16 +54,12 @@
     </folder>
     <folder name="Windows2">
         <folder name="Components">
-            <!--<file name="FavoritesTopComponent.settings" url="FavoritesTopComponentSettings.xml"/>-->
             <file name="WelcomeTopComponent.settings" url="WelcomeTopComponentSettings.xml"/>
         </folder>
         <folder name="Modes">
             <folder name="editor">
                 <file name="WelcomeTopComponent.wstcref" url="WelcomeTopComponentWstcref.xml"/>
             </folder>
-            <!--<folder name="explorer">
-                <file name="FavoritesTopComponent.wstcref" url="FavoritesTopComponentWstcref.xml"/>
-            </folder>-->
         </folder>
     </folder>
 </filesystem>
