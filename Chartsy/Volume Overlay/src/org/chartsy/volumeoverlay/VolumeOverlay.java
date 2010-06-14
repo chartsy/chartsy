@@ -81,12 +81,13 @@ public class VolumeOverlay
         Dataset d = visibleDataset(cf, VOLUME);
         if (d != null)
         {
+            Rectangle rect = (Rectangle) bounds.clone();
             Range range = getRange(cf, VOLUME);
-            int height =  bounds.getSize().height/4;
-            bounds.setLocation(bounds.getLocation().x, bounds.getLocation().y+height*3);
-            bounds.setSize(bounds.getSize().width, height);
+            int height =  rect.getSize().height/4;
+            rect.setLocation(rect.getLocation().x, rect.getLocation().y+height*3);
+            rect.setSize(rect.getSize().width, height);
             Color colorVolume = ColorGenerator.getTransparentColor(properties.getColor(), properties.getAlpha());
-            DefaultPainter.bar(g, cf, range, bounds, d, colorVolume);
+            DefaultPainter.bar(g, cf, range, rect, d, colorVolume);
         }
     }
 
@@ -170,4 +171,5 @@ public class VolumeOverlay
     {
         return false;
     }
+
 }
