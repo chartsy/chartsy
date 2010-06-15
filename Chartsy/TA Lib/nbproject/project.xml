@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.chartsy.talib</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>com.tictactec.ta.lib</package>
+                <package>com.tictactec.ta.lib.meta</package>
+                <package>com.tictactec.ta.lib.meta.annotation</package>
+                <package>com.tictactec.ta.lib.meta.helpers</package>
+                <package>com.tictactec.ta.lib.test</package>
+                <package>org.chartsy.talib</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/ta-lib.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/ta-lib.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

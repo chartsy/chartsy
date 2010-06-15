@@ -42,7 +42,7 @@ public abstract class Overlay
         return logarithmic;
     }
 
-    public void setLogarithmic(boolean b)
+   public void setLogarithmic(boolean b)
     {
         logarithmic = b;
     }

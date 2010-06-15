@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.talib
+OpenIDE-Module-Localizing-Bundle: org/chartsy/talib/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.4.0
+

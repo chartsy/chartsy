@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -218,6 +219,37 @@ public final class DefaultPainter {
                 }
             }
         }
+    }
+
+    public static void dot(Graphics2D g, ChartFrame cf, Range range, Rectangle bounds, Dataset dataset, Color color, Stroke stroke)
+    {
+        dot(g, cf, range, bounds, dataset, color, stroke, Dataset.CLOSE_PRICE);
+
+    }
+
+    public static void dot(Graphics2D g, ChartFrame cf, Range range, Rectangle bounds, Dataset dataset, Color color, Stroke stroke, int price)
+    {
+        Stroke old = g.getStroke();
+        g.setPaint(color);
+        if (stroke != null) g.setStroke(stroke);
+        //Point2D.Double point = null;
+        for (int i = 0; i < dataset.getItemsCount(); i++)
+        {
+            if (dataset.getDataItem(i) != null)
+            {
+                double value = dataset.getPriceAt(i, price);
+                double x = cf.getChartData().getX(i, bounds);
+                double y = cf.getChartData().getY(value, bounds, range);
+
+                Ellipse2D.Double circle =  new Ellipse2D.Double(x, y, 5, 5);
+                g.fill(circle);
+                //Point2D.Double p = new Point2D.Double(x, y);
+                //if (point != null)
+                //    g.draw(new Line2D.Double(point, p));
+                //point = p;
+            }
+        }
+        g.setStroke(old);
     }
 
 }
