@@ -3,18 +3,18 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.parabolicsar;
+package org.chartsy.accumdistribline;
 
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.io.Serializable;
+import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
-import org.chartsy.main.chart.Overlay;
+import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
@@ -25,16 +25,18 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
+ * Accumulation Distribution Line according to Marc Chaikin.
  *
  * @author joshua.taylor
  */
-public class ParabolicSAR extends Overlay implements Serializable{
+public class ADLine extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Parabolic SAR";
-    public static final String ABBREV = "sar";
+    public static final String FULL_NAME = "Accumulation/Distribution Line";
+    public static final String ABBREV = "adline";
 
-    private OverlayProperties properties;
+    
+    private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
     private int lookback;
@@ -43,52 +45,82 @@ public class ParabolicSAR extends Overlay implements Serializable{
     private transient MInteger outNbElement;
     private transient Core core;
 
-    //variables specific to Parabolic SAR
-    private double step;//also called acceleration
-    private double maxStep;//also called max acceleration
+    //variables specific to Accumulation/Distribution Line
+    private double[] allHigh;
+    private double[] allLow;
+    private double[] allClose;
+    private double[] allVolume;
 
-    //the next variable is used for calculations
+    //the next variable is used for ultra-fast calculations
     private Dataset calculatedDataset;
 
-    public ParabolicSAR()
-    {
+    public ADLine() {
         super();
-        properties = new OverlayProperties();
+        properties = new IndicatorProperties();
     }
 
     @Override
-    public Overlay newInstance() { return new ParabolicSAR(); }
+    public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getName(){ return FULL_NAME; }
+    public String getLabel() { return properties.getLabel(); }
 
     @Override
-    public boolean getMarkerVisibility(){ return properties.getMarker(); }
+    public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public AbstractNode getNode(){ return new OverlayNode(properties); }
+    public Indicator newInstance(){ return new ADLine(); }
 
     @Override
-    public String getPrice(){ return properties.getPrice(); }
+    public boolean hasZeroLine(){ return false; }
+
+    @Override
+    public boolean getZeroLineVisibility(){ return false; }
+
+    @Override
+    public Color getZeroLineColor(){ return null; }
+
+    @Override
+    public Stroke getZeroLineStroke(){ return null; }
+
+    @Override
+    public boolean hasDelimiters(){ return false; }
+
+    @Override
+    public boolean getDelimitersVisibility(){ return false; }
+
+    @Override
+    public double[] getDelimitersValues(){ return new double[] {}; }
+
+    @Override
+    public Color getDelimitersColor(){ return null; }
+
+    @Override
+    public Stroke getDelimitersStroke(){ return null; }
 
     @Override
     public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     @Override
-    public String getLabel()
-    { return properties.getLabel() + " (" + properties.getStep() + ", " + properties.getMaxStep() + ")"; }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
-     public LinkedHashMap getHTML(ChartFrame cf, int i) {
+    @Override
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
+
+    @Override
+    public LinkedHashMap getHTML(ChartFrame cf, int i)
+    {
         LinkedHashMap ht = new LinkedHashMap();
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
+        String[] labels = {"A/D Line:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
             for (int j = 0; j < values.length; j++) {
-                ht.put(getFontHTML(colors[j], "Para.SAR:"),
+                ht.put(getFontHTML(colors[j], labels[j]),
                         getFontHTML(colors[j], df.format(values[j])));
             }
         }
@@ -97,35 +129,41 @@ public class ParabolicSAR extends Overlay implements Serializable{
     }
 
     @Override
+    public Range getRange(ChartFrame cf)
+    {
+        Range range = super.getRange(cf);
+        return range;
+    }
+
+    @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
         Dataset dataset = visibleDataset(cf, ABBREV);
         if (dataset != null)
         {
-            Range range = cf.getSplitPanel().getChartPanel().getRange();
-            DefaultPainter.dot(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke(), Dataset.getPrice(properties.getPrice()));
+            if(maximized)
+            {
+                Range range = getRange(cf);
+                DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke()); // paint line
+            }
         }
-    }
+    }    
 
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
-        if (dataset != null) {
-            int price = Dataset.getPrice(properties.getPrice());
-            return new double[] {dataset.getLastPrice(price)};
-        }
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getLastClose()};
         return new double[] {};
     }
 
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
-        if (dataset != null) {
-            String price = properties.getPrice();
-            return new double[] {dataset.getPriceAt(i, price)};
-        }
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getCloseAt(i)};
         return new double[] {};
     }
 
@@ -148,21 +186,19 @@ public class ParabolicSAR extends Overlay implements Serializable{
         output = new double[count];
         outBegIdx = new MInteger();
         outNbElement = new MInteger();
-        core = TaLibInit.getCore();//needs to be here for serialization issues      
+        core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
 
-        //get Parabolic SAR specific variables based on user settings
-        //from the properties class. The defaults for Para.SAR are
-        //step = .02 and max step = .20 according to Welles Wilder
-        step = properties.getStep();//also called acceleration
-        maxStep = properties.getMaxStep();//also called max acceleration
-
+        allHigh = initial.getHighValues();//new double[count];
+        allLow = initial.getLowValues();//new double[count];
+        allClose = initial.getCloseValues();//new double[count];
+        allVolume = initial.getVolumeValues();//new double[count];
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.sarLookback(properties.getStep(), properties.getMaxStep());
-        core.sar(0, count-1, initial.getHighValues(), initial.getLowValues(), step, maxStep, outBegIdx, outNbElement, output);
+        lookback = core.adLookback();
+        core.ad(0, count-1, allHigh, allLow, allClose, allVolume, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -172,6 +208,8 @@ public class ParabolicSAR extends Overlay implements Serializable{
         //indicator index and dataset index automatically. That's what
         //this function does for us.
         output = TaLibUtilities.fixOutputArray(output, lookback);
+
+        //TaLibUtilities.showOutputArray(output);
 
         calculatedDataset = Dataset.EMPTY(initial.getItemsCount());
         for (int i = 0; i < output.length; i++)

@@ -232,7 +232,6 @@ public final class DefaultPainter {
         Stroke old = g.getStroke();
         g.setPaint(color);
         if (stroke != null) g.setStroke(stroke);
-        //Point2D.Double point = null;
         for (int i = 0; i < dataset.getItemsCount(); i++)
         {
             if (dataset.getDataItem(i) != null)
@@ -243,10 +242,6 @@ public final class DefaultPainter {
 
                 Ellipse2D.Double circle =  new Ellipse2D.Double(x, y, 5, 5);
                 g.fill(circle);
-                //Point2D.Double p = new Point2D.Double(x, y);
-                //if (point != null)
-                //    g.draw(new Line2D.Double(point, p));
-                //point = p;
             }
         }
         g.setStroke(old);
