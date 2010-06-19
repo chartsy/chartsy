@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.accumdistribline;
+package org.chartsy.accumdistriboscillator;
 
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
@@ -25,17 +25,17 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- * Accumulation Distribution Line according to Marc Chaikin.
+ * The Accumulation Distribution Oscillator by Marc Chaikin
  *
  * @author joshua.taylor
  */
-public class ADLine extends Indicator{
+public class ADOscillator extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Accumulation/Distribution Line";
-    public static final String ABBREV = "adline";
+    public static final String FULL_NAME = "Accumulation/Distribution Oscillator";
+    public static final String ABBREV = "adoscillator";
 
-    
+
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
@@ -45,16 +45,18 @@ public class ADLine extends Indicator{
     private transient MInteger outNbElement;
     private transient Core core;
 
-    //variables specific to Accumulation/Distribution Line
+    //variables specific to Accumulation/Distribution Oscillator
+    int fastPeriod = 0;
+    int slowPeriod = 0;
     private double[] allHigh;
     private double[] allLow;
     private double[] allClose;
     private double[] allVolume;
 
-    //the next variable is used for ultra-fast calculations
+    //the next variable is used for fast calculations
     private Dataset calculatedDataset;
 
-    public ADLine() {
+    public ADOscillator() {
         super();
         properties = new IndicatorProperties();
     }
@@ -69,7 +71,7 @@ public class ADLine extends Indicator{
     public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance(){ return new ADLine(); }
+    public Indicator newInstance(){ return new ADOscillator(); }
 
     @Override
     public boolean hasZeroLine(){ return false; }
@@ -114,7 +116,7 @@ public class ADLine extends Indicator{
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"A/D Line:"};
+        String[] labels = {"A/D Oscillator:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
@@ -147,7 +149,7 @@ public class ADLine extends Indicator{
                 DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke()); // paint line
             }
         }
-    }    
+    }
 
     @Override
     public double[] getValues(ChartFrame cf)
@@ -179,8 +181,9 @@ public class ADLine extends Indicator{
         //This entire method is basically a copy/paste action into your own
         //code. The only thing you have to change is the next few lines of code.
         //Choose the 'lookback' method and appropriate 'calculation function'
-        //from TA-Lib for your needs. Everything else should stay basically the
-        //same
+        //from TA-Lib for your needs. You'll also need to ensure you gather
+        //everything for your calculation as well. Everything else should stay
+        //basically the same
 
         //prepare ta-lib variables
         output = new double[count];
@@ -189,6 +192,8 @@ public class ADLine extends Indicator{
         core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
+        fastPeriod = properties.getFastPeriod();
+        slowPeriod = properties.getSlowPeriod();
 
         allHigh = initial.getHighValues();//new double[count];
         allLow = initial.getLowValues();//new double[count];
@@ -197,8 +202,8 @@ public class ADLine extends Indicator{
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.adLookback();
-        core.ad(0, count-1, allHigh, allLow, allClose, allVolume, outBegIdx, outNbElement, output);
+        lookback = core.adOscLookback(fastPeriod, slowPeriod);
+        core.adOsc(0, count-1, allHigh, allLow, allClose, allVolume, fastPeriod, slowPeriod, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
