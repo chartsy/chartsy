@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.accumdistriboscillator;
+package org.chartsy.avgdirectionalindex;
 
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
@@ -25,15 +25,15 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- * The Accumulation Distribution Oscillator by Marc Chaikin
- *
+ * The Average Directional Index by Welles Wilder
+ * 
  * @author joshua.taylor
  */
-public class ADOscillator extends Indicator{
+public class ADX extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Accumulation/Distribution Oscillator";
-    public static final String ABBREV = "adoscillator";
+    public static final String FULL_NAME = "Average Directional Index (ADX)";
+    public static final String ABBREV = "adx";
 
 
     private IndicatorProperties properties;
@@ -46,17 +46,15 @@ public class ADOscillator extends Indicator{
     private transient Core core;
 
     //variables specific to Accumulation/Distribution Oscillator
-    int fastPeriod = 0;
-    int slowPeriod = 0;
+    int period = 0;
     private double[] allHigh;
     private double[] allLow;
     private double[] allClose;
-    private double[] allVolume;
-
+    
     //the next variable is used for fast calculations
     private Dataset calculatedDataset;
 
-    public ADOscillator() {
+    public ADX() {
         super();
         properties = new IndicatorProperties();
     }
@@ -71,7 +69,7 @@ public class ADOscillator extends Indicator{
     public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance(){ return new ADOscillator(); }
+    public Indicator newInstance(){ return new ADX(); }
 
     @Override
     public boolean hasZeroLine(){ return false; }
@@ -116,7 +114,7 @@ public class ADOscillator extends Indicator{
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"A/D Oscillator:"};
+        String[] labels = {"ADX:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
@@ -132,10 +130,7 @@ public class ADOscillator extends Indicator{
 
     @Override
     public Range getRange(ChartFrame cf)
-    {
-        Range range = super.getRange(cf);
-        return range;
-    }
+    { return new Range(0, 100); }
 
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
@@ -192,18 +187,17 @@ public class ADOscillator extends Indicator{
         core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
-        fastPeriod = properties.getFastPeriod();
-        slowPeriod = properties.getSlowPeriod();
-
+        period = properties.getPeriod();
+        
         allHigh = initial.getHighValues();
         allLow = initial.getLowValues();
         allClose = initial.getCloseValues();
-        allVolume = initial.getVolumeValues();
+        
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.adOscLookback(fastPeriod, slowPeriod);
-        core.adOsc(0, count-1, allHigh, allLow, allClose, allVolume, fastPeriod, slowPeriod, outBegIdx, outNbElement, output);
+        lookback = core.adxLookback(period);
+        core.adx(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
