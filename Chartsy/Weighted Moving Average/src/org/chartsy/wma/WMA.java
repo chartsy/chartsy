@@ -3,18 +3,18 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.avgdirectionalindex;
+package org.chartsy.wma;
 
 import com.tictactec.ta.lib.Core;
+import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import org.chartsy.main.ChartFrame;
-import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
@@ -25,18 +25,19 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- * The Average Directional Index by Welles Wilder
- * 
+ * The Weighted Moving Average
+ *
  * @author joshua.taylor
  */
-public class ADX extends Indicator{
+public class WMA extends Overlay
+{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Average Directional Index (ADX)";
-    public static final String ABBREV = "adx";
 
+    public static final String FULL_NAME = "Weighted MA";
+    public static final String ABBREV = "wma";
 
-    private IndicatorProperties properties;
+    private OverlayProperties properties;
 
     //variables for TA-Lib utilization
     private int lookback;
@@ -45,82 +46,50 @@ public class ADX extends Indicator{
     private transient MInteger outNbElement;
     private transient Core core;
 
-    //variables specific to Average Directional Index
+    //variables specific this moving average type
     int period = 0;
-    private double[] allHigh;
-    private double[] allLow;
-    private double[] allClose;
-    
+
     //the next variable is used for fast calculations
     private Dataset calculatedDataset;
 
-    public ADX() {
+    public WMA()
+    {
         super();
-        properties = new IndicatorProperties();
+        properties = new OverlayProperties();
     }
 
-    @Override
-    public String getName(){ return FULL_NAME;}
+    public String getName()
+    { return FULL_NAME; }
 
-    @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel()
+    { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 
-    @Override
-    public String getPaintedLabel(ChartFrame cf){ return ""; }
+    public Overlay newInstance()
+    { return new WMA(); }
 
-    @Override
-    public Indicator newInstance(){ return new ADX(); }
+    public Color[] getColors()
+    { return new Color[] {properties.getColor()}; }
 
-    @Override
-    public boolean hasZeroLine(){ return false; }
+    public boolean getMarkerVisibility()
+    { return properties.getMarker(); }
 
-    @Override
-    public boolean getZeroLineVisibility(){ return false; }
+    public AbstractNode getNode()
+    { return new OverlayNode(properties); }
 
-    @Override
-    public Color getZeroLineColor(){ return null; }
+    public String getPrice()
+    { return properties.getPrice(); }
 
-    @Override
-    public Stroke getZeroLineStroke(){ return null; }
-
-    @Override
-    public boolean hasDelimiters(){ return false; }
-
-    @Override
-    public boolean getDelimitersVisibility(){ return false; }
-
-    @Override
-    public double[] getDelimitersValues(){ return new double[] {}; }
-
-    @Override
-    public Color getDelimitersColor(){ return null; }
-
-    @Override
-    public Stroke getDelimitersStroke(){ return null; }
-
-    @Override
-    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
-
-    @Override
-    public boolean getMarkerVisibility(){ return properties.getMarker(); }
-
-    @Override
-    public AbstractNode getNode(){ return new IndicatorNode(properties); }
-
-    @Override
-    public LinkedHashMap getHTML(ChartFrame cf, int i)
-    {
+    public LinkedHashMap getHTML(ChartFrame cf, int i) {
         LinkedHashMap ht = new LinkedHashMap();
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"ADX:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
             for (int j = 0; j < values.length; j++) {
-                ht.put(getFontHTML(colors[j], labels[j]),
+                ht.put(getFontHTML(colors[j], "WMA:"),
                         getFontHTML(colors[j], df.format(values[j])));
             }
         }
@@ -128,43 +97,36 @@ public class ADX extends Indicator{
         return ht;
     }
 
-    @Override
-    public Range getRange(ChartFrame cf)
-    { return new Range(0, 100); }
-
-    @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
-        if (dataset != null)
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
         {
-            if(maximized)
-            {
-                Range range = getRange(cf);
-                DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke()); // paint line
-            }
+            Range range = cf.getSplitPanel().getChartPanel().getRange();
+            DefaultPainter.line(g, cf, range, bounds, d, properties.getColor(), properties.getStroke(), Dataset.getPrice(properties.getPrice()));
         }
     }
 
-    @Override
     public double[] getValues(ChartFrame cf)
     {
         Dataset d = visibleDataset(cf, ABBREV);
-        if (d != null)
-            return new double[] {d.getLastClose()};
+        if (d != null) {
+            int price = Dataset.getPrice(properties.getPrice());
+            return new double[] {d.getLastPrice(price)};
+        }
         return new double[] {};
     }
 
-    @Override
     public double[] getValues(ChartFrame cf, int i)
     {
         Dataset d = visibleDataset(cf, ABBREV);
-        if (d != null)
-            return new double[] {d.getCloseAt(i)};
+        if (d != null) {
+            String price = properties.getPrice();
+            return new double[] {d.getPriceAt(i, price)};
+        }
         return new double[] {};
     }
 
-    @Override
     public void calculate()
     {
         Dataset initial = getDataset();
@@ -188,16 +150,12 @@ public class ADX extends Indicator{
 
         //[your specific indicator variables need to be set first]
         period = properties.getPeriod();
-        
-        allHigh = initial.getHighValues();
-        allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
-        
+
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.adxLookback(period);
-        core.adx(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
+        lookback = core.movingAverageLookback(period, MAType.Wma);
+        core.wma(0, count-1, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -214,4 +172,5 @@ public class ADX extends Indicator{
 
         addDataset(ABBREV, calculatedDataset);
     }
+
 }
