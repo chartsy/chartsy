@@ -68,7 +68,7 @@ public class Aroon extends Indicator
     { return FULL_NAME; }
 
     public String getLabel()
-    { return properties.getLabel(); }
+    { return properties.getLabel()+ " (" + properties.getPeriod() + ")"; }
 
     public String getPaintedLabel(ChartFrame cf)
     { return getLabel(); }
