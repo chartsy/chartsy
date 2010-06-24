@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.bop;
+package org.chartsy.cmo;
 
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
@@ -12,9 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.data.DataItem;
@@ -22,6 +20,7 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -30,14 +29,13 @@ import org.openide.nodes.AbstractNode;
  *
  * @author joshua.taylor
  */
-public class BOP extends Indicator
-{
+public class CMO extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
+    public static final String FULL_NAME = "Chande Momentum Oscillator (CMO)";
+    public static final String ABBREV = "cmo";
 
-    public static final String FULL_NAME = "Balance of Power";
-    public static final String ABBREV = "bophist";
-    
+
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
@@ -48,83 +46,63 @@ public class BOP extends Indicator
     private transient Core core;
 
     //variables specific to Average Directional Index
-    private double[] allOpen;
-    private double[] allHigh;
-    private double[] allLow;
-    private double[] allClose;
+    int period = 0;
 
     //the next variable is used for fast calculations
     private Dataset calculatedDataset;
 
-    public BOP()
-    {
+    public CMO() {
         super();
         properties = new IndicatorProperties();
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel()
-    { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance()
-    { return new BOP(); }
+    public Indicator newInstance(){ return new CMO(); }
 
     @Override
-    public boolean hasZeroLine()
-    { return true; }
+    public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return properties.getZeroLineVisibility(); }
+    public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor()
-    { return properties.getZeroLineColor(); }
+    public Color getZeroLineColor(){ return new Color(0xbbbbbb); }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return properties.getZeroLineStroke(); }
+    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
 
     @Override
-    public boolean hasDelimiters()
-    { return false; }
+    public boolean hasDelimiters(){ return true; }
 
     @Override
-    public boolean getDelimitersVisibility()
-    { return false; }
+    public boolean getDelimitersVisibility(){ return true; }
 
     @Override
-    public double[] getDelimitersValues()
-    { return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {-50d, 50d}; }
 
     @Override
-    public Color getDelimitersColor()
-    { return null; }
+    public Color getDelimitersColor(){ return new Color(0xbbbbbb); }
 
     @Override
-    public Stroke getDelimitersStroke()
-    { return null; }
+    public Stroke getDelimitersStroke(){ return StrokeGenerator.getStroke(1); }
 
     @Override
-    public Color[] getColors()
-    {  return new Color[] {properties.getHistogramPositiveColor(), properties.getHistogramNegativeColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -133,16 +111,14 @@ public class BOP extends Indicator
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"BOP:"};
+        String[] labels = {"CMO:"};
 
         ht.put(getLabel(), " ");
-        if (values.length > 0)
-        {
+        if (values.length > 0) {
             Color[] colors = getColors();
-            colors[0] = values[0] > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
-            for (int j = 0; j < values.length; j++)
-            {
-                ht.put(getFontHTML(colors[j], labels[j]), getFontHTML(colors[j], df.format(values[j])));
+            for (int j = 0; j < values.length; j++) {
+                ht.put(getFontHTML(colors[j], labels[j]),
+                        getFontHTML(colors[j], df.format(values[j])));
             }
         }
 
@@ -151,25 +127,20 @@ public class BOP extends Indicator
 
     @Override
     public Range getRange(ChartFrame cf)
-    {
-        Range range = super.getRange(cf);
-        double d = Math.max(Math.abs(range.getLowerBound()), Math.abs(range.getUpperBound()));
-        return new Range(-1*d, d);
-    }
-
+    { return new Range(-100, 100); }
 
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
-
-        if (histogram != null)
+        Dataset dataset = visibleDataset(cf, ABBREV);
+        if (dataset != null)
         {
-            if (maximized)
+            if(maximized)
             {
                 Range range = getRange(cf);
-
-                DefaultPainter.histogram(g, cf, range, bounds, histogram, properties.getHistogramPositiveColor(), properties.getHistogramNegativeColor()); // paint the histogram
+                DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke()); // paint line
+                paintFill(g, cf, dataset, bounds, range, properties.getInsideTransparentLowColor(), -100d, -50d, false); // paint fill
+                paintFill(g, cf, dataset, bounds, range, properties.getInsideTransparentHighColor(), 50d, 100d, true); // paint fill
             }
         }
     }
@@ -177,52 +148,19 @@ public class BOP extends Indicator
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
-
-        int i = histogram.getLastIndex();
-        double[] values = new double[1];
-        values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
-
-        return values;
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getLastClose()};
+        return new double[] {};
     }
 
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
-
-        double[] values = new double[1];
-        values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
-        return values;
-    }
-
-    @Override
-    public Double[] getPriceValues(ChartFrame cf)
-    {
-        List<Double> list = new ArrayList<Double>();
-
-        Range range = getRange(cf);
-
-        if (range.getUpperBound() >= 1)
-        {
-            int step = (int) (range.getUpperBound() / 3) + 1;
-            for (int i = step; i <= range.getUpperBound(); i+=step)
-            {
-                list.add(new Double(i));
-                list.add(new Double(-1*i));
-            }
-        }
-        else
-        {
-            double step = (range.getUpperBound() > 0.5) ? 0.25 : 0.15;
-            for (double i = step; i <= range.getUpperBound(); i+=step)
-            {
-                list.add(new Double(i));
-                list.add(new Double(-1*i));
-            }
-        }
-
-        return list.toArray(new Double[list.size()]);
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getCloseAt(i)};
+        return new double[] {};
     }
 
     @Override
@@ -248,17 +186,13 @@ public class BOP extends Indicator
         core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
-        allOpen = initial.getOpenValues();
-        allHigh = initial.getHighValues();
-        allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
+        period = properties.getPeriod();
 
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.bopLookback();
-        core.bop(0, count-1, allOpen, allHigh, allLow, allClose, outBegIdx, outNbElement, output);
-
+        lookback = core.cmoLookback(period);
+        core.cmo(0, count-1, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
         /**********************************************************************/
@@ -274,6 +208,5 @@ public class BOP extends Indicator
 
         addDataset(ABBREV, calculatedDataset);
     }
-
 
 }
