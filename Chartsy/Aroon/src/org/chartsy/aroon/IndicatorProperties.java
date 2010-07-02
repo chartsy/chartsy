@@ -24,33 +24,23 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public static int PERIOD = 10;//standard Aroon period value mostly
 
-    public static Color THIRTY_LINE_COLOR = new Color(0xeeeeec);
-    public static int THIRTY_LINE_STROKE_INDEX = 0;
     public static boolean THIRTY_LINE_VISIBLE = true;
-    public static Color FIFTY_LINE_COLOR = new Color(0xeeeeec);
-    public static int FIFTY_LINE_STROKE_INDEX = 0;
     public static boolean FIFTY_LINE_VISIBLE = true;
-    public static Color SEVENTY_LINE_COLOR = new Color(0xeeeeec);
-    public static int SEVENTY_LINE_STROKE_INDEX = 0;
     public static boolean SEVENTY_LINE_VISIBLE = true;
-    public static Color UP_TREND_LINE_COLOR = new Color(0x5c3566);
+    public static final Color UP_TREND_LINE_COLOR = new Color(0x5c3566);
     public static int UP_TREND_STROKE_INDEX = 0;
-    public static Color DOWN_TREND_LINE_COLOR = new Color(0x4e9a06);
+    public static final Color DOWN_TREND_LINE_COLOR = new Color(0x4e9a06);
     public static int DOWN_TREND_STROKE_INDEX = 0;
+    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
 
     private String label = LABEL;
     private boolean marker = MARKER;
     private int period = PERIOD;
-    private int thirtyLineStrokeIndex = THIRTY_LINE_STROKE_INDEX;
-    private boolean thirtyLineVisible = THIRTY_LINE_VISIBLE;
-    private int fiftyLineStrokeIndex = FIFTY_LINE_STROKE_INDEX;
-    private boolean fiftyLineVisible = FIFTY_LINE_VISIBLE;
-    private int seventyLineStrokeIndex = SEVENTY_LINE_STROKE_INDEX;
-    private boolean seventyLineVisible = SEVENTY_LINE_VISIBLE;
     private int upTrendStrokeIndex = UP_TREND_STROKE_INDEX;
     private int downTrendStrokeIndex = DOWN_TREND_STROKE_INDEX;
     private Color downTrendColor = DOWN_TREND_LINE_COLOR;
     private Color upTrendColor = UP_TREND_LINE_COLOR;
+    private Color delimiterColor = DELIMITER_COLOR;
 
     public IndicatorProperties() {}
 
@@ -78,6 +68,10 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public Color getUpTrendColor() {return upTrendColor; }
     public void setUpTrendColor(Color upTrendColor) {this.upTrendColor = upTrendColor; }
+
+    public Color getDelimiterColor() {return delimiterColor; }
+    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
+
     
 
 }

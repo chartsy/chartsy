@@ -22,7 +22,7 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public static String LABEL = "BOP";
     public static boolean MARKER = true;
-    public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
+    public static Color ZERO_LINE_COLOR = new Color(0x000000);
     public static int ZERO_LINE_STROKE_INDEX = 0;
     public static boolean ZERO_LINE_VISIBILITY = true;
     public static Color HISTOGRAM_POSITIVE_COLOR = new Color(0x73880A);

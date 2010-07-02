@@ -35,7 +35,6 @@ public class Aroon extends Indicator
 
     public static int PERIOD = 10;
     public static final String FULL_NAME = "Aroon";
-    //public static final String ABBREV = "aroon";
     public static final String UP_LINE = "upline";
     public static final String DOWN_LINE = "downline";
 
@@ -98,7 +97,7 @@ public class Aroon extends Indicator
     { return new double[] {30d, 50d, 70d}; }
 
     public Color getDelimitersColor()
-    { return new Color(0xbbbbbb); }
+    { return properties.getDelimiterColor(); }
 
     public Stroke getDelimitersStroke()
     { return StrokeGenerator.getStroke(1); }

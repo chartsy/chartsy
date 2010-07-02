@@ -20,6 +20,7 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -84,19 +85,19 @@ public class ADXR extends Indicator{
     public Stroke getZeroLineStroke(){ return null; }
 
     @Override
-    public boolean hasDelimiters(){ return false; }
+    public boolean hasDelimiters(){ return true; }
 
     @Override
-    public boolean getDelimitersVisibility(){ return false; }
+    public boolean getDelimitersVisibility(){ return true; }
 
     @Override
-    public double[] getDelimitersValues(){ return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {50d}; }
 
     @Override
-    public Color getDelimitersColor(){ return null; }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
     @Override
-    public Stroke getDelimitersStroke(){ return null; }
+    public Stroke getDelimitersStroke(){ return StrokeGenerator.getStroke(1); }
 
     @Override
     public Color[] getColors(){ return new Color[] {properties.getColor()}; }

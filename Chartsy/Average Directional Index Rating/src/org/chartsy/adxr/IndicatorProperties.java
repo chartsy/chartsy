@@ -23,12 +23,14 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final String LABEL = "ADXR";
     public static final boolean MARKER = true;
     public static final Color COLOR = new Color(0x4e9a06);
+    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
     public static int STROKE_INDEX = 0;
     public static int DEFAULT_PERIOD = 14;//standard default according to W. Wilder
 
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color color = COLOR;
+    private Color delimiterColor = DELIMITER_COLOR;
     private int strokeIndex = STROKE_INDEX;
 
     private int period = DEFAULT_PERIOD;//standard default according to W. Wilder
@@ -51,5 +53,8 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getDelimiterColor() {return delimiterColor; }
+    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
 
 }

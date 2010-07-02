@@ -26,11 +26,13 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static int STROKE_INDEX = 0;
     public static int DEFAULT_FAST_PERIOD = 3;
     public static int DEFAULT_SLOW_PERIOD = 10;
+    public static final Color ZERO_LINE_COLOR = new Color (0xbbbbbb);
 
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
+    private Color zeroLineColor = ZERO_LINE_COLOR;
 
     private int fastPeriod = DEFAULT_FAST_PERIOD;//standard default according to Chaikin
     private int slowPeriod = DEFAULT_SLOW_PERIOD;//standard default according to Chaikin
@@ -56,4 +58,8 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getZeroLineColor() {return zeroLineColor; }
+    public void setZeroLineColor(Color zeroLineColor) {this.zeroLineColor = zeroLineColor; }
+
 }

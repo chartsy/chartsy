@@ -80,7 +80,7 @@ public class ADOscillator extends Indicator{
     public boolean getZeroLineVisibility(){ return false; }
 
     @Override
-    public Color getZeroLineColor(){ return null; }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
     public Stroke getZeroLineStroke(){ return null; }
