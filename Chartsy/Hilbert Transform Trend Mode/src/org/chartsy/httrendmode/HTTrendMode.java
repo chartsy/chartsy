@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.htsine;
+package org.chartsy.httrendmode;
 
 import com.tictactec.ta.lib.Core;
 import com.tictactec.ta.lib.MInteger;
@@ -20,30 +20,28 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- * The Hilbert Transform Sine Indicator
+ * The Hilbert Transform Trend Mode Indicator
  *
  * @author joshua.taylor
  */
-public class HTSine extends Indicator{
+public class HTTrendMode extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Hilbert Transform Sine";
-    public static final String SINE = "htsine";
-    public static final String LEAD_SINE = "htleadsine";
+    public static final String FULL_NAME = "Hilbert Transform Trend Mode";
+    public static final String ABBREV = "httrendmode";
 
 
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
     private int lookback;
-    private double[] outputSine;
-    private double[] outputLeadSine;
+    private double[] output;
+    private int[] outInteger;
     private transient MInteger outBegIdx;
     private transient MInteger outNbElement;
     private transient Core core;
@@ -52,10 +50,9 @@ public class HTSine extends Indicator{
     //NONE...
 
     //the next variable is used for fast calculations
-    private Dataset calculatedDatasetSine;
-    private Dataset calculatedDatasetLeadSine;
+    private Dataset calculatedDataset;
 
-    public HTSine() {
+    public HTTrendMode() {
         super();
         properties = new IndicatorProperties();
     }
@@ -70,22 +67,22 @@ public class HTSine extends Indicator{
     public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance(){ return new HTSine(); }
+    public Indicator newInstance(){ return new HTTrendMode(); }
 
     @Override
-    public boolean hasZeroLine(){ return true; }
+    public boolean hasZeroLine(){ return false; }
 
     @Override
-    public boolean getZeroLineVisibility(){ return true; }
+    public boolean getZeroLineVisibility(){ return false; }
 
     @Override
-    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
+    public Color getZeroLineColor(){ return null; }
 
     @Override
-    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke(){ return null; }
 
     @Override
-    public boolean hasDelimiters(){ return true; }
+    public boolean hasDelimiters(){ return false; }
 
     @Override
     public boolean getDelimitersVisibility(){ return false; }
@@ -100,7 +97,7 @@ public class HTSine extends Indicator{
     public Stroke getDelimitersStroke(){ return null; }
 
     @Override
-    public Color[] getColors(){ return new Color[] {properties.getSineLineColor(), properties.getLeadSineLineColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     @Override
     public boolean getMarkerVisibility(){ return properties.getMarker(); }
@@ -115,15 +112,14 @@ public class HTSine extends Indicator{
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"In Phase:", "Quadrature:"};
+        String[] labels = {"Hilbert Transform Trend Mode:"};
 
         ht.put(getLabel(), " ");
-        if (values.length > 0)
-        {
+        if (values.length > 0) {
             Color[] colors = getColors();
-            for (int j = 0; j < values.length; j++)
-            {
-                ht.put(getFontHTML(colors[j], labels[j]), getFontHTML(colors[j], df.format(values[j])));
+            for (int j = 0; j < values.length; j++) {
+                ht.put(getFontHTML(colors[j], labels[j]),
+                        getFontHTML(colors[j], df.format(values[j])));
             }
         }
 
@@ -140,17 +136,13 @@ public class HTSine extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset inPhase = visibleDataset(cf, SINE);
-        Dataset quadrature = visibleDataset(cf, LEAD_SINE);
-
-        if (inPhase != null && quadrature != null)
+        Dataset dataset = visibleDataset(cf, ABBREV);
+        if (dataset != null)
         {
-            if (maximized)
+            if(maximized)
             {
                 Range range = getRange(cf);
-
-                DefaultPainter.line(g, cf, range, bounds, inPhase, properties.getSineLineColor(), properties.getSineLineStroke()); // paint the signal
-                DefaultPainter.line(g, cf, range, bounds, quadrature, properties.getLeadSineLineColor(), properties.getLeadSineLineStroke()); // paint the MACD
+                DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke()); // paint line
             }
         }
     }
@@ -158,37 +150,19 @@ public class HTSine extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset inPhase = visibleDataset(cf, SINE);
-        Dataset quadrature = visibleDataset(cf, LEAD_SINE);
-
-        double[] values = new double[2];
-
-        if(inPhase != null && quadrature != null){
-            values[0] = inPhase.getLastClose();
-            values[1] = quadrature.getLastClose();
-        }
-        else
-            return new double[] {,};
-
-        return values;
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getLastClose()};
+        return new double[] {};
     }
 
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset inPhase = visibleDataset(cf, SINE);
-        Dataset quadrature = visibleDataset(cf, LEAD_SINE);
-
-        double[] values = new double[2];
-
-        if(inPhase != null && quadrature != null){
-            values[0] = inPhase.getDataItem(i) != null ? inPhase.getCloseAt(i) : 0;
-            values[1] = quadrature.getDataItem(i) != null ? quadrature.getCloseAt(i) : 0;
-        }
-        else
-            return new double[] {,};
-
-        return values;
+        Dataset d = visibleDataset(cf, ABBREV);
+        if (d != null)
+            return new double[] {d.getCloseAt(i)};
+        return new double[] {};
     }
 
     @Override
@@ -208,8 +182,8 @@ public class HTSine extends Indicator{
         //basically the same
 
         //prepare ta-lib variables
-        outputSine = new double[count];
-        outputLeadSine = new double[count];
+        output = new double[count];
+        outInteger = new int[count];
         outBegIdx = new MInteger();
         outNbElement = new MInteger();
         core = TaLibInit.getCore();//needs to be here for serialization issues
@@ -220,9 +194,8 @@ public class HTSine extends Indicator{
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.htSineLookback();
-        core.htSine(0, count-1, initial.getCloseValues(), outBegIdx, outNbElement, outputSine, outputLeadSine);
-
+        lookback = core.htTrendModeLookback();
+        core.htTrendMode(0, count-1, initial.getCloseValues(), outBegIdx, outNbElement, outInteger);
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
         /**********************************************************************/
@@ -230,19 +203,20 @@ public class HTSine extends Indicator{
         //fix the output array's structure. TA-Lib does NOT match
         //indicator index and dataset index automatically. That's what
         //this function does for us.
-        outputSine = TaLibUtilities.fixOutputArray(outputSine, lookback);
-        outputLeadSine = TaLibUtilities.fixOutputArray(outputLeadSine, lookback);
+        
+        
+        //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        //Little trick here on this particular indicator
+        //
+        //You need to turn an int[] into a double[]. That's the next line of 
+        //code. outInteger(int[]) is being turned into out output(double[])
+        output = TaLibUtilities.fixOutputArray(outInteger, lookback);
 
-        calculatedDatasetSine = Dataset.EMPTY(initial.getItemsCount());
-        for (int i = 0; i < outputSine.length; i++)
-            calculatedDatasetSine.setDataItem(i, new DataItem(initial.getTimeAt(i), outputSine[i]));
+        calculatedDataset = Dataset.EMPTY(initial.getItemsCount());
+        for (int i = 0; i < output.length; i++)
+            calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        calculatedDatasetLeadSine = Dataset.EMPTY(initial.getItemsCount());
-        for (int i = 0; i < outputLeadSine.length; i++)
-            calculatedDatasetLeadSine.setDataItem(i, new DataItem(initial.getTimeAt(i), outputLeadSine[i]));
-
-        addDataset(SINE, calculatedDatasetSine);
-        addDataset(LEAD_SINE, calculatedDatasetLeadSine);
+        addDataset(ABBREV, calculatedDataset);
     }
 
 }

@@ -32,7 +32,7 @@ import org.openide.nodes.AbstractNode;
 public class HTPhasor extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Hilbert Transform Phasor (HT-DC Phasor)";
+    public static final String FULL_NAME = "Hilbert Transform InPhase Quadrature";
     public static final String IN_PHASE = "htdcphasorinphase";
     public static final String QUADRATURE = "htdcphasorquadrature";
 

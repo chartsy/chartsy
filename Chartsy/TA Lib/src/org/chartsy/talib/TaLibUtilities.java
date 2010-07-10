@@ -23,6 +23,19 @@ public class TaLibUtilities {
         return tempOutput;
     }
 
+    public static double[] fixOutputArray(int[] outArray, int lookback){
+        double tempOutput[] = new double[outArray.length];
+        int j = 0;
+        for (int i = 0; i < tempOutput.length; i++) {
+            if(i<lookback)
+                tempOutput[i] = 0.0;
+            if(i>=lookback)
+                tempOutput[i] = (double)outArray[j++];
+        }
+        
+        return tempOutput;
+    }
+
     public static void showOutputArray(double[] outputArray){
         System.out.println("The output array is as follows:");
         for (int i = 0; i < outputArray.length; i++) {
