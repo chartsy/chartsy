@@ -1,69 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Actions">
         <folder name="Window">
-            <file name="org-chartsy-favorites-FavoritesAction.instance">
-                <attr name="component" methodvalue="org.chartsy.favorites.FavoritesComponent.findDefault"/>
-                <attr name="displayName" bundlevalue="org.chartsy.favorites.Bundle#CTL_FavoritesAction"/>
-                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            <file name="org-chartsy-favorites-OpenFavorites.instance">
+                <attr name="delegate" newvalue="org.chartsy.favorites.OpenFavorites"/>
+                <attr name="displayName" bundlevalue="org.chartsy.favorites.Bundle#CTL_OpenFavorites"/>
+                <attr name="iconBase" stringvalue="org/chartsy/main/resources/favorites.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
             </file>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="Window">
-            <file name="FavoritesAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-chartsy-favorites-FavoritesAction.instance"/>
+            <file name="org-chartsy-favorites-OpenFavorites.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-chartsy-favorites-OpenFavorites.instance"/>
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="org-chartsy-favorites-OpenFavorites.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-chartsy-favorites-OpenFavorites.instance"/>
+                <attr name="position" intvalue="75"/>
             </file>
         </folder>
     </folder>
     <folder name="Windows2">
         <folder name="Components">
-            <file name="FavoritesComponent.settings" url="FavoritesComponentSettings.xml"/>
+            <file name="FavoritesComponent.settings" url="component.settings"/>
         </folder>
         <folder name="Modes">
-            <folder name="explorer">
-                <file name="FavoritesComponent.wstcref" url="FavoritesComponentWstcref.xml"/>
+            <folder name="leftSlidingSide">
+                <file name="FavoritesComponent.wstcref" url="favorites.wstcref"/>
             </folder>
         </folder>
-    </folder>
-    <folder name="FavoritesDefaults">
-        <folder name="Stocks">
-            <file name="AAPL">
-                <attr name="lastValue" doublevalue="0.0" />
-                <attr name="change" doublevalue="0.0"/>
-                <attr name="percent" doublevalue="0.0"/>
-            </file>
-            <file name="GOOG">
-                <attr name="lastValue" doublevalue="0.0" />
-                <attr name="change" doublevalue="0.0"/>
-                <attr name="percent" doublevalue="0.0"/>
-            </file>
-            <file name="MSFT">
-                <attr name="lastValue" doublevalue="0.0" />
-                <attr name="change" doublevalue="0.0"/>
-                <attr name="percent" doublevalue="0.0"/>
-            </file>
-            <file name="GAIA">
-                <attr name="lastValue" doublevalue="0.0" />
-                <attr name="change" doublevalue="0.0"/>
-                <attr name="percent" doublevalue="0.0"/>
-            </file>
-        </folder>
-        <folder name="Market Internals"></folder>
-        <folder name="E-Minis"></folder>
-        <folder name="Index"></folder>
-        <folder name="MRSWING-1-2-3-4 Long"></folder>
-        <folder name="MRSWING-1-2-3-4 Short"></folder>
-        <folder name="MRSWING-REVERSALS Long"></folder>
-        <folder name="MRSWING-REVERSALS Short"></folder>
-        <folder name="NYSE Most Active"></folder>
-        <folder name="NASDAQ Most Active"></folder>
-        <folder name="AMEX Most Active"></folder>
-        <folder name="Gap Open Up"></folder>
-        <folder name="Gap Open Down"></folder>
-        <folder name="Money Mover"></folder>
-        <folder name="Big Range"></folder>
-        <folder name="Scans"></folder>
     </folder>
 </filesystem>

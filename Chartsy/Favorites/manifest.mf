@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.chartsy.favorites
+OpenIDE-Module-Install: org/chartsy/favorites/Installer.class
 OpenIDE-Module-Layer: org/chartsy/favorites/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/chartsy/favorites/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.2.0.5
+OpenIDE-Module-Specification-Version: 1.3.0
 

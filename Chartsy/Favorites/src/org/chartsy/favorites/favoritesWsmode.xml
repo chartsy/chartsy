@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mode PUBLIC
+          "-//NetBeans//DTD Mode Properties 2.0//EN"
+          "http://www.netbeans.org/dtds/mode-properties2_0.dtd">
+
+<mode version="2.3">
+    <name unique="leftSlidingSideFavorites" />
+    <kind type="sliding" />
+    <slidingSide side="left" />
+    <relative-bounds x="10" y="18" width="0" height="0" />
+    <empty-behavior permanent="true" />
+</mode>

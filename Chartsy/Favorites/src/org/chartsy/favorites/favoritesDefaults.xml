@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<favorites>
+    <stock>
+        <companyName>S&amp;P 100 INDEX</companyName>
+        <symbol>^OEX</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>Apple Inc.</companyName>
+        <symbol>AAPL</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>American International Group, I</companyName>
+        <symbol>AIG</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>Deutsche Bank AG Common Stock</companyName>
+        <symbol>DB</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>Google Inc.</companyName>
+        <symbol>GOOG</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>International Business Machines</companyName>
+        <symbol>IBM</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>Intuitive Surgical, Inc.</companyName>
+        <symbol>ISRG</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>Microsoft Corporation</companyName>
+        <symbol>MSFT</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>PowerShares Exchange-Traded Fun</companyName>
+        <symbol>QQQQ</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+    <stock>
+        <companyName>United States Oil Fund, LP ETF</companyName>
+        <symbol>USO</symbol>
+        <exchange></exchange>
+        <dataProvider>Yahoo</dataProvider>
+    </stock>
+</favorites>
