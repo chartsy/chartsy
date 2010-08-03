@@ -30,7 +30,6 @@ import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.DateCompare;
-import org.chartsy.main.data.Exchange;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.data.StockNode;
 import org.chartsy.main.data.StockSet;
@@ -41,6 +40,7 @@ import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.URLChecker;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
 /**
@@ -55,7 +55,7 @@ public class MrSwing
 
     public MrSwing()
     {
-        super(NAME, EXCHANGES, false);
+		super(NbBundle.getBundle(MrSwing.class), false);
         usedCookies.clear();
         usedCookies.add("PHPSESSID");
         usedCookies.add("amember_nr");
@@ -439,7 +439,6 @@ public class MrSwing
     public StockSet getAutocomplete(String text)
     {
         String url = getAutocompleteURL(text);
-        LOG.log(Level.INFO, url);
         StockSet result = new StockSet();
 
         BufferedReader in = null;
@@ -475,61 +474,54 @@ public class MrSwing
 
     private String getStockURL(Stock stock)
     {
-        String url = STOCK_URL;
-
         try
         {
-            url = url.replace("{0}", URLEncoder.encode(stock.getKey(), "UTF-8"));
+			return NbBundle.getMessage(MrSwing.class, "Stock_URL", URLEncoder.encode(stock.getKey(), "UTF-8"));
         }
         catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
-        return url;
+        return NbBundle.getMessage(MrSwing.class, "Stock_URL", stock.getKey());
     }
 
     private String getDataURL(Stock stock, Interval interval)
     {
-        String url = DATA_URL;
-
         try
         {
-            url = url.replace("{0}", URLEncoder.encode(stock.getKey(), "UTF-8"));
-            url = url.replace("{1}", URLEncoder.encode(interval.getTimeParam(), "UTF-8"));
+			return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
+			{
+				URLEncoder.encode(stock.getKey(), "UTF-8"),
+				URLEncoder.encode(interval.getTimeParam(), "UTF-8")
+			});
         }
         catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
-        return url;
+        return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[] 
+		{
+			stock.getKey(),
+			interval.getTimeParam()
+		});
     }
 
     private String getAutocompleteURL(String word)
     {
-        String url = AUTOCOMPLETE_URL;
-
         try
         {
-            url = url.replace("{0}", URLEncoder.encode(word, "UTF-8"));
+			return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", URLEncoder.encode(word, "UTF-8"));
         }
         catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
-        return url;
+        return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", word);
     }
 
     private List<String> usedCookies = new ArrayList<String>();
-    private static final String AUTOCOMPLETE_URL = "http://www.mrswing.com/chartsy/symbolsearch.php?q={0}";
-    private static final String STOCK_URL = "http://www.mrswing.com/chartsy/companyname.php?symbol={0}";
-    private static final String DATA_URL = "http://www.mrswing.com/chartsy/history.php?symbol={0}&t={1}";
-    private static final String NAME = "MrSwing";
-    private static final Exchange[] EXCHANGES =
-    {
-        new Exchange("Default")
-    };
 
 }
