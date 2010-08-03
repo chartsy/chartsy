@@ -1,0 +1,197 @@
+<!DOCTYPE codetemplates PUBLIC  "-//NetBeans//DTD Editor Code Templates settings 1.0//EN" "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd">
+
+<codetemplates>
+
+    <codetemplate abbreviation="op">
+        <code>
+<![CDATA[open() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="cl">
+        <code>
+<![CDATA[close() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="hi">
+        <code>
+<![CDATA[high() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="lo">
+        <code>
+<![CDATA[low() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="vo">
+        <code>
+<![CDATA[volume() ]]>
+        </code>
+    </codetemplate>
+    
+    <codetemplate abbreviation="sp">
+        <code>
+<![CDATA[spread() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="bb">
+        <code>
+<![CDATA[body_bottom() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="bt">
+        <code>
+<![CDATA[body_top() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="mi">
+        <code>
+<![CDATA[min(close, 5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="ma">
+        <code>
+<![CDATA[ma(close, 5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="bl">
+        <code>
+<![CDATA[bollinger_lower(close, 20, 200) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="bm">
+        <code>
+<![CDATA[bollinger_middle(close, 20) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="bu">
+        <code>
+<![CDATA[bollinger_upper(close, 20, 200) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="cc">
+        <code>
+<![CDATA[cci(10) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="ce">
+        <code>
+<![CDATA[cci_ema(20, 15) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="pd">
+        <code>
+<![CDATA[pdi(14) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="md">
+        <code>
+<![CDATA[mdi(14) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="adx">
+        <code>
+<![CDATA[adx(14) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="em">
+        <code>
+<![CDATA[ema(close, 5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="sm">
+        <code>
+<![CDATA[sma(close, 5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="at">
+        <code>
+<![CDATA[atr(14) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="fi">
+        <code>
+<![CDATA[force_index(13) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="mac">
+        <code>
+<![CDATA[macd(12, 26) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="ms">
+        <code>
+<![CDATA[macd_signal(12, 26, 9) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="mh">
+        <code>
+<![CDATA[macd_histogram(12, 26, 9) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="mf">
+        <code>
+<![CDATA[money_flow() ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="mfa">
+        <code>
+<![CDATA[money_flow_avg(5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="obv">
+        <code>
+<![CDATA[on_balance_volume(5) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="rs">
+        <code>
+<![CDATA[rsi(14) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="sk">
+        <code>
+<![CDATA[sto_k(14, 3) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="sd">
+        <code>
+<![CDATA[sto_d(14, 3, 3) ]]>
+        </code>
+    </codetemplate>
+
+    <codetemplate abbreviation="uo">
+        <code>
+<![CDATA[ultimate_oscillator() ]]>
+        </code>
+    </codetemplate>
+
+</codetemplates>

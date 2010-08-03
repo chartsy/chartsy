@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mode PUBLIC
+          "-//NetBeans//DTD Mode Properties 2.0//EN"
+          "http://www.netbeans.org/dtds/mode-properties2_0.dtd">
+
+<mode version="2.3">
+    <name unique="undockedEditor" />
+    <kind type="editor" />
+    <state type="separated" />
+    <bounds x="50" y="50" width="600" height="400" />
+    <frame state="0"/>
+    <empty-behavior permanent="true" />
+</mode>

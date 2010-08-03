@@ -3,8 +3,8 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Tools">
-            <file name="org-chartsy-stockscanpro-StockScreenerAction.instance">
-                <attr name="delegate" newvalue="org.chartsy.stockscanpro.StockScreenerAction"/>
+            <file name="org-chartsy-stockscanpro-actions-StockScreenerAction.instance">
+                <attr name="delegate" newvalue="org.chartsy.stockscanpro.actions.StockScreenerAction"/>
                 <attr name="displayName" bundlevalue="org.chartsy.stockscanpro.Bundle#CTL_StockScreener"/>
                 <attr name="iconBase" stringvalue="org/chartsy/stockscanpro/resources/stock.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -12,25 +12,106 @@
             </file>
         </folder>
     </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-scan">
+                
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.chartsy.stockscanpro.lexer.api.ScanTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+
+                <file name="EditorKit.instance">
+                    <attr name="instanceCreate" methodvalue="org.chartsy.stockscanpro.lexer.ScanEditorKit.create"/>
+                    <attr name="instanceClass" stringvalue="org.chartsy.stockscanpro.lexer.ScanEditorKit"/>
+                </file>
+
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-editor-java-token-colorings.xml" url="lexer/fontsColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.chartsy.stockscanpro.lexer.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+
+                <folder name="CompletionProviders">
+                    <file name="org-chartsy-stockscanpro-completion-ScanCompletionProvider.instance"/>
+                </folder>
+
+                <folder name="CodeTemplates">
+                    <folder name="Defaults">
+                        <file name="org-netbeans-modules-editor-java-codetemplates.xml" url="lexer/DefaultAbbrevs.xml">
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.chartsy.stockscanpro.lexer.Bundle"/>
+                        </file>
+                    </folder>
+                </folder>
+
+                <folder name="BracesMatchers">
+                    <file name="org-chartsy-stockscanpro-lexer-ScanBraceMatcher.instance">
+                        <attr name="position" intvalue="0"/>
+                    </file>
+                </folder>
+
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-scan">
+                <folder name="Actions">
+                </folder>
+                <folder name="Factories">
+                    <file name="ScanDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/chartsy/stockscanpro/resources/stock.png"/>
+                        <attr name="dataObjectClass" stringvalue="org.chartsy.stockscanpro.filetype.ScanDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="text/x-scan"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
     <folder name="Menu">
         <folder name="Tools">
-            <file name="org-chartsy-stockscanpro-StockScreener.shadow">
-                <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-StockScreenerAction.instance"/>
+            <file name="org-chartsy-stockscanpro-actions-StockScreener.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-actions-StockScreenerAction.instance"/>
                 <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="ScanResolver.xml" url="ScanResolver.xml">
+                <attr name="displayName" bundlevalue="org.chartsy.stockscanpro.Bundle#Services/MIMEResolver/ScanResolver.xml"/>
             </file>
         </folder>
     </folder>
     <folder name="Shortcuts">
         <file name="DS-S.shadow">
-            <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-StockScreenerAction.instance"/>
+            <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-actions-StockScreenerAction.instance"/>
         </file>
+    </folder>
+    <folder name="Templates">
+        <folder name="Other">
+            <file name="ScanTemplate.scn" url="ScanTemplate.scn">
+                <attr name="displayName" bundlevalue="org.chartsy.stockscanpro.Bundle#Templates/Other/ScanTemplate.scn"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
     </folder>
     <folder name="Toolbars">
         <folder name="File">
-            <file name="org-chartsy-stockscanpro-StockScreener.shadow">
-                <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-StockScreenerAction.instance"/>
+            <file name="org-chartsy-stockscanpro-actions-StockScreener.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-chartsy-stockscanpro-actions-StockScreenerAction.instance"/>
                 <attr name="position" intvalue="50"/>
             </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Modes">
+            <file name="undockedEditor.wsmode" url="editorWsmode.xml"/>
         </folder>
     </folder>
 </filesystem>
