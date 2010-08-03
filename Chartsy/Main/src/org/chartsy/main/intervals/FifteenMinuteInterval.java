@@ -14,6 +14,7 @@ public class FifteenMinuteInterval extends Interval implements Serializable {
 
     public FifteenMinuteInterval() {
         super("15 Min", true);
+		timeParam = "15";
     }
 
     public long startTime() {
@@ -23,29 +24,7 @@ public class FifteenMinuteInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "15";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof FifteenMinuteInterval))
-            return false;
-
-        FifteenMinuteInterval that = (FifteenMinuteInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
+        return timeParam;
     }
 
 }

@@ -34,7 +34,7 @@ public class PriceAxis extends JPanel
         setOpaque(false);
     }
 
-    public void paint(Graphics g)
+    public @Override void paint(Graphics g)
     {
         super.paint(g);
         int height = getHeight();
@@ -51,7 +51,7 @@ public class PriceAxis extends JPanel
         ChartData cd = chartFrame.getChartData();
         ChartProperties cp = chartFrame.getChartProperties();
 
-        if (!cd.isVisibleNull())
+        if (!cd.isVisibleNull() && !cd.getVisible().isEmpty())
         {
             g2.setFont(cp.getFont());
             g2.translate(0, 0);

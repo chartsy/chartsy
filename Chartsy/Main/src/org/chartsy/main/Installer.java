@@ -1,6 +1,5 @@
 package org.chartsy.main;
 
-import java.awt.SplashScreen;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
@@ -89,7 +88,6 @@ public class Installer extends ModuleInstall
         Object retval = DialogDisplayer.getDefault().notify(d);
         if (retval.equals(NotifyDescriptor.YES_OPTION))
         {
-            DataProviderManager.getDefault().removeFiles();
             return true;
         } 
         else

@@ -1,5 +1,6 @@
 package org.chartsy.main.intro.content;
 
+import org.chartsy.main.intro.WelcomeTopComponent;
 import org.openide.util.NbBundle;
 
 /**
@@ -26,5 +27,10 @@ public class BundleSupport {
     public static String getURL(String s) {
         return NbBundle.getBundle(BUNDLE_NAME).getString((new StringBuilder()).append(URL_PREFIX).append(s).toString());
     }
+
+	public static String getURL(String key, Object... values)
+	{
+		return NbBundle.getMessage(WelcomeTopComponent.class, (new StringBuilder()).append(URL_PREFIX).append(key).toString(), values);
+	}
 
 }

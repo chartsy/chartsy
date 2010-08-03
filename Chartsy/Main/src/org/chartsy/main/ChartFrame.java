@@ -3,7 +3,6 @@ package org.chartsy.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -13,13 +12,10 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoundedRangeModel;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
@@ -30,12 +26,12 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.Stock;
+import org.chartsy.main.events.DataProviderEvent;
+import org.chartsy.main.events.DataProviderListener;
 import org.chartsy.main.events.StockEvent;
 import org.chartsy.main.history.History;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
-import org.chartsy.main.managers.AnnotationManager;
-import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ChartNode;
@@ -46,9 +42,11 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.AbstractNode;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
+import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -56,7 +54,7 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
-public class ChartFrame extends TopComponent implements AdjustmentListener, MouseWheelListener//, StockListener
+public class ChartFrame extends TopComponent implements AdjustmentListener, MouseWheelListener, DataProviderListener
 {
 
     private static ChartFrame instance;
@@ -70,10 +68,10 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     private ChartData chartData = null;
     private MainPanel mainPanel = null;
     private JScrollBar scrollBar = null;
-    private Timer timer = null;
 
     private boolean restored = false;
     private boolean focus = true;
+	private boolean loadingFlag = false;
 
     public static synchronized ChartFrame getDefault()
     {
@@ -103,21 +101,31 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public ChartFrame(ChartData data)
     {
-        //setIgnoreRepaint(true);
         setLayout(new BorderLayout());
         chartData = data;
         if (!chartData.isStockNull())
         {
-            setName(chartData.getStock().getKey() + " Chart");
-            setToolTipText(chartData.getStock().getKey() + " Chart");
+            setName(
+				NbBundle.getMessage(
+				ChartFrame.class,
+				"CTL_ChartFrame",
+				chartData.getStock().getKey()));
+            setToolTipText(
+				NbBundle.getMessage(
+				ChartFrame.class,
+				"TOOL_ChartFrame",
+				chartData.getStock().getCompanyName()));
         }
         else
         {
-            setName("Chart");
-            setToolTipText("Chart");
+            setName(
+				NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
+            setToolTipText(
+				NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
         }
-        
-        addMouseWheelListener(this);
+        chartData.getDataProvider().addDatasetListener((DataProviderListener) this);
+
+        addMouseWheelListener((MouseWheelListener) this);
     }
 
     private void initComponents()
@@ -168,9 +176,10 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             }
         }
 
-        history.setCurrent(new HistoryItem(chartData.getStock(), chartData.getInterval()));
-        timer = new Timer();
-        timer.schedule(new PeriodTimer(), 5000, 5000);
+        history.setCurrent(new HistoryItem(
+			chartData.getStock(),
+			chartData.getInterval().hashCode()));
+		
         setRestored(false);
 
         revalidate();
@@ -206,9 +215,6 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public void setHistory(History history)
     { this.history = history; }
-
-    public Timer getTimer()
-    { return timer; }
 
     public MainPanel getMainPanel()
     { return mainPanel; }
@@ -313,96 +319,39 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     public JPopupMenu getMenu()
     {
         JPopupMenu popup = new JPopupMenu();
-        JMenu menu;
-        JMenuItem menuItem;
 
         // change interval
-        popup.add(menu = new JMenu("Select Interval"));
-        menu.setIcon(ResourcesUtils.getIcon16("time"));
-        Interval currentInterval = chartData.getInterval();
-        for (Interval i : chartData.getDataProvider().getIntervals())
-        {
-            menuItem = new JMenuItem(MainActions.changeTime(this, i, i.equals(currentInterval)));
-            menuItem.setText(i.getName());
-            menuItem.setMargin(new Insets(0,0,0,0));
-            menu.add(menuItem);
-        }
-        if (chartData.getDataProvider().supportsIntraday())
-        {
-            menu.addSeparator();
-            for (Interval i : chartData.getDataProvider().getIntraDayIntervals())
-            {
-                menuItem = new JMenuItem(MainActions.changeTime(this, i, i.equals(currentInterval)));
-                menuItem.setText(i.getName());
-                menuItem.setMargin(new Insets(0,0,0,0));
-                menu.add(menuItem);
-            }
-        }
+        popup.add(MainActions.generateIntervalsMenu(this));
 
         // change chart
-        popup.add(menu = new JMenu("Select Chart"));
-        menu.setIcon(ResourcesUtils.getIcon16("chart"));
-        String currentChart = chartData.getChart().getName();
-        for (String s : ChartManager.getDefault().getCharts())
-        {
-            menuItem = new JMenuItem(MainActions.changeChart(this, s, s.equals(currentChart)));
-            menuItem.setText(s);
-            menuItem.setMargin(new Insets(0,0,0,0));
-            menu.add(menuItem);
-        }
+        popup.add(MainActions.generateChartsMenu(this));
 
         // add indicators
-        popup.add(menuItem = new JMenuItem(MainActions.addIndicators(this)));
-        menuItem.setText("Indicators");
-        menuItem.setIcon(ResourcesUtils.getIcon16("indicator"));
+        popup.add(new JMenuItem(MainActions.openIndicators(this)));
 
         // add overlays
-        popup.add(menuItem = new JMenuItem(MainActions.addOverlays(this)));
-        menuItem.setText("Overlays");
-        menuItem.setIcon(ResourcesUtils.getIcon16("overlay"));
+        popup.add(new JMenuItem(MainActions.openOverlays(this)));
 
         // add annotation
-        popup.add(menu = new JMenu("Annotations"));
-        menu.setIcon(ResourcesUtils.getIcon16("line"));
-        for (String s : AnnotationManager.getDefault().getAnnotations())
-        {
-            menuItem = new JMenuItem(MainActions.addAnnotation(this, s));
-            menuItem.setText(s);
-            menuItem.setMargin(new Insets(0,0,0,0));
-            menuItem.setIcon(ResourcesUtils.getIcon16("line"));
-            menu.add(menuItem);
-        }
-        menu.addSeparator();
-        menuItem = new JMenuItem(MainActions.removeAllAnnotations(this));
-        menuItem.setText("Remove All");
-        menuItem.setMargin(new Insets(0,0,0,0));
-        menu.add(menuItem);
-        if (hasCurrentAnnotation())
-        {
-            menuItem = new JMenuItem(MainActions.annotationSettings(this, getCurrentAnnotation()));
-            menuItem.setText("Annotation Settings");
-            menuItem.setMargin(new Insets(0,0,0,0));
-            menu.add(menuItem);
-        }
+        popup.add(MainActions.generateAnnotationsMenu(this));
 
         // export image
-        popup.add(menuItem = new JMenuItem(MainActions.exportImage(this)));
-        menuItem.setText("Export Image");
-        menuItem.setIcon(ResourcesUtils.getIcon16("image"));
+        popup.add(new JMenuItem(MainActions.exportImage(this)));
 
         // print
-        popup.add(menuItem = new JMenuItem(MainActions.printChart(this)));
-        menuItem.setText("Print");
-        menuItem.setIcon(ResourcesUtils.getIcon16("print"));
+        popup.add(new JMenuItem(MainActions.printChart(this)));
 
         // chart settings
-        popup.add(menuItem = new JMenuItem(MainActions.chartSettings(this)));
-        menuItem.setText("Chart Settings");
-        menuItem.setIcon(ResourcesUtils.getIcon16("settings"));
+        popup.add(new JMenuItem(MainActions.chartProperties(this)));
 
-        popup.add(menuItem = new JMenuItem(MainActions.toggleToolbarVisibility(this)));
+		// hide/show toolbar
+        popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this)));
 
-        return popup;
+		// add to favorites
+		if (!MainActions.isInFavorites(this))
+			popup.add(new JMenuItem(MainActions.addToFavorites(this)));
+
+		return popup;
     }
 
     public void zoomIn()
@@ -438,21 +387,22 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     protected Object writeReplace() 
     { return new ResolvableHelper(this); }
 
+	@Override
+	public void open()
+	{
+		Mode mode = WindowManager.getDefault().findMode("editor");
+		if (mode != null)
+		{
+			mode.dockInto(this);
+			super.open();
+		}
+	}
+
     @Override
     protected void componentOpened()
     {
         if (chartData != null)
             loading(chartData.getStock(), true);
-    }
-
-    @Override
-    protected void componentClosed()
-    {
-        if (getTimer() != null)
-            getTimer().cancel();
-        if (getHistory() != null)
-            getHistory().removeFiles();
-
     }
 
     @Override
@@ -485,46 +435,89 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         bar.setModel(model);
 
         bar.setAlignmentX(java.awt.Component.RIGHT_ALIGNMENT);
-        bar.addAdjustmentListener(this);
+        bar.addAdjustmentListener((AdjustmentListener) this);
 
         return bar;
     }
 
     public void updateHorizontalScrollBar()
     {
-        int last = chartData.getLast();
-        int items = chartData.getPeriod();
-        int itemsCount = chartData.getDataset().getItemsCount();
+        int last = getChartData().getLast();
+        int items = getChartData().getPeriod();
+        int itemsCount = getChartData().getDataset().getItemsCount();
 
-        BoundedRangeModel model = scrollBar.getModel();
-        model.setExtent(items);
-        model.setMinimum(0);
-        model.setMaximum(itemsCount);
-        model.setValue(last - items);
-        scrollBar.setModel(model);
+		if (scrollBar.getModel().getExtent() != items)
+			scrollBar.getModel().setExtent(items);
+		if (scrollBar.getModel().getMinimum() != 0)
+			scrollBar.getModel().setMinimum(0);
+		if (scrollBar.getModel().getMaximum() != itemsCount)
+			scrollBar.getModel().setMaximum(itemsCount);
+		if (scrollBar.getModel().getValue() != (last - items))
+			scrollBar.getModel().setValue(last - items);
 
-        repaint();
-    }
-
-    public void updateHorizontalScrollBar(int end)
-    {
-        int items = chartData.getPeriod();
-        int itemsCount = chartData.getDataset().getItemsCount();
-        end = end > itemsCount ? itemsCount : (end < items ? items : end);
-        chartData.setLast(end);
-        chartData.calculate(this);
+		repaint();
     }
 
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
-        BoundedRangeModel model = scrollBar.getModel();
-        int items = chartData.getPeriod();
-        int itemsCount = chartData.getDataset().getItemsCount();
-        int end = model.getValue() + items;
+        int items = getChartData().getPeriod();
+        int itemsCount = getChartData().getDataset().getItemsCount();
+        int end = scrollBar.getModel().getValue() + items;
+
         end = end > itemsCount ? itemsCount : (end < items ? items : end);
-        chartData.setLast(end);
-        chartData.calculate(this);
+
+		if (getChartData().getLast() != end)
+		{
+			getChartData().setLast(end);
+			getChartData().calculate(this);
+		}
     }
+
+	public void mouseWheelMoved(MouseWheelEvent e)
+    {
+        if (!getChartData().isDatasetNull())
+        {
+            int items = getChartData().getPeriod();
+            int itemsCount = getChartData().getDataset().getItemsCount();
+            if (itemsCount > items)
+            {
+                int last = getChartData().getLast() - e.getWheelRotation();
+                last = last > itemsCount ? itemsCount : (last < items ? items : last);
+
+				if (getChartData().getLast() != last)
+				{
+					getChartData().setLast(last);
+					getChartData().calculate(this);
+				}
+            }
+        }
+    }
+
+	public void triggerDataProviderListener(DataProviderEvent evt)
+	{
+		if (!loadingFlag)
+		{
+			Stock source = (Stock) evt.getSource();
+			if (source.equals(getChartData().getStock()))
+			{
+				String provider = getChartData().getDataProvider().getName();
+				DataProvider dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
+				Dataset newDataset = dataProvider.getDataset(dataProvider.getKey(source, getChartData().getInterval()));
+
+				if (newDataset != null)
+				{
+					getChartData().setDataset(newDataset);
+					getChartData().updateDataset();
+
+					int last = getChartData().getLast();
+					int items = newDataset.getItemsCount();
+					if (last + 1 == items)
+						getChartData().setLast(items);
+					repaint();
+				}
+			}
+		}
+	}
 
     public BufferedImage getBufferedImage(int width, int height)
     {
@@ -569,11 +562,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             final DataProvider dataProvider = getChartData().getDataProvider();
             final Interval interval = getChartData().getInterval();
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("Aquiring data for ");
-            sb.append(newStock.getCompanyName().equals("") ? newStock.getKey() : newStock.getCompanyName());
-
-            final JLabel loading = new JLabel(sb.toString(), ResourcesUtils.getLogo(), SwingConstants.CENTER);
+            final JLabel loading = new JLabel(
+				NbBundle.getMessage(
+				ChartFrame.class,
+				"LBL_Loading",
+				newStock.getCompanyName().equals("")
+				? newStock.getKey()
+				: newStock.getCompanyName()),
+				ResourcesUtils.getLogo(),
+				SwingConstants.CENTER);
             loading.setOpaque(true);
             loading.setBackground(Color.WHITE);
             loading.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -602,6 +599,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                         Dataset dataset = dataProvider.getDataset(newStock, interval);
                         if (dataset != null)
                         {
+							loadingFlag = false;
                             remove(loading);
                             getChartData().setDataset(dataset);
                             getChartData().setInterval(interval);
@@ -609,16 +607,27 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                         }
                         else
                         {
-                            StringBuffer sb = new StringBuffer();
-                            sb.append("Can't find data for ");
-                            sb.append(newStock.getCompanyName().equals("") ? newStock.getKey() : newStock.getCompanyName());
-                            loading.setText(sb.toString());
-                            loading.repaint();
+                            loading.setText(NbBundle.getMessage(
+								ChartFrame.class,
+								"LBL_LoadingNoDataNew",
+								newStock.getCompanyName().equals("")
+								? newStock.getKey()
+								: newStock.getCompanyName()));
+							
                             if (!newChart)
                             {
-                                sb.append(". Return to the previous chart?");
-                                NotifyDescriptor d = new NotifyDescriptor.Confirmation(sb.toString(), "No Data", NotifyDescriptor.YES_NO_OPTION);
-                                Object retval = DialogDisplayer.getDefault().notify(d);
+                                NotifyDescriptor descriptor
+									= new NotifyDescriptor.Confirmation(
+									NbBundle.getMessage(
+									ChartFrame.class,
+									"LBL_LoadingNoData",
+									newStock.getCompanyName().equals("")
+									? newStock.getKey()
+									: newStock.getCompanyName()),
+									"No Data",
+									NotifyDescriptor.YES_NO_OPTION);
+                                Object retval 
+									= DialogDisplayer.getDefault().notify(descriptor);
                                 if (retval.equals(NotifyDescriptor.YES_OPTION))
                                 {
                                     remove(loading);
@@ -634,19 +643,28 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 }
             });
 
-            if (dataProvider.getDataset(newStock, interval) == null)
+			Dataset dataset = dataProvider.getDataset(newStock, interval);
+            if (dataset == null)
             {
+				loadingFlag = true;
                 handle.start();
                 task.schedule(0);
             }
             else
             {
-                if (!newChart)
-                    reinitialize();
-                Dataset dataset = dataProvider.getDataset(newStock, interval);
-                getChartData().setDataset(dataset);
-                getChartData().setInterval(interval);
-                initComponents();
+				if (dataset.getItemsCount() >= 2)
+				{
+					if (!newChart)
+						reinitialize();
+					getChartData().setDataset(dataset);
+					getChartData().setInterval(interval);
+					initComponents();
+				}
+				else
+				{
+					handle.start();
+					task.schedule(0);
+				}
             }
         }
         catch (Exception e)
@@ -659,7 +677,8 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     {
         final HistoryItem historyItem = (HistoryItem) evt.getSource();
         final Stock newStock = historyItem.getStock();
-        final Interval interval = historyItem.getInterval();
+        final Interval interval = DataProvider.getInterval(historyItem.getIntervalHash());
+
         oldStock = getChartData().getStock();
         oldInterval = getChartData().getInterval();
 
@@ -674,7 +693,8 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 }
             });
 
-            final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", stockTask);
+            final ProgressHandle handle = ProgressHandleFactory.createHandle(
+				NbBundle.getMessage(ChartFrame.class, "LBL_LoadStock"), stockTask);
             stockTask.addTaskListener(new TaskListener()
             {
                 public void taskFinished(Task task)
@@ -682,8 +702,12 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                     handle.finish();
                     if (stockInfo == null)
                     {
-                        NotifyDescriptor d = new NotifyDescriptor.Exception(new IllegalArgumentException("The symbol is invalid. Please enter a valid symbol."));
-                        Object ret = DialogDisplayer.getDefault().notify(d);
+                        NotifyDescriptor descriptor
+							= new NotifyDescriptor.Exception(
+							new IllegalArgumentException(
+							NbBundle.getMessage(ChartFrame.class, "LBL_SymbolError")));
+                        Object ret 
+							= DialogDisplayer.getDefault().notify(descriptor);
                         if (ret.equals(NotifyDescriptor.OK_OPTION))
                         {
                             SwingUtilities.invokeLater(new Runnable()
@@ -711,8 +735,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                                 {
                                     getChartData().setStock(stockInfo);
                                     getChartData().setInterval(interval);
-                                    setName(stockInfo.getKey() + " Chart");
-                                    setToolTipText(stockInfo.getKey() + " Chart");
+                                    setName(NbBundle.getMessage(
+										ChartFrame.class,
+										"CTL_ChartFrame",
+										stockInfo.getKey()));
+                                    setToolTipText(NbBundle.getMessage(
+										ChartFrame.class,
+										"TOOL_ChartFrame",
+										stockInfo.getCompanyName()));
                                     getSplitPanel().getChartPanel().updateStock();
                                     loading(stockInfo, false);
                                 }
@@ -742,8 +772,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 stockInfo = getChartData().getDataProvider().getStock(newStock);
                 getChartData().setStock(stockInfo);
                 getChartData().setInterval(interval);
-                setName(stockInfo.getKey() + " Chart");
-                setToolTipText(stockInfo.getKey() + " Chart");
+                setName(NbBundle.getMessage(
+					ChartFrame.class,
+					"CTL_ChartFrame",
+					stockInfo.getKey()));
+                setToolTipText(NbBundle.getMessage(
+					ChartFrame.class,
+					"TOOL_ChartFrame",
+					stockInfo.getCompanyName()));
                 getSplitPanel().getChartPanel().updateStock();
                 loading(stockInfo, false);
             }
@@ -754,55 +790,6 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     private Stock oldStock = null;
     private Interval oldInterval = null;
 
-    public void mouseWheelMoved(MouseWheelEvent e)
-    {
-        if (!getChartData().isDatasetNull())
-        {
-            int items = getChartData().getPeriod();
-            int itemsCount = getChartData().getDataset().getItemsCount();
-            if (itemsCount > items)
-            {
-                int last = getChartData().getLast() - e.getWheelRotation();
-                last = last > itemsCount ? itemsCount : (last < items ? items : last);
-
-                getChartData().setLast(last);
-                getChartData().calculate(this);
-            }
-        }
-    }
-
-    final class PeriodTimer extends TimerTask implements Serializable
-    {
-
-        private static final long serialVersionUID = 2L;
-
-        @Override
-        public void run()
-        {
-            if (getChartData() != null)
-            {
-                Stock stock = getChartData().getStock();
-                Interval interval = getChartData().getInterval();
-                DataProvider dataProvider = getChartData().getDataProvider();
-                Dataset oldDataset = getChartData().getDataset();
-
-                if (!interval.isIntraDay())
-                {
-                    Dataset newDataset = dataProvider.getLastDataItem(stock, interval, oldDataset);
-                    getChartData().setDataset(newDataset);
-                    getChartData().updateDataset();
-
-                    int last = getChartData().getLast();
-                    int items = newDataset.getItemsCount();
-                    if (last+1 == items)
-                        getChartData().setLast(items);
-                }
-            }
-            repaint();
-        }
-
-    }
-
     final static class ResolvableHelper implements Serializable
     {
 
@@ -811,8 +798,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         private ChartProperties chartProperties;
         private ChartData chartData;
         private String dataProvider;
-        private List<HistoryItem> bList;
-        private List<HistoryItem> fList;
+		private HistoryItem currentHistoryItem;
+        private HistoryItem[] backList;
+        private HistoryItem[] fwdList;
 
         private ResolvableHelper(ChartFrame chartFrame)
         {
@@ -825,9 +813,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
             chartData.setAnnotations(chartFrame.getAnnotations());
 
-            bList = chartFrame.getHistory().getBackHistory();
-            fList = chartFrame.getHistory().getFwdHistory();
-            chartFrame.getHistory().removeFiles();
+			currentHistoryItem = chartFrame.getHistory().getCurrent();
+            backList = chartFrame.getHistory().getBackHistoryList();
+			fwdList = chartFrame.getHistory().getFwdHistoryList();
         }
 
         public Object readResolve()
@@ -842,7 +830,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
                 History history = new History();
                 history.initialize();
-                history.writeAllHistory(bList, fList);
+				history.setCurrent(currentHistoryItem);
+				history.setBackHistoryList(backList);
+				history.setFwdHistoryList(fwdList);
                 chartFrame.setHistory(history);
 
                 chartFrame.setRestored(true);

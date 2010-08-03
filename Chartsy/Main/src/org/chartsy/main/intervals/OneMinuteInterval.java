@@ -14,6 +14,7 @@ public class OneMinuteInterval extends Interval implements Serializable {
 
     public OneMinuteInterval() { 
         super("1 Min", true);
+		timeParam = "1";
     }
 
     public long startTime() {
@@ -39,28 +40,6 @@ public class OneMinuteInterval extends Interval implements Serializable {
 
     public String getTimeParam() {
         return "1";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof OneMinuteInterval))
-            return false;
-
-        OneMinuteInterval that = (OneMinuteInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
     }
 
 }

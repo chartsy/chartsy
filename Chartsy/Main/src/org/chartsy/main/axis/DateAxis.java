@@ -43,7 +43,7 @@ public class DateAxis extends JPanel
         add(copyright, BorderLayout.PAGE_END);
     }
 
-    public void paint(Graphics g)
+    public @Override void paint(Graphics g)
     {
         super.paint(g);
         int width = getWidth();
@@ -60,7 +60,7 @@ public class DateAxis extends JPanel
         ChartData cd = chartFrame.getChartData();
         ChartProperties cp = chartFrame.getChartProperties();
 
-        if (!cd.isVisibleNull())
+        if (!cd.isVisibleNull() && !cd.getVisible().isEmpty())
         {
             Rectangle bounds = chartFrame.getSplitPanel().getChartPanel().getBounds();
             bounds.grow(-2, -2);
@@ -114,7 +114,7 @@ public class DateAxis extends JPanel
                         double x = cd.getX(j, bounds);
                         g2.draw(CoordCalc.line(x, 0, x, axisTick));
                         g2.setPaint(cp.getFontColor());
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         if (cal.get(Calendar.HOUR_OF_DAY) < 10)
                             sb.append("0");
                         sb.append(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));

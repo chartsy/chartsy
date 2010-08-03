@@ -14,6 +14,7 @@ public class FiveMinuteInterval extends Interval implements Serializable {
 
     public FiveMinuteInterval() { 
         super("5 Min", true);
+		timeParam = "5";
     }
 
     public long startTime() {
@@ -26,30 +27,7 @@ public class FiveMinuteInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "5";
+        return timeParam;
     }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof FiveMinuteInterval))
-            return false;
-
-        FiveMinuteInterval that = (FiveMinuteInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
-    }
-
 
 }

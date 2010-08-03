@@ -85,13 +85,6 @@ public class DataProviderManager
         setUpdated(true);
     }
 
-    public void removeFiles()
-    {
-        List<DataProvider> list = new ArrayList<DataProvider>(dataProviders.values());
-        for (DataProvider dp : list)
-            dp.removeFiles();
-    }
-
     static
     {
         ignored = new ArrayList<String>();

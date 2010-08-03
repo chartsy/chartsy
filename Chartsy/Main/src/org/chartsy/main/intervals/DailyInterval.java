@@ -14,6 +14,7 @@ public class DailyInterval extends Interval implements Serializable {
 
     public DailyInterval() {
         super("Daily");
+		timeParam = "d";
     }
 
     public long startTime() {
@@ -23,29 +24,7 @@ public class DailyInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "d";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof DailyInterval))
-            return false;
-
-        DailyInterval that = (DailyInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
+        return timeParam;
     }
 
 }

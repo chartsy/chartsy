@@ -7,7 +7,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class Stock implements Serializable {
+final public class Stock implements Serializable {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
@@ -52,6 +52,11 @@ public class Stock implements Serializable {
         return companyName;
     }
 
+	public boolean hasCompanyName()
+	{
+		return !companyName.isEmpty();
+	}
+
     public boolean isIndex() {
         return symbol.startsWith("$");
     }
@@ -69,15 +74,40 @@ public class Stock implements Serializable {
         return symbol + exchange;
     }
 
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (!(obj instanceof Stock)) return false;
+    public @Override boolean equals(Object obj)
+	{
+        if (obj == this) 
+			return true;
+
+        if (!(obj instanceof Stock)) 
+			return false;
+
         Stock that = (Stock) obj;
-        if (!getSymbol().equals(that.getSymbol())) return false;
-        if (!getExchange().equals(that.getExchange())) return false;
+
+        if (!getSymbol().equals(that.getSymbol()))
+			return false;
+
+		if (!getExchange().equals(that.getExchange()))
+			return false;
+
+		if (!getCompanyName().equals(that.getCompanyName()))
+			return false;
+
         return true;
     }
 
-    public String toString() { return symbol + "," + companyName + "," + exchange; }
+	public @Override int hashCode()
+	{
+		int hash = 7;
+		hash = 47 * hash + (this.symbol != null ? this.symbol.hashCode() : 0);
+		hash = 47 * hash + (this.exchange != null ? this.exchange.hashCode() : 0);
+		//hash = 47 * hash + (this.companyName != null ? this.companyName.hashCode() : 0);
+		return hash;
+	}
+
+    public @Override String toString()
+	{
+		return symbol + "," + companyName + "," + exchange;
+	}
 
 }

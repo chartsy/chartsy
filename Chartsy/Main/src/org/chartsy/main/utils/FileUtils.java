@@ -64,12 +64,17 @@ public final class FileUtils {
         return result;
     }
 
-    public static String cacheFile(String file)
+    public static String cacheFile(String file) throws IOException
     {
-        String result = getFileName(cacheFolder(), file);
-        createFile(result);
-        return result;
+		String filePath = cacheFolder() + File.separator + file;
+		FileObject object = FileUtil.createData(new File(filePath));
+		return object.getPath();
     }
+
+	public static FileObject cacheFileObject(String fileName) throws IOException
+	{
+		return FileUtil.createData(new File(cacheFile(fileName)));
+	}
 
     public static String getHistoryFolder()
     {
@@ -78,7 +83,7 @@ public final class FileUtils {
         return result;
     }
 
-    public static String favoritesFolder()
+    /*public static String favoritesFolder()
     {
         String result = LocalFolder() + File.separator + "favorites";
         createFolder(result);
@@ -90,7 +95,26 @@ public final class FileUtils {
         String result = favoritesFolder() + File.separator + "favorites.xml";
         createFile(result);
         return result;
-    }
+    }*/
+
+	public static File favoritesFile()
+	{
+		String result = LocalFolder() + File.separator + "favorites.xml";
+		return new File(result);
+	}
+
+	public static String stockScanFolder()
+	{
+		String result = LocalFolder() + File.separator + "StockScanPRO";
+		createFolder(result);
+		return result;
+	}
+
+	public static File stockScanFile(String fileName)
+	{
+		String result = stockScanFolder() + File.separator + fileName;
+		return new File(result);
+	}
 
     public static boolean fileExists(String path)
     {

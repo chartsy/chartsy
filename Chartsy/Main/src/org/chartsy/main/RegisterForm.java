@@ -1,19 +1,23 @@
 package org.chartsy.main;
 
 import java.awt.Cursor;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.prefs.Preferences;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
@@ -32,14 +36,29 @@ public class RegisterForm extends javax.swing.JDialog {
         initForm();
     }
 
-    private void initForm() {
-        lblTop.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                try { DesktopUtil.browse("http://www.mrswing.com/amember/signup.php"); }
-                catch (Exception ex) {}
+    private void initForm()
+	{
+        lblTop.addMouseListener(new MouseListener()
+		{
+            public void mouseClicked(MouseEvent e)
+			{
+                try
+				{
+					DesktopUtil.browse(NbBundle.getMessage(RegisterForm.class, "MrSwing_URL"));
+				}
+                catch (Exception ex)
+				{}
             }
-            public void mouseEntered(MouseEvent e) { setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); }
-            public void mouseExited(MouseEvent e) { setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); }
+            public void mouseEntered(MouseEvent e)
+			{
+				setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			}
+            public void mouseExited(MouseEvent e)
+			{
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+			public void mousePressed(MouseEvent e) {}
+			public void mouseReleased(MouseEvent e) {}
         });
     }
 
@@ -151,41 +170,61 @@ public class RegisterForm extends javax.swing.JDialog {
     }//GEN-LAST:event_btnRemindActionPerformed
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        String user = txtUsername.getText();
+        String username = txtUsername.getText();
         String pass = new String(txtPassword.getPassword());
         String password = null;
-        try {
+
+        try
+		{
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(new String(txtPassword.getPassword()).getBytes());
             BigInteger hash = new BigInteger(1, md5.digest());
             password = hash.toString(16);
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
+        } 
+		catch (NoSuchAlgorithmException ex)
+		{
+            Exceptions.printStackTrace(ex);
         }
-        try {
-            URL url = new URL("http://www.chartsy.org/checkregistration.php?username=" + user + "&password=" + password);
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-            if (br != null) {
+
+        try 
+		{
+			HttpClient client = ProxyManager.getDefault().getHttpClient();
+			GetMethod method = new GetMethod(NbBundle.getMessage(RegisterForm.class, "CheckReg_URL"));
+
+			method.setQueryString(new NameValuePair[]
+			{
+				new NameValuePair("username", username),
+				new NameValuePair("password", password)
+			});
+
+			client.executeMethod(method);
+			BufferedReader br = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+
+            if (br != null)
+			{
                 String firstLine = br.readLine();
-                if (firstLine.equals("OK")) {
+                if (firstLine.equals("OK"))
+				{
                     String name = br.readLine();
                     Preferences p = NbPreferences.root().node("/org/chartsy/register");
                     p.put("registred", "true");
                     p.put("name", name);
                     p.put("date", String.valueOf(new Date().getTime()));
-                    p.put("username", user);
+                    p.put("username", username);
                     p.put("password", pass);
                     lblMessage.setText(name + ", thank you for the registration.");
                     btnRegister.setVisible(false);
                     btnRemind.setText("Close");
-                } else {
+                }
+				else
+				{
                     lblMessage.setText("Error, could not register. Check your username and password.");
                 }
             }
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        } catch (IOException io) {
-            io.printStackTrace();
+        } 
+		catch (IOException ex)
+		{
+            Exceptions.printStackTrace(ex);
         }
     }//GEN-LAST:event_btnRegisterActionPerformed
 

@@ -13,6 +13,7 @@ public abstract class Interval implements Serializable {
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     protected String name = "";
+	protected String timeParam = "";
     protected boolean intraDay = false;
 
     public Interval(String name) {
@@ -41,7 +42,7 @@ public abstract class Interval implements Serializable {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (!isIntraDay())
         {
             int day = cal.get(Calendar.DAY_OF_MONTH);
@@ -85,7 +86,36 @@ public abstract class Interval implements Serializable {
         }
     }
 
-    public String toString() 
-    { return name; }
+    public @Override String toString()
+    { 
+		return name;
+	}
+
+	public @Override boolean equals(Object obj)
+	{
+		if (obj == this)
+			return true;
+
+		if (!(obj instanceof Interval))
+			return false;
+		Interval that = (Interval) obj;
+
+		if (!that.getName().equals(getName()))
+			return false;
+
+		if (!that.getTimeParam().equals(getTimeParam()))
+			return false;
+
+		return true;
+	}
+
+	public @Override int hashCode()
+	{
+		int hash = 5;
+		hash = 13 * hash + (this.name != null ? this.name.hashCode() : 0);
+		hash = 13 * hash + (this.timeParam != null ? this.timeParam.hashCode() : 0);
+		hash = 13 * hash + (this.intraDay ? 1 : 0);
+		return hash;
+	}
 
 }

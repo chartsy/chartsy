@@ -33,7 +33,7 @@ import org.openide.awt.StatusDisplayer;
  *
  * @author viorel.gheba
  */
-public class BottomBanner extends JPanel implements Constants, MouseListener, ActionListener {
+public final class BottomBanner extends JPanel implements Constants, MouseListener, ActionListener {
 
     private String url = "";
     private Random random = new Random();
@@ -56,12 +56,12 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
         bottomLink.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         bottomLink.setCursor(Cursor.getPredefinedCursor(12));
         bottomLink.setHorizontalAlignment(2);
-        bottomLink.addMouseListener(this);
+        bottomLink.addMouseListener((MouseListener) this);
         bottomLink.setMargin(new Insets(0, 0, 0, 0));
         bottomLink.setBorderPainted(false);
         bottomLink.setFocusPainted(false);
         bottomLink.setContentAreaFilled(false);
-        bottomLink.addActionListener(this);
+        bottomLink.addActionListener((ActionListener) this);
 
         int i = getRandomNumber();
         Image image = getImageFromURL(getImageURL(i));
@@ -86,13 +86,11 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
     }
 
     private String getURL(int i) {
-        String urlString = BundleSupport.getURL(URL_BANNER_LINK);
-        return urlString.replace("{0}", "" + i);
+		return BundleSupport.getURL(URL_BANNER_LINK, new Object[] { String.valueOf(i) });
     }
 
     private String getImageURL(int i) {
-        String s = BundleSupport.getURL(URL_BANNER_IMAGE_LINK);
-        return s.replace("{0}", "" + i);
+        return BundleSupport.getURL(URL_BANNER_IMAGE_LINK, new Object[] { String.valueOf(i) });
     }
 
     public void mouseClicked(MouseEvent e) {}

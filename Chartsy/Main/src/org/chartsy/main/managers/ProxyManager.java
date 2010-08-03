@@ -12,7 +12,7 @@ import org.openide.util.NbPreferences;
  *
  * @author viorel.gheba
  */
-public class ProxyManager
+public final class ProxyManager
 {
 
     private static ProxyManager instance;

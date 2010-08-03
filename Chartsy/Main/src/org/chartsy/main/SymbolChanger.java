@@ -11,7 +11,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
-import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,7 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.EventListenerList;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import org.chartsy.main.data.DataProvider;
@@ -29,7 +27,6 @@ import org.chartsy.main.data.Stock;
 import org.chartsy.main.data.StockNode;
 import org.chartsy.main.data.StockSet;
 import org.chartsy.main.events.StockEvent;
-import org.chartsy.main.events.StockListener;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.AutocompletePopup;
@@ -83,19 +80,24 @@ public class SymbolChanger extends JToolBar implements Serializable
         txtSymbol.setMaximumSize(d);
 
         // submit button
-        btnSubmit = getButton(getSubmitAction(), "Submit Symbol");
+        btnSubmit = new JButton(new ChangeStock());
+		btnSubmit.setText("");
 
         // back button
-        btnBack = getButton(getBackAction(), "Go Back");
+        btnBack = new JButton(new BackAction());
+		btnBack.setText("");
 
         // forward button
-        btnForward = getButton(getForwardAction(), "Go Forward");
+        btnForward = new JButton(new ForwardAction());
+		btnForward.setText("");
 
         // back history button
-        btnBackHistory = getButton(getBackListAction(), "Go Back");
+        btnBackHistory = new JButton(new BackListAction());
+		btnBackHistory.setText("");
 
         // forward history button
-        btnForwardHistory = getButton(getForwardListAction(), "Go Forward");
+        btnForwardHistory = new JButton(new ForwardListAction());
+		btnForwardHistory.setText("");
 
         if (!chartFrame.getHistory().hasBackHistory())
         {
@@ -319,16 +321,6 @@ public class SymbolChanger extends JToolBar implements Serializable
         return returnSet;
     }
 
-    private JButton getButton(AbstractAction action, String tooltip)
-    {
-        JButton button = new JButton(action);
-        button.setText("");
-        button.setToolTipText(tooltip);
-        button.setMargin(new Insets(0,2,0,2));
-        button.setBorderPainted(false);
-        return button;
-    }
-
     public void updateToolbar()
     {
         removeAll();
@@ -337,201 +329,249 @@ public class SymbolChanger extends JToolBar implements Serializable
         repaint();
     }
 
-    private AbstractAction getSubmitAction()
-    {
-        return new AbstractAction("Submit", ResourcesUtils.getIcon("ok"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                String oldSymbol = chartFrame.getChartData().getStock().getKey();
-                String newSymbol = txtSymbol.getText().trim();
-                if (!newSymbol.equals(oldSymbol))
-                {
-                    chartFrame.getTimer().cancel();
-                    HistoryItem current = chartFrame.getHistory().getCurrent();
-                    chartFrame.getHistory().addHistoryItem(current);
-                    chartFrame.getHistory().clearForwardHistory();
+	private void buttonsStatus(boolean status)
+	{
+		btnBack.setEnabled(status);
+		btnBackHistory.setEnabled(status);
+		btnForward.setEnabled(status);
+		btnForwardHistory.setEnabled(status);
+		btnSubmit.setEnabled(status);
+	}
 
-                    String delimiter = "\\.";
-                    String[] temp = null;
+	private static abstract class SymbolChangerAction extends AbstractAction
+	{
 
-                    if (newSymbol.contains(delimiter))
-                        temp = newSymbol.split(delimiter,2);
+		public SymbolChangerAction(String name, String tooltip, String icon)
+		{
+			putValue(NAME, name);
+			putValue(SHORT_DESCRIPTION, tooltip);
+			if (icon != null)
+			{
+				putValue(SMALL_ICON, ResourcesUtils.getIcon(icon));
+				putValue(LARGE_ICON_KEY, ResourcesUtils.getIcon(icon));
+			}
+		}
 
-                    Stock newStock;
-                    if (temp != null)
-                    {
-                        newStock = new Stock(temp[0], temp[1]);
-                    } 
-                    else
-                    {
-                        newStock = new Stock(newSymbol);
-                    }
-                    HistoryItem item = new HistoryItem(newStock, chartFrame.getChartData().getInterval());
-                    //fireStockEvent(new StockEvent(item));
-                    chartFrame.stockChanged(new StockEvent(item));
-                }
-            }
-        };
-    }
+	}
 
-    private AbstractAction getBackAction() {
-        return new AbstractAction("Go Back", ResourcesUtils.getIcon("back")) {
-            public void actionPerformed(ActionEvent e) {
-                HistoryItem item = chartFrame.getHistory().go(-1);
-                if (item != null)
-                {
-                    chartFrame.getTimer().cancel();
-                    //fireStockEvent(new StockEvent(item));
-                    chartFrame.stockChanged(new StockEvent(item));
-                }
-            }
-        };
-    }
+	public class ChangeStock extends SymbolChangerAction
+	{
 
-    private AbstractAction getForwardAction() {
-        return new AbstractAction("Go Forward", ResourcesUtils.getIcon("forward")) {
-            public void actionPerformed(ActionEvent e) {
-                HistoryItem item = chartFrame.getHistory().go(1);
-                if (item != null)
-                {
-                    chartFrame.getTimer().cancel();
-                    //fireStockEvent(new StockEvent(item));
-                    chartFrame.stockChanged(new StockEvent(item));
-                }
-            }
-        };
-    }
+		public ChangeStock()
+		{
+			super("Submit", "Submit Symbol", "ok");
+		}
 
-    private AbstractAction getBackListAction() {
-        return new AbstractAction("Go Back", ResourcesUtils.getIcon("backHistory")) {
-            public void actionPerformed(ActionEvent e) {
-                List<HistoryItem> list = chartFrame.getHistory().getBackHistory();
-                if (list.size() > 0)
-                {
-                    JButton btn = (JButton) e.getSource();
-                    JPopupMenu popup = new JPopupMenu();
+		public void actionPerformed(ActionEvent e)
+		{
+			buttonsStatus(false);
+			String oldSymbol = chartFrame.getChartData().getStock().getKey();
+			String newSymbol = txtSymbol.getText().trim();
+			
+			if (!newSymbol.equals(oldSymbol))
+			{
+				HistoryItem current = chartFrame.getHistory().getCurrent();
+				chartFrame.getHistory().clearForwardHistory();
+				chartFrame.getHistory().addHistoryItem(current);
 
-                    for (int i = list.size() - 1; i >= 0; i--)
-                    {
-                        final int index = i - list.size();
-                        JMenuItem item = new JMenuItem(getMenuItemAction(list.get(i).toString(), index));
-                        item.setToolTipText("Back");
-                        item.setMargin(new Insets(0,0,0,0));
-                        popup.add(item);
-                    }
+				String delimiter = "\\.";
+				String[] temp = null;
 
-                    popup.addSeparator();
+				if (newSymbol.contains(delimiter))
+					temp = newSymbol.split(delimiter,2);
 
-                    JMenuItem item = new JMenuItem(getClearAction(true));
-                    item.setToolTipText("Clear");
-                    item.setMargin(new Insets(0,0,0,0));
-                    popup.add(item);
+				Stock newStock;
+				if (temp != null)
+				{
+					newStock = new Stock(temp[0], temp[1]);
+				}
+				else
+				{
+					newStock = new Stock(newSymbol);
+				}
 
-                    popup.show(btn, 0, btn.getHeight());
-                }
-            }
-        };
-    }
+				HistoryItem item = new HistoryItem(
+					newStock,
+					chartFrame.getChartData().getInterval().hashCode());
 
-    private AbstractAction getForwardListAction() {
-        return new AbstractAction("Go Forward", ResourcesUtils.getIcon("forwardHistory")) {
-            public void actionPerformed(ActionEvent e) {
-                List<HistoryItem> list = chartFrame.getHistory().getFwdHistory();
-                if (list.size() > 0)
-                {
-                    JButton btn = (JButton) e.getSource();
-                    JPopupMenu popup = new JPopupMenu();
+				chartFrame.stockChanged(new StockEvent(item));
+			}
+			
+			buttonsStatus(true);
+		}
+		
+	}
 
-                    for (int i = 0; i < list.size(); i++)
-                    {
-                        final int index = i + 1;
-                        JMenuItem item = new JMenuItem(getMenuItemAction(list.get(i).toString(), index));
-                        item.setToolTipText("Forward");
-                        item.setMargin(new Insets(0,0,0,0));
-                        popup.add(item);
-                    }
+	public class BackAction extends SymbolChangerAction
+	{
 
-                    popup.addSeparator();
+		public BackAction()
+		{
+			super("Go Back", "Go Back", "back");
+		}
 
-                    JMenuItem item = new JMenuItem(getClearAction(false));
-                    item.setToolTipText("Clear");
-                    item.setMargin(new Insets(0,0,0,0));
-                    popup.add(item);
+		public void actionPerformed(ActionEvent e)
+		{
+			buttonsStatus(false);
+			HistoryItem item = chartFrame.getHistory().go(-1);
+			if (item != null)
+				chartFrame.stockChanged(new StockEvent(item));
+			buttonsStatus(true);
+		}
 
-                    popup.show(btn, 0, btn.getHeight());
-                }
-            }
-        };
-    }
+	}
 
-    private AbstractAction getMenuItemAction(String name, final int index) {
-        return new AbstractAction(name) {
-            public void actionPerformed(ActionEvent e) {
-                HistoryItem item = chartFrame.getHistory().go(index);
-                if (item != null)
-                {
-                    chartFrame.getTimer().cancel();
-                    //fireStockEvent(new StockEvent(item));
-                    chartFrame.stockChanged(new StockEvent(item));
-                }
-            }
-        };
-    }
+	public class ForwardAction extends SymbolChangerAction
+	{
 
-    private AbstractAction getClearAction(final boolean back) {
-        return new AbstractAction("Clear") {
-            public void actionPerformed(ActionEvent e) {
-                if (back)
-                    chartFrame.getHistory().clearBackHistory();
-                else 
-                    chartFrame.getHistory().clearForwardHistory();
-                
-                updateToolbar();
-            }
-        };
-    }
+		public ForwardAction()
+		{
+			super("Go Forward", "Go Forward", "forward");
+		}
 
-    /*private transient EventListenerList stockListeners = new EventListenerList();
+		public void actionPerformed(ActionEvent e)
+		{
+			buttonsStatus(false);
+			HistoryItem item = chartFrame.getHistory().go(1);
+			if (item != null)
+				chartFrame.stockChanged(new StockEvent(item));
+			buttonsStatus(true);
+			updateToolbar();
+		}
 
-    public void addStockListeners(StockListener listener)
-    {
-        if (stockListeners == null)
-            stockListeners = new EventListenerList();
-        stockListeners.add(StockListener.class, listener);
-    }
+	}
 
-    public void removeStockListeners(StockListener listener)
-    {
-        if (stockListeners == null)
-        {
-            stockListeners = new EventListenerList();
-            return;
-        }
-        stockListeners.remove(StockListener.class, listener);
-    }
+	public class BackListAction extends SymbolChangerAction
+	{
 
-    public void removeStockListeners()
-    {
-        if (stockListeners == null)
-        {
-            stockListeners = new EventListenerList();
-            return;
-        }
+		public BackListAction()
+		{
+			super("Go Back", "Go Back", "backHistory");
+		}
 
-        StockListener[] listeners = stockListeners.getListeners(StockListener.class);
-        for (int i = 0; i < listeners.length; i++)
-            stockListeners.remove(StockListener.class, listeners[i]);
-    }
+		public void actionPerformed(ActionEvent e)
+		{
+			HistoryItem[] items = chartFrame.getHistory().getBackHistoryList();
+			if (items.length > 0)
+			{
+				JButton btn = (JButton) e.getSource();
+				JPopupMenu popup = new JPopupMenu();
+				JMenuItem item;
 
-    public void fireStockEvent(StockEvent evt)
-    {
-        if (stockListeners != null)
-        {
-            StockListener[] listeners = stockListeners.getListeners(StockListener.class);
-            for (int i = 0; i < listeners.length; i++)
-                listeners[i].stockChanged(evt);
-        }
-    }*/
+				for (int i = items.length - 1; i >= 0; i--)
+				{
+					final int index = i - items.length;
+					if (items[i] != null)
+					{
+						String name =
+							items[i].getStock().getKey()
+							+ " : "
+							+ DataProvider.getInterval(items[i].getIntervalHash());
+
+						popup.add(item = new JMenuItem(new GoToItemAction(name, index)));
+						item.setMargin(new Insets(0,0,0,0));
+					}
+				}
+
+				popup.addSeparator();
+
+				popup.add(item = new JMenuItem(new ClearHistoryAction(true)));
+				item.setMargin(new Insets(0,0,0,0));
+
+				popup.show(btn, 0, btn.getHeight());
+			}
+		}
+
+	}
+
+	public class ForwardListAction extends SymbolChangerAction
+	{
+
+		public ForwardListAction()
+		{
+			super("Go Forward", "Go Forward", "forwardHistory");
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			HistoryItem[] items = chartFrame.getHistory().getFwdHistoryList();
+			if (items.length > 0)
+			{
+				JButton btn = (JButton) e.getSource();
+				JPopupMenu popup = new JPopupMenu();
+				JMenuItem item;
+
+				for (int i = items.length - 1; i >= 0; i--)
+				{
+					final int index = Math.abs(i - items.length);
+					if (items[i] != null)
+					{
+						String name =
+							items[i].getStock().getKey()
+							+ " : "
+							+ DataProvider.getInterval(items[i].getIntervalHash());
+
+						popup.add(item = new JMenuItem(new GoToItemAction(name, index)));
+						item.setMargin(new Insets(0,0,0,0));
+					}
+				}
+
+				popup.addSeparator();
+
+				popup.add(item = new JMenuItem(new ClearHistoryAction(false)));
+				item.setMargin(new Insets(0,0,0,0));
+
+				popup.show(btn, 0, btn.getHeight());
+			}
+		}
+
+	}
+
+	public class GoToItemAction extends SymbolChangerAction
+	{
+
+		private int step = 0;
+
+		public GoToItemAction(String name, int step)
+		{
+			super(name, name, null);
+			this.step = step;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			buttonsStatus(false);
+			HistoryItem item = chartFrame.getHistory().go(step);
+			if (item != null)
+				chartFrame.stockChanged(new StockEvent(item));
+			buttonsStatus(true);
+		}
+
+	}
+
+	public class ClearHistoryAction extends SymbolChangerAction
+	{
+
+		private boolean back;
+
+		public ClearHistoryAction(boolean back)
+		{
+			super("Clear", "Clear", null);
+			this.back = back;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			buttonsStatus(false);
+			if (back)
+				chartFrame.getHistory().clearBackHistory();
+			else
+				chartFrame.getHistory().clearForwardHistory();
+
+			buttonsStatus(true);
+			updateToolbar();
+		}
+
+	}
 
 }

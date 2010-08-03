@@ -14,6 +14,7 @@ public class WeeklyInterval extends Interval implements Serializable {
 
     public WeeklyInterval() {
         super("Weekly");
+		timeParam = "w";
     }
 
     public long startTime() {
@@ -23,29 +24,7 @@ public class WeeklyInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "w";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof WeeklyInterval))
-            return false;
-
-        WeeklyInterval that = (WeeklyInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
+        return timeParam;
     }
 
 }

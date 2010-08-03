@@ -4,12 +4,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
@@ -42,119 +41,91 @@ public class ChartToolbar extends JToolBar implements Serializable
         addMouseListener(new ToolbarOptions(this));
     }
 
-    protected void initComponents()
+    private void initComponents()
     {
-        // Symbol Changer Toolbar
+        // SymbolChanger Toolbar
         symbolChanger = new SymbolChanger(chartFrame);
         add(symbolChanger);
 
-        AbstractButton button;
+		// ChartToolbar buttons
+        add(zoomInBtn
+			= ToolbarButton.getButton(MainActions.zoomIn(chartFrame)));
+        add(zoomOutBtn
+			= ToolbarButton.getButton(MainActions.zoomOut(chartFrame)));
+        add(intervalsBtn
+			= ToolbarButton.getButton(MainActions.intervalPopup(chartFrame)));
+        add(chartBtn
+			= ToolbarButton.getButton(MainActions.chartPopup(chartFrame)));
+        add(indicatorsBtn
+			= ToolbarButton.getButton(MainActions.openIndicators(chartFrame)));
+        add(overlaysBtn
+			= ToolbarButton.getButton(MainActions.openOverlays(chartFrame)));
+        add(annotationsBtn
+			= ToolbarButton.getButton(MainActions.annotationPopup(chartFrame)));
+        add(markerBtn
+			= ToolbarToggleButton.getButton(MainActions.toggleMarker(chartFrame)));
+        add(exportBtn
+			= ToolbarButton.getButton(MainActions.exportImage(chartFrame)));
+        add(printBtn
+			= ToolbarButton.getButton(MainActions.printChart(chartFrame)));
+        add(propertiesBtn
+			= ToolbarButton.getButton(MainActions.chartProperties(chartFrame)));
 
-        // Zoom In Button
-        button = new JButton(MainActions.zoomIn(chartFrame));
-        setButtonSettings(button, "Zoom In");
-        add(button);
-
-        // Zoom Out Button
-        button = new JButton(MainActions.zoomOut(chartFrame));
-        setButtonSettings(button, "Zoom Out");
-        add(button);
-
-        // Intervals Button
-        button = new JButton(MainActions.timeMenu(chartFrame));
-        setButtonSettings(button, "Select Time");
-        add(button);
-
-        // Charts Button
-        button = new JButton(MainActions.chartMenu(chartFrame));
-        setButtonSettings(button, "Select Chart");
-        add(button);
-
-        // Indicators Button
-        button = new JButton(MainActions.addIndicators(chartFrame));
-        setButtonSettings(button, "Add Indicators");
-        add(button);
-
-        // Overlays Button
-        button = new JButton(MainActions.addOverlays(chartFrame));
-        setButtonSettings(button, "Add Overlays");
-        add(button);
-
-        // Annotations Button
-        button = new JButton(MainActions.annotationMenu(chartFrame));
-        setButtonSettings(button, "Annotations");
-        add(button);
-
-        // Marker Button
-        button = new JToggleButton(MainActions.markerAction(chartFrame));
-        setButtonSettings(button, "Marker");
-        button.setSelected(true);
-        add(button);
-
-        // Export Image Button
-        button = new JButton(MainActions.exportImage(chartFrame));
-        setButtonSettings(button, "Export Image");
-        add(button);
-
-        // Print Button
-        button = new JButton(MainActions.printChart(chartFrame));
-        setButtonSettings(button, "Print");
-        add(button);
-
-        // Properties Button
-        button = new JButton(MainActions.chartSettings(chartFrame));
-        setButtonSettings(button, "Chart Settings");
-        add(button);
-    }
-
-
-    private void setButtonSettings(AbstractButton button, String tooltip)
-    {
-        button.setVerticalAlignment(SwingConstants.TOP);
-        button.setVerticalTextPosition(SwingConstants.BOTTOM);
-        button.setHorizontalTextPosition(SwingConstants.CENTER);
-        button.setMargin(new Insets(6,6,6,6));
-        button.setBorderPainted(false);
-        button.setToolTipText(tooltip);
-        if (!chartFrame.getChartProperties().getToolbarShowLabels())
-            button.setText("");
+		markerBtn.setSelected(true);
     }
 
     public void updateToolbar()
     {
-        symbolChanger.updateToolbar();
+		symbolChanger.updateToolbar();
     }
+
+	public void toggleLabels()
+	{
+		boolean show = chartFrame.getChartProperties().getToolbarShowLabels();
+		zoomInBtn.toggleLabel(show);
+		zoomOutBtn.toggleLabel(show);
+		intervalsBtn.toggleLabel(show);
+		chartBtn.toggleLabel(show);
+		indicatorsBtn.toggleLabel(show);
+		overlaysBtn.toggleLabel(show);
+		annotationsBtn.toggleLabel(show);
+		markerBtn.toggleLabel(show);
+		exportBtn.toggleLabel(show);
+		printBtn.toggleLabel(show);
+		propertiesBtn.toggleLabel(show);
+	}
+
+	public void toggleIcons()
+	{
+		boolean small = chartFrame.getChartProperties().getToolbarSmallIcons();
+		zoomInBtn.toggleIcon(small);
+		zoomOutBtn.toggleIcon(small);
+		intervalsBtn.toggleIcon(small);
+		chartBtn.toggleIcon(small);
+		indicatorsBtn.toggleIcon(small);
+		overlaysBtn.toggleIcon(small);
+		annotationsBtn.toggleIcon(small);
+		markerBtn.toggleIcon(small);
+		exportBtn.toggleIcon(small);
+		printBtn.toggleIcon(small);
+		propertiesBtn.toggleIcon(small);
+	}
 
     public JPopupMenu getToolbarMenu()
     {
         JPopupMenu popup = new JPopupMenu();
         JCheckBoxMenuItem item;
+        
+        popup.add(item = new JCheckBoxMenuItem(
+			MainActions.toggleToolbarSmallIcons(chartFrame, this)));
+		item.setMargin(new Insets(0,0,0,0));
+		item.setState(chartFrame.getChartProperties().getToolbarSmallIcons());
 
-        item = new JCheckBoxMenuItem(new AbstractAction("Small Toolbar Icons")
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-                chartFrame.getChartProperties().setToolbarSmallIcons(!b);
-                updateToolbar();
-            }
-        });
-        item.setMargin(new Insets(0,0,0,0));
-        item.setState(chartFrame.getChartProperties().getToolbarSmallIcons());
-        popup.add(item);
-
-        item = new JCheckBoxMenuItem(new AbstractAction("Show Labels")
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                boolean b = chartFrame.getChartProperties().getToolbarShowLabels();
-                chartFrame.getChartProperties().setToolbarShowLabels(!b);
-                updateToolbar();
-            }
-        });
-        item.setMargin(new Insets(0,0,0,0));
-        item.setState(chartFrame.getChartProperties().getToolbarShowLabels());
-        popup.add(item);
+        
+        popup.add(item = new JCheckBoxMenuItem(
+			MainActions.toggleToolbarShowLabels(chartFrame, this)));
+		item.setMargin(new Insets(0,0,0,0));
+		item.setState(!chartFrame.getChartProperties().getToolbarShowLabels());
 
         return popup;
     }
@@ -221,5 +192,97 @@ public class ChartToolbar extends JToolBar implements Serializable
         { return false; }
 
     }
+
+	public static class ToolbarButton extends JButton
+	{
+
+		public static ToolbarButton getButton(Action action)
+		{
+			return new ToolbarButton(action);
+		}
+
+		public ToolbarButton(Action action)
+		{
+			super(action);
+
+			setVerticalAlignment(SwingConstants.TOP);
+			setVerticalTextPosition(SwingConstants.BOTTOM);
+			setHorizontalTextPosition(SwingConstants.CENTER);
+
+			setMargin(new Insets(6, 6, 6, 6));
+			setBorderPainted(false);
+		}
+
+		public void toggleLabel(boolean show)
+		{
+			if (show) showText();
+			else hideText();
+		}
+
+		public void hideText() { setText(""); }
+		public void showText() { setText((String) getAction().getValue(Action.NAME)); }
+
+		public void toggleIcon(boolean small)
+		{
+			if (small) showSmallIcon();
+			else showBigIcon();
+		}
+
+		public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
+		public void showBigIcon() { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+
+	}
+
+	public static class ToolbarToggleButton extends JToggleButton
+	{
+
+		public static ToolbarToggleButton getButton(Action action)
+		{
+			return new ToolbarToggleButton(action);
+		}
+
+		public ToolbarToggleButton(Action action)
+		{
+			super(action);
+
+			setVerticalAlignment(SwingConstants.TOP);
+			setVerticalTextPosition(SwingConstants.BOTTOM);
+			setHorizontalTextPosition(SwingConstants.CENTER);
+
+			setMargin(new Insets(6, 6, 6, 6));
+			setBorderPainted(false);
+		}
+
+		public void toggleLabel(boolean show)
+		{
+			if (show) showText();
+			else hideText();
+		}
+
+		public void hideText() { this.setText(""); }
+		public void showText() { setText((String) getAction().getValue(Action.NAME)); }
+
+		public void toggleIcon(boolean small)
+		{
+			if (small) showSmallIcon();
+			else showBigIcon();
+		}
+
+		public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
+		public void showBigIcon() { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+
+	}
+
+	private ToolbarButton zoomInBtn;
+	private ToolbarButton zoomOutBtn;
+	private ToolbarButton intervalsBtn;
+	private ToolbarButton chartBtn;
+	private ToolbarButton indicatorsBtn;
+	private ToolbarButton overlaysBtn;
+	private ToolbarButton annotationsBtn;
+	private ToolbarToggleButton markerBtn;
+	private ToolbarButton exportBtn;
+	private ToolbarButton printBtn;
+	private ToolbarButton propertiesBtn;
 
 }

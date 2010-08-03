@@ -14,6 +14,7 @@ public class ThirtyMinuteInterval extends Interval implements Serializable {
 
     public ThirtyMinuteInterval() {
         super("30 Min", true);
+		timeParam = "30";
     }
 
     public long startTime() {
@@ -23,29 +24,7 @@ public class ThirtyMinuteInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "30";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof ThirtyMinuteInterval))
-            return false;
-
-        ThirtyMinuteInterval that = (ThirtyMinuteInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
+        return timeParam;
     }
 
 }

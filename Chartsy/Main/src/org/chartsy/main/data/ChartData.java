@@ -268,7 +268,7 @@ public class ChartData implements Serializable
     public void calculateRange(ChartFrame chartFrame, List<Overlay> overlays)
     {
         Range range = new Range();
-        if (!isVisibleNull())
+        if (!isVisibleNull() && !getVisible().isEmpty())
         {
             double min = getVisible().getMinNotZero();
             double max = getVisible().getMaxNotZero();
@@ -293,7 +293,7 @@ public class ChartData implements Serializable
 
     public void calculate(ChartFrame chartFrame)
     {
-        if (!isDatasetNull())
+        if (!isDatasetNull() && !getDataset().isEmpty())
         {
             double barWidth = chartFrame.getChartProperties().getBarWidth();
             Rectangle rect = chartFrame.getSplitPanel().getBounds();
@@ -478,6 +478,7 @@ public class ChartData implements Serializable
 
         return index;
     }
+	
     private transient EventListenerList indicatorsDatasetListeners = new EventListenerList();
     private transient EventListenerList overlaysDatasetListeners = new EventListenerList();
 

@@ -30,6 +30,7 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.CoordCalc;
 import org.chartsy.main.utils.SerialVersion;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -74,7 +75,9 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
         label.setForeground(fontColor);
         label.setVisible(index != -1);
         label.setPreferredSize(new Dimension(width, height));
-        label.addMouseListener(new Draggable(label));
+		Draggable draggable = new Draggable(label);
+        label.addMouseListener(draggable);
+		label.addMouseMotionListener(draggable);
 
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -200,29 +203,15 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
     private String addLine(String left, String right)
     {
         if (!right.equals(" "))
-        {
-            StringBuffer sb = new StringBuffer();
-            sb.append("<tr><td width='");
-            sb.append(Integer.toString(width/2));
-            sb.append("' height='10' valign='middle' align='left'>&nbsp;");
-            sb.append(left);
-            sb.append("</td><td width='");
-            sb.append(Integer.toString(width/2 + 1));
-            sb.append("' height='10' valign='middle' align='right'>");
-            sb.append(right);
-            sb.append("</td></tr>");
-            return sb.toString();
-        }
+			return NbBundle.getMessage(
+				ChartSplitPanel.class,
+				"HTML_Line",
+				new String[] {String.valueOf(width/2), left, right});
         else
-        {
-            StringBuffer sb = new StringBuffer();
-            sb.append("<tr><td width='");
-            sb.append(Integer.toString(width));
-            sb.append("' height='10' valign='middle' align='left' colspan='2'>&nbsp;");
-            sb.append(left);
-            sb.append("</td></tr>");
-            return sb.toString();
-        }
+			return NbBundle.getMessage(
+				ChartSplitPanel.class,
+				"HTML_EmptyLine",
+				new String[] {String.valueOf(width), left});
     }
 
     public void labelText()
@@ -233,14 +222,11 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
             DecimalFormat df = new DecimalFormat("#,##0.00");
 
             long time = cd.getVisible().getTimeAt(index);
-            String s = chartFrame.getChartData().getInterval().getMarkerString(time);
+            String date = chartFrame.getChartData().getInterval().getMarkerString(time);
 
-            StringBuffer sb = new StringBuffer();
-            sb.append("<html><table width='");
-            sb.append(Integer.toString(width));
-            sb.append("' cellpadding='0' cellspacing='0' border='0'>");
+            StringBuilder sb = new StringBuilder();
             // Date
-            sb.append(addLine("Date:", s));
+            sb.append(addLine("Date:", date));
             // Open
             sb.append(addLine("Open:", df.format(cd.getVisible().getOpenAt(index))));
             // High
@@ -295,10 +281,16 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
                 }
             }
 
-            sb.append("</table></html>");
+			String labelText = NbBundle.getMessage(
+				ChartSplitPanel.class,
+				"HTML_Marker",
+				new String[] {String.valueOf(width), sb.toString()});
+			if (!label.getText().equals(labelText))
+				label.setText(labelText);
 
-            label.setText(sb.toString());
-            label.setPreferredSize(new Dimension(width, height * lines));
+			Dimension dimension = new Dimension(width, height * lines);
+			if (!label.getPreferredSize().equals(dimension))
+				label.setPreferredSize(dimension);
         }
         else
         {
@@ -359,8 +351,6 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
         public Draggable(Component comp)
         {
             comp.setLocation(0, 0);
-            comp.addMouseListener(this);
-            comp.addMouseMotionListener(this);
             cDraggable = comp;
         }
 

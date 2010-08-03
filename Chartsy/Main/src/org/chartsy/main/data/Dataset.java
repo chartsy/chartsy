@@ -16,6 +16,11 @@ public class Dataset implements Serializable {
 
     private List<DataItem> data;
 
+	public Dataset()
+	{
+		this.data = new ArrayList<DataItem>();
+	}
+
     public Dataset(List<DataItem> list) {
         this.data = list;
     }
@@ -25,7 +30,7 @@ public class Dataset implements Serializable {
     }
 
     public boolean isEmpty() {
-        return (data.size() == 0);
+        return data.isEmpty();
     }
 
     public int getItemsCount() {
@@ -51,7 +56,7 @@ public class Dataset implements Serializable {
     }
 
     public void addDataItem(DataItem item) {
-        data.add(item);
+		data.add(item);
     }
 
     public long[] getTimeValues() {

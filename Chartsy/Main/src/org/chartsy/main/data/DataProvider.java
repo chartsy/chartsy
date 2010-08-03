@@ -1,21 +1,16 @@
 package org.chartsy.main.data;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Logger;
+import javax.swing.event.EventListenerList;
+import org.chartsy.main.events.DataProviderEvent;
+import org.chartsy.main.events.DataProviderListener;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.intervals.FifteenMinuteInterval;
 import org.chartsy.main.intervals.FiveMinuteInterval;
@@ -25,8 +20,9 @@ import org.chartsy.main.intervals.OneMinuteInterval;
 import org.chartsy.main.intervals.SixtyMinuteInterval;
 import org.chartsy.main.intervals.ThirtyMinuteInterval;
 import org.chartsy.main.intervals.WeeklyInterval;
-import org.chartsy.main.utils.FileUtils;
+import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.utils.SerialVersion;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -37,7 +33,11 @@ public abstract class DataProvider implements Serializable
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    protected static final Logger LOG = Logger.getLogger(DataProvider.class.getPackage().getName());
+    protected static final Logger LOG
+		= Logger.getLogger(DataProvider.class.getPackage().getName());
+
+	transient protected LinkedHashMap<String, LinkedHashMap<String, Timer>> timerMap;
+	transient protected int currentTask = 0;
 
     public static final Interval ONE_MINUTE = new OneMinuteInterval();
     public static final Interval FIVE_MINUTE = new FiveMinuteInterval();
@@ -49,8 +49,11 @@ public abstract class DataProvider implements Serializable
     public static final Interval WEEKLY = new WeeklyInterval();
     public static final Interval MONTHLY = new MonthlyInterval();
 
-    public static final Interval[] INTRA_DAY_INTERVALS = {ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, SIXTY_MINUTE};
-    public static final Interval[] INTERVALS = {DAILY, WEEKLY, MONTHLY};
+    public static final Interval[] INTRA_DAY_INTERVALS =
+	{ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, SIXTY_MINUTE};
+
+    public static final Interval[] INTERVALS =
+	{DAILY, WEEKLY, MONTHLY};
 
     protected String name;
     protected Exchange[] exchanges;
@@ -58,49 +61,86 @@ public abstract class DataProvider implements Serializable
 
     protected String stocksPath;
     protected String datasetsPath;
+
+	transient protected LinkedHashMap<String, LinkedList<Stock>> allStocks;
+	transient protected LinkedHashMap<String, LinkedHashMap<String, Dataset>> allDatasets;
+	
     protected boolean initializeFlag = true;
 
-    public DataProvider(String name, Exchange[] exchanges)
-    {
-        this(name, exchanges, false);
-    }
+	public DataProvider(ResourceBundle bundle)
+	{
+		this(bundle, false);
+	}
 
-    public DataProvider(String name, Exchange[] exchanges, boolean supportsIntraday)
-    {
-        this.name = name;
-        this.supportsIntraDay = supportsIntraday;
-        this.exchanges = exchanges;
-    }
+	public DataProvider(ResourceBundle bundle, boolean supportsIntraday)
+	{
+		this.name = bundle.getString("DataProvider_NAME");
+
+		String[] exgs = bundle.getString("DataProvider_EXG").split(":");
+		exchanges = new Exchange[exgs.length];
+		for (int i = 0; i < exgs.length; i++)
+		{
+			String exchange = exgs[i];
+			String resName = exgs[i].replace(" ", "") + "_PRE";
+			String sufix = bundle.getString(resName);
+			if (sufix.equals("null"))
+				sufix = "";
+			exchanges[i] = new Exchange(exchange, sufix);
+		}
+		this.supportsIntraDay = supportsIntraday;
+		
+	}
+
+	private LinkedHashMap<String, LinkedList<Stock>> stocks()
+	{
+		if (allStocks == null)
+			allStocks = new LinkedHashMap<String, LinkedList<Stock>>();
+		return allStocks;
+	}
+
+	private LinkedHashMap<String, LinkedHashMap<String, Dataset>> datasets()
+	{
+		if (allDatasets == null)
+			allDatasets = new LinkedHashMap<String, LinkedHashMap<String, Dataset>>();
+		return allDatasets;
+	}
 
     public void initialize()
     {
-        synchronized (this)
-        {
-            if (initializeFlag)
-            {
-                initializeFlag = false;
-                stocksPath = FileUtils.cacheFile(name + "Stocks");
-                datasetsPath = FileUtils.cacheFile(name + "Datasets");
-                writeStocks(null);
-                writeDatasets(null);
-            }
-        }
+		LinkedList<Stock> stocks = new LinkedList<Stock>();
+		stocks().put(name, stocks);
+
+		LinkedHashMap<String, Dataset> datasets = new LinkedHashMap<String, Dataset>();
+		datasets().put(name, datasets);
+
+		LinkedHashMap<String, Timer> timers = new LinkedHashMap<String, Timer>();
+		timers().put(name, timers);
     }
 
     public String getName() 
-    { return this.name; }
+    { 
+		return this.name;
+	}
 
     public Exchange[] getExchanges() 
-    { return this.exchanges; }
+    { 
+		return this.exchanges;
+	}
 
     public Interval[] getIntraDayIntervals() 
-    { return INTRA_DAY_INTERVALS; }
+    { 
+		return INTRA_DAY_INTERVALS;
+	}
 
     public Interval[] getIntervals() 
-    { return INTERVALS; }
+    { 
+		return INTERVALS;
+	}
 
     public boolean supportsIntraday() 
-    { return supportsIntraDay; }
+    { 
+		return supportsIntraDay;
+	}
 
     public abstract Stock getStock(String symbol, String exchange);
 
@@ -112,265 +152,216 @@ public abstract class DataProvider implements Serializable
 
     public String getKey(String symbol, Interval interval)
     {
-        StringBuffer sb = new StringBuffer();
-        sb.append(symbol);
-        sb.append("-");
-        sb.append(interval.getTimeParam());
-        return sb.toString();
+        return NbBundle.getMessage(DataProvider.class, "Dataset_KEY", symbol, interval.getTimeParam());
     }
+	
     public String getKey(Stock stock, Interval interval)
     {
-        StringBuffer sb = new StringBuffer();
-        sb.append(stock.getKey());
-        sb.append("-");
-        sb.append(interval.getTimeParam());
-        return sb.toString();
+        return NbBundle.getMessage(DataProvider.class, "Dataset_KEY", stock.getKey(), interval.getTimeParam());
     }
 
     public void addDataset(String key, Dataset value) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        map.put(key, value);
-        writeDatasets(map);
+		if (!datasetExists(key))
+		{
+			datasets().get(name).put(key, value);
+			addNewTimer(key);
+		}
     }
+
+	protected void setDataset(String key, Dataset value)
+	{
+		datasets().get(name).put(key, value);
+	}
 
     public void removeDataset(String key) 
     { 
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        map.remove(key);
-        writeDatasets(map);
+		datasets().get(name).remove(key);
     }
 
     public void removeAllDatasets() 
     {
-        writeDatasets(null);
+		datasets().get(name).clear();
     }
 
     public Dataset getDataset(Stock stock, Interval interval) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        return map.get(getKey(stock, interval));
+		return datasets().get(name).get(getKey(stock, interval));
     }
 
     public Dataset getDataset(String key) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        return map.get(key);
+		return datasets().get(name).get(key);
     }
 
     public boolean datasetExists(String key) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        return (map.get(key) != null);
+		return (datasets().get(name).get(key) != null);
     }
     
     public boolean datasetExists(Stock stock) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        return (map.get(getKey(stock, DAILY)) != null);
+		return (datasets().get(name).get(getKey(stock, DAILY)) != null);
     }
     
     public boolean datasetExists(Stock stock, Interval interval) 
     {
-        LinkedHashMap<String, Dataset> map = readDatasets();
-        return (map.get(getKey(stock, interval)) != null);
+		return (datasets().get(name).get(getKey(stock, interval)) != null);
     }
+
+	public LinkedHashMap<String, Dataset> getDatasetsMap()
+	{
+		return datasets().get(name);
+	}
+
+	public Interval getIntervalFromKey(String key)
+	{
+		for (Interval i : INTERVALS)
+		{
+			if (key.endsWith(i.getTimeParam()))
+				return i;
+		}
+		return null;
+	}
 
     public void addStock(Stock stock)
     {
-        ArrayList<Stock> list = readStocks();
-        if (!list.contains(stock))
-            list.add(stock);
-        writeStocks(list);
+		if (!hasStock(stock))
+			stocks().get(name).add(stock);
     }
 
     public boolean hasStock(Stock stock)
     {
-        ArrayList<Stock> list = readStocks();
-        return list.contains(stock);
+		return stocks().get(name).contains(stock);
     }
+
+	public Stock getStockFromKey(String key)
+	{
+		LinkedList<Stock> list = stocks().get(name);
+		for (Stock s : list)
+		{
+			for (Interval i : INTERVALS)
+			{
+				if (key.equals(getKey(s, i)))
+					return s;
+			}
+		}
+		return null;
+	}
 
     public Stock getStock(Stock stock)
     {
-        ArrayList<Stock> list = readStocks();
-        for (Stock s : list)
-            if (s.equals(stock))
-                return s;
-
-        return null;
+		int index = stocks().get(name).indexOf(stock);
+		if (index != -1)
+			return stocks().get(name).get(index);
+		return null;
     }
 
-    public void removeFiles()
-    {
-        FileUtils.removeFile(stocksPath);
-        FileUtils.removeFile(datasetsPath);
-    }
+	public List<Stock> getStocks()
+	{
+		return stocks().get(name);
+	}
 
-    public void writeStocks(ArrayList<Stock> list)
-    {
-        try
-        {
-            OutputStream outFile = new FileOutputStream(stocksPath);
-            OutputStream outBuffer = new BufferedOutputStream(outFile);
-            ObjectOutput OUT = new ObjectOutputStream(outBuffer);
+	public static Interval getInterval(int intervalHash)
+	{
+		for (Interval interval : INTERVALS)
+			if (interval.hashCode() == intervalHash)
+				return interval;
+		for (Interval interval : INTRA_DAY_INTERVALS)
+			if (interval.hashCode() == intervalHash)
+				return interval;
+		return null;
+	}
 
-            try
-            {
-                if (list == null)
-                {
-                    OUT.writeInt(0);
-                    return;
-                }
+	public Stock getStockFromHash(int stockHash)
+	{
+		for (Stock stock : stocks().get(name))
+			if (stock.hashCode() == stockHash)
+				return stock;
+		return null;
+	}
 
-                int size = list.size();
-                OUT.writeInt(size);
-                if (size > 0)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        Stock stock = list.get(i);
-                        OUT.writeObject(stock);
-                    }
-                }
-            }
-            finally
-            {
-                OUT.close();
-            }
-        }
-        catch (IOException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform output.", ex);
-        }
-    }
+	transient private EventListenerList datasetListener;
 
-    public ArrayList<Stock> readStocks()
-    {
-        ArrayList<Stock> list = new ArrayList<Stock>();
-        try
-        {
-            if (!FileUtils.fileExists(stocksPath))
-            {
-                FileUtils.createFile(stocksPath);
-                writeStocks(null);
-            }
+	private EventListenerList eventListenerList()
+	{
+		if (datasetListener == null)
+			datasetListener = new EventListenerList();
+		return datasetListener;
+	}
 
-            InputStream inFile = new FileInputStream(stocksPath);
-            InputStream inBuffer = new BufferedInputStream(inFile);
-            ObjectInput IN = new ObjectInputStream(inBuffer);
+	public void addDatasetListener(DataProviderListener listener)
+	{
+		eventListenerList().add(DataProviderListener.class, listener);
+	}
 
-            try
-            {
-                int size = IN.readInt();
-                if (size > 0)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        Stock stock = (Stock) IN.readObject();
-                        list.add(stock);
-                    }
-                }
-            }
-            finally
-            {
-                IN.close();
-            }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform input. Class not found.", ex);
-        }
-        catch(IOException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform input.", ex);
-        }
-        return list;
-    }
+	public void removeDatasetListener(DataProviderListener listener)
+	{
+		eventListenerList().remove(DataProviderListener.class, listener);
+	}
 
-    public void writeDatasets(LinkedHashMap<String, Dataset> map)
-    {
-        try
-        {
-            OutputStream outFile = new FileOutputStream(datasetsPath);
-            OutputStream outBuffer = new BufferedOutputStream(outFile);
-            ObjectOutput OUT = new ObjectOutputStream(outBuffer);
+	private void fireDatasetEvent(DataProviderEvent evt)
+	{
+		DataProviderListener[] listeners = eventListenerList().getListeners(DataProviderListener.class);
+		for (DataProviderListener listener : listeners)
+			listener.triggerDataProviderListener(evt);
+	}
 
-            try
-            {
-                if (map == null)
-                {
-                    OUT.writeInt(0);
-                    return;
-                }
+	public LinkedHashMap<String, LinkedHashMap<String, Timer>> timers()
+	{
+		if (timerMap == null)
+			timerMap = new LinkedHashMap<String, LinkedHashMap<String, Timer>>();
+		return timerMap;
+	}
 
-                int size = map.size();
-                OUT.writeInt(size);
+	protected void addNewTimer(String key)
+	{
+		Timer timer = new Timer();
+		timer.schedule(new PeriodTimer(key), 5000, 5000);
+		if (!timers().get(name).containsKey(key))
+			timers().get(name).put(key, timer);
+	}
 
-                if (size > 0)
-                {
-                    ArrayList<String> keys = new ArrayList<String>(map.keySet());
-                    ArrayList<Dataset> values = new ArrayList<Dataset>(map.values());
-                    
-                    for (int i = 0; i < size; i++)
-                    {
-                        OUT.writeObject(keys.get(i));
-                        OUT.writeObject(values.get(i));
-                    }
-                }
-            }
-            finally
-            {
-                OUT.close();
-            }
-        }
-        catch (IOException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform output.", ex);
-        }
-    }
+	public class PeriodTimer extends TimerTask
+	{
 
-    public LinkedHashMap<String, Dataset> readDatasets()
-    {
-        LinkedHashMap<String, Dataset> map = new LinkedHashMap<String, Dataset>();
-        try
-        {
-            if (!FileUtils.fileExists(datasetsPath))
-            {
-                FileUtils.createFile(datasetsPath);
-                writeDatasets(null);
-            }
+		private String key;
 
-            InputStream inFile = new FileInputStream(datasetsPath);
-            InputStream inBuffer = new BufferedInputStream(inFile);
-            ObjectInput IN = new ObjectInputStream(inBuffer);
+		public PeriodTimer(String key)
+		{
+			this.key = key;
+		}
 
-            try
-            {
-                int size = IN.readInt();
-                if (size > 0)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        String key = (String) IN.readObject();
-                        Dataset value = (Dataset) IN.readObject();
-                        map.put(key, value);
-                    }
-                }
-            }
-            finally
-            {
-                IN.close();
-            }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform input. Class not found.", ex);
-        }
-        catch(IOException ex)
-        {
-            LOG.log(Level.SEVERE, "Cannot perform input.", ex);
-        }
-        return map;
-    }
+		public @Override void run()
+		{
+			Stock stock = getStockFromKey(key);
+			Interval interval = getIntervalFromKey(key);
+
+			if (stock == null)
+				return;
+
+			if (interval == null)
+				return;
+
+			Dataset oldDataset = getDataset(key);
+			if (oldDataset == null)
+				return;
+
+			Dataset newDataset = null;
+			
+			if (!oldDataset.isEmpty())
+				newDataset = DataProviderManager.getDefault().getDataProvider(name).getLastDataItem(stock, interval, oldDataset);
+			else
+				newDataset = DataProviderManager.getDefault().getDataProvider(name).getData(stock, interval);
+
+			if (newDataset == null)
+				return;
+			
+			setDataset(key, newDataset);
+
+			fireDatasetEvent(new DataProviderEvent(stock));
+		}
+
+	}
 
 }

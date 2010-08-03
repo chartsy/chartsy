@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -239,7 +240,7 @@ public class IndicatorPanel extends JPanel implements Serializable
         };
     }
 
-    public void paint(Graphics g)
+    public @Override void paint(Graphics g)
     {
         int width = getWidth();
 
@@ -277,7 +278,7 @@ public class IndicatorPanel extends JPanel implements Serializable
         return new Rectangle(0, 0, getWidth(), getPanelHeight());
     }
 
-    public class IndicatorToolbox extends JToolBar implements Serializable
+    public final class IndicatorToolbox extends JToolBar implements Serializable
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -374,11 +375,19 @@ public class IndicatorPanel extends JPanel implements Serializable
             repaint();
         }
 
-        public void paint(Graphics g)
+        public @Override void paint(Graphics g)
         {
-            indicatorLabel.setFont(IndicatorPanel.this.chartFrame.getChartProperties().getFont());
-            indicatorLabel.setForeground(IndicatorPanel.this.chartFrame.getChartProperties().getFontColor());
-            indicatorLabel.setText(IndicatorPanel.this.indicator.getLabel());
+			Font font = IndicatorPanel.this.chartFrame.getChartProperties().getFont();
+			if (!indicatorLabel.getFont().equals(font))
+				indicatorLabel.setFont(font);
+
+			Color foreground = IndicatorPanel.this.chartFrame.getChartProperties().getFontColor();
+			if (!indicatorLabel.getForeground().equals(foreground))
+				indicatorLabel.setForeground(foreground);
+
+			String text = IndicatorPanel.this.indicator.getLabel();
+			if (!indicatorLabel.getText().equals(text))
+				indicatorLabel.setText(text);
             
             Rectangle oldClip = g.getClipBounds();
             Rectangle newClip = getBounds();

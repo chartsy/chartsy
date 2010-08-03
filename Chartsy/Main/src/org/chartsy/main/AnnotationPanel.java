@@ -27,7 +27,8 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class AnnotationPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener, Serializable
+public class AnnotationPanel extends JPanel
+	implements MouseListener, MouseMotionListener, KeyListener, Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -49,9 +50,9 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
         annotations = new ArrayList<Annotation>();
         setOpaque(false);
 
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addKeyListener(this);
+        addMouseListener((MouseListener) this);
+        addMouseMotionListener((MouseMotionListener) this);
+        addKeyListener((KeyListener) this);
     }
 
     public ChartFrame getChartFrame()
@@ -221,15 +222,11 @@ public class AnnotationPanel extends JPanel implements MouseListener, MouseMotio
                                 chartFrame.getSplitPanel().setIndex(-1);
                             }
                         }
-                        repaint();
                     }
                     else
                     {
                         if (!isCurrentNull())
-                        {
                             getCurrent().mousePressed(e);
-                            repaint();
-                        }
                     }
                     break;
                 case RESIZE:

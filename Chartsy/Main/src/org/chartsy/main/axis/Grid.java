@@ -30,7 +30,7 @@ public class Grid extends JPanel
         setOpaque(false);
     }
 
-    public void paint(Graphics g)
+    public @Override void paint(Graphics g)
     {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g.create();
@@ -45,7 +45,7 @@ public class Grid extends JPanel
         ChartData cd = chartFrame.getChartData();
         ChartProperties cp = chartFrame.getChartProperties();
 
-        if (!cd.isVisibleNull())
+        if (!cd.isVisibleNull() && !cd.getVisible().isEmpty())
         {
             Rectangle chartBounds = chartFrame.getSplitPanel().getChartPanel().getBounds();
             chartBounds.grow(-2, -2);

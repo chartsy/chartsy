@@ -14,6 +14,7 @@ public class MonthlyInterval extends Interval implements Serializable {
 
     public MonthlyInterval() {
         super("Monthly");
+		timeParam = "m";
     }
 
     public long startTime() {
@@ -23,29 +24,7 @@ public class MonthlyInterval extends Interval implements Serializable {
     }
 
     public String getTimeParam() {
-        return "m";
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        if (!(obj instanceof MonthlyInterval))
-            return false;
-
-        MonthlyInterval that = (MonthlyInterval) obj;
-
-        if (!getName().equals(that.getName()))
-            return false;
-
-        if (!getTimeParam().equals(that.getTimeParam()))
-            return false;
-
-        if (isIntraDay() != that.isIntraDay())
-            return false;
-
-        return true;
+        return timeParam;
     }
 
 }

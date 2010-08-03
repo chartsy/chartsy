@@ -37,7 +37,7 @@ public abstract class AbstractPropertiesNode
     {
         super(Children.LEAF, Lookups.singleton(listener));
         setDisplayName(name);
-        listener.addPropertyChangeListener(this);
+        listener.addPropertyChangeListener((PropertyChangeListener) this);
     }
 
     public Sheet.Set[] getSets()

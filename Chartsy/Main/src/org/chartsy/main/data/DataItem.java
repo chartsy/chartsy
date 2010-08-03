@@ -127,7 +127,7 @@ public class DataItem implements Serializable
 
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("DataItem [open=");
         sb.append(Double.toString(open));
         sb.append(", high=");

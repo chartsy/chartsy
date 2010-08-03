@@ -171,12 +171,15 @@ public class ChartProperties
 
     public boolean getToolbarVisibility() { return toolbarVisibility; }
     public void setToolbarVisibility(boolean b) { toolbarVisibility = b; }
+	public void toggleToolbarVisibility() { toolbarVisibility = !toolbarVisibility; }
 
     public boolean getToolbarSmallIcons() { return toolbarSmallIcons; }
     public void setToolbarSmallIcons(boolean b) { toolbarSmallIcons = b; }
+	public void toggleToolbarSmallIcons() { toolbarSmallIcons = !toolbarSmallIcons; }
 
     public boolean getToolbarShowLabels() { return toolbarShowLabels; }
     public void setToolbarShowLabels(boolean b) { toolbarShowLabels = b; }
+	public void toggleShowLabels() { toolbarShowLabels = !toolbarShowLabels; }
 
     private transient EventListenerList logListeners = new EventListenerList();
 

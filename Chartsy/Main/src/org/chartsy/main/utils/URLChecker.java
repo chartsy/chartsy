@@ -1,7 +1,10 @@
 package org.chartsy.main.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -71,5 +74,29 @@ public class URLChecker {
         }
         return true;
     }
+
+	public static String encode(String url)
+	{
+		try
+		{
+			return URLEncoder.encode(url, "UTF-8");
+		}
+		catch (UnsupportedEncodingException ex)
+		{}
+
+		return url;
+	}
+
+	public static String decode(String url)
+	{
+		try
+		{
+			return URLDecoder.decode(url, "UTF-8");
+		}
+		catch (UnsupportedEncodingException ex)
+		{}
+
+		return url;
+	}
 
 }

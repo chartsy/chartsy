@@ -2,372 +2,880 @@ package org.chartsy.main.utils;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.util.List;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import org.chartsy.main.ChartFrame;
+import org.chartsy.main.ChartToolbar;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.chart.Chart;
+import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.AnnotationProperties;
 import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.dialogs.Indicators;
 import org.chartsy.main.dialogs.Overlays;
+import org.chartsy.main.favorites.nodes.RootAPI;
+import org.chartsy.main.favorites.nodes.RootAPINode;
+import org.chartsy.main.favorites.nodes.StockAPI;
+import org.chartsy.main.favorites.nodes.StockAPINode;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.netbeans.api.print.PrintManager;
+import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  *
  * @author viorel.gheba
  */
-public final class MainActions {
+public final class MainActions
+{
 
-    private MainActions() {}
+    private MainActions()
+	{}
 
-    public static AbstractAction zoomIn(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction(" + ", 
-                b ? ResourcesUtils.getIcon16("zoomin") : ResourcesUtils.getIcon24("zoomin"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                chartFrame.getChartData().zoomIn(chartFrame);
-                chartFrame.componentFocused();
-            }
-        };
-    }
+	/*
+	 * ChartFrame popup actions & ChartToolbar actions
+	 */
 
-    public static AbstractAction zoomOut(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction(" - ", 
-                b ? ResourcesUtils.getIcon16("zoomout") : ResourcesUtils.getIcon24("zoomout"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                chartFrame.getChartData().zoomOut(chartFrame);
-                chartFrame.componentFocused();
-            }
-        };
-    }
+	public static Action zoomIn(ChartFrame chartFrame)							{ return ZoomIn.getAction(chartFrame); }
+	public static Action zoomOut(ChartFrame chartFrame)							{ return ZoomOut.getAction(chartFrame); }
+	public static Action intervalPopup(ChartFrame chartFrame)					{ return IntervalPopup.getAction(chartFrame); }
+	public static Action chartPopup(ChartFrame chartFrame)						{ return ChartPopup.getAction(chartFrame); }
+	public static Action openIndicators(ChartFrame chartFrame)					{ return OpenIndicators.getAction(chartFrame); }
+	public static Action openOverlays(ChartFrame chartFrame)					{ return OpenOverlays.getAction(chartFrame); }
+	public static Action annotationPopup(ChartFrame chartFrame)					{ return AnnotationPopup.getAction(chartFrame); }
+	public static Action toggleMarker(ChartFrame chartFrame)					{ return ToggleMarker.getAction(chartFrame); }
+	public static Action exportImage(ChartFrame chartFrame)						{ return ExportImage.getAction(chartFrame); }
+	public static Action printChart(ChartFrame chartFrame)						{ return PrintChart.getAction(chartFrame); }
+	public static Action chartProperties(ChartFrame chartFrame)					{ return ChartProps.getAction(chartFrame); }
+	public static Action toggleToolbarVisibility(ChartFrame chartFrame)			{ return ToggleToolbarVisibility.getAction(chartFrame); }
+	public static Action addToFavorites(ChartFrame chartFrame)					{ return AddToFavorites.getAction(chartFrame); }
 
-    public static AbstractAction timeMenu(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Time", 
-                b ? ResourcesUtils.getIcon16("time") : ResourcesUtils.getIcon24("time"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                JButton button = (JButton) e.getSource();
-                JPopupMenu popupMenu = new JPopupMenu();
+	/*
+	 * Submenu actions
+	 */
 
-                Interval interval = chartFrame.getChartData().getInterval();
-                Interval[] is = chartFrame.getChartData().getDataProvider().getIntervals();
-                
-                for (Interval i : is)
-                {
-                    JMenuItem item = new JMenuItem(changeTime(chartFrame, i, i.equals(interval)));
-                    item.setMargin(new java.awt.Insets(0,0,0,0));
-                    popupMenu.add(item);
-                }
+	public static Action changeInterval
+		(ChartFrame chartFrame, Interval interval, boolean current)
+	{ return ChangeInterval.getAction(chartFrame, interval, current); }
 
-                if (chartFrame.getChartData().getDataProvider().supportsIntraday())
-                {
-                    popupMenu.addSeparator();
+	public static Action changeChart
+		(ChartFrame chartFrame, String chartName, boolean current)
+	{ return ChangeChart.getAction(chartFrame, chartName, current); }
 
-                    is = chartFrame.getChartData().getDataProvider().getIntraDayIntervals();
-                    for (Interval i : is)
-                    {
-                        JMenuItem item = new JMenuItem(changeTime(chartFrame, i, i.equals(interval)));
-                        item.setMargin(new java.awt.Insets(0,0,0,0));
-                        popupMenu.add(item);
-                    }
-                }
+	public static Action addAnnotation
+		(String annotationName)
+	{ return AddAnnotation.getAction(annotationName); }
 
-                if (popupMenu.getComponents().length > 0)
-                    popupMenu.show(button, 0, button.getHeight());
-            }
-        };
-    }
+    public static Action removeAllAnnotations
+		(ChartFrame chartFrame)
+	{ return RemoveAllAnnotations.getAction(chartFrame); }
 
-    public static AbstractAction changeTime(final ChartFrame chartFrame, final Interval interval, final boolean current)
-    {
-        return new AbstractAction(interval.getName(), current ? ResourcesUtils.getIcon16("time") : null)
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Interval current = chartFrame.getChartData().getInterval();
-                if (!current.equals(interval))
-                {
-                    Stock stock = chartFrame.getChartData().getStock();
-                    if (chartFrame.getChartData().getDataProvider().datasetExists(stock, interval))
-                    {
-                        if (chartFrame.getChartData().updateDataset(interval))
-                        {
-                            if (chartFrame.getHistory() != null)
-                            {
-                                HistoryItem item = chartFrame.getHistory().getCurrent();
-                                if (item != null)
-                                {
-                                    chartFrame.getHistory().addHistoryItem(item);
-                                    chartFrame.getHistory().clearForwardHistory();
-                                    chartFrame.getHistory().setCurrent(new HistoryItem(stock, interval));
-                                }
-                            }
+    public static Action annotationProperties
+		(ChartFrame chartFrame, Annotation annotation)
+	{ return AnnotationProps.getAction(chartFrame, annotation); }
 
-                            chartFrame.getChartData().calculate(chartFrame);
-                            chartFrame.updateToolbar();
-                            chartFrame.validate();
-                            chartFrame.repaint();
-                        }
-                    }
-                }
-            }
-        };
-    }
+	/*
+	 * ChartToolbar popup actions
+	 */
 
-    public static AbstractAction chartMenu(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Chart", 
-                b ? ResourcesUtils.getIcon16("chart") : ResourcesUtils.getIcon24("chart"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                String current = chartFrame.getChartData().getChart().getName();
-                List<String> list = ChartManager.getDefault().getCharts();
+	public static Action toggleToolbarSmallIcons
+		(ChartFrame chartFrame, ChartToolbar chartToolbar)
+	{ return ToggleToolbarSmallIcons.getAction(chartFrame, chartToolbar); }
 
-                JButton button = (JButton) e.getSource();
-                JPopupMenu popupMenu = new JPopupMenu();
+	public static Action toggleToolbarShowLabels
+		(ChartFrame chartFrame, ChartToolbar chartToolbar)
+	{ return ToggleToolbarShowLabels.getAction(chartFrame, chartToolbar); }
 
-                for (String s : list)
-                {
-                    JMenuItem item = new JMenuItem(changeChart(chartFrame, s, current.equals(s)));
-                    item.setMargin(new java.awt.Insets(0,0,0,0));
-                    popupMenu.add(item);
-                }
-
-                popupMenu.show(button, 0, button.getHeight());
-            }
-        };
-    }
-
-    public static AbstractAction changeChart(final ChartFrame chartFrame, final String name, final boolean current)
-    {
-        return new AbstractAction(name, current ? ResourcesUtils.getIcon16("chart") : null)
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Chart chart = ChartManager.getDefault().getChart(name);
-                chartFrame.getChartData().setChart(chart);
-                chartFrame.validate();
-                chartFrame.repaint();
-            }
-        };
-    }
-
-    public static AbstractAction addIndicators(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Indicators", 
-                b ? ResourcesUtils.getIcon16("indicator") : ResourcesUtils.getIcon24("indicator"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Indicators dialog = new Indicators(new JFrame(), true);
-                dialog.setChartFrame(chartFrame);
-                dialog.setLocationRelativeTo(chartFrame);
-                dialog.initForm();
-                dialog.setVisible(true);
-            }
-        };
-    }
-
-    public static AbstractAction addOverlays(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Overlays", 
-                b ? ResourcesUtils.getIcon16("overlay") : ResourcesUtils.getIcon24("overlay"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Overlays dialog = new Overlays(new JFrame(), true);
-                dialog.setChartFrame(chartFrame);
-                dialog.setLocationRelativeTo(chartFrame);
-                dialog.initForm();
-                dialog.setVisible(true);
-            }
-        };
-    }
-
-    public static AbstractAction annotationMenu(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Annotations", 
-                b ? ResourcesUtils.getIcon16("line") : ResourcesUtils.getIcon24("line"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                List<String> list = AnnotationManager.getDefault().getAnnotations();
-
-                JButton button = (JButton) e.getSource();
-                JPopupMenu popup = new JPopupMenu();
-
-                JMenuItem item;
-
-                for (String s : list)
-                {
-                    item = new JMenuItem(addAnnotation(chartFrame, s));
-                    item.setMargin(new Insets(0,0,0,0));
-                    popup.add(item);
-                }
-
-                popup.addSeparator();
-
-                item = new JMenuItem(removeAllAnnotations(chartFrame));
-                item.setMargin(new Insets(0,0,0,0));
-                popup.add(item);
-
-                if (chartFrame.hasCurrentAnnotation())
-                {
-                    Annotation current = chartFrame.getCurrentAnnotation();
-                    if (current.isSelected())
-                    {
-                        popup.addSeparator();
-
-                        item = new JMenuItem(annotationSettings(chartFrame, current));
-                        item.setMargin(new Insets(0, 0, 0, 0));
-                        popup.add(item);
-                    }
-                }
-
-                popup.show(button, 0, button.getHeight());
-            }
-        };
-    }
-
-    public static AbstractAction addAnnotation(final ChartFrame chartFrame, final String name)
-    {
-        return new AbstractAction(name, ResourcesUtils.getIcon16("line"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Annotation a = AnnotationManager.getDefault().getAnnotation(name);
-                AnnotationManager.getDefault().setNewAnnotation(a);
-            }
-        };
-    }
-
-    public static AbstractAction removeAllAnnotations(final ChartFrame chartFrame)
-    {
-        return new AbstractAction("Remove All")
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                chartFrame.removeAllAnnotations();
-            }
-        };
-    }
-
-    public static AbstractAction annotationSettings(final ChartFrame chartFrame, final Annotation a)
-    {
-        return new AbstractAction("Annotation Settings")
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AnnotationProperties dialog = new AnnotationProperties(new JFrame(), true);
-                dialog.initializeForm(a);
-                dialog.setLocationRelativeTo(chartFrame);
-                dialog.setVisible(true);
-            }
-        };
-    }
-
-    public static AbstractAction markerAction(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Marker", 
-                b ? ResourcesUtils.getIcon16("marker") : ResourcesUtils.getIcon24("marker"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (e.getSource() instanceof JToggleButton)
-                {
-                    JToggleButton button = (JToggleButton) e.getSource();
-                    boolean enable = button.isSelected();
-                    chartFrame.getChartProperties().setMarkerVisibility(enable);
-                    if (!enable)
-                    {
-                        chartFrame.getChartProperties().setMarkerVisibility(enable);
-                    }
-                    chartFrame.validate();
-                    chartFrame.repaint();
-                    chartFrame.componentFocused();
-                }
-            }
-        };
-    }
-
-    public static AbstractAction exportImage(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Export Image", 
-                b ? ResourcesUtils.getIcon16("image") : ResourcesUtils.getIcon24("image"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                ImageExporter.getDefault().export(chartFrame);
-                chartFrame.componentFocused();
-            }
-        };
-    }
-
-    public static AbstractAction printChart(final ChartFrame chartFrame) 
+    /*public static AbstractAction printChart(final ChartFrame chartFrame)
     {
         final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
         AbstractAction action = (AbstractAction) PrintManager.printAction(chartFrame.getMainPanel());
         action.putValue(AbstractAction.NAME, "Print");
         action.putValue(AbstractAction.SMALL_ICON, b ? ResourcesUtils.getIcon16("print") : ResourcesUtils.getIcon24("print"));
         return action;
-    }
+    }*/
 
-    public static AbstractAction chartSettings(final ChartFrame chartFrame) 
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        return new AbstractAction("Settings", 
-                b ? ResourcesUtils.getIcon16("settings") : ResourcesUtils.getIcon24("settings"))
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                ChartSettings dialog = new ChartSettings(new JFrame(), true);
-                dialog.setLocationRelativeTo(chartFrame);
-                dialog.initializeForm(chartFrame);
-                dialog.setVisible(true);
-            }
-        };
-    }
+	public static boolean isInFavorites(ChartFrame chartFrame)
+	{
+		TopComponent component
+				= WindowManager.getDefault().findTopComponent("FavoritesComponent");
+		if (component instanceof ExplorerManager.Provider)
+		{
+			ExplorerManager manager
+				= ((ExplorerManager.Provider) component).getExplorerManager();
+			Node node = manager.getRootContext();
+			if (node instanceof RootAPINode)
+			{
+				RootAPI root = ((RootAPINode) node).getRoot();
 
-    public static AbstractAction toggleToolbarVisibility(final ChartFrame chartFrame)
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarVisibility();
-        return new AbstractAction(b ? "Hide Toolbar" : "Show Toolbar")
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                chartFrame.getChartProperties().setToolbarVisibility(!b);
-                chartFrame.setToolbarVisibility();
-            }
-        };
-    }
+				StockAPI stock = new StockAPI();
+				stock.setSymbol(chartFrame.getChartData().getStock().getSymbol());
+				stock.setExchange(chartFrame.getChartData().getStock().getExchange());
+				stock.setCompanyName(chartFrame.getChartData().getStock().getCompanyName());
+				stock.setDataProviderName(chartFrame.getChartData().getDataProvider().getName());
+
+				return root.findStock(stock);
+			}
+		}
+
+		return true;
+	}
+
+	public static JMenu generateIntervalsMenu(ChartFrame chartFrame)
+	{
+		JMenuItem menuItem;
+		
+		JMenu menu = new JMenu(NbBundle.getMessage(MainActions.class, "ACT_Intervals"));
+		menu.setIcon(ResourcesUtils.getIcon16(NbBundle.getMessage(MainActions.class, "ICON_Intervals")));
+
+		ChartData chartData = chartFrame.getChartData();
+		Interval current = chartData.getInterval();
+
+		for (Interval interval : chartData.getDataProvider().getIntervals())
+		{
+			menu.add(menuItem = new JMenuItem(MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
+			menuItem.setMargin(new Insets(0, 0, 0, 0));
+		}
+
+		if (chartData.getDataProvider().supportsIntraday())
+		{
+			menu.addSeparator();
+			for (Interval interval : chartData.getDataProvider().getIntraDayIntervals())
+			{
+				menu.add(menuItem  = new JMenuItem(MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
+				menuItem.setMargin(new Insets(0, 0, 0, 0));
+			}
+		}
+
+		return menu;
+	}
+
+	public static JMenu generateChartsMenu(ChartFrame chartFrame)
+	{
+		JMenuItem menuItem;
+
+		JMenu menu = new JMenu(NbBundle.getMessage(MainActions.class, "ACT_Charts"));
+		menu.setIcon(ResourcesUtils.getIcon16(NbBundle.getMessage(MainActions.class, "ICON_Charts")));
+
+		ChartData chartData = chartFrame.getChartData();
+		String current = chartData.getChart().getName();
+
+		for (String chart : ChartManager.getDefault().getCharts())
+		{
+			menu.add(menuItem = new JMenuItem(MainActions.changeChart(chartFrame, chart, current.equals(chart))));
+			menuItem.setMargin(new Insets(0, 0, 0, 0));
+		}
+
+		return menu;
+	}
+
+	public static JMenu generateAnnotationsMenu(ChartFrame chartFrame)
+	{
+		JMenuItem menuItem;
+
+		JMenu menu = new JMenu(NbBundle.getMessage(MainActions.class, "ACT_Annotations"));
+		menu.setIcon(ResourcesUtils.getIcon16(NbBundle.getMessage(MainActions.class, "ICON_Annotations")));
+
+		for (String annotation : AnnotationManager.getDefault().getAnnotations())
+		{
+			menu.add(menuItem = new JMenuItem(
+				MainActions.addAnnotation(annotation)));
+			menuItem.setMargin(new Insets(0, 0, 0, 0));
+		}
+
+		menu.addSeparator();
+
+		menu.add(menuItem = new JMenuItem(
+			MainActions.removeAllAnnotations(chartFrame)));
+		menuItem.setMargin(new Insets(0, 0, 0, 0));
+
+		if (chartFrame.hasCurrentAnnotation())
+		{
+			Annotation current = chartFrame.getCurrentAnnotation();
+			if (current.isSelected())
+			{
+				menu.addSeparator();
+				menu.add(menuItem = new JMenuItem(
+					MainActions.annotationProperties(chartFrame, current)));
+				menuItem.setMargin(new Insets(0, 0, 0, 0));
+			}
+		}
+
+		return menu;
+	}
+
+
+	/*
+	 * Abstract MainAction
+	 */
+
+	private static abstract class MainAction extends AbstractAction
+	{
+
+		public MainAction(String name, boolean flag)
+		{
+			putValue(NAME,
+				NbBundle.getMessage(MainActions.class, "ACT_"+name));
+			putValue(SHORT_DESCRIPTION,
+				NbBundle.getMessage(MainActions.class, "TOOL_"+name));
+			if (flag)
+			{
+				putValue(SMALL_ICON,
+					ResourcesUtils.getIcon16(
+					NbBundle.getMessage(MainActions.class, "ICON_"+name)));
+				putValue(LARGE_ICON_KEY,
+					ResourcesUtils.getIcon24(
+					NbBundle.getMessage(MainActions.class, "ICON_"+name)));
+			}
+		}
+
+	}
+
+	private static class ZoomIn extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ZoomIn(chartFrame);
+		}
+
+		private ZoomIn(ChartFrame chartFrame)
+		{
+			super("ZoomIn", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.getChartData().zoomIn(chartFrame);
+			chartFrame.componentFocused();
+		}
+
+	}
+
+	private static class ZoomOut extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ZoomOut(chartFrame);
+		}
+
+		private ZoomOut(ChartFrame chartFrame)
+		{
+			super("ZoomOut", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.getChartData().zoomOut(chartFrame);
+			chartFrame.componentFocused();
+		}
+		
+	}
+
+	private static class IntervalPopup extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new IntervalPopup(chartFrame);
+		}
+
+		private IntervalPopup(ChartFrame chartFrame)
+		{
+			super("Intervals", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			JButton button = (JButton) e.getSource();
+			JPopupMenu popupMenu = new JPopupMenu();
+
+			Interval current = chartFrame.getChartData().getInterval();
+
+			JMenuItem item;
+			for (Interval interval : chartFrame.getChartData().getDataProvider().getIntervals())
+			{
+				popupMenu.add(item = new JMenuItem(
+					MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
+				item.setMargin(new java.awt.Insets(0,0,0,0));
+			}
+
+			if (chartFrame.getChartData().getDataProvider().supportsIntraday())
+			{
+				popupMenu.addSeparator();
+
+				for (Interval interval : chartFrame.getChartData().getDataProvider().getIntraDayIntervals())
+				{
+					popupMenu.add(item = new JMenuItem(
+						MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
+					item.setMargin(new java.awt.Insets(0,0,0,0));
+				}
+			}
+
+			if (popupMenu.getComponents().length > 0)
+				popupMenu.show(button, 0, button.getHeight());
+		}
+
+	}
+
+	private static class ChangeInterval extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private Interval interval;
+		private boolean current;
+
+		public static Action getAction(ChartFrame chartFrame, Interval interval, boolean current)
+		{
+			return new ChangeInterval(chartFrame, interval, current);
+		}
+
+		private ChangeInterval(ChartFrame chartFrame, Interval interval, boolean current)
+		{
+			super("Intervals", current);
+			putValue(NAME, interval.getName());
+			putValue(SHORT_DESCRIPTION, interval.getName());
+			this.chartFrame = chartFrame;
+			this.interval = interval;
+			this.current = current;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			System.out.println("Change to " + interval.toString() + " interval");
+			if (!current)
+			{
+				Stock stock = chartFrame.getChartData().getStock();
+				if (chartFrame.getChartData().getDataProvider().datasetExists(stock, interval))
+				{
+					if (chartFrame.getChartData().updateDataset(interval))
+					{
+						if (chartFrame.getHistory() != null)
+						{
+							HistoryItem item = chartFrame.getHistory().getCurrent();
+							if (item != null)
+							{
+								chartFrame.getHistory().addHistoryItem(item);
+								chartFrame.getHistory().clearForwardHistory();
+								chartFrame.getHistory().setCurrent(
+									new HistoryItem(stock, interval.hashCode()));
+							}
+						}
+
+						chartFrame.getChartData().calculate(chartFrame);
+						chartFrame.updateToolbar();
+						chartFrame.validate();
+						chartFrame.repaint();
+					}
+				}
+			}
+		}
+
+	}
+
+	private static class ChartPopup extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ChartPopup(chartFrame);
+		}
+
+		private ChartPopup(ChartFrame chartFrame)
+		{
+			super("Charts", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			String current = chartFrame.getChartData().getChart().getName();
+
+			JButton button = (JButton) e.getSource();
+			JPopupMenu popupMenu = new JPopupMenu();
+
+			JMenuItem item;
+			for (String chart : ChartManager.getDefault().getCharts())
+			{
+				popupMenu.add(item = new JMenuItem(
+					MainActions.changeChart(chartFrame, chart, chart.equals(current))));
+				item.setMargin(new Insets(0, 0, 0, 0));
+			}
+
+			popupMenu.show(button, 0, button.getHeight());
+		}
+		
+	}
+
+	private static class ChangeChart extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private String chartName;
+
+		public static Action getAction(ChartFrame chartFrame, String chartName, boolean current)
+		{
+			return new ChangeChart(chartFrame, chartName, current);
+		}
+
+		private ChangeChart(ChartFrame chartFrame, String chartName, boolean current)
+		{
+			super("Charts", current);
+			this.chartFrame = chartFrame;
+			this.chartName = chartName;
+			putValue(NAME, chartName);
+			putValue(SHORT_DESCRIPTION, chartName);
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Chart chart = ChartManager.getDefault().getChart(chartName);
+			chartFrame.getChartData().setChart(chart);
+			chartFrame.validate();
+			chartFrame.repaint();
+		}
+
+	}
+
+	private static class OpenIndicators extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new OpenIndicators(chartFrame);
+		}
+
+		private OpenIndicators(ChartFrame chartFrame)
+		{
+			super("Indicators", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Indicators dialog = new Indicators(new JFrame(), true);
+			dialog.setChartFrame(chartFrame);
+			dialog.setLocationRelativeTo(chartFrame);
+			dialog.initForm();
+			dialog.setVisible(true);
+		}
+
+	}
+
+	private static class OpenOverlays extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new OpenOverlays(chartFrame);
+		}
+
+		private OpenOverlays(ChartFrame chartFrame)
+		{
+			super("Overlays", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Overlays dialog = new Overlays(new JFrame(), true);
+			dialog.setChartFrame(chartFrame);
+			dialog.setLocationRelativeTo(chartFrame);
+			dialog.initForm();
+			dialog.setVisible(true);
+		}
+
+	}
+
+	private static class AnnotationPopup extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new AnnotationPopup(chartFrame);
+		}
+
+		private AnnotationPopup(ChartFrame chartFrame)
+		{
+			super("Annotations", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			JButton button = (JButton) e.getSource();
+			JPopupMenu popup = new JPopupMenu();
+
+			JMenuItem item;
+
+			for (String annotation : AnnotationManager.getDefault().getAnnotations())
+			{
+				popup.add(item = new JMenuItem(
+					MainActions.addAnnotation(annotation)));
+				item.setMargin(new Insets(0, 0, 0, 0));
+			}
+
+			popup.addSeparator();
+
+			popup.add(item = new JMenuItem(
+				MainActions.removeAllAnnotations(chartFrame)));
+			item.setMargin(new Insets(0, 0, 0, 0));
+
+			if (chartFrame.hasCurrentAnnotation())
+			{
+				Annotation current = chartFrame.getCurrentAnnotation();
+				if (current.isSelected())
+				{
+					popup.addSeparator();
+					popup.add(item = new JMenuItem(
+						MainActions.annotationProperties(chartFrame, current)));
+					item.setMargin(new Insets(0, 0, 0, 0));
+				}
+			}
+
+			popup.show(button, 0, button.getHeight());
+		}
+
+	}
+
+	private static class AddAnnotation extends MainAction
+	{
+
+		private String annotationName;
+
+		public static Action getAction(String annotationName)
+		{
+			return new AddAnnotation(annotationName);
+		}
+
+		private AddAnnotation(String annotationName)
+		{
+			super("Annotations", true);
+			putValue(NAME, annotationName);
+			putValue(SHORT_DESCRIPTION, annotationName);
+			this.annotationName = annotationName;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			Annotation annotation = AnnotationManager.getDefault().getAnnotation(annotationName);
+			AnnotationManager.getDefault().setNewAnnotation(annotation);
+		}
+
+	}
+
+	private static class RemoveAllAnnotations extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new RemoveAllAnnotations(chartFrame);
+		}
+
+		private RemoveAllAnnotations(ChartFrame chartFrame)
+		{
+			super("AnnotationsRemoveAll", false);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.removeAllAnnotations();
+		}
+
+	}
+
+	private static class AnnotationProps extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private Annotation annotation;
+
+		public static Action getAction(ChartFrame chartFrame, Annotation annotation)
+		{
+			return new AnnotationProps(chartFrame, annotation);
+		}
+
+		private AnnotationProps(ChartFrame chartFrame, Annotation annotation)
+		{
+			super("AnnotationsProperties", false);
+			this.chartFrame = chartFrame;
+			this.annotation = annotation;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			AnnotationProperties dialog = new AnnotationProperties(new JFrame(), true);
+			dialog.initializeForm(annotation);
+			dialog.setLocationRelativeTo(chartFrame);
+			dialog.setVisible(true);
+		}
+		
+	}
+
+	private static class ToggleMarker extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ToggleMarker(chartFrame);
+		}
+
+		private ToggleMarker(ChartFrame chartFrame)
+		{
+			super("Marker", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (e.getSource() instanceof JToggleButton)
+			{
+				JToggleButton button = (JToggleButton) e.getSource();
+				boolean enable = button.isSelected();
+				chartFrame.getChartProperties().setMarkerVisibility(enable);
+				chartFrame.validate();
+				chartFrame.repaint();
+				chartFrame.componentFocused();
+			}
+		}
+
+	}
+
+	private static class ExportImage extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ExportImage(chartFrame);
+		}
+
+		private ExportImage(ChartFrame chartFrame)
+		{
+			super("ExportImage", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			ImageExporter.getDefault().export(chartFrame);
+			chartFrame.componentFocused();
+		}
+
+	}
+
+	private static class PrintChart extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new PrintChart(chartFrame);
+		}
+
+		private PrintChart(ChartFrame chartFrame)
+		{
+			super("Print", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			PrintManager.printAction(chartFrame.getMainPanel()).actionPerformed(e);
+		}
+
+	}
+
+	private static class ChartProps extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ChartProps(chartFrame);
+		}
+
+		private ChartProps(ChartFrame chartFrame)
+		{
+			super("ChartProperties", true);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			ChartSettings dialog = new ChartSettings(new JFrame(), true);
+			dialog.setLocationRelativeTo(chartFrame);
+			dialog.initializeForm(chartFrame);
+			dialog.setVisible(true);
+		}
+
+	}
+
+	private static class ToggleToolbarVisibility extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new ToggleToolbarVisibility(chartFrame);
+		}
+
+		private ToggleToolbarVisibility(ChartFrame chartFrame)
+		{
+			super(
+				chartFrame.getChartProperties().getToolbarVisibility()
+				? "HideToolbar"
+				: "ShowToolbar",
+				false);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.getChartProperties().toggleToolbarVisibility();
+			chartFrame.setToolbarVisibility();
+		}
+		
+	}
+
+	private static class AddToFavorites extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new AddToFavorites(chartFrame);
+		}
+
+		private AddToFavorites(ChartFrame chartFrame)
+		{
+			super("AddToFavorites", false);
+			putValue(SMALL_ICON, ResourcesUtils.getFavoritesIcon());
+			putValue(LARGE_ICON_KEY, ResourcesUtils.getFavoritesBigIcon());
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			TopComponent component
+				= WindowManager.getDefault().findTopComponent("FavoritesComponent");
+			if (component instanceof ExplorerManager.Provider)
+			{
+				ExplorerManager manager
+					= ((ExplorerManager.Provider) component).getExplorerManager();
+				Node node = manager.getRootContext();
+				if (node instanceof RootAPINode)
+				{
+					RootAPI root = ((RootAPINode) node).getRoot();
+
+					StockAPI stock = new StockAPI();
+					stock.setSymbol(chartFrame.getChartData().getStock().getSymbol());
+					stock.setExchange(chartFrame.getChartData().getStock().getExchange());
+					stock.setCompanyName(chartFrame.getChartData().getStock().getCompanyName());
+					stock.setDataProviderName(chartFrame.getChartData().getDataProvider().getName());
+
+					StockAPINode stockNode = new StockAPINode(stock);
+					((RootAPINode) node).getChildren().add(new Node[] { stockNode });
+
+					root.addStock(stock);
+				}
+			}
+		}
+
+	}
+
+	private static class ToggleToolbarSmallIcons extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private ChartToolbar chartToolbar;
+
+		public static Action getAction(ChartFrame chartFrame, ChartToolbar chartToolbar)
+		{
+			return new ToggleToolbarSmallIcons(chartFrame, chartToolbar);
+		}
+
+		private ToggleToolbarSmallIcons(ChartFrame chartFrame, ChartToolbar chartToolbar)
+		{
+			super("SmallToolbarIcons", false);
+			this.chartFrame = chartFrame;
+			this.chartToolbar = chartToolbar;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.getChartProperties().toggleToolbarSmallIcons();
+			chartToolbar.toggleIcons();
+		}
+		
+	}
+
+	private static class ToggleToolbarShowLabels extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private ChartToolbar chartToolbar;
+
+		public static Action getAction(ChartFrame chartFrame, ChartToolbar chartToolbar)
+		{
+			return new ToggleToolbarShowLabels(chartFrame, chartToolbar);
+		}
+
+		private ToggleToolbarShowLabels(ChartFrame chartFrame, ChartToolbar chartToolbar)
+		{
+			super("HideLabels", false);
+			this.chartFrame = chartFrame;
+			this.chartToolbar = chartToolbar;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.getChartProperties().toggleShowLabels();
+			chartToolbar.toggleLabels();
+		}
+
+	}
 
 }

@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -39,6 +38,7 @@ import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -84,16 +84,27 @@ public class ChartPanel extends JLayeredPane implements Serializable
         if (!chartFrame.getChartData().isStockNull())
         {
             Stock stock = chartFrame.getChartData().getStock();
-            StringBuffer sb = new StringBuffer();
-            sb.append(stock.getKey());
-            if (!stock.getCompanyName().equals(""))
-                sb.append(" - ");
-            sb.append(stock.getCompanyName());
-            stockInfo.setText(sb.toString());
+
+			String stockInfoText = "";
+			if (stock.hasCompanyName())
+				stockInfoText = NbBundle.getMessage(
+					ChartPanel.class,
+					"LBL_StockInfo",
+					new String[] {stock.getKey(), stock.getCompanyName()});
+			else
+				stockInfoText = NbBundle.getMessage(
+					ChartPanel.class,
+					"LBL_StockInfoNoCompany",
+					stock.getKey());
+
+			stockInfo.setText(stockInfoText);
         }
         else
         {
-            stockInfo.setText("No data for this symbol");
+            String stockInfoText = NbBundle.getMessage(
+				ChartPanel.class,
+				"LBL_StockInfoNoData");
+			stockInfo.setText(stockInfoText);
         }
 
         setOpaque(false);
@@ -148,12 +159,16 @@ public class ChartPanel extends JLayeredPane implements Serializable
         return chartFrame.getChartData().getVisibleRange();
     }
 
-    public void paint(Graphics g)
+    public @Override void paint(Graphics g)
     {
         Font font = chartFrame.getChartProperties().getFont();
         font = font.deriveFont(font.getStyle() ^ Font.BOLD);
-        stockInfo.setFont(font);
-        stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
+		if (!stockInfo.getFont().equals(font))
+			stockInfo.setFont(font);
+		
+		if (!stockInfo.getForeground()
+			.equals(chartFrame.getChartProperties().getFontColor()))
+			stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
 
         if (!overlayToolboxesUpdated)
             updateOverlayToolbar();
@@ -193,16 +208,29 @@ public class ChartPanel extends JLayeredPane implements Serializable
         if (!chartFrame.getChartData().isStockNull())
         {
             Stock stock = chartFrame.getChartData().getStock();
-            StringBuffer sb = new StringBuffer();
-            sb.append(stock.getKey());
-            if (!stock.getCompanyName().equals(""))
-                sb.append(" - ");
-            sb.append(stock.getCompanyName());
-            stockInfo.setText(sb.toString());
+
+			String stockInfoText = "";
+			if (stock.hasCompanyName())
+				stockInfoText = NbBundle.getMessage(
+					ChartPanel.class,
+					"LBL_StockInfo",
+					new String[] {stock.getKey(), stock.getCompanyName()});
+			else
+				stockInfoText = NbBundle.getMessage(
+					ChartPanel.class,
+					"LBL_StockInfoNoCompany",
+					stock.getKey());
+
+            if (!stockInfo.getText().equals(stockInfoText))
+				stockInfo.setText(stockInfoText);
         }
         else
         {
-            stockInfo.setText("No data for this symbol");
+			String stockInfoText = NbBundle.getMessage(
+				ChartPanel.class,
+				"LBL_StockInfoNoData");
+			if (!stockInfo.getText().equals(stockInfoText))
+				stockInfo.setText(stockInfoText);
         }
     }
 
@@ -290,7 +318,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
         return new Rectangle(0, 0, getWidth(), getHeight());
     }
 
-    public class OverlayToolbox extends JToolBar implements Serializable
+    public final class OverlayToolbox extends JToolBar implements Serializable
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -369,7 +397,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
             repaint();
         }
 
-        public void paint(Graphics g)
+        public @Override void paint(Graphics g)
         {
             overlayLabel.setFont(ChartPanel.this.chartFrame.getChartProperties().getFont());
             overlayLabel.setForeground(ChartPanel.this.chartFrame.getChartProperties().getFontColor());
