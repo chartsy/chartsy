@@ -37,6 +37,7 @@ public abstract class Interval implements Serializable {
     public abstract long startTime();
 
     public abstract String getTimeParam();
+    public abstract int getLengthInSeconds();
 
     public String getMarkerString(long time) {
         Calendar cal = Calendar.getInstance();

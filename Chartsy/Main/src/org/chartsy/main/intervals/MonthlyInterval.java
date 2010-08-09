@@ -8,23 +8,32 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class MonthlyInterval extends Interval implements Serializable {
+public class MonthlyInterval extends Interval implements Serializable
+{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public MonthlyInterval() {
+    public MonthlyInterval()
+    {
         super("Monthly");
 		timeParam = "m";
     }
 
-    public long startTime() {
+    public long startTime()
+    {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.YEAR, -4);
         return c.getTimeInMillis();
     }
 
-    public String getTimeParam() {
+    public String getTimeParam()
+    {
         return timeParam;
+    }
+
+    public int getLengthInSeconds()
+    {
+        return 2628000;
     }
 
 }

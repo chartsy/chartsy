@@ -8,29 +8,36 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class OneMinuteInterval extends Interval implements Serializable {
+public class OneMinuteInterval extends Interval implements Serializable
+{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public OneMinuteInterval() { 
+    public OneMinuteInterval()
+    {
         super("1 Min", true);
 		timeParam = "1";
     }
 
-    public long startTime() {
+    public long startTime()
+    {
         int t;
         Calendar c = Calendar.getInstance();
         c.set(Calendar.HOUR_OF_DAY, 9);
         c.set(Calendar.MINUTE, 30);
         c.set(Calendar.SECOND, 0);
 
-        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+        {
             t = -3;
-        } else if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+        } else if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)
+        {
             t = -2;
-        } else if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+        } else if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+        {
             t = -3;
-        } else {
+        } else
+        {
             t = -1;
         }
 
@@ -38,8 +45,14 @@ public class OneMinuteInterval extends Interval implements Serializable {
         return c.getTimeInMillis();
     }
 
-    public String getTimeParam() {
+    public String getTimeParam()
+    {
         return "1";
+    }
+
+    public int getLengthInSeconds()
+    {
+        return 60;
     }
 
 }
