@@ -164,11 +164,6 @@ public class RSI
         int count = initial.getItemsCount();
         Dataset result = Dataset.EMPTY(count);
 
-        double[] close = new double[count];
-
-        for (int i = 0; i < count; i++)
-            close[i] = initial.getCloseAt(i);
-
         for (int i = period; i < count; i++)
         {
             double adva = 0;
