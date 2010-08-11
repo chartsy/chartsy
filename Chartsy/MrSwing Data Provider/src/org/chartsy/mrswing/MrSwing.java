@@ -127,7 +127,7 @@ public class MrSwing
         
         if (setCookie)
         {
-            if (checkIfRegistred(url))
+            if (checkIfRegistred())
             {
                 method.setFollowRedirects(true);
                 List<Cookie> list = getCookies(url);
@@ -377,51 +377,10 @@ public class MrSwing
         return list;
     }
 
-    private boolean checkIfRegistred(String url)
+    private boolean checkIfRegistred()
     {
         Preferences p = NbPreferences.root().node("/org/chartsy/register");
-        if (Boolean.parseBoolean(p.get("registred", "false")))
-        {
-            BufferedReader in = null;
-            HttpClient client = ProxyManager.getDefault().getHttpClient();
-            GetMethod method = new GetMethod(url);
-
-            method.setFollowRedirects(true);
-            List<Cookie> list = getCookies(url);
-            for (Cookie cookie : list)
-                client.getState().addCookie(cookie);
-
-            try
-            {
-                client.executeMethod(method);
-                in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
-
-                if (in.readLine().equals("OK"))
-                {
-                    in.close();
-                    method.releaseConnection();
-                    return true;
-                }
-                else
-                {
-                    in.close();
-                    method.releaseConnection();
-                    return false;
-                }
-            }
-            catch (IOException ex)
-            {
-                LOG.log(Level.SEVERE, null, ex);
-                method.releaseConnection();
-                try { in.close(); }
-                catch (IOException io) { LOG.log(Level.SEVERE, null, io); }
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+		return p.getBoolean("mrswingregistred", false);
     }
 
     private String getUsername()
@@ -456,8 +415,8 @@ public class MrSwing
                 
                 StringTokenizer st = new StringTokenizer(inputLine, ":");
                 String key = st.nextToken();
-                String company = st.nextToken();
-                String exchange = st.nextToken();
+				String company = st.nextToken();
+				String exchange = st.nextToken();
                 result.add(new StockNode(key, company, exchange));
             }
 
