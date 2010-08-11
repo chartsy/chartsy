@@ -58,7 +58,7 @@
         <property name="release.dir" value="${nbdist.dir}/${app.name}"/>
 
         <unzip src="${nbdist.dir}/${app.name}.zip" dest="${nbdist.dir}"/>
-        <delete file="${nbdist.dir}/${app.name}.zip" />
+        <!--<delete file="${nbdist.dir}/${app.name}.zip" />-->
 
         <copy tofile="${nbdist.dir}/${app.name}/${app.name}/core/user.ks" file="user.ks"/>
         <copy tofile="${nbdist.dir}/${app.name}/bin/chartsy.png" file="chartsy.png"/>
