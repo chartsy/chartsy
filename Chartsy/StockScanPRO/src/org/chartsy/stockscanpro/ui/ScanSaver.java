@@ -239,12 +239,12 @@ public final class ScanSaver extends TopComponent implements ExplorerManager.Pro
 		editorPane.setText(panel.getScan());
 	}
 
-	public int getPersistenceType()
+	public @Override int getPersistenceType()
 	{
         return TopComponent.PERSISTENCE_NEVER;
     }
 
-	protected String preferredID()
+	protected @Override String preferredID()
 	{
         return PREFERRED_ID;
     }
@@ -402,7 +402,8 @@ public final class ScanSaver extends TopComponent implements ExplorerManager.Pro
 			if (ret.equals(DialogDescriptor.OK_OPTION))
 			{
 				final String folderName = descriptor.getInputText();
-				if ((folderName != null) && (!folderName.isEmpty()))
+				if ((folderName != null) 
+					&& (folderName.hashCode() != "".hashCode()))
 				{
 					final Preferences preferences = NbPreferences.root().node("/org/chartsy/register");
 					final DataFolder dataFolder = scanSaver.getFolder();

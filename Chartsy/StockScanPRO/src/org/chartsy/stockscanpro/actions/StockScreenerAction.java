@@ -1,16 +1,20 @@
 package org.chartsy.stockscanpro.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.prefs.Preferences;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.RegisterForm;
+import org.chartsy.main.features.FeaturesPanel;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
 import org.chartsy.stockscanpro.StockScreenerComponent;
@@ -68,12 +72,27 @@ public final class StockScreenerAction implements ActionListener
 
 	private void checkStockScanUser()
 	{
+		final Preferences prefs = NbPreferences.root().node("/org/chartsy/stockscanpro");
+		isStockScanUser = prefs.getBoolean("stockscanproregistred", false);
+		
 		final RequestProcessor.Task task = RP.create(new Runnable()
 		{
 			public void run()
 			{
 				userId = getUserId();
 				isStockScanUser = userId != 0;
+				if (isStockScanUser)
+				{
+					prefs.putBoolean("stockscanproregistred", isStockScanUser);
+					prefs.putInt("stockscanprouser", userId);
+					SwingUtilities.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							FeaturesPanel.getDefault().hideBanners();
+						}
+					});
+				}
 			}
 		});
 
@@ -85,7 +104,6 @@ public final class StockScreenerAction implements ActionListener
 				handle.finish();
 				if (isStockScanUser)
 				{
-					NbPreferences.root().node("/org/chartsy/stockscreener").putInt("userId", userId);
 					SwingUtilities.invokeLater(new Runnable()
 					{
 						public void run()
@@ -96,13 +114,18 @@ public final class StockScreenerAction implements ActionListener
 				} 
 				else
 				{
-					JEditorPane editor = new JEditorPane();
-					editor.setContentType("text/html");
-					editor.setText(NbBundle.getMessage(StockScreenerAction.class, "Registration_MSG"));
-					editor.setEditable(false);
-					editor.setOpaque(false);
+					JLabel label = new JLabel(NbBundle.getMessage(StockScreenerAction.class, "Registration_MSG"));
+					label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					label.addMouseListener(new MouseAdapter()
+					{
+						public @Override void mouseClicked(MouseEvent e)
+						{
+							try { DesktopUtil.browse(NbBundle.getMessage(StockScreenerAction.class, "MrSwing_URL")); }
+							catch (Exception ex) { Exceptions.printStackTrace(ex); }
+						}
+					});
 
-					DialogDescriptor descriptor = new DialogDescriptor(editor, "Register");
+					DialogDescriptor descriptor = new DialogDescriptor(label, "Register");
 					descriptor.setMessageType(DialogDescriptor.INFORMATION_MESSAGE);
 					descriptor.setOptions(new Object[] 
 					{
@@ -113,14 +136,8 @@ public final class StockScreenerAction implements ActionListener
 					Object ret = DialogDisplayer.getDefault().notify(descriptor);
 					if (ret.equals(DialogDescriptor.OK_OPTION))
 					{
-						try
-						{
-							DesktopUtil.browse(NbBundle.getMessage(StockScreenerAction.class, "MrSwing_URL"));
-						}
-						catch (Exception ex)
-						{
-							Exceptions.printStackTrace(ex);
-						}
+						try { DesktopUtil.browse(NbBundle.getMessage(StockScreenerAction.class, "MrSwing_URL")); }
+						catch (Exception ex) { Exceptions.printStackTrace(ex); }
 					}
 				}
 			}
