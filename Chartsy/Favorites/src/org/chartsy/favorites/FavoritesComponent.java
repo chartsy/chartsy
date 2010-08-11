@@ -1,7 +1,6 @@
 package org.chartsy.favorites;
 
 import java.awt.BorderLayout;
-import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
@@ -31,6 +30,7 @@ import org.chartsy.main.favorites.nodes.StockAPINode;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.SerialVersion;
+import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.filesystems.FileObject;
@@ -44,7 +44,6 @@ import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
-import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.xml.sax.Attributes;
@@ -58,6 +57,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  * @author Viorel
  */
+@ConvertAsProperties(dtd = "-//org.chartsy.favorites//FavoritesComponent//EN",
+autostore = false)
 public final class FavoritesComponent extends TopComponent 
 	implements DataProviderListener, ExplorerManager.Provider
 {
@@ -77,10 +78,15 @@ public final class FavoritesComponent extends TopComponent
         setName(NbBundle.getMessage(FavoritesComponent.class, "CTL_FavoritesComponent"));
         setToolTipText(NbBundle.getMessage(FavoritesComponent.class, "HINT_FavoritesComponent"));
 		setIcon(ImageUtilities.loadImage(NbBundle.getMessage(FavoritesComponent.class, "ICON_FavoritesComponent"), true));
-		
-		initComponents();
+
+		putClientProperty(TopComponent.PROP_DRAGGING_DISABLED, Boolean.TRUE);
+		putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+		putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+		putClientProperty(TopComponent.PROP_KEEP_PREFERRED_SIZE_WHEN_SLIDED_IN, Boolean.TRUE);
 
 		manager = new ExplorerManager();
+
+		initComponents();
 
 		ActionMap map = getActionMap();
 		map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
@@ -129,15 +135,23 @@ public final class FavoritesComponent extends TopComponent
         return getDefault();
     }
 
-	public @Override void open()
+	void writeProperties(java.util.Properties p)
 	{
-		Mode mode = WindowManager.getDefault().findMode("explorer");
-		if (mode != null)
-		{
-			mode.setBounds(new Rectangle(168, 242, 386, 373));
-			mode.dockInto(this);
-			super.open();
-		}
+		p.setProperty("version", "1.0");
+	}
+
+	Object readProperties(java.util.Properties p)
+	{
+		if (instance == null)
+			instance = this;
+		
+		instance.readPropertiesImpl(p);
+		return instance;
+	}
+
+	private void readPropertiesImpl(java.util.Properties p)
+	{
+		String version = p.getProperty("version");
 	}
 
 	protected @Override void componentActivated()
@@ -596,7 +610,7 @@ public final class FavoritesComponent extends TopComponent
 
 		public Object readResolve()
 		{
-			return new FavoritesComponent();
+			return FavoritesComponent.getDefault();
 		}
 
 	}

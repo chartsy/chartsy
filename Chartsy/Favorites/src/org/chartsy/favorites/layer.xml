@@ -33,7 +33,7 @@
             <file name="FavoritesComponent.settings" url="component.settings"/>
         </folder>
         <folder name="Modes">
-            <folder name="leftSlidingSide">
+            <folder name="explorer">
                 <file name="FavoritesComponent.wstcref" url="favorites.wstcref"/>
             </folder>
         </folder>
