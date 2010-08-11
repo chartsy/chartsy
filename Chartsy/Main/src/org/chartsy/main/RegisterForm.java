@@ -9,14 +9,21 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.chartsy.main.features.FeaturesPanel;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
@@ -27,8 +34,16 @@ import org.openide.windows.WindowManager;
  */
 public class RegisterForm extends javax.swing.JDialog {
 
+	private static final Logger LOG
+		= Logger.getLogger(RegisterForm.class.getPackage().getName());
+
     public RegisterForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+
+		usedCookies.clear();
+        usedCookies.add("PHPSESSID");
+        usedCookies.add("amember_nr");
+
         initComponents();
         setTitle("Register");
         parent.setIconImage(WindowManager.getDefault().getMainWindow().getIconImage());
@@ -47,7 +62,9 @@ public class RegisterForm extends javax.swing.JDialog {
 					DesktopUtil.browse(NbBundle.getMessage(RegisterForm.class, "MrSwing_URL"));
 				}
                 catch (Exception ex)
-				{}
+				{
+					LOG.log(Level.SEVERE, null, ex);
+				}
             }
             public void mouseEntered(MouseEvent e)
 			{
@@ -173,6 +190,7 @@ public class RegisterForm extends javax.swing.JDialog {
         String username = txtUsername.getText();
         String pass = new String(txtPassword.getPassword());
         String password = null;
+		Preferences p = NbPreferences.root().node("/org/chartsy/register");
 
         try
 		{
@@ -183,11 +201,15 @@ public class RegisterForm extends javax.swing.JDialog {
         } 
 		catch (NoSuchAlgorithmException ex)
 		{
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
 
         try 
 		{
+			lblMessage.setText("Checking registration ...");
+			btnRegister.setEnabled(false);
+			btnRemind.setEnabled(false);
+			
 			HttpClient client = ProxyManager.getDefault().getHttpClient();
 			GetMethod method = new GetMethod(NbBundle.getMessage(RegisterForm.class, "CheckReg_URL"));
 
@@ -200,33 +222,168 @@ public class RegisterForm extends javax.swing.JDialog {
 			client.executeMethod(method);
 			BufferedReader br = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
 
+			boolean chartsyRegistred = false;
+			String name = null;
             if (br != null)
 			{
                 String firstLine = br.readLine();
                 if (firstLine.equals("OK"))
 				{
-                    String name = br.readLine();
-                    Preferences p = NbPreferences.root().node("/org/chartsy/register");
-                    p.put("registred", "true");
+					chartsyRegistred = true;
+                    name = br.readLine();
+                    p.putBoolean("registred", true);
                     p.put("name", name);
                     p.put("date", String.valueOf(new Date().getTime()));
                     p.put("username", username);
                     p.put("password", pass);
-                    lblMessage.setText(name + ", thank you for the registration.");
-                    btnRegister.setVisible(false);
-                    btnRemind.setText("Close");
-                }
-				else
-				{
-                    lblMessage.setText("Error, could not register. Check your username and password.");
                 }
             }
+
+			boolean mrSwingRegistred = checkMrSwingRegistration();
+			p.putBoolean("mrswingregistred", mrSwingRegistred);
+
+			int userId = checkStockScanPRORegistration();
+			boolean stockScanPRORegistred = userId != 0;
+
+			Preferences prefs = NbPreferences.root().node("/org/chartsy/stockscanpro");
+			prefs.putBoolean("stockscanproregistred", stockScanPRORegistred);
+			prefs.putInt("stockscanprouser", userId);
+
+			FeaturesPanel.getDefault().hideBanners();
+
+			if (chartsyRegistred)
+			{
+				if (name != null)
+					lblMessage.setText(name + ", thank you for the registration.");
+				else
+					lblMessage.setText("Thank you for the registration.");
+				btnRegister.setVisible(false);
+				btnRemind.setText("Close");
+				btnRemind.setEnabled(true);
+			}
+			else
+			{
+				lblMessage.setText("Error, could not register. Check your username and password.");
+			}
         } 
 		catch (IOException ex)
 		{
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnRegisterActionPerformed
+
+	private boolean checkMrSwingRegistration()
+	{
+		String url = "http://www.mrswing.com/chartsy/companyname.php?symbol=VODE.DE";
+		BufferedReader in = null;
+		HttpClient client = ProxyManager.getDefault().getHttpClient();
+		GetMethod method = new GetMethod(url);
+
+		method.setFollowRedirects(true);
+		List<Cookie> list = getMrSwingCookies(url);
+		for (Cookie cookie : list)
+			client.getState().addCookie(cookie);
+
+		try
+		{
+			client.executeMethod(method);
+			in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+
+			if (in.readLine().equals("OK"))
+			{
+				in.close();
+				method.releaseConnection();
+				return true;
+			}
+			else
+			{
+				in.close();
+				method.releaseConnection();
+				return false;
+			}
+		}
+		catch (IOException ex)
+		{
+			LOG.log(Level.SEVERE, null, ex);
+			method.releaseConnection();
+			if (in != null)
+			{
+				try { in.close(); }
+                catch (IOException io) { LOG.log(Level.SEVERE, null, io); }
+			}
+			return false;
+		}
+	}
+
+	private List<Cookie> getMrSwingCookies(String url)
+	{
+		List<Cookie> list = new ArrayList<Cookie>();
+
+		String username = txtUsername.getText();
+		String password = new String(txtPassword.getPassword());
+
+		if (username != null && password != null)
+		{
+			NameValuePair[] data =
+            {
+                new NameValuePair("amember_login", username),
+                new NameValuePair("amember_pass", password)
+            };
+
+			HttpClient client = ProxyManager.getDefault().getHttpClient();
+			PostMethod method = new PostMethod(url);
+			method.setRequestBody(data);
+
+			try
+			{
+				int responce = client.executeMethod(method);
+				if (responce != HttpStatus.SC_NOT_IMPLEMENTED)
+				{
+					for (Cookie cookie : client.getState().getCookies())
+					{
+						if (usedCookies.contains(cookie.getName()))
+							list.add(cookie);
+					}
+				}
+				method.releaseConnection();
+			}
+			catch (IOException ex)
+			{
+				LOG.log(Level.SEVERE, null, ex);
+			}
+		}
+
+		return list;
+	}
+
+	private int checkStockScanPRORegistration()
+	{
+		HttpClient client = ProxyManager.getDefault().getHttpClient();
+		GetMethod method = new GetMethod("http://www.stockscanpro.com/index.php");
+		int id = 0;
+
+		try
+		{
+			method.setQueryString(new NameValuePair[]
+			{
+				new NameValuePair("option", "com_chartsy"),
+				new NameValuePair("view", "checkregistration"),
+				new NameValuePair("format", "raw"),
+				new NameValuePair("username", txtUsername.getText()),
+				new NameValuePair("passwd", new String(txtPassword.getPassword()))
+			});
+
+			client.executeMethod(method);
+			id = Integer.parseInt(method.getResponseBodyAsString());
+			method.releaseConnection();
+		}
+		catch (IOException ex)
+		{
+			LOG.log(Level.SEVERE, null, ex);
+		}
+
+		return id;
+	}
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -242,6 +399,7 @@ public class RegisterForm extends javax.swing.JDialog {
         });
     }
 
+	private List<String> usedCookies = new ArrayList<String>();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRegister;
     private javax.swing.JButton btnRemind;

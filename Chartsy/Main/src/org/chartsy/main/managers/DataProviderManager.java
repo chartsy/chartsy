@@ -85,6 +85,20 @@ public class DataProviderManager
         setUpdated(true);
     }
 
+	public void update(Stock stock, Interval interval, DataProvider dataProvider)
+	{
+		if (dataProvider == null)
+			return;
+
+		Dataset dataset = dataProvider.getData(stock, interval);
+
+		if (dataset == null)
+			return;
+
+		dataProvider.addDataset(dataProvider.getKey(stock, interval), dataset);
+		setUpdated(true);
+	}
+
     static
     {
         ignored = new ArrayList<String>();

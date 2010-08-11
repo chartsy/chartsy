@@ -555,6 +555,123 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         remove(scrollBar);
     }
 
+	public void changeDataset
+		(final Stock stock, final Interval interval, final boolean newChart)
+	{
+		try
+		{
+			final DataProvider dataProvider = getChartData().getDataProvider();
+			final JLabel loading = new JLabel(
+				NbBundle.getMessage(
+				ChartFrame.class,
+				"LBL_Loading",
+				stock.getCompanyName().equals("")
+				? stock.getKey()
+				: stock.getCompanyName()),
+				ResourcesUtils.getLogo(),
+				SwingConstants.CENTER);
+            loading.setOpaque(true);
+            loading.setBackground(Color.WHITE);
+            loading.setVerticalTextPosition(SwingConstants.BOTTOM);
+            loading.setHorizontalTextPosition(SwingConstants.CENTER);
+
+			final RequestProcessor.Task task = RP.create(new Runnable()
+            {
+                public void run()
+                {
+                    if (!newChart)
+                        reinitialize();
+                    add(loading, BorderLayout.CENTER);
+                    DataProviderManager.getDefault().update(stock, interval, dataProvider);
+                }
+            });
+
+			final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
+			task.addTaskListener(new TaskListener()
+			{
+				public void taskFinished(Task task)
+				{
+					if (DataProviderManager.getDefault().isUpdated())
+					{
+						handle.finish();
+						DataProviderManager.getDefault().setUpdated(false);
+						Dataset dataset = dataProvider.getDataset(stock, interval);
+						if (dataset != null)
+                        {
+							loadingFlag = false;
+                            remove(loading);
+                            getChartData().setDataset(dataset);
+                            getChartData().setInterval(interval);
+                            initComponents();
+                        }
+						else
+                        {
+                            loading.setText(NbBundle.getMessage(
+								ChartFrame.class,
+								"LBL_LoadingNoDataNew",
+								stock.getCompanyName().equals("")
+								? stock.getKey()
+								: stock.getCompanyName()));
+
+                            if (!newChart)
+                            {
+                                NotifyDescriptor descriptor
+									= new NotifyDescriptor.Confirmation(
+									NbBundle.getMessage(
+									ChartFrame.class,
+									"LBL_LoadingNoData",
+									stock.getCompanyName().equals("")
+									? stock.getKey()
+									: stock.getCompanyName()),
+									"No Data",
+									NotifyDescriptor.YES_NO_OPTION);
+                                Object retval
+									= DialogDisplayer.getDefault().notify(descriptor);
+                                if (retval.equals(NotifyDescriptor.YES_OPTION))
+                                {
+                                    remove(loading);
+                                    getChartData().setStock(oldStock);
+                                    getChartData().updateDataset(oldInterval);
+                                    initComponents();
+                                    oldStock = null;
+                                    oldInterval = null;
+                                }
+                            }
+                        }
+					}
+				}
+			});
+
+			Dataset dataset = dataProvider.getDataset(stock, interval);
+            if (dataset == null)
+            {
+				loadingFlag = true;
+                handle.start();
+                task.schedule(0);
+            }
+            else
+            {
+				if (dataset.getItemsCount() >= 2)
+				{
+					if (!newChart)
+						reinitialize();
+					getChartData().setDataset(dataset);
+					getChartData().setInterval(interval);
+					initComponents();
+				}
+				else
+				{
+					handle.start();
+					task.schedule(0);
+				}
+            }
+		}
+		catch (Exception ex)
+		{
+			LOG.log(Level.WARNING, ex.getMessage());
+		}
+	}
+
     private void loading(final Stock newStock, final boolean newChart)
     {
         try

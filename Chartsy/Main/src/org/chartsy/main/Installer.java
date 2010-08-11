@@ -67,7 +67,7 @@ public class Installer extends ModuleInstall
 
     public @Override void restored()
     {
-        super.restored();
+		super.restored();
         addKeystore();
         addPrintProperties();
         PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);

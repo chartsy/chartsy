@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
@@ -33,6 +34,7 @@ import org.chartsy.main.utils.AutocompletePopup;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.Word;
+import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
 
 /**
  *
@@ -118,10 +120,20 @@ public class SymbolChanger extends JToolBar implements Serializable
         add(btnForwardHistory);
 
         dataProvider = chartFrame.getChartData().getDataProvider();
-        menuWindow = new AutocompletePopup(txtSymbol);
-        word = new Word(txtSymbol);
-        setEventManagement();
+		final StockAutoCompleter completer = new StockAutoCompleter(txtSymbol);
+		completer.setDataProvider(dataProvider);
+        //menuWindow = new AutocompletePopup(txtSymbol);
+        //word = new Word(txtSymbol);
+        //setEventManagement();
     }
+
+	public Action submit = new AbstractAction()
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			btnSubmit.doClick();
+		}
+	};
 
     private void setEventManagement()
     {

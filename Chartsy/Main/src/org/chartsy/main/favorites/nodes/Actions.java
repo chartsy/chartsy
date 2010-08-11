@@ -102,7 +102,8 @@ public class Actions
 			if (ret.equals(DialogDescriptor.OK_OPTION))
 			{
 				String folderName = descriptor.getInputText();
-				if ((folderName != null) && (!folderName.isEmpty()))
+				if ((folderName != null)
+					&& (folderName.hashCode() != "".hashCode()))
 				{
 					FolderAPI folder = new FolderAPI();
 					folder.setDisplayName(folderName);
@@ -195,7 +196,8 @@ public class Actions
 			if (ret.equals(DialogDescriptor.OK_OPTION))
 			{
 				String folderName = descriptor.getInputText();
-				if ((folderName != null) && (!folderName.isEmpty()))
+				if ((folderName != null)
+					&& (folderName.hashCode() != "".hashCode()))
 				{
 					if (!root.getRoot().folderNameExists(folderName))
 					{

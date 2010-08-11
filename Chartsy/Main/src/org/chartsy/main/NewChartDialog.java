@@ -28,6 +28,7 @@ import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.utils.AutocompletePopup;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.Word;
+import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
 import org.openide.windows.WindowManager;
 
 /**
@@ -42,6 +43,7 @@ public class NewChartDialog extends javax.swing.JDialog {
     private AutocompletePopup menuWindow;
     private Window owner;
     private Word word;
+	private StockAutoCompleter completer = null;
 
     private Stock stock = null;
     private DataProvider dataProvider = null;
@@ -58,7 +60,7 @@ public class NewChartDialog extends javax.swing.JDialog {
         menuWindow = new AutocompletePopup(txtSymbol);
         word = new Word(txtSymbol);
         initForm();
-        setEventManagement();
+        //setEventManagement();
     }
 
 
@@ -80,6 +82,8 @@ public class NewChartDialog extends javax.swing.JDialog {
             lstChart.addItem(s);
 
         ((AbstractDocument) txtSymbol.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
+		completer = new StockAutoCompleter(txtSymbol);
+		completer.setDataProvider(dataProvider);
     }
 
     private void setEventManagement()
@@ -289,8 +293,8 @@ public class NewChartDialog extends javax.swing.JDialog {
 
     private StockSet getSet(String word)
     {
-        StockSet returnSet = dataProvider.getAutocomplete(word);
-        return returnSet;
+		StockSet set = dataProvider.getAutocomplete(word);
+        return set;
     }
 
     public Stock getStock() 
@@ -475,6 +479,8 @@ public class NewChartDialog extends javax.swing.JDialog {
         String provider = (String) list.getSelectedItem();
         lstExchange.removeAllItems();
         dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
+		if (completer != null)
+			completer.setDataProvider(dataProvider);
         Exchange[] exchanges = dataProvider.getExchanges();
         if (exchanges == null || exchanges.length == 0)
         {

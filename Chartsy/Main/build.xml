@@ -5,4 +5,7 @@
 <project name="org.chartsy.main" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.chartsy.main.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="netbeans-extra" depends="init">
+        <branding cluster="${cluster}" overrides="${suite.dir}/branding" token="chartsy"/>
+    </target>
 </project>

@@ -32,6 +32,9 @@ public class StockNode extends AbstractNode
     public String getExchange()
     { return exchange; }
 
+	public String getKey()
+	{ return symbol + exchange; }
+
     public String getLeft()
     { return "<font color='#4e9a06'>" + companyName + "</font>"; }
 

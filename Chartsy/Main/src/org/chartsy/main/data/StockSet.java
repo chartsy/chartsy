@@ -40,6 +40,11 @@ public class StockSet extends AbstractSet<StockNode> implements Serializable, Cl
         this.stocks = stocks;
     }
 
+	public StockNode[] stocks()
+	{
+		return stocks.toArray(new StockNode[stocks.size()]);
+	}
+
     public String[] getWords()
     {
         String[] result = new String[stocks.size()];

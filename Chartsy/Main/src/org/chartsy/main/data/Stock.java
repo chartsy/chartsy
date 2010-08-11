@@ -54,7 +54,7 @@ final public class Stock implements Serializable {
 
 	public boolean hasCompanyName()
 	{
-		return !companyName.isEmpty();
+		return companyName.hashCode() != "".hashCode();
 	}
 
     public boolean isIndex() {

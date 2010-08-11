@@ -50,7 +50,7 @@ public final class StockFetcher
 			{
 				handle.finish();
 				if (aux != null
-					&& !aux.getKey().isEmpty())
+					&& aux.getKey().hashCode() != "".hashCode())
 					dataProvider.addStock(aux);
 				else
 				{

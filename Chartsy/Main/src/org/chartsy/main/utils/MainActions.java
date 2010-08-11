@@ -100,15 +100,6 @@ public final class MainActions
 		(ChartFrame chartFrame, ChartToolbar chartToolbar)
 	{ return ToggleToolbarShowLabels.getAction(chartFrame, chartToolbar); }
 
-    /*public static AbstractAction printChart(final ChartFrame chartFrame)
-    {
-        final boolean b = chartFrame.getChartProperties().getToolbarSmallIcons();
-        AbstractAction action = (AbstractAction) PrintManager.printAction(chartFrame.getMainPanel());
-        action.putValue(AbstractAction.NAME, "Print");
-        action.putValue(AbstractAction.SMALL_ICON, b ? ResourcesUtils.getIcon16("print") : ResourcesUtils.getIcon24("print"));
-        return action;
-    }*/
-
 	public static boolean isInFavorites(ChartFrame chartFrame)
 	{
 		TopComponent component
@@ -237,6 +228,7 @@ public final class MainActions
 				putValue(SMALL_ICON,
 					ResourcesUtils.getIcon16(
 					NbBundle.getMessage(MainActions.class, "ICON_"+name)));
+				putValue(LONG_DESCRIPTION, name);
 				putValue(LARGE_ICON_KEY,
 					ResourcesUtils.getIcon24(
 					NbBundle.getMessage(MainActions.class, "ICON_"+name)));
@@ -366,7 +358,6 @@ public final class MainActions
 
 		public void actionPerformed(ActionEvent e)
 		{
-			System.out.println("Change to " + interval.toString() + " interval");
 			if (!current)
 			{
 				Stock stock = chartFrame.getChartData().getStock();
@@ -391,6 +382,16 @@ public final class MainActions
 						chartFrame.validate();
 						chartFrame.repaint();
 					}
+				}
+				else
+				{
+					HistoryItem item = chartFrame.getHistory().getCurrent();
+					if (item != null)
+					{
+						chartFrame.getHistory().addHistoryItem(item);
+						chartFrame.getHistory().clearForwardHistory();
+					}
+					chartFrame.changeDataset(stock, interval, false);
 				}
 			}
 		}

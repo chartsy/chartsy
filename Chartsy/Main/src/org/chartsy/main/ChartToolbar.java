@@ -269,7 +269,8 @@ public class ChartToolbar extends JToolBar implements Serializable
 		}
 
 		public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
-		public void showBigIcon() { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+		public void showBigIcon() 
+		{ setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
 
 	}
 
