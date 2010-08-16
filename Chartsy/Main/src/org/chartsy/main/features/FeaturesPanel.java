@@ -93,6 +93,14 @@ public class FeaturesPanel extends JToolBar
 		}
 	}
 
+	public void refresh()
+	{
+		removeAll();
+		initComponents();
+		validate();
+		repaint();
+	}
+
 	private boolean isChartsyUser()
 	{
 		Preferences preferences = NbPreferences.root().node("/org/chartsy/register");

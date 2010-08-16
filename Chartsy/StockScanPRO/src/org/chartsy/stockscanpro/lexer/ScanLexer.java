@@ -262,19 +262,20 @@ public class ScanLexer implements Lexer<ScanTokenId>
 						case 'c':
 							if ((c = input.read()) == 'i')
 							{
+								if ((c = input.read()) == '_')
+								{
+									if ((c = input.read()) == 'e'
+										&& (c = input.read()) == 'm'
+										&& (c = input.read()) == 'a')
+										return parseParamsIndicator(ScanTokenId.CCI_EMA, false, 2);
+									else
+										return token(ScanTokenId.ERROR);
+								}
+
+								input.backup(1);
 								return parseParamsIndicator(ScanTokenId.CCI, false, 1);
 							}
-							input.backup(1);
-							if ((c = input.read()) == 'i'
-								&& (c = input.read()) == '_'
-								&& (c = input.read()) == 'e'
-								&& (c = input.read()) == 'm'
-								&& (c = input.read()) == 'a')
-							{
-								return parseParamsIndicator(ScanTokenId.CCI_EMA, false, 2);
-							}
-							
-							return token(ScanTokenId.ERROR);
+							break;
 
 						case 'l': // close
 							if ((c = input.read()) == 'o'
@@ -359,46 +360,38 @@ public class ScanLexer implements Lexer<ScanTokenId>
 									return parseParamsIndicator(ScanTokenId.MAX, true, 2);
 
 								case 'c': // macd
-									if ((c = input.read()) == 'd')
+									if ((c = input.read()) != 'd')
+										return token(ScanTokenId.ERROR);
+
+									if ((c = input.read()) == '_')
+									{
 										switch (c = input.read())
 										{
-											case '_':
-												switch (c = input.read())
-												{
-													case 'h': // macd_histogram
-														if ((c = input.read()) == 'i'
-															&& (c = input.read()) == 's'
-															&& (c = input.read()) == 't'
-															&& (c = input.read()) == 'o'
-															&& (c = input.read()) == 'g'
-															&& (c = input.read()) == 'r'
-															&& (c = input.read()) == 'a'
-															&& (c = input.read()) == 'm')
-															return parseParamsIndicator(ScanTokenId.MACD_HISTOGRAM, false, 3);
-														else
-															return token(ScanTokenId.ERROR);
-														
-													case 's': // macd_signal
-														if ((c = input.read()) == 'i'
-															&& (c = input.read()) == 'g'
-															&& (c = input.read()) == 'n'
-															&& (c = input.read()) == 'a'
-															&& (c = input.read()) == 'l')
-															return parseParamsIndicator(ScanTokenId.MACD_SIGNAL, false, 3);
-														else
-															return token(ScanTokenId.ERROR);
+											case 'h':
+												if ((c = input.read()) == 'i'
+													&& (c = input.read()) == 's'
+													&& (c = input.read()) == 't'
+													&& (c = input.read()) == 'o'
+													&& (c = input.read()) == 'g'
+													&& (c = input.read()) == 'r'
+													&& (c = input.read()) == 'a'
+													&& (c = input.read()) == 'm')
+													return parseParamsIndicator(ScanTokenId.MACD_HISTOGRAM, false, 3);
+												break;
 
-													default:
-														return token(ScanTokenId.ERROR);
-												}
-
-											default:
-												return parseParamsIndicator(ScanTokenId.MACD, false, 2);
+											case 's':
+												if ((c = input.read()) == 'i'
+													&& (c = input.read()) == 'g'
+													&& (c = input.read()) == 'n'
+													&& (c = input.read()) == 'a'
+													&& (c = input.read()) == 'l')
+													return parseParamsIndicator(ScanTokenId.MACD_SIGNAL, false, 3);
+												break;
 										}
-									break;
-
-								default:
-									return token(ScanTokenId.ERROR);
+									}
+									
+									input.backup(1);
+									return parseParamsIndicator(ScanTokenId.MACD, false, 2);
 							}
 
 						case 'd': // mdi
@@ -422,20 +415,20 @@ public class ScanLexer implements Lexer<ScanTokenId>
 								&& (c = input.read()) == 'l'
 								&& (c = input.read()) == 'o'
 								&& (c = input.read()) == 'w')
-
-								switch (c = input.read())
+							{
+								if ((c = input.read()) == '_')
 								{
-									case '_': // money_flow_avg
-										if ((c = input.read()) == 'a'
-											&& (c = input.read()) == 'v'
-											&& (c = input.read()) == 'g')
-											return parseParamsIndicator(ScanTokenId.MONEY_FLOW_AVG, false, 1);
-										else
-											return token(ScanTokenId.ERROR);
-
-									default:
-										return parseNoParamsIndicator(ScanTokenId.MONEY_FLOW);
+									if ((c = input.read()) == 'a'
+										&& (c = input.read()) == 'v'
+										&& (c = input.read()) == 'g')
+										return parseParamsIndicator(ScanTokenId.MONEY_FLOW_AVG, false, 1);
+									else
+										return token(ScanTokenId.ERROR);
 								}
+
+								input.backup(1);
+								return parseNoParamsIndicator(ScanTokenId.MONEY_FLOW);
+							}
 							break;
 
 						default:

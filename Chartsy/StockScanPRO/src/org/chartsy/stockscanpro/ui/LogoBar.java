@@ -1,9 +1,8 @@
 package org.chartsy.stockscanpro.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,14 +32,14 @@ public class LogoBar extends JPanel
 
     public LogoBar()
     {
-        super(new GridBagLayout());
+		super(new BorderLayout());
         setOpaque(false);
-        setPreferredSize(new Dimension(1800, 155));
         ImageIcon imageIcon = Utils.getImageIcon(IMAGE_LOGO);
         LogoLink logoLink = new LogoLink();
         logoLink.setIcon(imageIcon);
         logoLink.setPressedIcon(imageIcon);
-        add(logoLink, new GridBagConstraints(0, 0, 1, 1, 0.0D, 0.0D, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		add(logoLink, BorderLayout.CENTER);
+		setPreferredSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
     }
 
     public class LogoLink extends JButton implements MouseListener, ActionListener
@@ -56,8 +55,8 @@ public class LogoBar extends JPanel
             setBorderPainted(false);
             setFocusPainted(false);
 
-            addMouseListener(this);
-            addActionListener(this);
+            addMouseListener((MouseListener) this);
+            addActionListener((ActionListener) this);
         }
 
         public void mouseClicked(MouseEvent e) {}

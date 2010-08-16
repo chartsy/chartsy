@@ -1,77 +1,115 @@
 package org.chartsy.stockscanpro.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import org.chartsy.main.intro.content.Constants;
-import org.chartsy.main.intro.content.Utils;
+import java.awt.LayoutManager;
+import javax.swing.JLayeredPane;
 
 /**
  *
  * @author Viorel
  */
-public class Content extends JPanel
+public class Content extends JLayeredPane
 {
+
+	private LogoBar logoBar;
+	private QueryPanel queryPanel;
+	private HelpPanel helpPanel;
+	private ResultsPanel resultsPanel;
 
     public Content()
     {
-        super(new BorderLayout());
+		logoBar = new LogoBar();
+		queryPanel = new QueryPanel(this);
+		helpPanel = new HelpPanel();
+		resultsPanel = new ResultsPanel();
+
         setOpaque(true);
-        setBackground(new Color(0xf3f2f2));
-        add(new LogoBar(), BorderLayout.NORTH);
+        setBackground(Color.decode("0xf3f2f2"));
+		setLayout(new StockScanLayout());
 
-        QueryPanel queryPanel = new QueryPanel();
-        ContentPanel contentPanel = new ContentPanel(queryPanel);
-
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setBorder(null);
-        scrollPane.setViewportBorder(null);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setPreferredSize(new Dimension(700, 400));
-
-        JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        if (scrollBar != null) {
-            scrollBar.setBlockIncrement(30 * Utils.getDefaultFontSize());
-            scrollBar.setUnitIncrement(Utils.getDefaultFontSize());
-        }
-        
-        add(scrollPane, BorderLayout.CENTER);
+		add(logoBar);
+		add(queryPanel);
+		add(helpPanel);
+		add(resultsPanel);
     }
 
-    public static class ContentPanel extends JPanel
-    {
+	public QueryPanel getQueryPanel()
+	{
+		return queryPanel;
+	}
 
-        public ContentPanel(JComponent component)
-        {
-            super(new GridBagLayout());
-            setOpaque(false);
-            add(component, new GridBagConstraints(0, 0, 1, 1, 0.0D, 0.0D, 10, 1, new Insets(0, 0, 100, 0), 0, 0));
-        }
+	public ResultsPanel getResultsPanel()
+	{
+		return resultsPanel;
+	}
 
-        public Dimension getPreferredScrollableViewportSize()
-        { return getPreferredSize(); }
+	private class StockScanLayout implements LayoutManager
+	{
 
-        public int getScrollableUnitIncrement(Rectangle rectangle, int i, int j)
-        { return Constants.FONT_SIZE; }
+		public void addLayoutComponent(String name, Component comp)
+		{}
 
-        public int getScrollableBlockIncrement(Rectangle rectangle, int i, int j)
-        { return 30 * getScrollableUnitIncrement(rectangle, i, j); }
+		public void removeLayoutComponent(Component comp)
+		{}
 
-        public boolean getScrollableTracksViewportWidth()
-        { return false; }
+		public Dimension preferredLayoutSize(Container parent)
+		{
+			return new Dimension(0, 0);
+		}
 
-        public boolean getScrollableTracksViewportHeight()
-        { return false; }
+		public Dimension minimumLayoutSize(Container parent)
+		{
+			return new Dimension(0, 0);
+		}
 
-    }
+		public void layoutContainer(Container parent)
+		{
+			int gap = 10;
+
+			Insets insets = parent.getInsets();
+			int width = parent.getWidth() - insets.left - insets.right;
+			int height = parent.getHeight() - insets.top - insets.bottom;
+
+			int logoWidth = logoBar.getPreferredSize().width;
+			int logoHeight = logoBar.getPreferredSize().height;
+
+			int restHeight = height - logoHeight - 2*gap;
+
+			int centerWidth = (width - 3*gap) / 2;
+			int centerHeight = (int) ((restHeight - 2*gap) * 0.6);
+
+			int bottomWidth = (width - 2*gap);
+			int bottomHeight = restHeight - 2*gap - centerHeight;
+
+			logoBar.setBounds(
+				(width / 2) - (logoWidth / 2),
+				gap,
+				logoWidth,
+				logoHeight);
+
+			queryPanel.setBounds(
+				gap,
+				2*gap + logoHeight,
+				centerWidth,
+				centerHeight);
+
+			helpPanel.setBounds(
+				2*gap + centerWidth,
+				2*gap + logoHeight,
+				centerWidth,
+				centerHeight);
+
+			resultsPanel.setBounds(
+				gap,
+				3*gap + logoHeight + centerHeight,
+				bottomWidth,
+				bottomHeight);
+		}
+
+	}
 
 }

@@ -1,6 +1,9 @@
 package org.chartsy.main.resources;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Image;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
@@ -88,6 +91,31 @@ public final class ResourcesUtils
 			return ImageUtilities.loadImageIcon(
 				NbBundle.getMessage(ResourcesUtils.class, "ICON_Template_24", name),
 				true);
+	}
+
+	public static Icon getSwingIcon(final String iconName)
+	{
+		return new Icon()
+		{
+			public void paintIcon(Component c, Graphics g, int x, int y)
+			{
+				ImageUtilities.loadImageIcon(
+					NbBundle.getMessage(ResourcesUtils.class, "ICON_Template", iconName),
+					true).paintIcon(c, g, x, y);
+			}
+			public int getIconWidth()
+			{
+				return ImageUtilities.loadImageIcon(
+					NbBundle.getMessage(ResourcesUtils.class, "ICON_Template", iconName),
+					true).getIconWidth();
+			}
+			public int getIconHeight()
+			{
+				return ImageUtilities.loadImageIcon(
+					NbBundle.getMessage(ResourcesUtils.class, "ICON_Template", iconName),
+					true).getIconHeight();
+			}
+		};
 	}
 
 }

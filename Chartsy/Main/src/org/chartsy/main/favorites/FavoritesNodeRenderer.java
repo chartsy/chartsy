@@ -38,7 +38,7 @@ public class FavoritesNodeRenderer extends DefaultTreeCellRenderer
 		(JTree tree, Object value, boolean selected, boolean expanded,
 		boolean leaf, int row, boolean hasFocus)
 	{
-		Component component = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+		super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 
 		Node node = Visualizer.findNode(value);
 
@@ -49,16 +49,19 @@ public class FavoritesNodeRenderer extends DefaultTreeCellRenderer
 
 			StockTable stockTable = new StockTable(stockObject.getData());
 			stockTable.setFont(getRendererFont());
+			stockTable.setBackground(FavoritesTreeView.rowColors[row&1]);
+			stockTable.setRowHeight(tree.getRowHeight());
 			if (selected)
 				stockTable.selectAll();
 
 			return stockTable;
 		}
 
-		component.setEnabled(tree.isEnabled());
-		component.setFont(getRendererFont());
+		setEnabled(tree.isEnabled());
+		setFont(getRendererFont());
+		setOpaque(false);
 
-		return component;
+		return this;
 	}
 
 	private Font getRendererFont()
@@ -93,7 +96,8 @@ public class FavoritesNodeRenderer extends DefaultTreeCellRenderer
 			setRowSelectionAllowed(true);
 			setIntercellSpacing(new Dimension(0, 0));
 			setOpaque(true);
-			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			setBorder(null);
+			setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
 			int columnCount = getColumnCount();
 			for (int i = 0; i < columnCount; i++)

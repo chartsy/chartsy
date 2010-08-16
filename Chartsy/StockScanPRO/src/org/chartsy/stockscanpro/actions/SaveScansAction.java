@@ -3,6 +3,8 @@ package org.chartsy.stockscanpro.actions;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,7 +20,11 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.stockscanpro.ui.QueryPanel;
-import org.chartsy.stockscanpro.ui.ScanSaver;
+import org.chartsy.stockscanpro.ui.ScanSaverPanel;
+import org.chartsy.stockscanpro.ui.StockScanToolbar;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.LifecycleManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.XMLFileSystem;
@@ -34,7 +40,8 @@ import org.openide.util.NbPreferences;
 public class SaveScansAction implements ActionListener
 {
 
-	private static final Logger LOG = Logger.getLogger(SaveScansAction.class.getPackage().getName());
+	private static final Logger LOG
+		= Logger.getLogger(SaveScansAction.class.getPackage().getName());
 
 	public SaveScansAction()
 	{}
@@ -46,19 +53,27 @@ public class SaveScansAction implements ActionListener
 		if (obj instanceof JButton)
 		{
 			JButton btn = (JButton) obj;
-			Container container = btn.getParent().getParent();
-			if (container instanceof QueryPanel)
-				queryPanel = (QueryPanel) container;
+			Container container = btn.getParent();
+			if (container instanceof StockScanToolbar)
+				queryPanel = ((StockScanToolbar) container).getQueryPanel();
 			else
 				queryPanel = null;
 		}
 
 		if (queryPanel != null)
 		{
-			ScanSaver explorer = ScanSaver.findInstance();
-			explorer.setQueryPanel(queryPanel);
-			explorer.open();
-			explorer.requestActive();
+			ScanSaverPanel panel = new ScanSaverPanel(queryPanel);
+			DialogDescriptor descriptor
+				= new DialogDescriptor(panel, "Save Scan", true, panel.saveScan);
+			descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
+			descriptor.setOptions(new Object[]
+			{
+				DialogDescriptor.OK_OPTION,
+				DialogDescriptor.CANCEL_OPTION
+			});
+			descriptor.setOptionsAlign(DialogDescriptor.BOTTOM_ALIGN);
+			panel.addNotify();
+			DialogDisplayer.getDefault().notify(descriptor);
 		}
 	}
 

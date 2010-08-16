@@ -1,9 +1,9 @@
 package org.chartsy.favorites;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 public final class OpenFavorites implements ActionListener
@@ -11,17 +11,24 @@ public final class OpenFavorites implements ActionListener
 
 	public void actionPerformed(ActionEvent e)
 	{
-		FavoritesComponent component = FavoritesComponent.findInstance();
-		Mode mode = WindowManager.getDefault().findMode("explorer");
-		if (mode != null)
+		TopComponent component = WindowManager.getDefault().findTopComponent("FavoritesComponent");
+		if (component instanceof FavoritesComponent)
 		{
-			mode.setBounds(new Rectangle(168, 242, 200, 373));
-			mode.dockInto(component);
-			component.open();
-		}
-		else
-		{
-			System.out.println("Mode not found.");
+			FavoritesComponent favoritesComponent
+				= (FavoritesComponent) component;
+			if (!favoritesComponent.isOpened())
+			{
+				Mode mode = WindowManager.getDefault().findMode("explorer");
+				if (mode != null)
+				{
+					mode.dockInto(favoritesComponent);
+					favoritesComponent.open();
+				}
+			}
+			else
+			{
+				favoritesComponent.requestActive();
+			}
 		}
 	}
 }

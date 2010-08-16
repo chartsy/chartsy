@@ -18,7 +18,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.stockscanpro.ui.QueryPanel;
-import org.chartsy.stockscanpro.ui.ScanLoader;
+import org.chartsy.stockscanpro.ui.ScanLoaderPanel;
+import org.chartsy.stockscanpro.ui.StockScanToolbar;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.XMLFileSystem;
@@ -46,19 +49,35 @@ public class LoadScansAction implements ActionListener
 		if (obj instanceof JButton)
 		{
 			JButton btn = (JButton) obj;
-			Container container = btn.getParent().getParent();
-			if (container instanceof QueryPanel)
-				queryPanel = (QueryPanel) container;
+			Container container = btn.getParent();
+			if (container instanceof StockScanToolbar)
+				queryPanel = ((StockScanToolbar) container).getQueryPanel();
 			else
 				queryPanel = null;
 		}
 
 		if (queryPanel != null)
 		{
-			ScanLoader explorer = ScanLoader.findInstance();
-			explorer.setQueryPanel(queryPanel);
-			explorer.open();
-			explorer.requestActive();
+			ScanLoaderPanel panel = new ScanLoaderPanel(queryPanel);
+			DialogDescriptor descriptor 
+				= new DialogDescriptor(panel, "Load Scan", true, null);
+			descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
+			descriptor.setOptions(new Object[]
+			{
+				DialogDescriptor.OK_OPTION,
+				DialogDescriptor.CANCEL_OPTION
+			});
+			panel.addNotify();
+			Object ret = DialogDisplayer.getDefault().notify(descriptor);
+			if (ret.equals(DialogDescriptor.OK_OPTION))
+			{
+				panel.loadScan();
+				panel.removeNotify();
+			}
+			else
+			{
+				panel.removeNotify();
+			}
 		}
 	}
 

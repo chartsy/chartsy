@@ -22,13 +22,7 @@
             </file>
         </folder>
         <folder name="Help">
-            <file name="org-chartsy-main-Register.instance">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.chartsy.main.Bundle"/>
-                <attr name="delegate" newvalue="org.chartsy.main.Register"/>
-                <attr name="displayName" bundlevalue="org.chartsy.main.Bundle#CTL_Register"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" stringvalue="false"/>
-            </file>
+            <file name="org-chartsy-main-Register.instance" />
         </folder>
     </folder>
     <folder name="Menu">

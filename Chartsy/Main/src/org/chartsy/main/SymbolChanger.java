@@ -2,14 +2,7 @@ package org.chartsy.main;
 
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,21 +12,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Stock;
-import org.chartsy.main.data.StockNode;
-import org.chartsy.main.data.StockSet;
 import org.chartsy.main.events.StockEvent;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.resources.ResourcesUtils;
-import org.chartsy.main.utils.AutocompletePopup;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
-import org.chartsy.main.utils.Word;
 import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
 
 /**
@@ -44,7 +30,6 @@ public class SymbolChanger extends JToolBar implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    private static final char[] WORD_SEPARATORS = {' ', '\n', '\t', ',', ';', '!', '?', '\'', '(', ')', '[', ']', '\"', '{', '}', '/', '\\', '<', '>'};
 
     private ChartFrame chartFrame;
     private JTextField txtSymbol;
@@ -53,10 +38,8 @@ public class SymbolChanger extends JToolBar implements Serializable
     private JButton btnForward;
     private JButton btnBackHistory;
     private JButton btnForwardHistory;
-
+	
     private DataProvider dataProvider;
-    private AutocompletePopup menuWindow;
-    private Word word;
 
     public SymbolChanger(ChartFrame frame)
     {
@@ -122,9 +105,6 @@ public class SymbolChanger extends JToolBar implements Serializable
         dataProvider = chartFrame.getChartData().getDataProvider();
 		final StockAutoCompleter completer = new StockAutoCompleter(txtSymbol);
 		completer.setDataProvider(dataProvider);
-        //menuWindow = new AutocompletePopup(txtSymbol);
-        //word = new Word(txtSymbol);
-        //setEventManagement();
     }
 
 	public Action submit = new AbstractAction()
@@ -134,204 +114,6 @@ public class SymbolChanger extends JToolBar implements Serializable
 			btnSubmit.doClick();
 		}
 	};
-
-    private void setEventManagement()
-    {
-        txtSymbol.addFocusListener(new FocusAdapter()
-        {
-            public @Override void focusLost(FocusEvent e)
-            {
-                if (menuWindow.isVisible())
-                    txtSymbol.requestFocus();
-            }
-        });
-
-        txtSymbol.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                super.mouseClicked(e);
-                if (menuWindow.isVisible())
-                    menuWindow.setVisible(false);
-            }
-        });
-
-        txtSymbol.addKeyListener(new KeyAdapter()
-        {
-            @Override
-            public void keyPressed(KeyEvent e)
-            {
-                if (e.isConsumed())
-                    return;
-                
-                if (menuWindow.isVisible())
-                {
-                    switch (e.getKeyCode())
-                    {
-                        case KeyEvent.VK_ENTER:
-                            if (menuWindow.hasSelected())
-                                menuWindow.onSelected();
-                            else
-                            {
-                                menuWindow.setVisible(false);
-                                btnSubmit.doClick();
-                            }
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_DOWN:
-                            menuWindow.moveDown();
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_UP:
-                            menuWindow.moveUp();
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_PAGE_DOWN:
-                            menuWindow.movePageDown();
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_PAGE_UP:
-                            menuWindow.movePageUp();
-                            e.consume();
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (e.getKeyCode())
-                    {
-                        case KeyEvent.VK_ENTER:
-                            btnSubmit.doClick();
-                            e.consume();
-                            break;
-                        default:
-                            if (!dataProvider.getName().equals("Yahoo"))
-                                onControlSpace();
-                            break;
-                    }
-                }
-            }
-        });
-
-        txtSymbol.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void insertUpdate(DocumentEvent e)
-            {
-                if (menuWindow.isVisible())
-                {
-                    int beginIndex = e.getOffset();
-                    int endIndex = beginIndex + e.getLength();
-                    String newCharacters = txtSymbol.getText().substring(beginIndex, endIndex);
-                    for (int i = 0; i < WORD_SEPARATORS.length; i++)
-                    {
-                        if (newCharacters.indexOf(WORD_SEPARATORS[i]) != -1)
-                        {
-                            word.setBounds(-1, 0);
-                            menuWindow.setWords(new StockNode[] {});
-                            menuWindow.setVisible(false);
-                            return;
-                        }
-                    }
-                    word.increaseLength(e.getLength());
-                    updateMenu();
-                }
-            }
-            public void removeUpdate(DocumentEvent e)
-            {
-                if (menuWindow.isVisible())
-                {
-                    word.decreaseLength(e.getLength());
-                    if (word.getLength() == 0)
-                    {
-                        menuWindow.setWords(new StockNode[] {});
-                        menuWindow.setVisible(false);
-                        return;
-                    }
-                    updateMenu();
-                }
-            }
-            public void changedUpdate(DocumentEvent e)
-            {}
-        });
-    }
-
-    private StockNode[] getWords(String word)
-    {
-        word = word.trim().toLowerCase();
-        StockSet returnSet = getSet(word);
-        return returnSet.toArray(new StockNode[returnSet.size()]);
-    }
-
-    private boolean isWordSeparator(char aChar)
-    {
-        for (int i = 0; i < WORD_SEPARATORS.length; i++)
-        {
-            if (aChar == WORD_SEPARATORS[i])
-                return true;
-        }
-        return false;
-    }
-
-    private void onControlSpace()
-    {
-        word = getCurrentTypedWord();
-        if (word.getLength() == 0)
-            return;
-        int index = word.getStart();
-        Rectangle rect = null;
-        try
-        {
-            rect = txtSymbol.getUI().modelToView(txtSymbol, index);
-        }
-        catch (BadLocationException e)
-        {}
-        if (rect == null)
-            return;
-
-        menuWindow.show(txtSymbol, rect.x, rect.y + rect.height);
-        updateMenu();
-        txtSymbol.requestFocus();
-    }
-
-    private void updateMenu()
-    {
-        if (word.getLength() == 0)
-            return;
-        StockNode[] words = getWords(word.toString());
-        menuWindow.setWords(words);
-    }
-
-    private Word getCurrentTypedWord()
-    {
-        Word w = new Word(txtSymbol);
-        int position = txtSymbol.getCaretPosition();
-        if (position == 0)
-            return w;
-        int index = position - 1;
-        boolean found = false;
-        while ((index > 0) && (!found))
-        {
-            char current = txtSymbol.getText().charAt(index);
-            if (isWordSeparator(current))
-            {
-                found = true;
-                index++;
-            }
-            else
-            {
-                index--;
-            }
-        }
-        w.setBounds(index, position - index);
-        return w;
-    }
-
-    private StockSet getSet(String word)
-    {
-        StockSet returnSet = dataProvider.getAutocomplete(word);
-        return returnSet;
-    }
 
     public void updateToolbar()
     {

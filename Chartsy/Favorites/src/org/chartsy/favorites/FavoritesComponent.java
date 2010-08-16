@@ -3,36 +3,32 @@ package org.chartsy.favorites;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ActionMap;
 import javax.swing.text.DefaultEditorKit;
+import org.chartsy.favorites.xml.FavoritesXmlParser;
+import org.chartsy.favorites.xml.FavoritesXmlWriter;
 import org.chartsy.main.events.DataProviderEvent;
 import org.chartsy.main.events.DataProviderListener;
 import org.chartsy.main.favorites.FavoritesTreeView;
 import org.chartsy.main.favorites.nodes.FolderAPI;
-import org.chartsy.main.favorites.nodes.FolderAPINode;
 import org.chartsy.main.favorites.nodes.RootAPI;
 import org.chartsy.main.favorites.nodes.RootAPINode;
 import org.chartsy.main.favorites.nodes.StockAPI;
-import org.chartsy.main.favorites.nodes.StockAPINode;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.SerialVersion;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.TreeTableView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -57,8 +53,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  * @author Viorel
  */
-@ConvertAsProperties(dtd = "-//org.chartsy.favorites//FavoritesComponent//EN",
-autostore = false)
 public final class FavoritesComponent extends TopComponent 
 	implements DataProviderListener, ExplorerManager.Provider
 {
@@ -66,6 +60,7 @@ public final class FavoritesComponent extends TopComponent
 	private static FavoritesComponent instance;
 	private static final String PREFERRED_ID = "FavoritesComponent";
 	private ExplorerManager manager;
+	private FavoritesTreeView treeView;
 
 	private RootAPI root;
 
@@ -102,8 +97,10 @@ public final class FavoritesComponent extends TopComponent
 
 	private void initComponents()
 	{
+		setOpaque(false);
 		setLayout(new BorderLayout());
-		add(FavoritesTreeView.getDefault(), BorderLayout.CENTER);
+		treeView = FavoritesTreeView.getDefault();
+		add(treeView, BorderLayout.CENTER);
 	}
 
 	public static synchronized FavoritesComponent getDefault()
@@ -134,25 +131,6 @@ public final class FavoritesComponent extends TopComponent
 			+ "unexpected behavior.");
         return getDefault();
     }
-
-	void writeProperties(java.util.Properties p)
-	{
-		p.setProperty("version", "1.0");
-	}
-
-	Object readProperties(java.util.Properties p)
-	{
-		if (instance == null)
-			instance = this;
-		
-		instance.readPropertiesImpl(p);
-		return instance;
-	}
-
-	private void readPropertiesImpl(java.util.Properties p)
-	{
-		String version = p.getProperty("version");
-	}
 
 	protected @Override void componentActivated()
     {
@@ -284,322 +262,6 @@ public final class FavoritesComponent extends TopComponent
         public void childrenAdded(NodeMemberEvent e) {}
 	}
 
-	public static class FavoritesXmlParser
-	{
-
-		public static RootAPI getRoot()
-		{
-			RootAPI root = null;
-
-			try
-			{
-				InputSource src
-					= new InputSource(
-					new FileInputStream(FileUtils.favoritesFile()));
-
-				FavoritesXmlHandler handler = new FavoritesXmlHandler();
-
-				XMLReader reader = XMLReaderFactory.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
-				if (reader != null)
-				{
-					reader.setContentHandler(handler);
-					reader.parse(src);
-					root = handler.getRootAPI();
-				}
-			}
-			catch (IOException ex)
-			{
-				Logger.getLogger(FavoritesComponent.class.getName()).log(
-					Level.SEVERE, "", ex);
-			}
-			catch (SAXException ex)
-			{
-				Logger.getLogger(FavoritesComponent.class.getName()).log(
-					Level.SEVERE, "", ex);
-			}
-
-			return root;
-		}
-
-	}
-
-	public static class FavoritesXmlHandler extends DefaultHandler
-	{
-
-		private static final int FAVORITES		= "favorites".hashCode();
-
-		private static final int FOLDER			= "folder".hashCode();
-		private static final int NAME			= "name".hashCode();
-
-		private static final int STOCK			= "stock".hashCode();
-		private static final int COMPANY		= "companyName".hashCode();
-		private static final int SYMBOL			= "symbol".hashCode();
-		private static final int EXCHANGE		= "exchange".hashCode();
-		private static final int DATAPROVIDER	= "dataProvider".hashCode();
-
-		private RootAPI root;
-		private Stack stack;
-		private boolean isStackReadyForText;
-		private boolean isInsideFolder;
-
-		public FavoritesXmlHandler()
-		{
-			stack = new Stack();
-			isStackReadyForText = false;
-			isInsideFolder = false;
-		}
-
-		public RootAPI getRootAPI()
-		{
-			return root;
-		}
-
-		public @Override void startElement
-			(String uri, String localName, String qName, Attributes attribs)
-		{
-			isStackReadyForText = false;
-			int identifier = localName.hashCode();
-
-			if (identifier == FAVORITES)
-			{
-				stack.push(new RootAPI());
-				isInsideFolder = false;
-			}
-			else if(identifier == FOLDER)
-			{
-				stack.push(new FolderAPI());
-				isInsideFolder = true;
-			}
-			else if(identifier == STOCK)
-				stack.push(new StockAPI());
-			else if (identifier == NAME
-				|| identifier == COMPANY
-				|| identifier == SYMBOL
-				|| identifier == EXCHANGE
-				|| identifier == DATAPROVIDER)
-			{
-				stack.push(new StringBuilder());
-				isStackReadyForText = true;
-			}
-			else
-			{
-				// do nothing
-			}
-		}
-
-		public @Override void endElement
-			(String uri, String localName, String qName)
-		{
-			isStackReadyForText = false;
-
-			Object tmp = stack.pop();
-			int identifier = localName.hashCode();
-
-			if (identifier == FAVORITES)
-				root = (RootAPI) tmp;
-			else if(identifier == FOLDER)
-			{
-				((RootAPI) stack.peek()).addFolder((FolderAPI) tmp);
-				isInsideFolder = false;
-			}
-			else if(identifier == STOCK)
-			{
-				if (isInsideFolder)
-					((FolderAPI)stack.peek()).addStock((StockAPI) tmp);
-				else
-					((RootAPI)stack.peek()).addStock((StockAPI) tmp);
-			}
-			else if (identifier == NAME)
-				((FolderAPI)stack.peek()).setDisplayName(decode(tmp.toString()));
-			else if (identifier == COMPANY)
-				((StockAPI)stack.peek()).setCompanyName(decode(tmp.toString()));
-			else if (identifier == SYMBOL)
-				((StockAPI)stack.peek()).setSymbol(decode(tmp.toString()));
-			else if (identifier == EXCHANGE)
-				((StockAPI)stack.peek()).setExchange(decode(tmp.toString()));
-			else if (identifier == DATAPROVIDER)
-				((StockAPI)stack.peek()).setDataProviderName(decode(tmp.toString()));
-			else
-				stack.push(tmp);
-		}
-
-		public @Override void characters
-			(char[] data, int start, int length)
-		{
-			if (isStackReadyForText == true)
-			{
-				((StringBuilder)stack.peek()).append(data, start, length);
-			}
-		}
-
-		private String decode(String text)
-		{
-			try
-			{
-				return URLDecoder.decode(text, "UTF-8");
-			}
-			catch (UnsupportedEncodingException ex)
-			{ 
-				Logger.getLogger(FavoritesComponent.class.getName()).log(Level.SEVERE, "", ex);
-			}
-			return text;
-		}
-
-	}
-
-	public static class FavoritesXmlWriter
-	{
-
-		public FavoritesXmlWriter()
-		{}
-
-		public static boolean saveFavoritesNodes(Node root)
-		{
-			if (!(root instanceof RootAPINode))
-				return false;
-
-			boolean saved = false;
-
-			try
-			{
-				FileUtils.removeFile(FileUtils.favoritesFile().getAbsolutePath());
-				FileUtils.createFile(FileUtils.favoritesFile().getAbsolutePath());
-
-				FileOutputStream fileOutputStream 
-					= new FileOutputStream(
-					FileUtils.favoritesFile().getAbsolutePath());
-				BufferedOutputStream bufferedOutputStream
-					= new BufferedOutputStream(fileOutputStream);
-				OutputStreamWriter out
-					= new OutputStreamWriter(bufferedOutputStream, "UTF-8");
-
-				out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
-
-				out.write("<favorites>\r\n");
-
-				// write root folders
-				for (Node node : root.getChildren().getNodes())
-				{
-					if (node instanceof FolderAPINode)
-					{
-						FolderAPI folder = ((FolderAPINode) node).getFolder();
-						// open folder node
-						out.write("\t<folder>\r\n");
-
-						// folder name
-						out.write("\t\t<name>");
-						out.write(encode(folder.getDisplayName()));
-						out.write("</name>\r\n");
-
-						// write stocks in folder
-						for (Node child : node.getChildren().getNodes())
-						{
-							if (child instanceof StockAPINode)
-							{
-								StockAPI stock = ((StockAPINode) child).getStock();
-								// open stock node
-								out.write("\t\t<stock>\r\n");
-
-								// company name
-								out.write("\t\t\t<companyName>");
-								out.write(encode(stock.getCompanyName()));
-								out.write("</companyName>\r\n");
-
-								// symbol
-								out.write("\t\t\t<symbol>");
-								out.write(encode(stock.getSymbol()));
-								out.write("</symbol>\r\n");
-
-								// exchange
-								out.write("\t\t\t<exchange>");
-								out.write(encode(stock.getExchange()));
-								out.write("</exchange>\r\n");
-
-								// data provider
-								out.write("\t\t\t<dataProvider>");
-								out.write(encode(stock.getDataProviderName()));
-								out.write("</dataProvider>\r\n");
-
-								// close stock node
-								out.write("\t\t</stock>\r\n");
-							}
-						}
-
-						// close folder node
-						out.write("\t</folder>\r\n");
-					}
-				}
-
-				// write root stocks
-				for (Node node : root.getChildren().getNodes())
-				{
-					if (node instanceof StockAPINode)
-					{
-						StockAPI stock = ((StockAPINode) node).getStock();
-						// open stock node
-						out.write("\t<stock>\r\n");
-
-						// company name
-						out.write("\t\t<companyName>");
-						out.write(encode(stock.getCompanyName()));
-						out.write("</companyName>\r\n");
-
-						// symbol
-						out.write("\t\t<symbol>");
-						out.write(encode(stock.getSymbol()));
-						out.write("</symbol>\r\n");
-
-						// exchange
-						out.write("\t\t<exchange>");
-						out.write(encode(stock.getExchange()));
-						out.write("</exchange>\r\n");
-
-						// data provider
-						out.write("\t\t<dataProvider>");
-						out.write(encode(stock.getDataProviderName()));
-						out.write("</dataProvider>\r\n");
-
-						// close stock node
-						out.write("\t</stock>\r\n");
-					}
-				}
-
-				out.write("</favorites>\r\n");
-
-				out.flush();
-				out.close();
-
-				saved = true;
-			}
-			catch (IOException ex)
-			{
-				Logger.getLogger(FavoritesComponent.class.getName()).log(
-					Level.SEVERE, "", ex);
-				saved = false;
-			}
-
-			if (!saved)
-				FileUtils.removeFile(FileUtils.favoritesFile().getAbsolutePath());
-
-			return saved;
-		}
-
-		private static String encode(String text)
-		{
-			try
-			{
-				return URLEncoder.encode(text, "UTF-8");
-			}
-			catch (UnsupportedEncodingException ex)
-			{
-				Logger.getLogger(FavoritesComponent.class.getName()).log(
-					Level.SEVERE, "", ex);
-			}
-			return text;
-		}
-		
-	}
-
 	final static class ResolvableHelper implements Serializable
 	{
 
@@ -610,7 +272,7 @@ public final class FavoritesComponent extends TopComponent
 
 		public Object readResolve()
 		{
-			return FavoritesComponent.getDefault();
+			return new FavoritesComponent();
 		}
 
 	}

@@ -90,12 +90,21 @@ public class ChartPanel extends JLayeredPane implements Serializable
 				stockInfoText = NbBundle.getMessage(
 					ChartPanel.class,
 					"LBL_StockInfo",
-					new String[] {stock.getKey(), stock.getCompanyName()});
+					new String[]
+				{
+					stock.getKey(),
+					stock.getCompanyName(),
+					chartFrame.getChartData().getDataProvider().getName()
+				});
 			else
 				stockInfoText = NbBundle.getMessage(
 					ChartPanel.class,
 					"LBL_StockInfoNoCompany",
-					stock.getKey());
+					new String[]
+				{
+					stock.getKey(),
+					chartFrame.getChartData().getDataProvider().getName()
+				});
 
 			stockInfo.setText(stockInfoText);
         }

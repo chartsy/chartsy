@@ -107,6 +107,7 @@ public enum ScanTokenId implements TokenId
 	LBRACKET						("[", "separator"),
 	RBRACKET						("]", "separator"),
 	COMMA							(",", "separator"),
+	US								("_", "separator"),
 
 	EQ								("=", "operator"),
 	GT								(">", "operator"),

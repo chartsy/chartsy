@@ -11,7 +11,6 @@ import org.openide.util.actions.CallableSystemAction;
 public final class FeatureAction extends CallableSystemAction
 {
 
-
 	public void performAction()
 	{
 		// do nothing

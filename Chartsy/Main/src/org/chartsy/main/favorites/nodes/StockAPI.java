@@ -151,8 +151,16 @@ public class StockAPI extends Object implements DataProviderListener
 				}
 				else
 				{
-					oldValue = dataset.getLastClose();
-					newValue = -1;
+					if (dataset.getItemsCount() > 2)
+					{
+						oldValue = dataset.getCloseAt(dataset.getLastIndex() - 1);
+						newValue = dataset.getLastClose();
+					}
+					else
+					{
+						oldValue = dataset.getLastClose();
+						newValue = -1;
+					}
 				}
 			}
 		}
