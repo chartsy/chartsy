@@ -122,7 +122,7 @@ public class LoadScansAction implements ActionListener
 		{
 			try
 			{
-				URL fileURL = new URL("file:/" + FileUtils.stockScanFile("loadScans.xml").getAbsolutePath());
+				URL fileURL = FileUtils.stockScanFile("loadScans.xml").toURL();
 
 				XMLFileSystem fileSystem = new XMLFileSystem();
 				fileSystem.setXmlUrl(fileURL);

@@ -120,7 +120,7 @@ public class SaveScansAction implements ActionListener
 		{
 			try
 			{
-				URL fileURL = new URL("file:/" + FileUtils.stockScanFile("saveScans.xml").getAbsolutePath());
+				URL fileURL = FileUtils.stockScanFile("saveScans.xml").toURL();
 
 				XMLFileSystem fileSystem = new XMLFileSystem();
 				fileSystem.setXmlUrl(fileURL);
