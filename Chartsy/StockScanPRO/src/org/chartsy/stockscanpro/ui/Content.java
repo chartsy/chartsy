@@ -99,19 +99,19 @@ public class Content extends JLayeredPane
 
 			queryPanel.setBounds(
 				gap,
-				2*gap + logoHeight,
+				2*gap + (logoBar.isVisible() ? logoHeight : 0),
 				centerWidth,
 				centerHeight);
 
 			helpPanel.setBounds(
 				2*gap + centerWidth,
-				2*gap + logoHeight,
+				2*gap + (logoBar.isVisible() ? logoHeight : 0),
 				centerWidth,
 				centerHeight);
 
 			resultsPanel.setBounds(
 				gap,
-				3*gap + logoHeight + centerHeight,
+				3*gap + (logoBar.isVisible() ? logoHeight : 0) + centerHeight,
 				bottomWidth,
 				bottomHeight);
 		}
