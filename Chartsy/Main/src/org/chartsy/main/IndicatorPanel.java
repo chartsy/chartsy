@@ -29,7 +29,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import org.chartsy.main.chart.Indicator;
-import org.chartsy.main.dialogs.ChartSettings;
+import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.SerialVersion;
@@ -177,10 +177,7 @@ public class IndicatorPanel extends JPanel implements Serializable
         {
             public void actionPerformed(ActionEvent e)
             {
-                ChartSettings dialog = new ChartSettings(new javax.swing.JFrame(), true);
-                dialog.setLocationRelativeTo(frame);
-                dialog.forIndicator(frame, panel.getIndicator());
-                dialog.setVisible(true);
+				SettingsPanel.getDefault().openSettingsWindow(panel.getIndicator());
             }
         };
     }

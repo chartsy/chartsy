@@ -33,7 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
-import org.chartsy.main.dialogs.ChartSettings;
+import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.Range;
@@ -484,10 +484,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
         {
             public void actionPerformed(ActionEvent e)
             {
-                ChartSettings dialog = new ChartSettings(new javax.swing.JFrame(), true);
-                dialog.setLocationRelativeTo(ChartPanel.this.chartFrame);
-                dialog.forOverlay(ChartPanel.this.chartFrame, overlay);
-                dialog.setVisible(true);
+				SettingsPanel.getDefault().openSettingsWindow(overlay);
             }
         };
     }

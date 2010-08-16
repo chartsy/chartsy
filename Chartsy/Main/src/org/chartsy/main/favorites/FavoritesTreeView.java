@@ -11,8 +11,6 @@ import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.data.ChartData;
-import org.chartsy.main.favorites.nodes.FolderAPINode;
-import org.chartsy.main.favorites.nodes.RootAPINode;
 import org.chartsy.main.favorites.nodes.StockAPI;
 import org.chartsy.main.favorites.nodes.StockAPINode;
 import org.chartsy.main.intervals.DailyInterval;

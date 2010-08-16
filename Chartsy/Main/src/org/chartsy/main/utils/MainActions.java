@@ -17,9 +17,9 @@ import org.chartsy.main.chart.Chart;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.AnnotationProperties;
-import org.chartsy.main.dialogs.ChartSettings;
 import org.chartsy.main.dialogs.Indicators;
 import org.chartsy.main.dialogs.Overlays;
+import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.favorites.nodes.RootAPI;
 import org.chartsy.main.favorites.nodes.RootAPINode;
 import org.chartsy.main.favorites.nodes.StockAPI;
@@ -744,10 +744,7 @@ public final class MainActions
 
 		public void actionPerformed(ActionEvent e)
 		{
-			ChartSettings dialog = new ChartSettings(new JFrame(), true);
-			dialog.setLocationRelativeTo(chartFrame);
-			dialog.initializeForm(chartFrame);
-			dialog.setVisible(true);
+			SettingsPanel.getDefault().openSettingsWindow(chartFrame);
 		}
 
 	}
