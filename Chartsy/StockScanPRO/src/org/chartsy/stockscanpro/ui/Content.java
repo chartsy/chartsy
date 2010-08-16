@@ -82,6 +82,12 @@ public class Content extends JLayeredPane
 			int centerWidth = (width - 3*gap) / 2;
 			int centerHeight = (int) ((restHeight - 2*gap) * 0.6);
 
+			if (centerHeight < 300)
+			{
+				logoBar.setVisible(false);
+				centerHeight += logoHeight;
+			}
+
 			int bottomWidth = (width - 2*gap);
 			int bottomHeight = restHeight - 2*gap - centerHeight;
 
