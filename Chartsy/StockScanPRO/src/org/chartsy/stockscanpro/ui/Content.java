@@ -82,14 +82,10 @@ public class Content extends JLayeredPane
 			int centerWidth = (width - 3*gap) / 2;
 			int centerHeight = (int) ((restHeight - 2*gap) * 0.6);
 
-			if (centerHeight < 300)
-			{
-				logoBar.setVisible(false);
-				centerHeight += logoHeight;
-			}
-
 			int bottomWidth = (width - 2*gap);
 			int bottomHeight = restHeight - 2*gap - centerHeight;
+
+			logoBar.setVisible(!(centerHeight < 300));
 
 			logoBar.setBounds(
 				(width / 2) - (logoWidth / 2),
@@ -99,19 +95,21 @@ public class Content extends JLayeredPane
 
 			queryPanel.setBounds(
 				gap,
-				2*gap + (logoBar.isVisible() ? logoHeight : 0),
+				(logoBar.isVisible() ? 2*gap + logoHeight : gap),
 				centerWidth,
-				centerHeight);
+				centerHeight + (logoBar.isVisible() ? 0 : logoHeight/2));
 
 			helpPanel.setBounds(
 				2*gap + centerWidth,
-				2*gap + (logoBar.isVisible() ? logoHeight : 0),
+				(logoBar.isVisible() ? 2*gap + logoHeight : gap),
 				centerWidth,
-				centerHeight);
+				centerHeight + (logoBar.isVisible() ? 0 : logoHeight/2));
 
 			resultsPanel.setBounds(
 				gap,
-				3*gap + (logoBar.isVisible() ? logoHeight : 0) + centerHeight,
+				(logoBar.isVisible() 
+				? 3*gap + logoHeight + centerHeight
+				: 2*gap + centerHeight + logoHeight/2),
 				bottomWidth,
 				bottomHeight);
 		}
