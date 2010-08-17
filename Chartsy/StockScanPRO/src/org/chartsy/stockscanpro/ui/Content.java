@@ -97,7 +97,7 @@ public class Content extends JLayeredPane
 				gap,
 				(logoBar.isVisible() ? 2*gap + logoHeight : gap),
 				centerWidth,
-				centerHeight + (logoBar.isVisible() ? 0 : logoHeight/2));
+				centerHeight + (logoBar.isVisible() ? 0 : (int) (logoHeight/2 * 0.6)));
 
 			helpPanel.setBounds(
 				2*gap + centerWidth,
@@ -111,7 +111,7 @@ public class Content extends JLayeredPane
 				? 3*gap + logoHeight + centerHeight
 				: 2*gap + centerHeight + logoHeight/2),
 				bottomWidth,
-				bottomHeight);
+				bottomHeight + (logoBar.isVisible() ? 0 : (int) (logoHeight - (logoHeight/2 * 0.6))));
 		}
 
 	}
