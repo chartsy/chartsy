@@ -37,9 +37,17 @@ public class ResultsPanel extends JPanel
 		if (!tabbedPane.isVisible())
 			tabbedPane.setVisible(true);
 
-		ResultPanel resultPanel = new ResultPanel(scanTitle, scan);
-		resultPanel.setResponce(responce);
-		tabbedPane.addTab(exchange, resultPanel);
+		if (!responce.startsWith("Error:"))
+		{
+			ResultPanel resultPanel = new ResultPanel(scanTitle, scan);
+			resultPanel.setResponce(responce);
+			tabbedPane.addTab(exchange, resultPanel);
+		}
+		else
+		{
+			ErrorPanel errorPanel = new ErrorPanel(scanTitle, scan, responce);
+			tabbedPane.addTab(exchange, errorPanel);
+		}
 	}
 
 	class ResultTabbedPane extends JTabbedPane implements MouseListener
