@@ -24,9 +24,6 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public static int PERIOD = 10;//standard Aroon period value mostly
 
-    public static boolean THIRTY_LINE_VISIBLE = true;
-    public static boolean FIFTY_LINE_VISIBLE = true;
-    public static boolean SEVENTY_LINE_VISIBLE = true;
     public static final Color UP_TREND_LINE_COLOR = new Color(0x5c3566);
     public static int UP_TREND_STROKE_INDEX = 0;
     public static final Color DOWN_TREND_LINE_COLOR = new Color(0x4e9a06);
