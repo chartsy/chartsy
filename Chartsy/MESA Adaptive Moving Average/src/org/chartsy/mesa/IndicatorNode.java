@@ -26,12 +26,12 @@ public class IndicatorNode extends AbstractPropertiesNode
 
     public IndicatorNode()
     {
-        super("Aroon Properties");
+        super("MESA Properties");
     }
 
     public IndicatorNode(IndicatorProperties indicatorProperties)
     {
-        super("Aroon Properties", indicatorProperties);
+        super("MESA Properties", indicatorProperties);
     }
 
     @SuppressWarnings("unchecked")

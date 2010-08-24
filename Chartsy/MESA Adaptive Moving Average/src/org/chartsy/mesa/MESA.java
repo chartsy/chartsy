@@ -26,6 +26,7 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
+ * The MESA Adaptive Moving Average by J. Ehlers.
  *
  * @author joshua.taylor
  */
@@ -51,11 +52,9 @@ public class MESA extends Indicator
     private transient Core core;
 
     //variables specific to this indicator
-    //private int period = PERIOD;
-    private double[] allHighs;
-    private double[] allLows;
 
-    //the next variable is used for ultra-fast calculations
+
+    //the next variables are used for ultra-fast calculations
     private Dataset calculatedDatasetMAMA;
     private Dataset calculatedDatasetFAMA;
 
@@ -224,7 +223,6 @@ public class MESA extends Indicator
         //[Second, do the calculation call from TA-lib]
 
         lookback = core.mamaLookback(fastLimit, slowLimit);
-        //core.aroon(0, count-1, allHighs, allLows, period, outBegIdx, outNbElement, outputFama, outputMama);
         core.mama(0, count-1, initial.getCloseValues(), fastLimit, slowLimit, outBegIdx, outNbElement, outputMama, outputFama);
 
         //Everything between the /***/ lines is what needs to be changed.
