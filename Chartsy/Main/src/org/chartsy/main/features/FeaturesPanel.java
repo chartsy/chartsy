@@ -80,16 +80,18 @@ public class FeaturesPanel extends JToolBar
 			stockScan.putBoolean("stockscanproregistred", checkStockScanPRORegistration() != 0);
 		}
 
-		if (!isMrSwingUser())
-		{
-			add(sep1);
-			add(mrSwingBanner);
-		}
-
 		if (!isStockScanPROUser())
 		{
+			if (!isMrSwingUser())
+			{
+				add(sep1);
+				add(mrSwingBanner);
+			}
+			
 			add(sep2);
 			add(stockScanPROBanner);
+		} else {
+			removeAll();
 		}
 	}
 

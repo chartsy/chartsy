@@ -7,6 +7,13 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -15,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import org.chartsy.main.utils.FileUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -29,6 +37,7 @@ public class JCheckList extends JList
 
     private JLabel listener;
     private int selectedItems = 0;
+	private String selectedExcg = "";
 
     public JCheckList()
     {
@@ -68,7 +77,6 @@ public class JCheckList extends JList
         });
         if (getModel().getSize() > 0)
             setSelectedIndex(0);
-        selectedItems = NbBundle.getMessage(JCheckList.class, "DFLT_Exchange").split(":").length;
     }
 
     public void setExchangeListener(JLabel label)
@@ -78,6 +86,20 @@ public class JCheckList extends JList
 
     public void fireExchangeChange()
     {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < getModel().getSize(); i++) {
+			CheckableItem item = (CheckableItem) getModel().getElementAt(i);
+			if (item.isSelected()) {
+				builder.append(item.getExchange()).append(":");
+			}
+		}
+		
+		if (builder.length() > 1)
+		{
+			builder.deleteCharAt(builder.length() - 1);
+			writeSelectedXcg(builder.toString());
+		}
+
         if (listener != null)
         {
             listener.setText(selectedItems + " exchange(s) are selected.");
@@ -114,8 +136,63 @@ public class JCheckList extends JList
         return true;
     }
 
+	private String readSelectedXcg()
+	{
+		File file = FileUtils.stockScanFile("selxcg.txt");
+		if (!file.exists())
+		{
+			FileUtils.createFile(file.getAbsolutePath());
+			return "";
+		}
+
+		try
+		{
+			StringBuilder contents = new StringBuilder();
+			BufferedReader input =  new BufferedReader(new FileReader(file));
+			String line = null;
+			while ((line = input.readLine()) != null) {
+				contents.append(line);
+			}
+			input.close();
+			return contents.toString();
+		}
+		catch (IOException ex)
+		{ return ""; }
+	}
+
+	private void writeSelectedXcg(String contents)
+	{
+		File file = FileUtils.stockScanFile("selxcg.txt");
+		if (!file.exists())
+			FileUtils.createFile(file.getAbsolutePath());
+		
+		try
+		{
+			Writer output = new BufferedWriter(new FileWriter(file));
+			output.write(contents);
+			output.close();
+		}
+		catch (IOException ex)
+		{}
+	}
+
     private CheckableItem[] createData()
     {
+		String defaultExchanges = NbBundle.getMessage(JCheckList.class, "DFLT_Exchange");
+		String selectedExchanges = readSelectedXcg();
+
+		if (selectedExchanges.isEmpty())
+		{
+			selectedItems = defaultExchanges.split(":").length;
+			selectedExcg = defaultExchanges;
+		}
+		else
+		{
+			selectedItems = selectedExchanges.split(":").length;
+			selectedExcg = selectedExchanges;
+		}
+		
+
         int length = NbBundle.getMessage(JCheckList.class, "LIST_Exchange").split(":").length;
         CheckableItem[] list = new CheckableItem[length];
 
@@ -132,11 +209,7 @@ public class JCheckList extends JList
 
     private boolean isDefault(String exchange)
     {
-        int length = NbBundle.getMessage(JCheckList.class, "DFLT_Exchange").split(":").length;
-        for (int i = 0; i < length; i++)
-            if (exchange.equals(NbBundle.getMessage(JCheckList.class, "DFLT_Exchange").split(":")[i]))
-                return true;
-        return false;
+		return selectedExcg.contains(exchange);
     }
 
 	protected @Override void paintComponent(Graphics g)

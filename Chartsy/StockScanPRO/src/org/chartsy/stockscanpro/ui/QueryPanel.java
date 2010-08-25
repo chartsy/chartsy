@@ -42,8 +42,8 @@ public class QueryPanel extends JPanel
 
 		SpringUtilities.makeCompactGrid(this,
 			5, 1,	// rows, cols
-			10, 10, // initialX, initialY
-			10, 10);// xPad, yPad
+			0, 0, // initialX, initialY
+			0, 0);// xPad, yPad
 	}
 
 	public Content getContentPanel()

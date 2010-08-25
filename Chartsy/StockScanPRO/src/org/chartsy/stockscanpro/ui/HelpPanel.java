@@ -54,7 +54,10 @@ public class HelpPanel extends JPanel
 			"http://www.stockscanpro.com/help"));
 		btnPanel.add(new HelpLinkButton(
 			"Video Tutorial",
-			"http://www.stockscanpro.com/video-tour"));
+			"http://www.chartsy.org/support/tutorial/3"));
+		btnPanel.add(new HelpLinkButton(
+			"Support",
+			"http://www.stockscanpro.com/support"));
 		add(btnPanel, BorderLayout.NORTH);
 
 		JPanel listPanel = new JPanel(SpringUtilities.getLayout());

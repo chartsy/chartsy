@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import org.chartsy.stockscanpro.actions.EmailScansAction;
 import org.chartsy.stockscanpro.actions.LoadScansAction;
 import org.chartsy.stockscanpro.actions.SaveScansAction;
 import org.jdesktop.swingx.JXDatePicker;
@@ -20,6 +21,7 @@ public class StockScanToolbar extends JPanel
 	private QueryPanel queryPanel;
 	private JButton loadScanBtn;
 	private JButton saveScanBtn;
+	private JButton emailScanBtn;
 	private JXDatePicker datePicker;
 
 	public StockScanToolbar(QueryPanel panel)
@@ -41,6 +43,10 @@ public class StockScanToolbar extends JPanel
 			NbBundle.getMessage(StockScanToolbar.class, "SaveScan_Btn"));
 		saveScanBtn.addActionListener(new SaveScansAction());
 
+		//emailScanBtn = new JButton(
+			//NbBundle.getMessage(StockScanToolbar.class, "EmailScan_Btn"));
+		//emailScanBtn.addActionListener(new EmailScansAction());
+
 		datePicker = new JXDatePicker(Calendar.getInstance().getTimeInMillis());
 		datePicker.setFormats(new SimpleDateFormat[]
         {
@@ -50,6 +56,7 @@ public class StockScanToolbar extends JPanel
 
 		add(loadScanBtn);
 		add(saveScanBtn);
+		//add(emailScanBtn);
 		add(datePicker);
 	}
 

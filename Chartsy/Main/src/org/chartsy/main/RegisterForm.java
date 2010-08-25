@@ -239,11 +239,11 @@ public class RegisterForm extends javax.swing.JDialog {
                 }
             }
 
-			boolean mrSwingRegistred = checkMrSwingRegistration();
-			p.putBoolean("mrswingregistred", mrSwingRegistred);
-
 			int userId = checkStockScanPRORegistration();
 			boolean stockScanPRORegistred = userId != 0;
+
+			boolean mrSwingRegistred = stockScanPRORegistred ? true : checkMrSwingRegistration();
+			p.putBoolean("mrswingregistred", mrSwingRegistred);
 
 			Preferences prefs = NbPreferences.root().node("/org/chartsy/stockscanpro");
 			prefs.putBoolean("stockscanproregistred", stockScanPRORegistred);
