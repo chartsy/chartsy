@@ -236,7 +236,8 @@ public class NewChartDialog extends javax.swing.JDialog {
 }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnNewChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewChartActionPerformed
-        dataProvider = DataProviderManager.getDefault().getDataProvider((String) lstDataProvider.getSelectedItem());
+        completer.stopTimer();
+		dataProvider = DataProviderManager.getDefault().getDataProvider((String) lstDataProvider.getSelectedItem());
         Exchange exchange = dataProvider.getExchanges()[lstExchange.getSelectedIndex()];
         stock = new Stock(txtSymbol.getText(), exchange.getSufix());
         chart = ChartManager.getDefault().getChart((String) lstChart.getSelectedItem());
