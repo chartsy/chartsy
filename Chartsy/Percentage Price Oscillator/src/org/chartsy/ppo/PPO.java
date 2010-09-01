@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.natr;
+package org.chartsy.ppo;
 
 import com.tictactec.ta.lib.Core;
+import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -25,17 +26,17 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- * The Normalized Average True Range by John Forman
+ * The Percentage Price Oscillator
  *
  * @author joshua.taylor
  */
-public class NATR extends Indicator{
+public class PPO extends Indicator
+{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Normalized-ATR";
-    public static final String ABBREV = "natr";
 
-
+    public static final String FULL_NAME = "PPO";
+    public static final String ABBREV = "ppo";
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
@@ -46,15 +47,14 @@ public class NATR extends Indicator{
     private transient Core core;
 
     //variables specific to this indicator
-    int period = 0;
-    private double[] allHigh;
-    private double[] allLow;
-    private double[] allClose;
-
+    int fastPeriod = 0;
+    int slowPeriod = 0;
+    
     //a variable to hold the dataset
     private Dataset calculatedDataset;
 
-    public NATR() {
+    public PPO()
+    {
         super();
         properties = new IndicatorProperties();
     }
@@ -69,7 +69,7 @@ public class NATR extends Indicator{
     public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance(){ return new NATR(); }
+    public Indicator newInstance(){ return new PPO(); }
 
     @Override
     public boolean hasZeroLine(){ return true; }
@@ -117,7 +117,7 @@ public class NATR extends Indicator{
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"N-ATR:"};
+        String[] labels = {"PPO:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
@@ -193,16 +193,14 @@ public class NATR extends Indicator{
         core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
-        period = properties.getPeriod();
-        allHigh = initial.getHighValues();
-        allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
-
+        fastPeriod = properties.getFastPeriod();
+        slowPeriod = properties.getSlowPeriod();
+        
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.natrLookback(period);
-        core.natr(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
+        lookback = core.ppoLookback(fastPeriod, slowPeriod, MAType.Ema);
+        core.ppo(0, count-1, initial.getCloseValues(), fastPeriod, slowPeriod, MAType.Ema, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
