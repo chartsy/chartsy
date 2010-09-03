@@ -184,7 +184,7 @@
         <file name="QuickSearch_hidden"/>
             <file name="UndoRedo_hidden"/>
     </folder>
-    <folder name="Windows2">
+    <!--<folder name="Windows2">
         <folder name="Components">
             <file name="WelcomeTopComponent.settings" url="WelcomeTopComponentSettings.xml"/>
         </folder>
@@ -193,5 +193,5 @@
                 <file name="WelcomeTopComponent.wstcref" url="WelcomeTopComponentWstcref.xml"/>
             </folder>
         </folder>
-    </folder>
+    </folder>-->
 </filesystem>

@@ -16,9 +16,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import org.chartsy.main.intro.content.Utils;
 import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -34,7 +34,7 @@ public class LogoBar extends JPanel
     {
 		super(new BorderLayout());
         setOpaque(false);
-        ImageIcon imageIcon = Utils.getImageIcon(IMAGE_LOGO);
+        ImageIcon imageIcon = ImageUtilities.loadImageIcon(IMAGE_LOGO, true);
         LogoLink logoLink = new LogoLink();
         logoLink.setIcon(imageIcon);
         logoLink.setPressedIcon(imageIcon);

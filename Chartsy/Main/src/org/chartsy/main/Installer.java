@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.chartsy.main.intro.WelcomeTopComponent;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
@@ -53,8 +52,6 @@ public class Installer extends ModuleInstall
         OverlayManager.getDefault();
         AnnotationManager.getDefault();
         StockManager.getDefault();
-
-        WelcomeTopComponent.findInstance().requestActive();
 
         Preferences p = NbPreferences.root().node("/org/chartsy/register");
         boolean registred = p.getBoolean("registred", false);

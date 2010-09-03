@@ -37,7 +37,6 @@ import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.URLChecker;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -65,52 +64,35 @@ public class MrSwing
     {
         Stock stock = new Stock(symbol, exchange);
         String url = getStockURL(stock);
-        if (URLChecker.checkURL(url))
-        {
-            return getRegisteredStock(symbol, exchange, needsRegistration(url));
-        }
-        else
-        {
-            return null;
-        }
+		return getRegisteredStock(symbol, exchange, needsRegistration(url));
     }
 
     public Dataset getData(Stock stock, Interval interval)
     {
         String url = getDataURL(stock, interval);
-        if (URLChecker.checkURL(url))
-        {
-            return getRegisteredDataset(stock, interval, needsRegistration(url));
-        }
-        else
-        {
-            return null;
-        }
+		return getRegisteredDataset(stock, interval, needsRegistration(url));
     }
 
     public Dataset getLastDataItem(Stock stock, Interval interval, Dataset dataset)
     {
         String url = getDataURL(stock, interval) + "&limit=1";
-        
-        if (URLChecker.checkURL(url))
-        {
-            Dataset result = getRegisteredDataset(stock, interval, needsRegistration(url));
-            if (result != null)
-            {
-                int last = dataset.getLastIndex();
-                DataItem newItem = result.getDataItem(result.getLastIndex());
-                DataItem oldItem = dataset.getDataItem(dataset.getLastIndex());
 
-                if (newItem.getTime() != oldItem.getTime())
-                {
-                    dataset.addDataItem(newItem);
-                }
-                else
-                {
-                    dataset.setDataItem(last, newItem);
-                }
-            }
-        }
+		Dataset result = getRegisteredDataset(stock, interval, needsRegistration(url));
+		if (result != null)
+		{
+			int last = dataset.getLastIndex();
+			DataItem newItem = result.getDataItem(result.getLastIndex());
+			DataItem oldItem = dataset.getDataItem(dataset.getLastIndex());
+
+			if (newItem.getTime() != oldItem.getTime())
+			{
+				dataset.addDataItem(newItem);
+			}
+			else
+			{
+				dataset.setDataItem(last, newItem);
+			}
+		}
 
         return dataset;
     }
