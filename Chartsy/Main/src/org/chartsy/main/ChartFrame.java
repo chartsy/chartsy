@@ -381,9 +381,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     protected String preferredID() 
     { return PREFERRED_ID; }
 
-	/*@Override
+	@Override
     protected Object writeReplace()
-    { return new ResolvableHelper(this); }*/
+    { return new ResolvableHelper(this); }
 
     @Override
     protected void componentOpened()

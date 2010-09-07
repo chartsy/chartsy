@@ -18,6 +18,7 @@ import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.PricePropertyEditor;
 import org.chartsy.main.utils.StrokePropertyEditor;
+import org.chartsy.main.welcome.Feeds;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileUtil;
@@ -26,7 +27,7 @@ import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
-public class Installer extends ModuleInstall
+public class Installer extends ModuleInstall implements Runnable
 {
 
 	private Preferences chartsyPreferences = NbPreferences.root().node("/org/chartsy/register");
@@ -35,35 +36,35 @@ public class Installer extends ModuleInstall
 
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
 
+	@Override public void run()
+	{
+		Feeds.start();
+		addKeystore();
+		setPrintProperties();
+
+		PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
+		PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
+		PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
+
+		ProxyManager.getDefault();
+		DataProviderManager.getDefault();
+		ChartManager.getDefault();
+		IndicatorManager.getDefault();
+		OverlayManager.getDefault();
+		AnnotationManager.getDefault();
+		StockManager.getDefault();
+
+		boolean registred = chartsyPreferences.getBoolean("registred", false);
+		if (!registred) {
+			RegisterForm register = new RegisterForm(new JFrame(), true);
+			register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+			register.setVisible(true);
+		}
+	}
+
     public @Override void restored()
     {
-		WindowManager.getDefault().invokeWhenUIReady(new Runnable()
-		{
-			public void run()
-			{
-				addKeystore();
-				setPrintProperties();
-
-				PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
-				PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
-				PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
-
-				ProxyManager.getDefault();
-				DataProviderManager.getDefault();
-				ChartManager.getDefault();
-				IndicatorManager.getDefault();
-				OverlayManager.getDefault();
-				AnnotationManager.getDefault();
-				StockManager.getDefault();
-
-				boolean registred = chartsyPreferences.getBoolean("registred", false);
-				if (!registred) {
-					RegisterForm register = new RegisterForm(new JFrame(), true);
-					register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-					register.setVisible(true);
-				}
-			}
-		});
+		WindowManager.getDefault().invokeWhenUIReady(this);
     }
 
     public @Override boolean closing()

@@ -184,14 +184,14 @@
         <file name="QuickSearch_hidden"/>
             <file name="UndoRedo_hidden"/>
     </folder>
-    <!--<folder name="Windows2">
-        <folder name="Components">
-            <file name="WelcomeTopComponent.settings" url="WelcomeTopComponentSettings.xml"/>
-        </folder>
+    <folder name="Windows2">
         <folder name="Modes">
             <folder name="editor">
-                <file name="WelcomeTopComponent.wstcref" url="WelcomeTopComponentWstcref.xml"/>
+                <file name="Welcome.wstcref" url="Welcome.wstcref"/>
             </folder>
         </folder>
-    </folder>-->
+        <folder name="Components">
+            <file name="Welcome.settings" url="Welcome.settings"/>
+        </folder>
+    </folder>
 </filesystem>
