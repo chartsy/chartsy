@@ -21,7 +21,9 @@ public class History implements Serializable
 	transient private Stack<HistoryItem> fwdStack;
 
     public History()
-    {}
+    {
+		bk();fw();
+	}
 
 	private Stack<HistoryItem> bk()
 	{

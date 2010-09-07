@@ -38,13 +38,10 @@ public class RSSFeedParser {
         Feed feed = null;
 
         try {
-            HttpClient client = ProxyManager.getDefault().getHttpClient();
-            HttpMethod method = new GetMethod(url.toString());
-
-            client.executeMethod(method);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(method.getResponseBodyAsStream());
+            Document document = builder.parse(
+				ProxyManager.getDefault().inputStreamGET(url.toString()));
             document.normalizeDocument();
 
             if (document != null) {
@@ -89,9 +86,9 @@ public class RSSFeedParser {
                     }
                 }
             }
-
-            method.releaseConnection();
-        } catch (Exception e) {
+        } 
+		catch (Exception e)
+		{
             e.printStackTrace();
         }
 

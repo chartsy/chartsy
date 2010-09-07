@@ -1,11 +1,22 @@
 package org.chartsy.main.managers;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.prefs.Preferences;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.openide.util.NbPreferences;
 
 /**
@@ -16,13 +27,10 @@ public final class ProxyManager
 {
 
     private static ProxyManager instance;
-
-    private int proxyType = 1; // default value
-    private String proxyHttpHost = "";
-    private int proxyHttpPort = 0;
-    private boolean useProxyAuthentication = false; // default value
-    private String proxyAuthenticationUsername = "";
-    private String proxyAuthenticationPassword = "";
+	private static Preferences corePreferences
+		= NbPreferences.root().node("/org/netbeans/core");
+	private HttpClient client;
+	private boolean isOnline;
 
     public static ProxyManager getDefault()
     {
@@ -33,54 +41,152 @@ public final class ProxyManager
 
     private ProxyManager()
     {
-        initialize();
-    }
+		setOnline(true);
 
-    public void initialize()
-    {
-        Preferences p = NbPreferences.root().node("/org/netbeans/core");
-        if (p != null)
-        proxyType = p.getInt(PROXY_TYPE_KEY, 1);
-        if (proxyType == 2)
+		MultiThreadedHttpConnectionManager manager = new MultiThreadedHttpConnectionManager();
+		HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+		params.setMaxTotalConnections(100);
+		manager.setParams(params);
+
+		client = new HttpClient(manager);
+		client.getParams().setSoTimeout(10000);
+		client.getParams().setParameter("http.connection.timeout", 30000);
+		setProxy();
+	}
+
+	public HttpClient httpClient()
+	{
+		return client;
+	}
+
+	public InputStream inputStreamGET(String url)
+	{
+		InputStream stream = null;
+		GetMethod method = new GetMethod(url);
+		try
+		{
+			int status = client.executeMethod(method);
+			if (status != HttpStatus.SC_OK)
+				System.err.println(method.getStatusText());
+			else
+				stream = new ByteArrayInputStream(method.getResponseBody());
+		}
+		catch (IOException ex)
+		{
+			stream = null;
+			System.err.println(ex.getMessage());
+		}
+		finally
+		{
+			method.releaseConnection();
+		}
+		return stream;
+	}
+
+	public BufferedReader bufferReaderGET(String url)
+	{
+		InputStream stream = inputStreamGET(url);
+		if (stream != null)
+			return new BufferedReader(new InputStreamReader(stream));
+		return null;
+	}
+
+	public InputStream inputStreamPOST(String url, NameValuePair[] query)
+	{
+		InputStream stream = null;
+		PostMethod method = new PostMethod(url);
+		method.setRequestBody(query);
+		try
+		{
+			int status = client.executeMethod(method);
+			if (status != HttpStatus.SC_OK)
+				System.err.println(method.getStatusText());
+			else
+				stream = new ByteArrayInputStream(method.getResponseBody());
+		}
+		catch (IOException ex)
+		{
+			stream = null;
+			System.err.println(ex.getMessage());
+		}
+		finally
+		{
+			method.releaseConnection();
+		}
+		return stream;
+	}
+
+	public BufferedReader bufferReaderPOST(String url, NameValuePair[] query)
+	{
+		InputStream stream = inputStreamPOST(url, query);
+		if (stream != null)
+			return new BufferedReader(new InputStreamReader(stream));
+		return null;
+	}
+
+	public synchronized void setProxy()
+	{
+		if (corePreferences.getInt(PROXY_TYPE_KEY, 1) == 2)
         {
-            proxyHttpHost = p.get(PROXY_HTTP_HOST_KEY, "");
-            proxyHttpPort = p.getInt(PROXY_HTTP_PORT_KEY, 0);
-            useProxyAuthentication = p.getBoolean(PROXY_USE_AUTH_KEY, false);
-            if (useProxyAuthentication)
-            {
-                proxyAuthenticationUsername = p.get(PROXY_USERNAME_KEY, "");
-                proxyAuthenticationPassword = p.get(PROXY_PASSWORD_KEY, "");
-            }
-        }
-    }
-
-    public boolean useProxy()
-    { return proxyType == 2; }
-
-    public HttpClient getHttpClient()
-    {
-        initialize();
-        if (proxyType == 2)
-        {
-            HttpClient client = new HttpClient();
-
             HostConfiguration config = client.getHostConfiguration();
-            config.setProxy(proxyHttpHost, proxyHttpPort);
-            
-            if (useProxyAuthentication)
+            config.setProxy(
+				corePreferences.get(PROXY_HTTP_HOST_KEY, ""),
+				corePreferences.getInt(PROXY_HTTP_PORT_KEY, 0));
+            if (corePreferences.getBoolean(PROXY_USE_AUTH_KEY, false))
             {
-                Credentials credentials = new UsernamePasswordCredentials(proxyAuthenticationUsername, proxyAuthenticationPassword);
-                AuthScope authScope = new AuthScope(proxyHttpHost, proxyHttpPort);
-                client.getState().setProxyCredentials(authScope, credentials);
+				Credentials credentials = new UsernamePasswordCredentials(
+					corePreferences.get(PROXY_USERNAME_KEY, ""),
+					corePreferences.get(PROXY_PASSWORD_KEY, ""));
+                client.getState().setProxyCredentials(AuthScope.ANY, credentials);
             }
+			else
+			{
+				client.getState().setProxyCredentials(AuthScope.ANY, null);
+			}
+        }
+	}
 
-            return client;
-        }
-        else
+	public HttpClient getHttpClient()
+	{
+		if (corePreferences.getInt(PROXY_TYPE_KEY, 1) == 2)
         {
-            return new HttpClient();
+			HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+			httpClient.getParams().setSoTimeout(10000);
+			httpClient.getParams().setParameter("http.connection.timeout", 30000);
+            HostConfiguration config = httpClient.getHostConfiguration();
+            config.setProxy(
+				corePreferences.get(PROXY_HTTP_HOST_KEY, ""),
+				corePreferences.getInt(PROXY_HTTP_PORT_KEY, 0));
+            if (corePreferences.getBoolean(PROXY_USE_AUTH_KEY, false))
+            {
+				Credentials credentials = new UsernamePasswordCredentials(
+					corePreferences.get(PROXY_USERNAME_KEY, ""),
+					corePreferences.get(PROXY_PASSWORD_KEY, ""));
+                AuthScope authScope = new AuthScope(
+					corePreferences.get(PROXY_HTTP_HOST_KEY, ""),
+					corePreferences.getInt(PROXY_HTTP_PORT_KEY, 0));
+                httpClient.getState().setProxyCredentials(authScope, credentials);
+            }
+			return httpClient;
         }
-    }
+		else
+		{
+			HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+			httpClient.getParams().setSoTimeout(10000);
+			httpClient.getParams().setParameter("http.connection.timeout", 30000);
+			return httpClient;
+		}
+	}
+
+	public synchronized void setOnline(boolean online)
+	{
+		this.isOnline = online;
+	}
+
+	public boolean isOnline()
+	{
+		return isOnline;
+	}
 
     private static final String PROXY_TYPE_KEY = "proxyType";
     private static final String PROXY_HTTP_HOST_KEY = "proxyHttpHost";

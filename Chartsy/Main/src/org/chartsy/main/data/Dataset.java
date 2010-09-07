@@ -2,6 +2,7 @@ package org.chartsy.main.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.chartsy.main.utils.SerialVersion;
@@ -32,6 +33,12 @@ public class Dataset implements Serializable {
     public boolean isEmpty() {
         return data.isEmpty();
     }
+
+	public void sort()
+	{
+		DateCompare compare = new DateCompare();
+		Collections.sort(data, compare);
+	}
 
     public int getItemsCount() {
         return data.size();

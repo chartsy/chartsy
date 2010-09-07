@@ -1,5 +1,6 @@
 package org.chartsy.main.data;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -11,6 +12,11 @@ import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 import org.chartsy.main.events.DataProviderEvent;
 import org.chartsy.main.events.DataProviderListener;
+import org.chartsy.main.exceptions.DataNotFoundException;
+import org.chartsy.main.exceptions.InvalidDatasetException;
+import org.chartsy.main.exceptions.InvalidStockException;
+import org.chartsy.main.exceptions.RegistrationException;
+import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.intervals.FifteenMinuteInterval;
 import org.chartsy.main.intervals.FiveMinuteInterval;
@@ -32,9 +38,6 @@ public abstract class DataProvider implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-
-    protected static final Logger LOG
-		= Logger.getLogger(DataProvider.class.getPackage().getName());
 
 	transient protected LinkedHashMap<String, LinkedHashMap<String, Timer>> timerMap;
 	transient protected int currentTask = 0;
@@ -142,6 +145,16 @@ public abstract class DataProvider implements Serializable
 		return supportsIntraDay;
 	}
 
+	public void setStockCompanyName(Stock stock)
+		throws InvalidStockException, StockNotFoundException,
+		RegistrationException, IOException
+	{}
+
+	public Dataset getDatas(Stock stock, Interval interval)
+		throws InvalidDatasetException, DataNotFoundException,
+		RegistrationException, IOException
+	{ return null; }
+	
     public abstract Stock getStock(String symbol, String exchange);
 
     public abstract Dataset getData(Stock stock, Interval interval);

@@ -20,7 +20,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
@@ -46,7 +45,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
-import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -383,24 +381,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     protected String preferredID() 
     { return PREFERRED_ID; }
 
-    @Override
-    protected Object writeReplace() 
-    { return new ResolvableHelper(this); }
-
-	@Override
-	public void open()
-	{
-		Mode mode = WindowManager.getDefault().findMode("editor");
-		if (mode != null)
-		{
-			mode.dockInto(this);
-			super.open();
-		}
-	}
+	/*@Override
+    protected Object writeReplace()
+    { return new ResolvableHelper(this); }*/
 
     @Override
     protected void componentOpened()
     {
+		super.componentOpened();
         if (chartData != null)
             loading(chartData.getStock(), true);
     }
@@ -799,111 +787,20 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         oldStock = getChartData().getStock();
         oldInterval = getChartData().getInterval();
 
-        if (newStock != null)
-        {
-            stockInfo = null;
-            final RequestProcessor.Task stockTask = RP.create(new Runnable()
-            {
-                public void run()
-                {
-                    stockInfo = chartData.getDataProvider().getStock(newStock.getSymbol(), newStock.getExchange());
-                }
-            });
-
-            final ProgressHandle handle = ProgressHandleFactory.createHandle(
-				NbBundle.getMessage(ChartFrame.class, "LBL_LoadStock"), stockTask);
-            stockTask.addTaskListener(new TaskListener()
-            {
-                public void taskFinished(Task task)
-                {
-                    handle.finish();
-                    if (stockInfo == null)
-                    {
-                        NotifyDescriptor descriptor
-							= new NotifyDescriptor.Exception(
-							new IllegalArgumentException(
-							NbBundle.getMessage(ChartFrame.class, "LBL_SymbolError")));
-                        Object ret 
-							= DialogDisplayer.getDefault().notify(descriptor);
-                        if (ret.equals(NotifyDescriptor.OK_OPTION))
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    if (history != null)
-                                    {
-                                        history.go(-1);
-                                        history.clearForwardHistory();
-                                    }
-                                    updateToolbar();
-                                }
-                            });
-                        }
-                    }
-                    else
-                    {
-                        if (!stockInfo.getKey().equals(""))
-                        {
-                            getChartData().getDataProvider().addStock(stockInfo);
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    getChartData().setStock(stockInfo);
-                                    getChartData().setInterval(interval);
-                                    setName(NbBundle.getMessage(
-										ChartFrame.class,
-										"CTL_ChartFrame",
-										stockInfo.getKey()));
-                                    setToolTipText(NbBundle.getMessage(
-										ChartFrame.class,
-										"TOOL_ChartFrame",
-										stockInfo.getCompanyName()));
-                                    getSplitPanel().getChartPanel().updateStock();
-                                    loading(stockInfo, false);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    updateToolbar();
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-
-            if (!getChartData().getDataProvider().hasStock(newStock))
-            {
-                handle.start();
-                stockTask.schedule(0);
-            }
-            else
-            {
-                stockInfo = getChartData().getDataProvider().getStock(newStock);
-                getChartData().setStock(stockInfo);
-                getChartData().setInterval(interval);
-                setName(NbBundle.getMessage(
-					ChartFrame.class,
-					"CTL_ChartFrame",
-					stockInfo.getKey()));
-                setToolTipText(NbBundle.getMessage(
-					ChartFrame.class,
-					"TOOL_ChartFrame",
-					stockInfo.getCompanyName()));
-                getSplitPanel().getChartPanel().updateStock();
-                loading(stockInfo, false);
-            }
-        }
+		getChartData().setStock(newStock);
+		getChartData().setInterval(interval);
+		setName(NbBundle.getMessage(
+			ChartFrame.class,
+			"CTL_ChartFrame",
+			newStock.getKey()));
+		setToolTipText(NbBundle.getMessage(
+			ChartFrame.class,
+			"TOOL_ChartFrame",
+			newStock.getCompanyName()));
+		getSplitPanel().getChartPanel().updateStock();
+		loading(newStock, false);
     }
 
-    private Stock stockInfo = null;
     private Stock oldStock = null;
     private Interval oldInterval = null;
 

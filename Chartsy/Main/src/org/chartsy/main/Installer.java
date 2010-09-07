@@ -1,7 +1,5 @@
 package org.chartsy.main;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
@@ -32,69 +29,55 @@ import org.openide.windows.WindowManager;
 public class Installer extends ModuleInstall
 {
 
+	private Preferences chartsyPreferences = NbPreferences.root().node("/org/chartsy/register");
+	private Preferences printPreferences = NbPreferences.root().node("/org/netbeans/modules/print");
+	private Preferences autoUpdatePreferences = NbPreferences.root().node("/org/netbeans/modules/autoupdate");
+
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
-
-    private static WindowAdapter windowListener = new WindowAdapter()
-    {
-        public @Override void windowOpened(WindowEvent e)
-        {
-            WindowManager.getDefault().getMainWindow().removeWindowListener(this);
-            init();
-        }
-    };
-
-    private static void init()
-    {
-        ProxyManager.getDefault();
-        DataProviderManager.getDefault();
-        ChartManager.getDefault();
-        IndicatorManager.getDefault();
-        OverlayManager.getDefault();
-        AnnotationManager.getDefault();
-        StockManager.getDefault();
-
-        Preferences p = NbPreferences.root().node("/org/chartsy/register");
-        boolean registred = p.getBoolean("registred", false);
-        if (!registred) {
-            RegisterForm register = new RegisterForm(new JFrame(), true);
-            register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
-            register.setVisible(true);
-        }
-    }
 
     public @Override void restored()
     {
-		super.restored();
-        addKeystore();
-        addPrintProperties();
-        PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
-        PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
-        PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                WindowManager.getDefault().getMainWindow().addWindowListener(windowListener);
-            }
-        });
+		WindowManager.getDefault().invokeWhenUIReady(new Runnable()
+		{
+			public void run()
+			{
+				addKeystore();
+				setPrintProperties();
+
+				PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
+				PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
+				PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
+
+				ProxyManager.getDefault();
+				DataProviderManager.getDefault();
+				ChartManager.getDefault();
+				IndicatorManager.getDefault();
+				OverlayManager.getDefault();
+				AnnotationManager.getDefault();
+				StockManager.getDefault();
+
+				boolean registred = chartsyPreferences.getBoolean("registred", false);
+				if (!registred) {
+					RegisterForm register = new RegisterForm(new JFrame(), true);
+					register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
+					register.setVisible(true);
+				}
+			}
+		});
     }
 
     public @Override boolean closing()
     {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you really want to exit the application?", "Exit", NotifyDescriptor.YES_NO_OPTION);
-        Object retval = DialogDisplayer.getDefault().notify(d);
+        NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
+			"Do you really want to exit the application?",
+			"Exit",
+			NotifyDescriptor.YES_NO_OPTION);
+        Object retval = DialogDisplayer.getDefault().notify(descriptor);
         if (retval.equals(NotifyDescriptor.YES_OPTION))
-        {
-            return true;
-        } 
+            return true; 
         else
-        {
             return false;
-        }
     }
-
-    private Preferences getPreferences() 
-    { return NbPreferences.root().node("/org/netbeans/modules/autoupdate"); }
 
     private File getChacheDirectory()
     {
@@ -117,91 +100,71 @@ public class Installer extends ModuleInstall
     }
 
     private File getSrcFile()
-    { return new File(
-              new File(
-              new File(
-              new File(System.getProperty("netbeans.home")).getParentFile(), "chartsy"), "core"), "user.ks");
+    { return new File(new File(new File(new File(
+		  System.getProperty("netbeans.home"))
+		  .getParentFile(), "chartsy"), "core"), "user.ks");
     }
 
     private File getDestFile()
     { return new File(getChacheDirectory(), "user.ks"); }
 
-    private File getPropsFile() 
-    { return new File(
-              new File(
-              new File(
-              new File(
-              new File(
-              new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties");
-    }
-
     private void addKeystore()
     {
-        Thread t = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while (!getPropsFile().exists())
-                {}
-                try
-                {
-                    getPreferences().put("userKS", "user.ks");
-                    getPreferences().put("period", "1");
-                    if (getSrcFile().exists())
-                        FileUtils.copyFile(getSrcFile(), getDestFile());
-                } 
-                catch (IOException ex)
-                {
-                    LOG.log(Level.WARNING, "Can't add keystore.", ex);
-                }
-            }
-        });
-        t.start();
+		try
+		{
+			if (!chartsyPreferences.getBoolean("ks.init", false)
+				&& getSrcFile().exists())
+			{
+				FileUtils.copyFile(getSrcFile(), getDestFile());
+				autoUpdatePreferences.put("userKS", "user.ks");
+				autoUpdatePreferences.put("period", "1");
+				chartsyPreferences.putBoolean("ks.init", true);
+			}
+		}
+		catch (IOException ex)
+		{
+			LOG.log(Level.INFO, "", ex);
+			chartsyPreferences.putBoolean("ks.init", false);
+		}
     }
 
-    private void addPrintProperties() 
+    private void setPrintProperties()
     {
-        File file = new File(
-                new File(
-                new File(
-                new File(
-                new File(
-                new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties");
-        if (!(file.exists())) {
-            Preferences p = NbPreferences.root().node("/org/netbeans/modules/print");
-            p.put("print.area.height", "697.8897637795276");
-            p.put("print.area.width", "451.2755905511811");
-            p.put("print.area.x", "72.0");
-            p.put("print.area.y", "72.0");
-            p.put("print.border", "false");
-            p.put("print.border.color", "0,0,0");
-            p.put("print.footer", "false");
-            p.put("print.footer.center", "");
-            p.put("print.footer.color", "0,0,0");
-            p.put("print.footer.font", "Serif,0,10");
-            p.put("print.footer.left", "%ROW%.%COLUMN% of %COUNT%");
-            p.put("print.footer.right", "%MODIFIED_DATE%  %MODIFIED_TIME%");
-            p.put("print.header", "false");
-            p.put("print.header.center", "");
-            p.put("print.header.color", "0,0,0");
-            p.put("print.header.font", "Serif,0,10");
-            p.put("print.header.left", "%NAME%");
-            p.put("print.header.right", "");
-            p.put("print.page.orientation", "0.0");
-            p.put("print.paper.height", "841.8897637795276");
-            p.put("print.paper.width", "595.275590551181");
-            p.put("print.text.as.editor", "false");
-            p.put("print.text.background.color", "255,250,255");
-            p.put("print.text.color", "0,0,0");
-            p.put("print.text.font", "Monospaced,0,10");
-            p.put("print.text.line.numbers", "false");
-            p.put("print.text.line.spacing", "1.0");
-            p.put("print.text.selection", "false");
-            p.put("print.text.use.color", "true");
-            p.put("print.text.use.font", "true");
-            p.put("print.text.wrap.lines", "false");
-            p.put("print.zoom", "0.0");
-        }
+		if (!chartsyPreferences.getBoolean("print.init", false)) {
+			printPreferences.put("print.area.height", "697.8897637795276");
+			printPreferences.put("print.area.width", "451.2755905511811");
+			printPreferences.put("print.area.x", "72.0");
+			printPreferences.put("print.area.y", "72.0");
+			printPreferences.put("print.border", "false");
+			printPreferences.put("print.border.color", "0,0,0");
+			printPreferences.put("print.footer", "false");
+			printPreferences.put("print.footer.center", "");
+			printPreferences.put("print.footer.color", "0,0,0");
+			printPreferences.put("print.footer.font", "Serif,0,10");
+			printPreferences.put("print.footer.left", "%ROW%.%COLUMN% of %COUNT%");
+			printPreferences.put("print.footer.right", "%MODIFIED_DATE%  %MODIFIED_TIME%");
+			printPreferences.put("print.header", "false");
+			printPreferences.put("print.header.center", "");
+			printPreferences.put("print.header.color", "0,0,0");
+			printPreferences.put("print.header.font", "Serif,0,10");
+			printPreferences.put("print.header.left", "%NAME%");
+			printPreferences.put("print.header.right", "");
+			printPreferences.put("print.page.orientation", "0.0");
+			printPreferences.put("print.paper.height", "841.8897637795276");
+			printPreferences.put("print.paper.width", "595.275590551181");
+			printPreferences.put("print.text.as.editor", "false");
+			printPreferences.put("print.text.background.color", "255,250,255");
+			printPreferences.put("print.text.color", "0,0,0");
+			printPreferences.put("print.text.font", "Monospaced,0,10");
+			printPreferences.put("print.text.line.numbers", "false");
+			printPreferences.put("print.text.line.spacing", "1.0");
+			printPreferences.put("print.text.selection", "false");
+			printPreferences.put("print.text.use.color", "true");
+			printPreferences.put("print.text.use.font", "true");
+			printPreferences.put("print.text.wrap.lines", "false");
+			printPreferences.put("print.zoom", "0.0");
+			chartsyPreferences.putBoolean("print.init", true);
+		}
     }
 
 }

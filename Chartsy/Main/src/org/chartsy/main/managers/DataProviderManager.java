@@ -79,7 +79,8 @@ public class DataProviderManager
         if (dataProvider != null) {
             for (Interval interval : dataProvider.getIntervals()) {
                 Dataset dataset = dataProvider.getData(stock, interval);
-                if (dataset != null) dataProvider.addDataset(dataProvider.getKey(stock, interval), dataset);
+                if (dataset != null)
+					dataProvider.addDataset(dataProvider.getKey(stock, interval), dataset);
             }
         }
         setUpdated(true);

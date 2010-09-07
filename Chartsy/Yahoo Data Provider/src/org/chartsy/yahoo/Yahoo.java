@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +23,9 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.DateCompare;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.data.StockSet;
+import org.chartsy.main.exceptions.InvalidStockException;
+import org.chartsy.main.exceptions.RegistrationException;
+import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.SerialVersion;
@@ -38,11 +40,48 @@ public class Yahoo
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
+	private static final Logger LOG
+		= Logger.getLogger(Yahoo.class.getPackage().getName());
 
     public Yahoo()
     {
 		super(NbBundle.getBundle(Yahoo.class), false);
     }
+
+	@Override public void setStockCompanyName(Stock stock)
+	throws InvalidStockException, StockNotFoundException, RegistrationException, IOException
+	{
+		if (hasStock(stock))
+		{
+			System.out.println("Stock Found");
+			stock.setCompanyName(getStock(stock).getCompanyName());
+			return;
+		}
+
+		BufferedReader in = ProxyManager.getDefault()
+			.bufferReaderGET(getStockURL(stock));
+		if (in == null)
+			throw new InvalidStockException();
+
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+		{
+			if (inputLine.contains("<title>"))
+			{
+				String title = inputLine.split("<title>")[1].split("</title>")[0];
+				if (title.equals("Symbol Lookup from Yahoo! Finance"))
+					throw new StockNotFoundException();
+				else if (title.startsWith(stock.getKey()))
+				{
+					String companyName = title.split("Summary for ")[1].split("-")[0];
+					stock.setCompanyName(companyName);
+					break;
+				} 
+				else
+					throw new InvalidStockException();
+			}
+		}
+	}
 
     public Stock getStock(String symbol, String exchange)
     {
@@ -87,48 +126,41 @@ public class Yahoo
     public Dataset getData(Stock stock, Interval interval)
     {
         List<DataItem> items = new ArrayList<DataItem>();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         DateCompare compare = new DateCompare();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         BufferedReader in = null;
+
         try
         {
-            String url = getDataURL(stock, interval);
-			HttpClient client = ProxyManager.getDefault().getHttpClient();
-			HttpMethod method = new GetMethod(url);
-			client.executeMethod(method);
-			in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+			in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval));
 			if (in != null)
 			{
+				in.readLine(); // ignore first line
 				String inputLine;
-				in.readLine();
 				while ((inputLine = in.readLine()) != null)
 				{
-					StringTokenizer st = new StringTokenizer(inputLine, ",");
-					long time = df.parse(st.nextToken()).getTime();
-					Double open = Double.parseDouble(st.nextToken());
-					Double high = Double.parseDouble(st.nextToken());
-					Double low = Double.parseDouble(st.nextToken());
-					Double close = Double.parseDouble(st.nextToken());
-					Double volume = Double.parseDouble(st.nextToken());
-					st.nextToken(); // ignore value
-					DataItem item = new DataItem(time, open, high, low, close, volume);
-					items.add(item);
+					String[] values = inputLine.split(",");
+					long time = df.parse(values[0]).getTime();
+					double open = new Double(values[1]);
+					double high = new Double(values[2]);
+					double low = new Double(values[3]);
+					double close = new Double(values[4]);
+					double volume = new Double(values[5]);
+					items.add(new DataItem(time, open, high, low, close, volume));
 				}
 				Collections.sort(items, compare);
-				Dataset dataset = new Dataset(items);
-				method.releaseConnection();
-				in.close();
-				return dataset;
+				return new Dataset(items);
 			}
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
-            LOG.log(Level.SEVERE, null, ex);
+            LOG.log(Level.WARNING, null, ex);
         }
-        catch (ParseException ex)
-        {
-            LOG.log(Level.SEVERE, null, ex);
-        }
+		finally
+		{
+			try { in.close(); }
+			catch (IOException ex) { LOG.log(Level.WARNING, "", ex); }
+		}
         return null;
     }
 
@@ -140,34 +172,28 @@ public class Yahoo
 
 		try
 		{
-			String url = getLastDataURL(stock);
-			HttpClient client = ProxyManager.getDefault().getHttpClient();
-			HttpMethod method = new GetMethod(url);
-			client.executeMethod(method);
-			in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+			in = ProxyManager.getDefault().bufferReaderGET(getLastDataURL(stock));
 			if (in != null)
 			{
 				String inputLine;
 				while ((inputLine = in.readLine()) != null)
 				{
+					String[] values = inputLine.split(",");
 					StringTokenizer st = new StringTokenizer(inputLine, ",");
 					st.nextToken(); // ignore symbol name
-					double close = Double.parseDouble(st.nextToken());
-					String date = st.nextToken();
+					double close = new Double(values[1]);
+					String date = values[2];
 					date = date.substring(1, date.length()-1);
 					if (!date.equals("N/A"))
 					{
 						long time = df.parse(date).getTime();
-
-						String t = st.nextToken();
-						st.nextToken(); // ignore value
-						t = st.nextToken();
-						if (!t.equals("N/A"))
+						if (!values[5].equals("N/A"))
 						{
-							double open = Double.parseDouble(t);
-							double high = Double.parseDouble(st.nextToken());
-							double low = Double.parseDouble(st.nextToken());
-							double volume = Double.parseDouble(st.nextToken());
+							double open = Double.parseDouble(values[5]);
+							double high = Double.parseDouble(values[6]);
+							double low = Double.parseDouble(values[7]);
+							double volume = Double.parseDouble(values[8]);
+							
 							DataItem item = new DataItem(time, open, high, low, close, volume);
 
 							int index = dataset.getLastIndex();
@@ -221,23 +247,19 @@ public class Yahoo
 							}
 						}
 					}
-					method.releaseConnection();
 					in.close();
 					return dataset;
 				}
 			}
-			else
-			{
-				method.releaseConnection();
-			}
 		}
-		catch (ParseException ex)
+		catch (Exception ex)
 		{
-			Logger.getLogger(Yahoo.class.getName()).log(Level.SEVERE, null, ex);
+			LOG.log(Level.WARNING, null, ex);
 		}
-		catch (IOException ex)
+		finally
 		{
-			Logger.getLogger(Yahoo.class.getName()).log(Level.SEVERE, null, ex);
+			try { in.close(); }
+			catch (IOException ex) { LOG.log(Level.WARNING, null, ex); }
 		}
         return null;
     }

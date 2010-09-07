@@ -126,9 +126,6 @@ public class FolderAPINode extends AbstractNode
 			RootAPINode root = (RootAPINode) parent;
 			root.getRoot().removeFolder(getFolder());
 			root.getChildren().remove(new Node[] { this });
-
-			for (Node node : root.getChildren().getNodes())
-				System.out.println(node.getName());
 		}
 
 		super.destroy();

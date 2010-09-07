@@ -3,6 +3,7 @@ package org.chartsy.main;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.io.Serializable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -12,15 +13,27 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.events.StockEvent;
+import org.chartsy.main.exceptions.InvalidStockException;
+import org.chartsy.main.exceptions.RegistrationException;
+import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.Cancellable;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
 /**
  *
@@ -30,6 +43,7 @@ public class SymbolChanger extends JToolBar implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
+	private final static RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
 
     private ChartFrame chartFrame;
     private JTextField txtSymbol;
@@ -38,8 +52,9 @@ public class SymbolChanger extends JToolBar implements Serializable
     private JButton btnForward;
     private JButton btnBackHistory;
     private JButton btnForwardHistory;
-	
+
     private DataProvider dataProvider;
+	private boolean canOpen = true;
 
     public SymbolChanger(ChartFrame frame)
     {
@@ -132,6 +147,14 @@ public class SymbolChanger extends JToolBar implements Serializable
 		btnSubmit.setEnabled(status);
 	}
 
+	private void notifyError(Throwable t)
+	{
+		canOpen = false;
+		NotifyDescriptor descriptor
+			= new NotifyDescriptor.Exception(t);
+		Object ret = DialogDisplayer.getDefault().notify(descriptor);
+	}
+
 	private static abstract class SymbolChangerAction extends AbstractAction
 	{
 
@@ -159,39 +182,73 @@ public class SymbolChanger extends JToolBar implements Serializable
 		public void actionPerformed(ActionEvent e)
 		{
 			buttonsStatus(false);
-			String oldSymbol = chartFrame.getChartData().getStock().getKey();
-			String newSymbol = txtSymbol.getText().trim();
-			
-			if (!newSymbol.equals(oldSymbol))
+			Stock oldStock = chartFrame.getChartData().getStock();
+			final Stock newStock = new Stock(txtSymbol.getText().trim());
+
+			final RequestProcessor.Task stockTask = RP.create(new Runnable()
 			{
-				HistoryItem current = chartFrame.getHistory().getCurrent();
-				chartFrame.getHistory().clearForwardHistory();
-				chartFrame.getHistory().addHistoryItem(current);
-
-				String delimiter = "\\.";
-				String[] temp = null;
-
-				if (newSymbol.contains(delimiter))
-					temp = newSymbol.split(delimiter,2);
-
-				Stock newStock;
-				if (temp != null)
+				public void run()
 				{
-					newStock = new Stock(temp[0], temp[1]);
+					canOpen = true;
+					try
+					{
+						dataProvider.setStockCompanyName(newStock);
+					}
+					catch (InvalidStockException ex)
+					{
+						notifyError(ex);
+					}
+					catch (StockNotFoundException ex)
+					{
+						notifyError(ex);
+					}
+					catch (RegistrationException ex)
+					{
+						notifyError(ex);
+					}
+					catch (IOException ex)
+					{
+						notifyError(new InvalidStockException());
+					}
 				}
-				else
+			});
+			final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", new Cancellable()
+			{
+				public boolean cancel()
 				{
-					newStock = new Stock(newSymbol);
+					canOpen = false;
+					if (stockTask != null)
+						return stockTask.cancel();
+					return true;
 				}
+			});
+			stockTask.addTaskListener(new TaskListener()
+			{
+				public void taskFinished(Task task)
+				{
+					handle.finish();
+					if (canOpen)
+					{
+						SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								buttonsStatus(true);
+								HistoryItem current = chartFrame.getHistory().getCurrent();
+								chartFrame.getHistory().clearForwardHistory();
+								chartFrame.getHistory().addHistoryItem(current);
+								HistoryItem item = new HistoryItem(
+									newStock,
+									chartFrame.getChartData().getInterval().hashCode());
+								chartFrame.stockChanged(new StockEvent(item));
+							}
+						});
+					}
+				}
+			});
 
-				HistoryItem item = new HistoryItem(
-					newStock,
-					chartFrame.getChartData().getInterval().hashCode());
-
-				chartFrame.stockChanged(new StockEvent(item));
-			}
-			
-			buttonsStatus(true);
+			handle.start();
+			stockTask.schedule(0);
 		}
 		
 	}
