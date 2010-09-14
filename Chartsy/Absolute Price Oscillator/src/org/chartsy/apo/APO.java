@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
-package org.chartsy.roc;
+package org.chartsy.apo;
 
 import com.tictactec.ta.lib.Core;
+import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -26,16 +27,15 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- *
- * The Rate of Change Indicator
+ * The Absolute Price Oscillator.
  *
  * @author joshua.taylor
  */
-public class ROC extends Indicator{
+public class APO extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    public static final String FULL_NAME = "Rate of Change";
-    public static final String ABBREV = "roc";
+    public static final String FULL_NAME = "Absolute Price Oscillator";
+    public static final String ABBREV = "apo";
 
 
     private IndicatorProperties properties;
@@ -48,12 +48,13 @@ public class ROC extends Indicator{
     private transient Core core;
 
     //variables specific to this indicator
-    int period = 0;
+    private int fastPeriod = 0;
+    private int slowPeriod = 0;
 
     //the next variable is used for ultra-fast calculations
     private Dataset calculatedDataset;
 
-    public ROC() {
+    public APO() {
         super();
         properties = new IndicatorProperties();
     }
@@ -68,7 +69,7 @@ public class ROC extends Indicator{
     public String getPaintedLabel(ChartFrame cf){ return ""; }
 
     @Override
-    public Indicator newInstance(){ return new ROC(); }
+    public Indicator newInstance(){ return new APO(); }
 
     @Override
     public boolean hasZeroLine(){ return true; }
@@ -113,7 +114,7 @@ public class ROC extends Indicator{
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"ROC Line:"};
+        String[] labels = {"APO Line:"};
 
         ht.put(getLabel(), " ");
         if (values.length > 0) {
@@ -188,13 +189,14 @@ public class ROC extends Indicator{
         core = TaLibInit.getCore();//needs to be here for serialization issues
 
         //[your specific indicator variables need to be set first]
-        period = properties.getPeriod();
-
+        fastPeriod = properties.getFastPeriod();
+        slowPeriod = properties.getSlowPeriod();
+        
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
-        lookback = core.rocLookback(period);
-        core.roc(0, count-1, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
+        lookback = core.apoLookback(fastPeriod, slowPeriod, MAType.Ema);
+        core.apo(0, count-1, initial.getCloseValues(), fastPeriod, slowPeriod, MAType.Ema, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
