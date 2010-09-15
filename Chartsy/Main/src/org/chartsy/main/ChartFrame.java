@@ -59,17 +59,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     private static final String PREFERRED_ID = "ChartFrame";
     public static final Logger LOG = Logger.getLogger(ChartFrame.class.getName());
     private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
-
     private History history = null;
     private ChartProperties chartProperties = null;
     private ChartToolbar chartToolbar = null;
     private ChartData chartData = null;
     private MainPanel mainPanel = null;
     private JScrollBar scrollBar = null;
-
     private boolean restored = false;
     private boolean focus = true;
-	private boolean loadingFlag = false;
+    private boolean loadingFlag = false;
 
     public static synchronized ChartFrame getDefault()
     {
@@ -95,7 +93,8 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     }
 
     public ChartFrame()
-    {}
+    {
+    }
 
     public ChartFrame(ChartData data)
     {
@@ -104,22 +103,21 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         if (!chartData.isStockNull())
         {
             setName(
-				NbBundle.getMessage(
-				ChartFrame.class,
-				"CTL_ChartFrame",
-				chartData.getStock().getKey()));
+                    NbBundle.getMessage(
+                    ChartFrame.class,
+                    "CTL_ChartFrame",
+                    chartData.getStock().getKey()));
             setToolTipText(
-				NbBundle.getMessage(
-				ChartFrame.class,
-				"TOOL_ChartFrame",
-				chartData.getStock().getCompanyName()));
-        }
-        else
+                    NbBundle.getMessage(
+                    ChartFrame.class,
+                    "TOOL_ChartFrame",
+                    chartData.getStock().getCompanyName()));
+        } else
         {
             setName(
-				NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
+                    NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
             setToolTipText(
-				NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
+                    NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
         }
         chartData.getDataProvider().addDatasetListener((DataProviderListener) this);
 
@@ -132,14 +130,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         if (!restored)
         {
             if (chartProperties == null)
+            {
                 chartProperties = new ChartProperties();
+            }
             if (history == null)
             {
                 history = new History();
                 history.initialize();
             }
-        }
-        else
+        } else
         {
             chartProperties.setMarkerVisibility(true);
         }
@@ -175,64 +174,93 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         }
 
         history.setCurrent(new HistoryItem(
-			chartData.getStock(),
-			chartData.getInterval().hashCode()));
-		
+                chartData.getStock(),
+                chartData.getInterval().hashCode()));
+
         setRestored(false);
 
         revalidate();
         componentFocused();
     }
-    
+
     public boolean getRestored()
-    { return restored; }
+    {
+        return restored;
+    }
 
     public void setRestored(boolean b)
-    { restored = b; }
+    {
+        restored = b;
+    }
 
     public boolean getFocus()
-    { return focus; }
+    {
+        return focus;
+    }
 
     public void setFocus(boolean b)
-    { focus = b; }
+    {
+        focus = b;
+    }
 
     public ChartProperties getChartProperties()
-    { return chartProperties; }
+    {
+        return chartProperties;
+    }
 
     public void setChartProperties(ChartProperties cp)
-    { chartProperties = cp; }
+    {
+        chartProperties = cp;
+    }
 
     public ChartData getChartData()
-    { return chartData; }
+    {
+        return chartData;
+    }
 
     public void setChartData(ChartData data)
-    { chartData = data; }
+    {
+        chartData = data;
+    }
 
     public History getHistory()
-    { return this.history; }
+    {
+        return this.history;
+    }
 
     public void setHistory(History history)
-    { this.history = history; }
+    {
+        this.history = history;
+    }
 
     public MainPanel getMainPanel()
-    { return mainPanel; }
+    {
+        return mainPanel;
+    }
 
     public ChartSplitPanel getSplitPanel()
-    { 
+    {
         if (mainPanel != null)
+        {
             return mainPanel.getSplitPanel();
-        else
+        } else
+        {
             return null;
+        }
     }
 
     public boolean hasCurrentAnnotation()
     {
         if (getSplitPanel().getChartPanel().getAnnotationPanel().hasCurrent())
+        {
             return true;
+        }
         for (IndicatorPanel ip : getSplitPanel().getIndicatorsPanel().getIndicatorPanels())
         {
             if (ip.getAnnotationPanel().hasCurrent())
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -240,11 +268,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     public Annotation getCurrentAnnotation()
     {
         if (getSplitPanel().getChartPanel().getAnnotationPanel().hasCurrent())
+        {
             return getSplitPanel().getChartPanel().getAnnotationPanel().getCurrent();
+        }
         for (IndicatorPanel ip : getSplitPanel().getIndicatorsPanel().getIndicatorPanels())
         {
             if (ip.getAnnotationPanel().hasCurrent())
+            {
                 return ip.getAnnotationPanel().getCurrent();
+            }
         }
         return null;
     }
@@ -279,7 +311,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             i += ip.getAnnotationPanel().getAnnotations().length;
             list.add(new Integer(i));
         }
-        
+
         return list;
     }
 
@@ -288,7 +320,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         List<Annotation> list = new ArrayList<Annotation>();
         list.addAll(getSplitPanel().getChartPanel().getAnnotationPanel().getAnnotationsList());
         for (IndicatorPanel ip : getSplitPanel().getIndicatorsPanel().getIndicatorPanels())
+        {
             list.addAll(ip.getAnnotationPanel().getAnnotationsList());
+        }
         return list;
     }
 
@@ -303,14 +337,13 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             {
                 List<Annotation> newList = annotations.subList(0, count.get(i));
                 getSplitPanel().getChartPanel().getAnnotationPanel().setAnnotationsList(newList);
-            }
-            else // indicator panel annotations
+            } else // indicator panel annotations
             {
-                List<Annotation> newList = annotations.subList(count.get(i-1), count.get(i));
-                getSplitPanel().getIndicatorsPanel().getIndicatorPanels()[i-1].getAnnotationPanel().setAnnotationsList(newList);
+                List<Annotation> newList = annotations.subList(count.get(i - 1), count.get(i));
+                getSplitPanel().getIndicatorsPanel().getIndicatorPanels()[i - 1].getAnnotationPanel().setAnnotationsList(newList);
             }
         }
-        
+
         return;
     }
 
@@ -342,55 +375,73 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         // chart settings
         popup.add(new JMenuItem(MainActions.chartProperties(this)));
 
-		// hide/show toolbar
+        // hide/show toolbar
         popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this)));
 
-		// add to favorites
-		if (!MainActions.isInFavorites(this))
-			popup.add(new JMenuItem(MainActions.addToFavorites(this)));
+        // add to favorites
+        if (!MainActions.isInFavorites(this))
+        {
+            popup.add(new JMenuItem(MainActions.addToFavorites(this)));
+        }
 
-		return popup;
+        return popup;
     }
 
     public void zoomIn()
     {
         if (chartData != null)
+        {
             chartData.zoomIn(this);
+        }
     }
 
     public void zoomOut()
     {
         if (chartData != null)
+        {
             chartData.zoomOut(this);
+        }
     }
 
     public void setToolbarVisibility()
-    { chartToolbar.setVisible(chartProperties.getToolbarVisibility()); }
+    {
+        chartToolbar.setVisible(chartProperties.getToolbarVisibility());
+    }
 
     public void updateToolbar()
     {
         if (chartToolbar != null)
+        {
             chartToolbar.updateToolbar();
+        }
     }
 
     @Override
-    public int getPersistenceType() 
-    { return TopComponent.PERSISTENCE_ALWAYS; }
+    public int getPersistenceType()
+    {
+        return TopComponent.PERSISTENCE_ALWAYS;
+    }
 
     @Override
-    protected String preferredID() 
-    { return PREFERRED_ID; }
+    protected String preferredID()
+    {
+        return PREFERRED_ID;
+    }
 
-	@Override
+    @Override
     protected Object writeReplace()
-    { return new ResolvableHelper(this); }
+    {
+        return new ResolvableHelper(this);
+    }
 
     @Override
     protected void componentOpened()
     {
-		super.componentOpened();
+        super.componentOpened();
         if (chartData != null)
+        {
             loading(chartData.getStock(), true);
+        }
     }
 
     @Override
@@ -400,12 +451,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         componentFocused();
     }
 
-
     public void componentFocused()
     {
         if (getMainPanel() != null)
+        {
             if (getSplitPanel() != null)
+            {
                 getSplitPanel().getChartPanel().getAnnotationPanel().requestFocusInWindow();
+            }
+        }
     }
 
     private JScrollBar initHorizontalScrollBar()
@@ -434,16 +488,33 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         int items = getChartData().getPeriod();
         int itemsCount = getChartData().getDataset().getItemsCount();
 
-		if (scrollBar.getModel().getExtent() != items)
-			scrollBar.getModel().setExtent(items);
-		if (scrollBar.getModel().getMinimum() != 0)
-			scrollBar.getModel().setMinimum(0);
-		if (scrollBar.getModel().getMaximum() != itemsCount)
-			scrollBar.getModel().setMaximum(itemsCount);
-		if (scrollBar.getModel().getValue() != (last - items))
-			scrollBar.getModel().setValue(last - items);
+        boolean updated = false;
 
-		repaint();
+        if (scrollBar.getModel().getExtent() != items)
+        {
+            scrollBar.getModel().setExtent(items);
+            updated = true;
+        }
+        if (scrollBar.getModel().getMinimum() != 0)
+        {
+            scrollBar.getModel().setMinimum(0);
+            updated = true;
+        }
+        if (scrollBar.getModel().getMaximum() != itemsCount)
+        {
+            scrollBar.getModel().setMaximum(itemsCount);
+            updated = true;
+        }
+        if (scrollBar.getModel().getValue() != (last - items))
+        {
+            scrollBar.getModel().setValue(last - items);
+            updated = true;
+        }
+
+        if (updated)
+        {
+            repaint();
+        }
     }
 
     public void adjustmentValueChanged(AdjustmentEvent e)
@@ -454,14 +525,15 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
         end = end > itemsCount ? itemsCount : (end < items ? items : end);
 
-		if (getChartData().getLast() != end)
-		{
-			getChartData().setLast(end);
-			getChartData().calculate(this);
-		}
+        if (getChartData().getLast() != end)
+        {
+            getChartData().setLast(end);
+            getChartData().calculate(this);
+        }
+        repaint();
     }
 
-	public void mouseWheelMoved(MouseWheelEvent e)
+    public void mouseWheelMoved(MouseWheelEvent e)
     {
         if (!getChartData().isDatasetNull())
         {
@@ -472,40 +544,42 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 int last = getChartData().getLast() - e.getWheelRotation();
                 last = last > itemsCount ? itemsCount : (last < items ? items : last);
 
-				if (getChartData().getLast() != last)
-				{
-					getChartData().setLast(last);
-					getChartData().calculate(this);
-				}
+                if (getChartData().getLast() != last)
+                {
+                    getChartData().setLast(last);
+                    getChartData().calculate(this);
+                }
             }
         }
     }
 
-	public void triggerDataProviderListener(DataProviderEvent evt)
-	{
-		if (!loadingFlag)
-		{
-			Stock source = (Stock) evt.getSource();
-			if (source.equals(getChartData().getStock()))
-			{
-				String provider = getChartData().getDataProvider().getName();
-				DataProvider dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
-				Dataset newDataset = dataProvider.getDataset(dataProvider.getKey(source, getChartData().getInterval()));
+    public void triggerDataProviderListener(DataProviderEvent evt)
+    {
+        if (!loadingFlag)
+        {
+            Stock source = (Stock) evt.getSource();
+            if (source.equals(getChartData().getStock()))
+            {
+                String provider = getChartData().getDataProvider().getName();
+                DataProvider dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
+                Dataset newDataset = dataProvider.getDataset(dataProvider.getKey(source, getChartData().getInterval()));
 
-				if (newDataset != null)
-				{
-					getChartData().setDataset(newDataset);
-					getChartData().updateDataset();
+                if (newDataset != null)
+                {
+                    getChartData().setDataset(newDataset);
+                    getChartData().updateDataset();
 
-					int last = getChartData().getLast();
-					int items = newDataset.getItemsCount();
-					if (last + 1 == items)
-						getChartData().setLast(items);
-					repaint();
-				}
-			}
-		}
-	}
+                    int last = getChartData().getLast();
+                    int items = newDataset.getItemsCount();
+                    if (last + 1 == items)
+                    {
+                        getChartData().setLast(items);
+                    }
+                    repaint();
+                }
+            }
+        }
+    }
 
     public BufferedImage getBufferedImage(int width, int height)
     {
@@ -526,8 +600,10 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         return image;
     }
 
-    public AbstractNode getNode() 
-    { return new ChartNode(chartProperties); }
+    public AbstractNode getNode()
+    {
+        return new ChartNode(chartProperties);
+    }
 
     private void reinitialize()
     {
@@ -543,139 +619,20 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         remove(scrollBar);
     }
 
-	public void changeDataset
-		(final Stock stock, final Interval interval, final boolean newChart)
-	{
-		try
-		{
-			final DataProvider dataProvider = getChartData().getDataProvider();
-			final JLabel loading = new JLabel(
-				NbBundle.getMessage(
-				ChartFrame.class,
-				"LBL_Loading",
-				stock.getCompanyName().equals("")
-				? stock.getKey()
-				: stock.getCompanyName()),
-				ResourcesUtils.getLogo(),
-				SwingConstants.CENTER);
-            loading.setOpaque(true);
-            loading.setBackground(Color.WHITE);
-            loading.setVerticalTextPosition(SwingConstants.BOTTOM);
-            loading.setHorizontalTextPosition(SwingConstants.CENTER);
-
-			final RequestProcessor.Task task = RP.create(new Runnable()
-            {
-                public void run()
-                {
-                    if (!newChart)
-                        reinitialize();
-                    add(loading, BorderLayout.CENTER);
-                    DataProviderManager.getDefault().update(stock, interval, dataProvider);
-                }
-            });
-
-			final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
-			task.addTaskListener(new TaskListener()
-			{
-				public void taskFinished(Task task)
-				{
-					if (DataProviderManager.getDefault().isUpdated())
-					{
-						handle.finish();
-						DataProviderManager.getDefault().setUpdated(false);
-						Dataset dataset = dataProvider.getDataset(stock, interval);
-						if (dataset != null)
-                        {
-							loadingFlag = false;
-                            remove(loading);
-                            getChartData().setDataset(dataset);
-                            getChartData().setInterval(interval);
-                            initComponents();
-                        }
-						else
-                        {
-                            loading.setText(NbBundle.getMessage(
-								ChartFrame.class,
-								"LBL_LoadingNoDataNew",
-								stock.getCompanyName().equals("")
-								? stock.getKey()
-								: stock.getCompanyName()));
-
-                            if (!newChart)
-                            {
-                                NotifyDescriptor descriptor
-									= new NotifyDescriptor.Confirmation(
-									NbBundle.getMessage(
-									ChartFrame.class,
-									"LBL_LoadingNoData",
-									stock.getCompanyName().equals("")
-									? stock.getKey()
-									: stock.getCompanyName()),
-									"No Data",
-									NotifyDescriptor.YES_NO_OPTION);
-                                Object retval
-									= DialogDisplayer.getDefault().notify(descriptor);
-                                if (retval.equals(NotifyDescriptor.YES_OPTION))
-                                {
-                                    remove(loading);
-                                    getChartData().setStock(oldStock);
-                                    getChartData().updateDataset(oldInterval);
-                                    initComponents();
-                                    oldStock = null;
-                                    oldInterval = null;
-                                }
-                            }
-                        }
-					}
-				}
-			});
-
-			Dataset dataset = dataProvider.getDataset(stock, interval);
-            if (dataset == null)
-            {
-				loadingFlag = true;
-                handle.start();
-                task.schedule(0);
-            }
-            else
-            {
-				if (dataset.getItemsCount() >= 2)
-				{
-					if (!newChart)
-						reinitialize();
-					getChartData().setDataset(dataset);
-					getChartData().setInterval(interval);
-					initComponents();
-				}
-				else
-				{
-					handle.start();
-					task.schedule(0);
-				}
-            }
-		}
-		catch (Exception ex)
-		{
-			LOG.log(Level.WARNING, ex.getMessage());
-		}
-	}
-
-    private void loading(final Stock newStock, final boolean newChart)
+    public void changeDataset(final Stock stock, final Interval interval, final boolean newChart)
     {
         try
         {
             final DataProvider dataProvider = getChartData().getDataProvider();
-            final Interval interval = getChartData().getInterval();
-
             final JLabel loading = new JLabel(
-				NbBundle.getMessage(
-				ChartFrame.class,
-				"LBL_Loading",
-				newStock.getCompanyName().equals("")
-				? newStock.getKey()
-				: newStock.getCompanyName()),
-				ResourcesUtils.getLogo(),
-				SwingConstants.CENTER);
+                    NbBundle.getMessage(
+                    ChartFrame.class,
+                    "LBL_Loading",
+                    stock.getCompanyName().equals("")
+                    ? stock.getKey()
+                    : stock.getCompanyName()),
+                    ResourcesUtils.getLogo(),
+                    SwingConstants.CENTER);
             loading.setOpaque(true);
             loading.setBackground(Color.WHITE);
             loading.setVerticalTextPosition(SwingConstants.BOTTOM);
@@ -683,56 +640,57 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
             final RequestProcessor.Task task = RP.create(new Runnable()
             {
+
                 public void run()
                 {
                     if (!newChart)
+                    {
                         reinitialize();
+                    }
                     add(loading, BorderLayout.CENTER);
-                    DataProviderManager.getDefault().update(newStock, dataProvider);
+                    DataProviderManager.getDefault().update(stock, interval, dataProvider);
                 }
             });
 
             final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
             task.addTaskListener(new TaskListener()
             {
+
                 public void taskFinished(Task task)
                 {
                     if (DataProviderManager.getDefault().isUpdated())
                     {
                         handle.finish();
                         DataProviderManager.getDefault().setUpdated(false);
-                        Dataset dataset = dataProvider.getDataset(newStock, interval);
+                        Dataset dataset = dataProvider.getDataset(stock, interval);
                         if (dataset != null)
                         {
-							loadingFlag = false;
+                            loadingFlag = false;
                             remove(loading);
                             getChartData().setDataset(dataset);
                             getChartData().setInterval(interval);
                             initComponents();
-                        }
-                        else
+                        } else
                         {
                             loading.setText(NbBundle.getMessage(
-								ChartFrame.class,
-								"LBL_LoadingNoDataNew",
-								newStock.getCompanyName().equals("")
-								? newStock.getKey()
-								: newStock.getCompanyName()));
-							
+                                    ChartFrame.class,
+                                    "LBL_LoadingNoDataNew",
+                                    stock.getCompanyName().equals("")
+                                    ? stock.getKey()
+                                    : stock.getCompanyName()));
+
                             if (!newChart)
                             {
-                                NotifyDescriptor descriptor
-									= new NotifyDescriptor.Confirmation(
-									NbBundle.getMessage(
-									ChartFrame.class,
-									"LBL_LoadingNoData",
-									newStock.getCompanyName().equals("")
-									? newStock.getKey()
-									: newStock.getCompanyName()),
-									"No Data",
-									NotifyDescriptor.YES_NO_OPTION);
-                                Object retval 
-									= DialogDisplayer.getDefault().notify(descriptor);
+                                NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
+                                        NbBundle.getMessage(
+                                        ChartFrame.class,
+                                        "LBL_LoadingNoData",
+                                        stock.getCompanyName().equals("")
+                                        ? stock.getKey()
+                                        : stock.getCompanyName()),
+                                        "No Data",
+                                        NotifyDescriptor.YES_NO_OPTION);
+                                Object retval = DialogDisplayer.getDefault().notify(descriptor);
                                 if (retval.equals(NotifyDescriptor.YES_OPTION))
                                 {
                                     remove(loading);
@@ -748,31 +706,148 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 }
             });
 
-			Dataset dataset = dataProvider.getDataset(newStock, interval);
+            Dataset dataset = dataProvider.getDataset(stock, interval);
             if (dataset == null)
             {
-				loadingFlag = true;
+                loadingFlag = true;
                 handle.start();
                 task.schedule(0);
-            }
-            else
+            } else
             {
-				if (dataset.getItemsCount() >= 2)
-				{
-					if (!newChart)
-						reinitialize();
-					getChartData().setDataset(dataset);
-					getChartData().setInterval(interval);
-					initComponents();
-				}
-				else
-				{
-					handle.start();
-					task.schedule(0);
-				}
+                if (dataset.getItemsCount() >= 2)
+                {
+                    if (!newChart)
+                    {
+                        reinitialize();
+                    }
+                    getChartData().setDataset(dataset);
+                    getChartData().setInterval(interval);
+                    initComponents();
+                } else
+                {
+                    handle.start();
+                    task.schedule(0);
+                }
             }
+        } catch (Exception ex)
+        {
+            LOG.log(Level.WARNING, ex.getMessage());
         }
-        catch (Exception e)
+    }
+
+    private void loading(final Stock newStock, final boolean newChart)
+    {
+        try
+        {
+            final DataProvider dataProvider = getChartData().getDataProvider();
+            final Interval interval = getChartData().getInterval();
+
+            final JLabel loading = new JLabel(
+                    NbBundle.getMessage(
+                    ChartFrame.class,
+                    "LBL_Loading",
+                    newStock.getCompanyName().equals("")
+                    ? newStock.getKey()
+                    : newStock.getCompanyName()),
+                    ResourcesUtils.getLogo(),
+                    SwingConstants.CENTER);
+            loading.setOpaque(true);
+            loading.setBackground(Color.WHITE);
+            loading.setVerticalTextPosition(SwingConstants.BOTTOM);
+            loading.setHorizontalTextPosition(SwingConstants.CENTER);
+
+            final RequestProcessor.Task task = RP.create(new Runnable()
+            {
+
+                public void run()
+                {
+                    if (!newChart)
+                    {
+                        reinitialize();
+                    }
+                    add(loading, BorderLayout.CENTER);
+                    DataProviderManager.getDefault().update(newStock, dataProvider);
+                }
+            });
+
+            final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
+            task.addTaskListener(new TaskListener()
+            {
+
+                public void taskFinished(Task task)
+                {
+                    if (DataProviderManager.getDefault().isUpdated())
+                    {
+                        handle.finish();
+                        DataProviderManager.getDefault().setUpdated(false);
+                        Dataset dataset = dataProvider.getDataset(newStock, interval);
+                        if (dataset != null)
+                        {
+                            loadingFlag = false;
+                            remove(loading);
+                            getChartData().setDataset(dataset);
+                            getChartData().setInterval(interval);
+                            initComponents();
+                        } else
+                        {
+                            loading.setText(NbBundle.getMessage(
+                                    ChartFrame.class,
+                                    "LBL_LoadingNoDataNew",
+                                    newStock.getCompanyName().equals("")
+                                    ? newStock.getKey()
+                                    : newStock.getCompanyName()));
+
+                            if (!newChart)
+                            {
+                                NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
+                                        NbBundle.getMessage(
+                                        ChartFrame.class,
+                                        "LBL_LoadingNoData",
+                                        newStock.getCompanyName().equals("")
+                                        ? newStock.getKey()
+                                        : newStock.getCompanyName()),
+                                        "No Data",
+                                        NotifyDescriptor.YES_NO_OPTION);
+                                Object retval = DialogDisplayer.getDefault().notify(descriptor);
+                                if (retval.equals(NotifyDescriptor.YES_OPTION))
+                                {
+                                    remove(loading);
+                                    getChartData().setStock(oldStock);
+                                    getChartData().updateDataset(oldInterval);
+                                    initComponents();
+                                    oldStock = null;
+                                    oldInterval = null;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            Dataset dataset = dataProvider.getDataset(newStock, interval);
+            if (dataset == null)
+            {
+                loadingFlag = true;
+                handle.start();
+                task.schedule(0);
+            } else
+            {
+                if (dataset.getItemsCount() >= 2)
+                {
+                    if (!newChart)
+                    {
+                        reinitialize();
+                    }
+                    getChartData().setDataset(dataset);
+                    getChartData().setInterval(interval);
+                    initComponents();
+                } else
+                {
+                    handle.start();
+                    task.schedule(0);
+                }
+            }
+        } catch (Exception e)
         {
             LOG.log(Level.WARNING, e.getMessage());
         }
@@ -787,20 +862,19 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         oldStock = getChartData().getStock();
         oldInterval = getChartData().getInterval();
 
-		getChartData().setStock(newStock);
-		getChartData().setInterval(interval);
-		setName(NbBundle.getMessage(
-			ChartFrame.class,
-			"CTL_ChartFrame",
-			newStock.getKey()));
-		setToolTipText(NbBundle.getMessage(
-			ChartFrame.class,
-			"TOOL_ChartFrame",
-			newStock.getCompanyName()));
-		getSplitPanel().getChartPanel().updateStock();
-		loading(newStock, false);
+        getChartData().setStock(newStock);
+        getChartData().setInterval(interval);
+        setName(NbBundle.getMessage(
+                ChartFrame.class,
+                "CTL_ChartFrame",
+                newStock.getKey()));
+        setToolTipText(NbBundle.getMessage(
+                ChartFrame.class,
+                "TOOL_ChartFrame",
+                newStock.getCompanyName()));
+        getSplitPanel().getChartPanel().updateStock();
+        loading(newStock, false);
     }
-
     private Stock oldStock = null;
     private Interval oldInterval = null;
 
@@ -808,11 +882,10 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
-
         private ChartProperties chartProperties;
         private ChartData chartData;
         private String dataProvider;
-		private HistoryItem currentHistoryItem;
+        private HistoryItem currentHistoryItem;
         private HistoryItem[] backList;
         private HistoryItem[] fwdList;
 
@@ -827,9 +900,9 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
             chartData.setAnnotations(chartFrame.getAnnotations());
 
-			currentHistoryItem = chartFrame.getHistory().getCurrent();
+            currentHistoryItem = chartFrame.getHistory().getCurrent();
             backList = chartFrame.getHistory().getBackHistoryList();
-			fwdList = chartFrame.getHistory().getFwdHistoryList();
+            fwdList = chartFrame.getHistory().getFwdHistoryList();
         }
 
         public Object readResolve()
@@ -844,16 +917,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
                 History history = new History();
                 history.initialize();
-				history.setCurrent(currentHistoryItem);
-				history.setBackHistoryList(backList);
-				history.setFwdHistoryList(fwdList);
+                history.setCurrent(currentHistoryItem);
+                history.setBackHistoryList(backList);
+                history.setFwdHistoryList(fwdList);
                 chartFrame.setHistory(history);
 
                 chartFrame.setRestored(true);
                 return chartFrame;
             }
         }
-
     }
-
 }
