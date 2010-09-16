@@ -66,7 +66,7 @@ public class IndicatorNode
                     "Std. Dev. High", // property name
                     "Sets the std. dev. high period value", // property description
                     IndicatorProperties.class, // properties class
-                    int.class, // property class
+                    double.class, // property class
                     null, // property editor class (null if none)
                     "getStdHigh", // get method name
                     "setStdHigh", // set method name
@@ -77,7 +77,7 @@ public class IndicatorNode
                     "Std. Dev. Low", // property name
                     "Sets the std. dev. low period value", // property description
                     IndicatorProperties.class, // properties class
-                    int.class, // property class
+                    double.class, // property class
                     null, // property editor class (null if none)
                     "getStdLow", // get method name
                     "setStdLow", // set method name
