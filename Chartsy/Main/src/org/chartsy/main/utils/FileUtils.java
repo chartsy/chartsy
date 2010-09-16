@@ -116,6 +116,19 @@ public final class FileUtils {
 		return new File(result);
 	}
 
+	public static String templatesFolder()
+	{
+		String result = LocalFolder() + File.separator + "templates";
+		createFolder(result);
+		return result;
+	}
+
+	public static File templatesFile(String fileName)
+	{
+		String result = templatesFolder() + File.separator + fileName;
+		return new File(result);
+	}
+
     public static boolean fileExists(String path)
     {
         File file = new File(path);

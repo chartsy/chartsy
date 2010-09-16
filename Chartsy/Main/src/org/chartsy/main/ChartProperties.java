@@ -9,6 +9,10 @@ import org.chartsy.main.events.LogEvent;
 import org.chartsy.main.events.LogListener;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
+import org.chartsy.main.utils.XMLUtil;
+import org.chartsy.main.utils.XMLUtil.XMLTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -16,6 +20,7 @@ import org.chartsy.main.utils.StrokeGenerator;
  */
 public class ChartProperties
         extends AbstractPropertyListener
+		implements XMLTemplate
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -209,5 +214,51 @@ public class ChartProperties
                 l.fire(evt);
         }
     }
+
+	public void saveToTemplate(Document document, Element element)
+	{
+		XMLUtil.addColorProperty	(document, element, "axisColor",					axisColor);
+		XMLUtil.addIntegerProperty	(document, element, "axisStrokeIndex",				axisStrokeIndex);
+		XMLUtil.addDoubleProperty	(document, element, "barWidth",						barWidth);
+		XMLUtil.addColorProperty	(document, element, "barColor",						barColor);
+		XMLUtil.addIntegerProperty	(document, element, "barStrokeIndex",				barStrokeIndex);
+		XMLUtil.addBooleanProperty	(document, element, "barVisibility",				barVisibility);
+		XMLUtil.addColorProperty	(document, element, "barDownColor",					barDownColor);
+		XMLUtil.addBooleanProperty	(document, element, "barDownVisibility",			barDownVisibility);
+		XMLUtil.addColorProperty	(document, element, "barUpColor",					barUpColor);
+		XMLUtil.addBooleanProperty	(document, element, "barUpVisibility",				barUpVisibility);
+		XMLUtil.addColorProperty	(document, element, "gridHorizontalColor",			gridHorizontalColor);
+		XMLUtil.addIntegerProperty	(document, element, "gridHorizontalStrokeIndex",	gridHorizontalStrokeIndex);
+		XMLUtil.addBooleanProperty	(document, element, "gridHorizontalVisibility",		gridHorizontalVisibility);
+		XMLUtil.addColorProperty	(document, element, "gridVerticalColor",			gridVerticalColor);
+		XMLUtil.addIntegerProperty	(document, element, "gridVerticalStrokeIndex",		gridVerticalStrokeIndex);
+		XMLUtil.addBooleanProperty	(document, element, "gridVerticalVisibility",		gridVerticalVisibility);
+		XMLUtil.addColorProperty	(document, element, "backgroundColor",				backgroundColor);
+		XMLUtil.addFontProperty		(document, element, "font",							font);
+		XMLUtil.addColorProperty	(document, element, "fontColor",					fontColor);
+	}
+
+	public void loadFromTemplate(Element element)
+	{
+		axisColor					= XMLUtil.getColorProperty(element,		"axisColor");
+		axisStrokeIndex				= XMLUtil.getIntegerProperty(element,	"axisStrokeIndex");
+		barWidth					= XMLUtil.getDoubleProperty(element,	"barWidth");
+		barColor					= XMLUtil.getColorProperty(element,		"barColor");
+		barStrokeIndex				= XMLUtil.getIntegerProperty(element,	"barStrokeIndex");
+		barVisibility				= XMLUtil.getBooleanProperty(element,	"barVisibility");
+		barDownColor				= XMLUtil.getColorProperty(element,		"barDownColor");
+		barDownVisibility			= XMLUtil.getBooleanProperty(element,	"barDownVisibility");
+		barUpColor					= XMLUtil.getColorProperty(element,		"barUpColor");
+		barUpVisibility				= XMLUtil.getBooleanProperty(element,	"barUpVisibility");
+		gridHorizontalColor			= XMLUtil.getColorProperty(element,		"gridHorizontalColor");
+		gridHorizontalStrokeIndex	= XMLUtil.getIntegerProperty(element,	"gridHorizontalStrokeIndex");
+		gridHorizontalVisibility	= XMLUtil.getBooleanProperty(element,	"gridHorizontalVisibility");
+		gridVerticalColor			= XMLUtil.getColorProperty(element,		"gridVerticalColor");
+		gridVerticalStrokeIndex		= XMLUtil.getIntegerProperty(element,	"gridVerticalStrokeIndex");
+		gridVerticalVisibility		= XMLUtil.getBooleanProperty(element,	"gridVerticalVisibility");
+		backgroundColor				= XMLUtil.getColorProperty(element,		"backgroundColor");
+		font						= XMLUtil.getFontProperty(element,		"font");
+		fontColor					= XMLUtil.getColorProperty(element,		"fontColor");
+	}
 
 }

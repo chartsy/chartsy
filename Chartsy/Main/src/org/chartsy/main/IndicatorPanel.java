@@ -31,6 +31,7 @@ import javax.swing.border.Border;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
+import org.chartsy.main.templates.Template;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.SerialVersion;
 
@@ -52,6 +53,8 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         this.chartFrame = frame;
         this.indicator = indicator;
+		Template template = new Template("Test");
+		template.setProperties(indicator);
         initializeUIElements();
     }
 

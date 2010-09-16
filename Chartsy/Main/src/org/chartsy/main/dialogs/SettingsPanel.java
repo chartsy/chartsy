@@ -88,8 +88,17 @@ public class SettingsPanel extends JPanel
 		DialogDescriptor descriptor = new DialogDescriptor(
 			this, title, true, null);
 		descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
-		descriptor.setOptions(new Object[] {});
-		DialogDisplayer.getDefault().notify(descriptor);
+		descriptor.setOptions(new Object[] {DialogDescriptor.OK_OPTION});
+		Object ret = DialogDisplayer.getDefault().notify(descriptor);
+		if (ret != null)
+		{
+			if (object instanceof ChartFrame)
+				((ChartFrame) object).repaint();
+			else if (object instanceof Indicator)
+				((Indicator) object).calculate();
+			else if (object instanceof Overlay)
+				((Overlay) object).calculate();
+		}
 	}
 
 }

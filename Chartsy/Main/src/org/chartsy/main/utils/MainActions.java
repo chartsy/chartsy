@@ -28,8 +28,13 @@ import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
+import org.chartsy.main.managers.TemplateManager;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.netbeans.api.print.PrintManager;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.NotifyDescriptor.InputLine;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
@@ -63,6 +68,7 @@ public final class MainActions
 	public static Action chartProperties(ChartFrame chartFrame)					{ return ChartProps.getAction(chartFrame); }
 	public static Action toggleToolbarVisibility(ChartFrame chartFrame)			{ return ToggleToolbarVisibility.getAction(chartFrame); }
 	public static Action addToFavorites(ChartFrame chartFrame)					{ return AddToFavorites.getAction(chartFrame); }
+	public static Action saveToTemplate(ChartFrame chartFrame)					{ return SaveToTemplate.getAction(chartFrame); }
 
 	/*
 	 * Submenu actions
@@ -206,6 +212,23 @@ public final class MainActions
 			}
 		}
 
+		return menu;
+	}
+
+	private static JMenu generateTempMenu(ChartFrame chartFrame)
+	{
+		JMenu menu = new JMenu(NbBundle.getMessage(MainActions.class, "ACT_SelectTemplate"));
+		for (Object template : TemplateManager.getDefault().getTemplateNames())
+			if (!template.equals(chartFrame.getTemplate().getName()))
+				menu.add(new JMenuItem(ChangeTemplate.getAction(chartFrame, (String)template)));
+		return menu;
+	}
+
+	public static JMenu generateTemplatesMenu(ChartFrame chartFrame)
+	{
+		JMenu menu = new JMenu(NbBundle.getMessage(MainActions.class, "ACT_Templates"));
+		menu.add(generateTempMenu(chartFrame));
+		menu.add(new JMenuItem(MainActions.saveToTemplate(chartFrame)));
 		return menu;
 	}
 
@@ -818,6 +841,80 @@ public final class MainActions
 					((RootAPINode) node).getChildren().add(new Node[] { stockNode });
 
 					root.addStock(stock);
+				}
+			}
+		}
+
+	}
+
+	private static class ChangeTemplate extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+		private String template;
+
+		public static Action getAction(ChartFrame chartFrame, String template)
+		{
+			return new ChangeTemplate(chartFrame, template);
+		}
+
+		private ChangeTemplate(ChartFrame chartFrame, String template)
+		{
+			super("SaveToTemplate", false);
+			this.chartFrame = chartFrame;
+			this.template = template;
+			putValue(NAME, template);
+			putValue(SHORT_DESCRIPTION, template);
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			chartFrame.setTemplate(TemplateManager.getDefault().getTemplate(template));
+		}
+
+	}
+
+	private static class SaveToTemplate extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new SaveToTemplate(chartFrame);
+		}
+
+		private SaveToTemplate(ChartFrame chartFrame)
+		{
+			super("SaveToTemplate", false);
+			this.chartFrame = chartFrame;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			InputLine descriptor = new DialogDescriptor.InputLine(
+				"Template Name:", "Save to Template");
+			descriptor.setOptions(new Object[]
+			{
+				DialogDescriptor.OK_OPTION,
+				DialogDescriptor.CANCEL_OPTION
+			});
+			Object ret = DialogDisplayer.getDefault().notify(descriptor);
+			if (ret.equals(DialogDescriptor.OK_OPTION))
+			{
+				String name = descriptor.getInputText();
+				if (!TemplateManager.getDefault().templateExists(name))
+					TemplateManager.getDefault().saveToTemplate(name, chartFrame);
+				else
+				{
+					Confirmation confirmation = new DialogDescriptor.Confirmation(
+						"<html>This template already exists!<br>Do you want to overwrite this template?</html>", "Overwrite");
+					Object obj = DialogDisplayer.getDefault().notify(confirmation);
+					if (obj.equals(DialogDescriptor.OK_OPTION))
+					{
+						TemplateManager.getDefault().removeTemplate(name);
+						TemplateManager.getDefault().saveToTemplate(name, chartFrame);
+					}
 				}
 			}
 		}

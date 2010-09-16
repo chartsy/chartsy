@@ -15,6 +15,8 @@ import org.chartsy.main.favorites.nodes.StockAPI;
 import org.chartsy.main.favorites.nodes.StockAPINode;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.managers.ChartManager;
+import org.chartsy.main.managers.TemplateManager;
+import org.chartsy.main.templates.Template;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.NodeTreeModel;
 import org.openide.explorer.view.TreeView;
@@ -72,6 +74,8 @@ public class FavoritesTreeView extends TreeView
 
 							if (stock != null)
 							{
+								Template template = TemplateManager.getDefault().getTemplate(
+									TemplateManager.getDefault().getDefaultTemplate());
 								ChartData chartData = new ChartData();
 								chartData.setStock(stock.getStock());
 								chartData.setDataProvider(stock.getDataProvider());
@@ -79,7 +83,7 @@ public class FavoritesTreeView extends TreeView
 								chartData.setChart(
 									ChartManager.getDefault().getChart("Candle Stick"));
 
-								ChartFrame chartFrame = new ChartFrame(chartData);
+								ChartFrame chartFrame = new ChartFrame(chartData, template);
 								chartFrame.open();
 								chartFrame.requestActive();
 							}

@@ -20,9 +20,15 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="org-chartsy-main-actions-TemplateManagerAction.instance">
+                <attr name="delegate" newvalue="org.chartsy.main.actions.TemplateManagerAction"/>
+                <attr name="displayName" bundlevalue="org.chartsy.main.actions.Bundle#CTL_TemplateManagerAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
         <folder name="Help">
-            <file name="org-chartsy-main-Register.instance" />
+            <file name="org-chartsy-main-Register.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
@@ -113,6 +119,14 @@
             </file>
             <file name="VariablesCustomizerAction.shadow_hidden">
                 <attr name="position" intvalue="400"/>
+            </file>
+            <file name="org-chartsy-main-actions-TemplateManagerAction-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1150"/>
+            </file>
+            <file name="org-chartsy-main-actions-TemplateManagerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-chartsy-main-actions-TemplateManagerAction.instance"/>
+                <attr name="position" intvalue="1200"/>
             </file>
             <file name="org-netbeans-modules-favorites-templates-TemplatesAction.shadow_hidden">
                 <attr name="position" intvalue="1000"/>

@@ -157,6 +157,7 @@
             </test-dependencies>
             <public-packages>
                 <package>org.chartsy.main</package>
+                <package>org.chartsy.main.actions</package>
                 <package>org.chartsy.main.axis</package>
                 <package>org.chartsy.main.chart</package>
                 <package>org.chartsy.main.data</package>
@@ -170,8 +171,12 @@
                 <package>org.chartsy.main.intervals</package>
                 <package>org.chartsy.main.managers</package>
                 <package>org.chartsy.main.resources</package>
+                <package>org.chartsy.main.templates</package>
                 <package>org.chartsy.main.utils</package>
                 <package>org.chartsy.main.utils.autocomplete</package>
+                <package>org.chartsy.main.welcome</package>
+                <package>org.chartsy.main.welcome.content</package>
+                <package>org.chartsy.main.welcome.ui</package>
             </public-packages>
         </data>
     </configuration>

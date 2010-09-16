@@ -14,6 +14,7 @@ import org.chartsy.main.managers.IndicatorManager;
 import org.chartsy.main.managers.OverlayManager;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.managers.StockManager;
+import org.chartsy.main.managers.TemplateManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.PricePropertyEditor;
@@ -42,18 +43,6 @@ public class Installer extends ModuleInstall implements Runnable
 		addKeystore();
 		setPrintProperties();
 
-		PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
-		PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
-		PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
-
-		ProxyManager.getDefault();
-		DataProviderManager.getDefault();
-		ChartManager.getDefault();
-		IndicatorManager.getDefault();
-		OverlayManager.getDefault();
-		AnnotationManager.getDefault();
-		StockManager.getDefault();
-
 		boolean registred = chartsyPreferences.getBoolean("registred", false);
 		if (!registred) {
 			RegisterForm register = new RegisterForm(new JFrame(), true);
@@ -65,6 +54,19 @@ public class Installer extends ModuleInstall implements Runnable
     public @Override void restored()
     {
 		WindowManager.getDefault().invokeWhenUIReady(this);
+		
+		PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
+		PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
+		PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
+
+		ProxyManager.getDefault();
+		DataProviderManager.getDefault();
+		ChartManager.getDefault();
+		IndicatorManager.getDefault();
+		OverlayManager.getDefault();
+		AnnotationManager.getDefault();
+		TemplateManager.getDefault();
+		StockManager.getDefault();
     }
 
     public @Override boolean closing()

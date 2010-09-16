@@ -59,6 +59,59 @@ public final class ProxyManager
 		return client;
 	}
 
+	public String inputStringGET(String url, NameValuePair[] query)
+	{
+		String responce = "";
+		GetMethod method = new GetMethod(url);
+		method.setQueryString(query);
+		try
+		{
+			int status = client.executeMethod(method);
+			if (status != HttpStatus.SC_OK)
+				System.err.println(method.getStatusText());
+			else
+				responce = method.getResponseBodyAsString();
+			System.out.println(responce);
+		}
+		catch (IOException ex)
+		{
+			System.err.println(ex.getMessage());
+		}
+		finally
+		{
+			method.releaseConnection();
+		}
+		return responce;
+	}
+
+	public String inputStringPOST
+		(String url, NameValuePair[] query, NameValuePair[] request)
+	{
+		String responce = "";
+		PostMethod method = new PostMethod(url);
+		method.setQueryString(query);
+		method.setRequestBody(request);
+		
+		try
+		{
+			int status = client.executeMethod(method);
+			if (status != HttpStatus.SC_OK)
+				System.err.println(method.getStatusText());
+			else
+				responce = method.getResponseBodyAsString();
+		}
+		catch (IOException ex)
+		{
+			System.err.println(ex.getMessage());
+		}
+		finally
+		{
+			method.releaseConnection();
+		}
+		
+		return responce;
+	}
+
 	public InputStream inputStreamGET(String url)
 	{
 		InputStream stream = null;

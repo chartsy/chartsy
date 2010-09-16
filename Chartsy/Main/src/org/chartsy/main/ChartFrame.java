@@ -33,6 +33,7 @@ import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.resources.ResourcesUtils;
+import org.chartsy.main.templates.Template;
 import org.chartsy.main.utils.ChartNode;
 import org.chartsy.main.utils.MainActions;
 import org.chartsy.main.utils.SerialVersion;
@@ -65,6 +66,8 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     private ChartData chartData = null;
     private MainPanel mainPanel = null;
     private JScrollBar scrollBar = null;
+	private Template template = null;
+
     private boolean restored = false;
     private boolean focus = true;
     private boolean loadingFlag = false;
@@ -120,9 +123,14 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                     NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
         }
         chartData.getDataProvider().addDatasetListener((DataProviderListener) this);
-
         addMouseWheelListener((MouseWheelListener) this);
     }
+
+	public ChartFrame(ChartData chartData, Template template)
+	{
+		this(chartData);
+		this.template = template;
+	}
 
     private void initComponents()
     {
@@ -172,6 +180,17 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                 chartData.clearAnnotationsCount();
             }
         }
+		else
+		{
+			if (template != null)
+			{
+				chartProperties = template.getChartProperties();
+				synchronized (this)
+				{ getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators()); }
+				synchronized (this)
+				{ getSplitPanel().getChartPanel().setOverlays(template.getOverlays()); }
+			}
+		}
 
         history.setCurrent(new HistoryItem(
                 chartData.getStock(),
@@ -183,6 +202,30 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         componentFocused();
     }
 
+	public Template getTemplate()
+	{
+		return template;
+	}
+
+	public void setTemplate(Template template)
+	{
+		this.template = template;
+		this.chartProperties = template.getChartProperties();
+
+		// indicators
+		getSplitPanel().getIndicatorsPanel().removeAllIndicators();
+		getChartData().removeAllIndicatorsDatasetListeners();
+		getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
+
+		// overlays
+		getSplitPanel().getChartPanel().clearOverlays();
+		getChartData().removeAllOverlaysDatasetListeners();
+		getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
+
+		revalidate();
+		repaint();
+	}
+    
     public boolean getRestored()
     {
         return restored;
@@ -350,40 +393,18 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     public JPopupMenu getMenu()
     {
         JPopupMenu popup = new JPopupMenu();
-
-        // change interval
-        popup.add(MainActions.generateIntervalsMenu(this));
-
-        // change chart
-        popup.add(MainActions.generateChartsMenu(this));
-
-        // add indicators
-        popup.add(new JMenuItem(MainActions.openIndicators(this)));
-
-        // add overlays
-        popup.add(new JMenuItem(MainActions.openOverlays(this)));
-
-        // add annotation
-        popup.add(MainActions.generateAnnotationsMenu(this));
-
-        // export image
-        popup.add(new JMenuItem(MainActions.exportImage(this)));
-
-        // print
-        popup.add(new JMenuItem(MainActions.printChart(this)));
-
-        // chart settings
-        popup.add(new JMenuItem(MainActions.chartProperties(this)));
-
-        // hide/show toolbar
-        popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this)));
-
-        // add to favorites
-        if (!MainActions.isInFavorites(this))
-        {
-            popup.add(new JMenuItem(MainActions.addToFavorites(this)));
-        }
-
+        popup.add(MainActions.generateIntervalsMenu(this)); // change interval
+        popup.add(MainActions.generateChartsMenu(this)); // change chart
+        popup.add(new JMenuItem(MainActions.openIndicators(this))); // add indicators
+        popup.add(new JMenuItem(MainActions.openOverlays(this))); // add overlays
+        popup.add(MainActions.generateAnnotationsMenu(this)); // add annotation
+        popup.add(new JMenuItem(MainActions.exportImage(this))); // export image
+        popup.add(new JMenuItem(MainActions.printChart(this))); // print
+        popup.add(new JMenuItem(MainActions.chartProperties(this))); // chart settings
+        popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this))); // hide/show toolbar
+		if (!MainActions.isInFavorites(this))
+			popup.add(new JMenuItem(MainActions.addToFavorites(this))); // add to favorites
+		popup.add(MainActions.generateTemplatesMenu(this)); // save to template
         return popup;
     }
 

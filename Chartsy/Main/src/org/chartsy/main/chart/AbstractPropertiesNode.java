@@ -40,6 +40,11 @@ public abstract class AbstractPropertiesNode
         listener.addPropertyChangeListener((PropertyChangeListener) this);
     }
 
+	public AbstractPropertyListener getAbstractPropertyListener()
+	{
+		return getLookup().lookup(AbstractPropertyListener.class);
+	}
+
     public Sheet.Set[] getSets()
     {
         return new Sheet.Set[] {
@@ -62,7 +67,11 @@ public abstract class AbstractPropertiesNode
         return set;
     }
 
-    protected PropertySupport.Reflection getProperty(String name, String description, Class clazz, Class property, Class propertyEditor, String getMethod, String setMethod, final Object defaultValue) throws NoSuchMethodException
+    protected PropertySupport.Reflection getProperty
+		(String name, String description,
+		Class clazz, Class property, Class propertyEditor,
+		String getMethod, String setMethod,
+		final Object defaultValue) throws NoSuchMethodException
     {
         @SuppressWarnings(value = "unchecked")
         PropertySupport.Reflection reflection = new PropertySupport.Reflection(getLookup().lookup(clazz), property, getMethod, setMethod)

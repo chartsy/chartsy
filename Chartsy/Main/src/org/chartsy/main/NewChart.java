@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.chartsy.main.chart.Chart;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
@@ -14,6 +13,7 @@ import org.chartsy.main.exceptions.InvalidStockException;
 import org.chartsy.main.exceptions.RegistrationException;
 import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.intervals.DailyInterval;
+import org.chartsy.main.templates.Template;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -46,9 +46,11 @@ public class NewChart implements ActionListener
 		{
 			final Stock stock = dialog.getStock();
 			final DataProvider dataProvider = dialog.getDataProvider();
-			final Chart chart = dialog.getChart();
+			final Template template = dialog.getTemplate();
 
-			if (dataProvider != null && stock != null && chart != null)
+			if (dataProvider != null
+				&& stock != null
+				&& template != null)
 			{
 				final RequestProcessor.Task stockTask = RP.create(new Runnable()
 				{
@@ -91,7 +93,7 @@ public class NewChart implements ActionListener
 								public void run()
 								{
 									dataProvider.addStock(stock);
-									openNewChart(stock, dataProvider, chart);
+									openNewChart(stock, dataProvider, template);
 								}
 							});
 						}
@@ -123,17 +125,17 @@ public class NewChart implements ActionListener
 		}
 	}
 
-    private void openNewChart(Stock stock, DataProvider dataProvider, Chart chart)
+    private void openNewChart(Stock stock, DataProvider dataProvider, Template template)
     {
         newChart = true;
         ChartData cd = new ChartData();
         cd.setStock(stock);
-        cd.setChart(chart);
+        cd.setChart(template.getChart());
         cd.setDataProvider(dataProvider);
         cd.setInterval(new DailyInterval());
 		cd.setDataset(new Dataset());
 
-        ChartFrame chartFrame = new ChartFrame(cd);
+        ChartFrame chartFrame = new ChartFrame(cd, template);
         chartFrame.open();
         chartFrame.requestActive();
     }

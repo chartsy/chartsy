@@ -4,12 +4,12 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.text.AbstractDocument;
-import org.chartsy.main.chart.Chart;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Exchange;
 import org.chartsy.main.data.Stock;
-import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.TemplateManager;
+import org.chartsy.main.templates.Template;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
 import org.openide.windows.WindowManager;
@@ -25,7 +25,7 @@ public class NewChartDialog extends javax.swing.JDialog {
 
     private Stock stock = null;
     private DataProvider dataProvider = null;
-    private Chart chart = null;
+	private Template template = null;
    
     public NewChartDialog(java.awt.Frame parent, boolean modal)
     {
@@ -49,11 +49,10 @@ public class NewChartDialog extends javax.swing.JDialog {
             lstDataProvider.addItem(s);
         lstDataProvider.setSelectedItem(defaultDataProvider);
 
-        List<String> charts = ChartManager.getDefault().getCharts();
-        Collections.sort(charts);
-        lstChart.setMaximumRowCount(charts.size());
-        for (String s : charts)
-            lstChart.addItem(s);
+		Object[] templates = TemplateManager.getDefault().getTemplateNames();
+        for (Object temp : templates)
+            lstTemplate.addItem(temp);
+		lstTemplate.setSelectedItem(TemplateManager.getDefault().getDefaultTemplate());
 
         ((AbstractDocument) txtSymbol.getDocument()).setDocumentFilter(new UppercaseDocumentFilter());
 		completer = new StockAutoCompleter(txtSymbol);
@@ -70,9 +69,9 @@ public class NewChartDialog extends javax.swing.JDialog {
 		return dataProvider;
 	}
 
-    public Chart getChart() 
-    { 
-		return chart;
+	public Template getTemplate()
+	{
+		return template;
 	}
 
     @SuppressWarnings("unchecked")
@@ -81,10 +80,10 @@ public class NewChartDialog extends javax.swing.JDialog {
 
         mainPanel = new javax.swing.JPanel();
         lblSymbol = new javax.swing.JLabel();
-        lblChart = new javax.swing.JLabel();
+        lblTemplate = new javax.swing.JLabel();
         lblExchange = new javax.swing.JLabel();
         txtSymbol = new javax.swing.JTextField();
-        lstChart = new javax.swing.JComboBox();
+        lstTemplate = new javax.swing.JComboBox();
         lstExchange = new javax.swing.JComboBox();
         lblLogo = new javax.swing.JLabel();
         lstDataProvider = new javax.swing.JComboBox();
@@ -100,8 +99,8 @@ public class NewChartDialog extends javax.swing.JDialog {
         lblSymbol.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblSymbol.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.lblSymbol.text")); // NOI18N
 
-        lblChart.setFont(new java.awt.Font("Tahoma", 1, 11));
-        lblChart.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.lblChart.text")); // NOI18N
+        lblTemplate.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        lblTemplate.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.lblTemplate.text")); // NOI18N
 
         lblExchange.setFont(new java.awt.Font("Tahoma", 1, 11));
         lblExchange.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.lblExchange.text")); // NOI18N
@@ -145,7 +144,7 @@ public class NewChartDialog extends javax.swing.JDialog {
             }
         });
 
-        autocompleteLbl.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        autocompleteLbl.setFont(new java.awt.Font("Tahoma", 0, 10));
         autocompleteLbl.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.autocompleteLbl.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout mainPanelLayout = new org.jdesktop.layout.GroupLayout(mainPanel);
@@ -168,7 +167,7 @@ public class NewChartDialog extends javax.swing.JDialog {
                         .addContainerGap())
                     .add(mainPanelLayout.createSequentialGroup()
                         .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblChart)
+                            .add(lblTemplate)
                             .add(mainPanelLayout.createSequentialGroup()
                                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(lblDataProvider)
@@ -176,7 +175,7 @@ public class NewChartDialog extends javax.swing.JDialog {
                                 .add(20, 20, 20)
                                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(lstExchange, 0, 362, Short.MAX_VALUE)
-                                    .add(lstChart, 0, 362, Short.MAX_VALUE)
+                                    .add(lstTemplate, 0, 362, Short.MAX_VALUE)
                                     .add(lstDataProvider, 0, 362, Short.MAX_VALUE)
                                     .add(org.jdesktop.layout.GroupLayout.TRAILING, mainPanelLayout.createSequentialGroup()
                                         .add(btnNewChart)
@@ -205,8 +204,8 @@ public class NewChartDialog extends javax.swing.JDialog {
                     .add(lstExchange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblChart)
-                    .add(lstChart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(lblTemplate)
+                    .add(lstTemplate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(mainPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(btnCancel)
@@ -231,7 +230,7 @@ public class NewChartDialog extends javax.swing.JDialog {
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         stock = null;
         dataProvider = null;
-        chart = null;
+		template = null;
         setVisible(false);
 }//GEN-LAST:event_btnCancelActionPerformed
 
@@ -240,7 +239,7 @@ public class NewChartDialog extends javax.swing.JDialog {
 		dataProvider = DataProviderManager.getDefault().getDataProvider((String) lstDataProvider.getSelectedItem());
         Exchange exchange = dataProvider.getExchanges()[lstExchange.getSelectedIndex()];
         stock = new Stock(txtSymbol.getText(), exchange.getSufix());
-        chart = ChartManager.getDefault().getChart((String) lstChart.getSelectedItem());
+		template = TemplateManager.getDefault().getTemplate(lstTemplate.getSelectedItem());
         setVisible(false);
 }//GEN-LAST:event_btnNewChartActionPerformed
 
@@ -310,14 +309,14 @@ public class NewChartDialog extends javax.swing.JDialog {
     private javax.swing.JLabel autocompleteLbl;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnNewChart;
-    private javax.swing.JLabel lblChart;
     private javax.swing.JLabel lblDataProvider;
     private javax.swing.JLabel lblExchange;
     private javax.swing.JLabel lblLogo;
     private javax.swing.JLabel lblSymbol;
-    private javax.swing.JComboBox lstChart;
+    private javax.swing.JLabel lblTemplate;
     private javax.swing.JComboBox lstDataProvider;
     private javax.swing.JComboBox lstExchange;
+    private javax.swing.JComboBox lstTemplate;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JTextField txtSymbol;
     // End of variables declaration//GEN-END:variables

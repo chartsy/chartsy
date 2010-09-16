@@ -7,10 +7,14 @@ import java.awt.Stroke;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
 import org.chartsy.main.data.ChartData;
@@ -21,14 +25,18 @@ import org.chartsy.main.events.LogEvent;
 import org.chartsy.main.events.LogListener;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
+import org.chartsy.main.utils.XMLUtil;
+import org.chartsy.main.utils.XMLUtil.XMLTemplate;
 import org.openide.nodes.AbstractNode;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
  * @author viorel.gheba
  */
 public abstract class Indicator 
-        implements Serializable, DatasetListener, LogListener
+        implements Serializable, DatasetListener, LogListener, XMLTemplate
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -280,5 +288,58 @@ public abstract class Indicator
         ChartProperties cp = (ChartProperties) evt.getSource();
         logarithmic = cp.getAxisLogarithmicFlag();
     }
+
+	public void saveToTemplate(Document document, Element element)
+	{
+		AbstractPropertiesNode node = (AbstractPropertiesNode) getNode();
+		AbstractPropertyListener listener = node.getAbstractPropertyListener();
+		Field[] fields = listener.getClass().getDeclaredFields();
+		for (Field field : fields)
+		{
+			try
+			{
+				field.setAccessible(true);
+				if (field.getModifiers() == Modifier.PRIVATE)
+					XMLUtil.addProperty(document, element, field.getName(), field.get(listener));
+			}
+			catch (Exception ex)
+			{
+				Logger.getLogger(getName()).log(Level.SEVERE, "", ex);
+			}
+		}
+	}
+
+	public void loadFromTemplate(Element element)
+	{
+		AbstractPropertiesNode node = (AbstractPropertiesNode) getNode();
+		AbstractPropertyListener listener = node.getAbstractPropertyListener();
+		Field[] fields = listener.getClass().getDeclaredFields();
+		for (Field field : fields)
+		{
+			try
+			{
+				field.setAccessible(true);
+				if (field.getModifiers() == Modifier.PRIVATE)
+				{
+					if (field.getType().equals(String.class))
+						field.set(listener, XMLUtil.getStringProperty(element, field.getName()));
+					else if (field.getType().equals(int.class))
+						field.set(listener, XMLUtil.getIntegerProperty(element, field.getName()));
+					else if (field.getType().equals(double.class))
+						field.set(listener, XMLUtil.getDoubleProperty(element, field.getName()));
+					else if (field.getType().equals(float.class))
+						field.set(listener, XMLUtil.getFloatProperty(element, field.getName()));
+					else if (field.getType().equals(boolean.class))
+						field.set(listener, XMLUtil.getBooleanProperty(element, field.getName()));
+					else if (field.getType().equals(Color.class))
+						field.set(listener, XMLUtil.getColorProperty(element, field.getName()));
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.getLogger(getName()).log(Level.SEVERE, "", ex);
+			}
+		}
+	}
 
 }
