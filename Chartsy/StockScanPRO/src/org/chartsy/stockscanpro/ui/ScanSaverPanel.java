@@ -242,7 +242,7 @@ public class ScanSaverPanel extends JPanel
 				final Preferences preferences = NbPreferences.root().node("/org/chartsy/register");
 				final DataFolder dataFolder = scanSaver.getFolder();
 
-				HttpClient client = ProxyManager.getDefault().getHttpClient();
+				HttpClient client = ProxyManager.getDefault().httpClient();
 				PostMethod method = new PostMethod(
 					NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"));
 
@@ -261,11 +261,14 @@ public class ScanSaverPanel extends JPanel
 
 					client.executeMethod(method);
 					responce = method.getResponseBodyAsString();
-					method.releaseConnection();
 				}
 				catch (IOException ex)
 				{
 					Exceptions.printStackTrace(ex);
+				}
+				finally
+				{
+					method.releaseConnection();
 				}
 
 				if (responce.equals("DELETED"))
@@ -311,7 +314,7 @@ public class ScanSaverPanel extends JPanel
 					final Preferences preferences = NbPreferences.root().node("/org/chartsy/register");
 					final DataFolder dataFolder = scanSaver.getFolder();
 
-					HttpClient client = ProxyManager.getDefault().getHttpClient();
+					HttpClient client = ProxyManager.getDefault().httpClient();
 					PostMethod method = new PostMethod(
 						NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"));
 
@@ -331,11 +334,14 @@ public class ScanSaverPanel extends JPanel
 
 						client.executeMethod(method);
 						responce = method.getResponseBodyAsString();
-						method.releaseConnection();
 					}
 					catch (IOException ex)
 					{
 						Exceptions.printStackTrace(ex);
+					}
+					finally
+					{
+						method.releaseConnection();
 					}
 
 					if (responce.equals("ADDED"))
@@ -389,7 +395,7 @@ public class ScanSaverPanel extends JPanel
 					String scanTitle = encode(scanSaver.getScanTitle());
 					String scan = encode(scanSaver.getScan());
 
-					HttpClient client = ProxyManager.getDefault().getHttpClient();
+					HttpClient client = ProxyManager.getDefault().httpClient();
 					PostMethod method = new PostMethod(
 						NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"));
 
@@ -410,11 +416,14 @@ public class ScanSaverPanel extends JPanel
 
 						client.executeMethod(method);
 						responce = method.getResponseBodyAsString();
-						method.releaseConnection();
 					}
 					catch (IOException ex)
 					{
 						Exceptions.printStackTrace(ex);
+					}
+					finally
+					{
+						method.releaseConnection();
 					}
 
 					if (responce.equals("SAVED"))

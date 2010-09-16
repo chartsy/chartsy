@@ -163,8 +163,9 @@ public final class StockScreenerAction implements ActionListener
 
 	private int getUserId()
 	{
-		HttpClient client = ProxyManager.getDefault().getHttpClient();
-		GetMethod method = new GetMethod(NbBundle.getMessage(StockScreenerAction.class, "StockScanPRO_URL"));
+		HttpClient client = ProxyManager.getDefault().httpClient();
+		GetMethod method = new GetMethod(
+			NbBundle.getMessage(StockScreenerAction.class, "StockScanPRO_URL"));
 		int id = 0;
 
 		try
@@ -180,11 +181,14 @@ public final class StockScreenerAction implements ActionListener
 
 			client.executeMethod(method);
 			id = Integer.parseInt(method.getResponseBodyAsString());
-			method.releaseConnection();
 		}
 		catch (IOException ex)
 		{
 			Exceptions.printStackTrace(ex);
+		}
+		finally
+		{
+			method.releaseConnection();
 		}
 		
 		return id;

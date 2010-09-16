@@ -3,8 +3,6 @@ package org.chartsy.stockscanpro.actions;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,10 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.stockscanpro.ui.QueryPanel;
@@ -24,7 +19,6 @@ import org.chartsy.stockscanpro.ui.ScanSaverPanel;
 import org.chartsy.stockscanpro.ui.StockScanToolbar;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.LifecycleManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.XMLFileSystem;
@@ -85,26 +79,20 @@ public class SaveScansAction implements ActionListener
 		try
 		{
 			FileObject dest = FileUtil.createData(FileUtils.stockScanFile("saveScans.xml"));
-
-			HttpClient client = ProxyManager.getDefault().getHttpClient();
-			HttpMethod method = new GetMethod(NbBundle.getMessage(LoadScansAction.class, "StockScanPRO_URL"));
-
-			method.setQueryString(new NameValuePair[]
+			NameValuePair[] query = new NameValuePair[]
 			{
 				new NameValuePair("option", "com_chartsy"),
 				new NameValuePair("view", "savescans"),
 				new NameValuePair("format", "raw"),
 				new NameValuePair("username", preferences.get("username", "")),
 				new NameValuePair("passwd", preferences.get("password", ""))
-			});
+			};
 
-			client.executeMethod(method);
-
-			InputStream inputStream = method.getResponseBodyAsStream();
+			InputStream inputStream = ProxyManager.getDefault().inputStreamPOST(
+				NbBundle.getMessage(LoadScansAction.class, "StockScanPRO_URL"),
+				query);
 			OutputStream outputStream = dest.getOutputStream();
 			FileUtil.copy(inputStream, outputStream);
-
-			method.releaseConnection();
 			inputStream.close();
 			outputStream.close();
 

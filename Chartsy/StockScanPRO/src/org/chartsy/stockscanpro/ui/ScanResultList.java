@@ -21,6 +21,8 @@ import org.chartsy.main.data.Stock;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.TemplateManager;
+import org.chartsy.main.templates.Template;
 import org.openide.util.NbBundle;
 
 /**
@@ -70,11 +72,14 @@ public class ScanResultList extends JList
 					cd.setDataProvider(dataProvider);
 					cd.setInterval(new DailyInterval());
 
+					final Template template = TemplateManager.getDefault().getTemplate(
+						TemplateManager.getDefault().getDefaultTemplate());
+
 					SwingUtilities.invokeLater(new Runnable()
 					{
 						public void run()
 						{
-							ChartFrame chartFrame = new ChartFrame(cd);
+							ChartFrame chartFrame = new ChartFrame(cd, template);
 							chartFrame.open();
 						}
 					});

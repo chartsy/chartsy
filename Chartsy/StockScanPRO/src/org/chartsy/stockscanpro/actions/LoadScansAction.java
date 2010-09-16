@@ -11,10 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.stockscanpro.ui.QueryPanel;
@@ -89,25 +86,20 @@ public class LoadScansAction implements ActionListener
 		try
 		{
 			FileObject dest = FileUtil.createData(FileUtils.stockScanFile("loadScans.xml"));
-
-			HttpClient client = ProxyManager.getDefault().getHttpClient();
-			HttpMethod method = new GetMethod(NbBundle.getMessage(LoadScansAction.class, "StockScanPRO_URL"));
-
-			method.setQueryString(new NameValuePair[]
+			NameValuePair[] query = new NameValuePair[]
 			{
 				new NameValuePair("option", "com_chartsy"),
 				new NameValuePair("view", "loadscans"),
 				new NameValuePair("format", "raw"),
 				new NameValuePair("username", preferences.get("username", "")),
 				new NameValuePair("passwd", preferences.get("password", ""))
-			});
+			};
 
-			client.executeMethod(method);
-
-			InputStream inputStream = method.getResponseBodyAsStream();
+			InputStream inputStream = ProxyManager.getDefault().inputStreamPOST(
+				NbBundle.getMessage(LoadScansAction.class, "StockScanPRO_URL"),
+				query);
 			OutputStream outputStream = dest.getOutputStream();
 			FileUtil.copy(inputStream, outputStream);
-			method.releaseConnection();
 			inputStream.close();
 			outputStream.close();
 			copied = true;

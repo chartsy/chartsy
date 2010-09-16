@@ -3,23 +3,20 @@ package org.chartsy.stockscanpro.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.stockscanpro.actions.SaveScansAction;
 import org.chartsy.stockscanpro.ui.JCheckList.CheckableItem;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.Cancellable;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
@@ -59,6 +56,7 @@ public class RunScanPanel extends JPanel
 		private final RequestProcessor RP
 			= new RequestProcessor("interruptible tasks", 1, true);
 		private String responce;
+		private InputStream stream;
 
 		public void actionPerformed(ActionEvent e)
 		{
@@ -88,38 +86,26 @@ public class RunScanPanel extends JPanel
 			{
 				public void run()
 				{
-					HttpClient client = ProxyManager.getDefault().getHttpClient();
-					PostMethod method = new PostMethod(NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"));
-
-					try
+					NameValuePair[] query = new NameValuePair[]
 					{
-						method.setQueryString(new NameValuePair[]
-						{
-							new NameValuePair("option", "com_chartsy"),
-							new NameValuePair("view", "scanresults"),
-							new NameValuePair("format", "raw"),
-							new NameValuePair("username", preferences.get("username", "")),
-							new NameValuePair("passwd", preferences.get("password", ""))
-						});
-
-						method.setRequestBody(new NameValuePair[]
-						{
-							new NameValuePair("date", date),
-							new NameValuePair("generatedQuery", generatedQuery),
-							new NameValuePair("initialQuery", initialQuery),
-							new NameValuePair("resultsType", "csv_export"),
-							new NameValuePair("scanExpression", scanExpresion),
-							new NameValuePair("scanTitle", scanTtl)
-						});
-
-						client.executeMethod(method);
-						responce = method.getResponseBodyAsString();
-						method.releaseConnection();
-					}
-					catch (IOException ex)
+						new NameValuePair("option", "com_chartsy"),
+						new NameValuePair("view", "scanresults"),
+						new NameValuePair("format", "raw"),
+						new NameValuePair("username", preferences.get("username", "")),
+						new NameValuePair("passwd", preferences.get("password", ""))
+					};
+					NameValuePair[] request = new NameValuePair[]
 					{
-						Exceptions.printStackTrace(ex);
-					}
+						new NameValuePair("date", date),
+						new NameValuePair("generatedQuery", generatedQuery),
+						new NameValuePair("initialQuery", initialQuery),
+						new NameValuePair("resultsType", "csv_export"),
+						new NameValuePair("scanExpression", scanExpresion),
+						new NameValuePair("scanTitle", scanTtl)
+					};
+					responce = ProxyManager.getDefault().inputStringPOST(
+						NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"),
+						query, request);
 				}
 			});
 
