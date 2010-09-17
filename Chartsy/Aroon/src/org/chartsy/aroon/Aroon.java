@@ -33,7 +33,6 @@ public class Aroon extends Indicator
 {
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public static int PERIOD = 10;
     public static final String FULL_NAME = "Aroon";
     public static final String UP_LINE = "upline";
     public static final String DOWN_LINE = "downline";
@@ -49,11 +48,11 @@ public class Aroon extends Indicator
     private transient Core core;
 
     //variables specific to this indicator
-    private int period = PERIOD;
+    private int period;
     private double[] allHighs;
     private double[] allLows;
 
-    //the next variable is used for ultra-fast calculations
+    //the next variable is used for holding the new calculated data
     private Dataset calculatedDatasetUp;
     private Dataset calculatedDatasetDown;
 
