@@ -27,7 +27,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static int STROKE_INDEX = 0;
     public static int DEFAULT_PERIOD = 10;
     public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
-    public static int ZERO_LINE_STROKE_INDEX = 0;
+    public static int ZERO_LINE_STROKE_INDEX = 1;
     public static boolean ZERO_LINE_VISIBILITY = true;
 
     private String label = LABEL;

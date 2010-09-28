@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.trix
+OpenIDE-Module-Localizing-Bundle: org/chartsy/trix/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3.0.0
+
