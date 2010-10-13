@@ -18,7 +18,7 @@ public class OverlayProperties
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public static final int PERIOD = 20;
+    public static final int PERIOD = 50;
     public static final String PRICE = Dataset.CLOSE;
     public static final String LABEL = "SMA";
     public static final boolean MARKER = true;
