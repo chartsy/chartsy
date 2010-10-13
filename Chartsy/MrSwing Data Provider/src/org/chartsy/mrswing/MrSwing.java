@@ -41,160 +41,172 @@ public class MrSwing
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-	private static final Logger LOG
-		= Logger.getLogger(MrSwing.class.getPackage().getName());
+    private static final Logger LOG = Logger.getLogger(MrSwing.class.getPackage().getName());
 
     public MrSwing()
     {
-		super(NbBundle.getBundle(MrSwing.class), false);
+        super(NbBundle.getBundle(MrSwing.class), false);
         usedCookies.clear();
         usedCookies.add("PHPSESSID");
         usedCookies.add("amember_nr");
     }
 
-	@Override public void setStockCompanyName(Stock stock)
-	throws InvalidStockException, StockNotFoundException, RegistrationException, IOException
-	{
-		if (hasStock(stock))
-		{
-			System.out.println("Stock Found");
-			stock.setCompanyName(getStock(stock).getCompanyName());
-			return;
-		}
-
-		BufferedReader in = ProxyManager.getDefault()
-			.bufferReaderGET(getStockURL(stock));
-
-		if (in == null)
-			throw new StockNotFoundException();
-
-		String firstLine = in.readLine();
-		if (!firstLine.equals("OK"))
-			throw new RegistrationException(
-				NbBundle.getMessage(MrSwing.class, "MSG_Registration"));
-
-		String inputLine = in.readLine();
-		if (inputLine.equals("0"))
-			throw new InvalidStockException();
-
-		stock.setCompanyName(inputLine);
-	}
-
-    public Stock getStock(String symbol, String exchange)
+    @Override
+    public int getRefreshInterval()
     {
-        Stock stock = new Stock(symbol, exchange);
-        String url = getStockURL(stock);
-		return stock;
+        return 5;
+    }
+
+
+    @Override
+    public String fetchCompanyName(Stock stock)
+            throws InvalidStockException, StockNotFoundException, RegistrationException, IOException
+    {
+        BufferedReader in = ProxyManager.getDefault().bufferReaderGET(getStockURL(stock));
+
+        if (in == null)
+        {
+            throw new StockNotFoundException();
+        }
+
+        String firstLine = in.readLine();
+        if (!firstLine.equals("OK"))
+        {
+            throw new RegistrationException(
+                    NbBundle.getMessage(MrSwing.class, "MSG_Registration"));
+        }
+
+        String inputLine = in.readLine();
+        if (inputLine.equals("0"))
+        {
+            throw new InvalidStockException();
+        }
+
+        return inputLine;
     }
 
     public Dataset getData(Stock stock, Interval interval)
     {
-        List<DataItem> items = new ArrayList<DataItem>();
-        DateCompare compare = new DateCompare();
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        BufferedReader in = null;
-        try
+        synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
         {
-            in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval));
-            if (in != null)
+            List<DataItem> items = new ArrayList<DataItem>();
+            DateCompare compare = new DateCompare();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            BufferedReader in = null;
+            try
             {
+                in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval));
+                if (in != null)
+                {
                 String inputLine = in.readLine();
                 if (inputLine.equals("OK")) // check first line
                 {
-                    in.readLine(); // ignore first 2 lines
-                    while ((inputLine = in.readLine()) != null)
-                    {
-						String[] values = inputLine.split(",");
-                        long time = df.parse(values[0]).getTime();
-                        double open = Double.parseDouble(values[1]);
-                        double high = Double.parseDouble(values[2]);
-                        double low = Double.parseDouble(values[3]);
-                        double close = Double.parseDouble(values[4]);
-                        double volume = Double.parseDouble(values[5]);
-                        items.add(new DataItem(time, open, high, low, close, volume));
-                    }
-                    Collections.sort(items, compare);
-                    return new Dataset(items);
+                in.readLine(); // ignore first 2 lines
+                while ((inputLine = in.readLine()) != null)
+                {
+                String[] values = inputLine.split(",");
+                long time = df.parse(values[0]).getTime();
+                double open = Double.parseDouble(values[1]);
+                double high = Double.parseDouble(values[2]);
+                double low = Double.parseDouble(values[3]);
+                double close = Double.parseDouble(values[4]);
+                double volume = Double.parseDouble(values[5]);
+                items.add(new DataItem(time, open, high, low, close, volume));
+                }
+                Collections.sort(items, compare);
+                return new Dataset(items);
+                }
+                }
+            } catch (Exception ex)
+            {
+                LOG.log(Level.WARNING, null, ex);
+            } finally
+            {
+                try
+                {
+                    in.close();
+                } catch (IOException ex)
+                {
+                    LOG.log(Level.WARNING, "", ex);
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            LOG.log(Level.WARNING, null, ex);
-        }
-		finally
-		{
-			try {in.close();}
-			catch (IOException ex) { LOG.log(Level.WARNING, "", ex); }
-		}
 
-        return null;
+            return null;
+        }
     }
 
     public Dataset getLastDataItem(Stock stock, Interval interval, Dataset dataset)
     {
-		Dataset result = getRegisteredDataset(stock, interval);
-		if (result != null)
-		{
-			int last = dataset.getLastIndex();
-			DataItem newItem = result.getDataItem(result.getLastIndex());
-			DataItem oldItem = dataset.getDataItem(dataset.getLastIndex());
+        synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
+        {
+            Dataset result = getRegisteredDataset(stock, interval);
+            if (result != null)
+            {
+                int last = dataset.getLastIndex();
+                DataItem newItem = result.getDataItem(result.getLastIndex());
+                DataItem oldItem = dataset.getDataItem(dataset.getLastIndex());
 
-			if (newItem.getTime() != oldItem.getTime())
-			{
-				dataset.addDataItem(newItem);
-			}
-			else
-			{
-				dataset.setDataItem(last, newItem);
-			}
-		}
-        return dataset;
+                if (newItem.getTime() != oldItem.getTime())
+                {
+                    dataset.addDataItem(newItem);
+                } else
+                {
+                    dataset.setDataItem(last, newItem);
+                }
+            }
+            return dataset;
+        }
     }
 
     private Dataset getRegisteredDataset(Stock stock, Interval interval)
     {
-        List<DataItem> items = new ArrayList<DataItem>();
-        DateCompare compare = new DateCompare();
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        BufferedReader in = null;
-
-        try
+        synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
         {
-            in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval)+"&limit=1");
+            List<DataItem> items = new ArrayList<DataItem>();
+            DateCompare compare = new DateCompare();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            BufferedReader in = null;
 
-            if (in != null)
+            try
             {
-                String inputLine = in.readLine();
-                if (inputLine.equals("OK")) // check first line
+                in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval) + "&limit=1");
+
+                if (in != null)
                 {
-                    in.readLine(); // ignore first 2 lines
-                    while ((inputLine = in.readLine()) != null)
+                    String inputLine = in.readLine();
+                    if (inputLine.equals("OK")) // check first line
                     {
-						String[] values = inputLine.split(",");
-                        long time = df.parse(values[0]).getTime();
-                        double open = Double.parseDouble(values[1]);
-                        double high = Double.parseDouble(values[2]);
-                        double low = Double.parseDouble(values[3]);
-                        double close = Double.parseDouble(values[4]);
-                        double volume = Double.parseDouble(values[5]);
-                        items.add(new DataItem(time, open, high, low, close, volume));
+                        in.readLine(); // ignore first 2 lines
+                        while ((inputLine = in.readLine()) != null)
+                        {
+                            String[] values = inputLine.split(",");
+                            long time = df.parse(values[0]).getTime();
+                            double open = Double.parseDouble(values[1]);
+                            double high = Double.parseDouble(values[2]);
+                            double low = Double.parseDouble(values[3]);
+                            double close = Double.parseDouble(values[4]);
+                            double volume = Double.parseDouble(values[5]);
+                            items.add(new DataItem(time, open, high, low, close, volume));
+                        }
+                        Collections.sort(items, compare);
+                        return new Dataset(items);
                     }
-                    Collections.sort(items, compare);
-                    return new Dataset(items);
+                }
+            } catch (Exception ex)
+            {
+                LOG.log(Level.WARNING, null, ex);
+            } finally
+            {
+                try
+                {
+                    in.close();
+                } catch (IOException ex)
+                {
+                    LOG.log(Level.WARNING, null, ex);
                 }
             }
+            return null;
         }
-        catch (Exception ex)
-        {
-            LOG.log(Level.WARNING, null, ex);
-        }
-		finally
-		{
-			try { in.close(); }
-			catch (IOException ex) { LOG.log(Level.WARNING, null, ex); }
-		}
-        return null;
     }
 
     private String getUsername()
@@ -226,18 +238,17 @@ public class MrSwing
             String inputLine;
             while ((inputLine = in.readLine()) != null)
             {
-                
+
                 StringTokenizer st = new StringTokenizer(inputLine, ":");
                 String key = st.nextToken();
-				String company = st.nextToken();
-				String exchange = st.nextToken();
+                String company = st.nextToken();
+                String exchange = st.nextToken();
                 result.add(new StockNode(key, company, exchange));
             }
 
             in.close();
             method.releaseConnection();
-        }
-        catch (IOException ex)
+        } catch (IOException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
@@ -249,66 +260,61 @@ public class MrSwing
     {
         try
         {
-			return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[] 
-			{
-				URLEncoder.encode(stock.getKey(), "UTF-8"),
-				getUsername(),
-				getPassword()
-			});
-        }
-        catch (UnsupportedEncodingException ex)
+            return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[]
+                    {
+                        URLEncoder.encode(stock.getKey(), "UTF-8"),
+                        getUsername(),
+                        getPassword()
+                    });
+        } catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
-        return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[] 
-		{
-			stock.getKey(),
-			getUsername(),
-			getPassword()
-		});
+        return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[]
+                {
+                    stock.getKey(),
+                    getUsername(),
+                    getPassword()
+                });
     }
 
     private String getDataURL(Stock stock, Interval interval)
     {
         try
         {
-			return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
-			{
-				URLEncoder.encode(stock.getKey(), "UTF-8"),
-				URLEncoder.encode(interval.getTimeParam(), "UTF-8"),
-				getUsername(),
-				getPassword()
-			});
-        }
-        catch (UnsupportedEncodingException ex)
+            return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
+                    {
+                        URLEncoder.encode(stock.getKey(), "UTF-8"),
+                        URLEncoder.encode(interval.getTimeParam(), "UTF-8"),
+                        getUsername(),
+                        getPassword()
+                    });
+        } catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
-        return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[] 
-		{
-			stock.getKey(),
-			interval.getTimeParam(),
-			getUsername(),
-			getPassword()
-		});
+        return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
+                {
+                    stock.getKey(),
+                    interval.getTimeParam(),
+                    getUsername(),
+                    getPassword()
+                });
     }
 
     private String getAutocompleteURL(String word)
     {
         try
         {
-			return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", URLEncoder.encode(word, "UTF-8"));
-        }
-        catch (UnsupportedEncodingException ex)
+            return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", URLEncoder.encode(word, "UTF-8"));
+        } catch (UnsupportedEncodingException ex)
         {
             LOG.log(Level.SEVERE, null, ex);
         }
 
         return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", word);
     }
-
     private List<String> usedCookies = new ArrayList<String>();
-
 }
