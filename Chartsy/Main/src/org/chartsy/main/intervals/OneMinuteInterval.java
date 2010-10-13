@@ -16,9 +16,10 @@ public class OneMinuteInterval extends Interval implements Serializable
     public OneMinuteInterval()
     {
         super("1 Min", true);
-		timeParam = "1";
+        this.timeParam = "1";
     }
 
+    @Override
     public long startTime()
     {
         int t;
@@ -45,14 +46,15 @@ public class OneMinuteInterval extends Interval implements Serializable
         return c.getTimeInMillis();
     }
 
+    @Override
     public String getTimeParam()
     {
-        return "1";
+        return this.timeParam;
     }
 
+    @Override
     public int getLengthInSeconds()
     {
         return 60;
     }
-
 }

@@ -46,9 +46,8 @@ import org.openide.util.NbBundle;
  */
 public class ChartPanel extends JLayeredPane implements Serializable
 {
-    
-    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
     private JLabel stockInfo;
@@ -85,47 +84,63 @@ public class ChartPanel extends JLayeredPane implements Serializable
         {
             Stock stock = chartFrame.getChartData().getStock();
 
-			String stockInfoText = "";
-			if (stock.hasCompanyName())
-				stockInfoText = NbBundle.getMessage(
-					ChartPanel.class,
-					"LBL_StockInfo",
-					new String[]
-				{
-					stock.getKey(),
-					stock.getCompanyName(),
-					chartFrame.getChartData().getDataProvider().getName()
-				});
-			else
-				stockInfoText = NbBundle.getMessage(
-					ChartPanel.class,
-					"LBL_StockInfoNoCompany",
-					new String[]
-				{
-					stock.getKey(),
-					chartFrame.getChartData().getDataProvider().getName()
-				});
+            String stockInfoText = "";
+            if (stock.hasCompanyName())
+            {
+                stockInfoText = NbBundle.getMessage(
+                        ChartPanel.class,
+                        "LBL_StockInfo",
+                        new String[]
+                        {
+                            stock.getKey(),
+                            stock.getCompanyName(),
+                            chartFrame.getChartData().getInterval().getName(),
+                            chartFrame.getChartData().getDataProvider().getName()
+                        });
+            } else
+            {
+                stockInfoText = NbBundle.getMessage(
+                        ChartPanel.class,
+                        "LBL_StockInfoNoCompany",
+                        new String[]
+                        {
+                            stock.getKey(),
+                            chartFrame.getChartData().getInterval().getName(),
+                            chartFrame.getChartData().getDataProvider().getName()
+                        });
+            }
 
-			stockInfo.setText(stockInfoText);
-        }
-        else
+            stockInfo.setText(stockInfoText);
+        } else
         {
             String stockInfoText = NbBundle.getMessage(
-				ChartPanel.class,
-				"LBL_StockInfoNoData");
-			stockInfo.setText(stockInfoText);
+                    ChartPanel.class,
+                    "LBL_StockInfoNoData");
+            stockInfo.setText(stockInfoText);
         }
 
         setOpaque(false);
-        setLayout(new LayoutManager() {
+        setLayout(new LayoutManager()
+        {
+
             public void addLayoutComponent(String name, Component comp)
-            {}
+            {
+            }
+
             public void removeLayoutComponent(Component comp)
-            {}
+            {
+            }
+
             public Dimension preferredLayoutSize(Container parent)
-            {return new Dimension(0, 0);}
+            {
+                return new Dimension(0, 0);
+            }
+
             public Dimension minimumLayoutSize(Container parent)
-            {return new Dimension(0, 0);}
+            {
+                return new Dimension(0, 0);
+            }
+
             public void layoutContainer(Container parent)
             {
                 int width = parent.getWidth();
@@ -168,19 +183,26 @@ public class ChartPanel extends JLayeredPane implements Serializable
         return chartFrame.getChartData().getVisibleRange();
     }
 
-    public @Override void paint(Graphics g)
+    public
+    @Override
+    void paint(Graphics g)
     {
         Font font = chartFrame.getChartProperties().getFont();
         font = font.deriveFont(font.getStyle() ^ Font.BOLD);
-		if (!stockInfo.getFont().equals(font))
-			stockInfo.setFont(font);
-		
-		if (!stockInfo.getForeground()
-			.equals(chartFrame.getChartProperties().getFontColor()))
-			stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
+        if (!stockInfo.getFont().equals(font))
+        {
+            stockInfo.setFont(font);
+        }
+
+        if (!stockInfo.getForeground().equals(chartFrame.getChartProperties().getFontColor()))
+        {
+            stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
+        }
 
         if (!overlayToolboxesUpdated)
+        {
             updateOverlayToolbar();
+        }
 
         Graphics2D g2 = (Graphics2D) g.create();
         setDoubleBuffered(true);
@@ -218,28 +240,45 @@ public class ChartPanel extends JLayeredPane implements Serializable
         {
             Stock stock = chartFrame.getChartData().getStock();
 
-			String stockInfoText = "";
-			if (stock.hasCompanyName())
-				stockInfoText = NbBundle.getMessage(
-					ChartPanel.class,
-					"LBL_StockInfo",
-					new String[] {stock.getKey(), stock.getCompanyName()});
-			else
-				stockInfoText = NbBundle.getMessage(
-					ChartPanel.class,
-					"LBL_StockInfoNoCompany",
-					stock.getKey());
+            String stockInfoText = "";
+            if (stock.hasCompanyName())
+            {
+                stockInfoText = NbBundle.getMessage(
+                        ChartPanel.class,
+                        "LBL_StockInfo",
+                        new String[]
+                        {
+                            stock.getKey(),
+                            stock.getCompanyName(),
+                            chartFrame.getChartData().getInterval().getName(),
+                            chartFrame.getChartData().getDataProvider().getName()
+                        });
+            } else
+            {
+                stockInfoText = NbBundle.getMessage(
+                        ChartPanel.class,
+                        "LBL_StockInfoNoCompany",
+                        new String[]
+                        {
+                            stock.getKey(),
+                            chartFrame.getChartData().getInterval().getName(),
+                            chartFrame.getChartData().getDataProvider().getName()
+                        });
+            }
 
             if (!stockInfo.getText().equals(stockInfoText))
-				stockInfo.setText(stockInfoText);
-        }
-        else
+            {
+                stockInfo.setText(stockInfoText);
+            }
+        } else
         {
-			String stockInfoText = NbBundle.getMessage(
-				ChartPanel.class,
-				"LBL_StockInfoNoData");
-			if (!stockInfo.getText().equals(stockInfoText))
-				stockInfo.setText(stockInfoText);
+            String stockInfoText = NbBundle.getMessage(
+                    ChartPanel.class,
+                    "LBL_StockInfoNoData");
+            if (!stockInfo.getText().equals(stockInfoText))
+            {
+                stockInfo.setText(stockInfoText);
+            }
         }
     }
 
@@ -261,14 +300,18 @@ public class ChartPanel extends JLayeredPane implements Serializable
     {
         List<Overlay> list = new ArrayList<Overlay>();
         for (Overlay overlay : overlays)
+        {
             list.add(overlay);
+        }
         return list;
     }
 
     public Overlay getOverlay(int index)
     {
         if (index < 0 || index > overlays.size())
+        {
             return null;
+        }
         return overlays.get(index);
     }
 
@@ -298,7 +341,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
         overlayToolboxesUpdated = false;
     }
 
-    public void updateOverlayToolbar()
+    public synchronized void updateOverlayToolbar()
     {
         int width = 0;
         int height = 0;
@@ -322,7 +365,9 @@ public class ChartPanel extends JLayeredPane implements Serializable
         overlayToolboxes.setBounds(overlayToolboxes.getX(), overlayToolboxes.getY(), width, height);
     }
 
-    public @Override Rectangle getBounds()
+    public
+    @Override
+    Rectangle getBounds()
     {
         return new Rectangle(0, 0, getWidth(), getHeight());
     }
@@ -359,13 +404,19 @@ public class ChartPanel extends JLayeredPane implements Serializable
 
             addMouseListener(new MouseAdapter()
             {
-                public @Override void mouseEntered(MouseEvent e)
+
+                public
+                @Override
+                void mouseEntered(MouseEvent e)
                 {
                     mouseOver = true;
                     revalidate();
                     repaint();
                 }
-                public @Override void mouseExited(MouseEvent e)
+
+                public
+                @Override
+                void mouseExited(MouseEvent e)
                 {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     mouseOver = false;
@@ -375,12 +426,16 @@ public class ChartPanel extends JLayeredPane implements Serializable
             });
         }
 
-        public @Override int getWidth()
+        public
+        @Override
+        int getWidth()
         {
             return getLayout().preferredLayoutSize(this).width;
         }
 
-        public @Override int getHeight()
+        public
+        @Override
+        int getHeight()
         {
             return getLayout().preferredLayoutSize(this).height;
         }
@@ -406,7 +461,9 @@ public class ChartPanel extends JLayeredPane implements Serializable
             repaint();
         }
 
-        public @Override void paint(Graphics g)
+        public
+        @Override
+        void paint(Graphics g)
         {
             overlayLabel.setFont(ChartPanel.this.chartFrame.getChartProperties().getFont());
             overlayLabel.setForeground(ChartPanel.this.chartFrame.getChartProperties().getFontColor());
@@ -438,7 +495,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
         {
 
             private static final long serialVersionUID = SerialVersion.APPVERSION;
-            
+
             public OverlayToolboxButton(Action action)
             {
                 super(action);
@@ -448,12 +505,16 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 setMargin(new Insets(0, 0, 0, 0));
                 setBorder(new Border()
                 {
+
                     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
-                    {}
+                    {
+                    }
+
                     public Insets getBorderInsets(Component c)
                     {
                         return new Insets(0, 2, 0, 2);
                     }
+
                     public boolean isBorderOpaque()
                     {
                         return true;
@@ -461,30 +522,35 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 });
                 addMouseListener(new MouseAdapter()
                 {
-                    public @Override void mouseExited(MouseEvent e)
+
+                    public
+                    @Override
+                    void mouseExited(MouseEvent e)
                     {
                         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                         mouseOver = false;
                     }
-                    public @Override void mouseEntered(MouseEvent e)
+
+                    public
+                    @Override
+                    void mouseEntered(MouseEvent e)
                     {
                         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         mouseOver = true;
                     }
                 });
             }
-
         }
-
     }
 
     private AbstractAction overlaySettings(final Overlay overlay)
     {
         return new AbstractAction("Overlay Settings", ResourcesUtils.getIcon("settings"))
         {
+
             public void actionPerformed(ActionEvent e)
             {
-				SettingsPanel.getDefault().openSettingsWindow(overlay);
+                SettingsPanel.getDefault().openSettingsWindow(overlay);
             }
         };
     }
@@ -493,6 +559,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
     {
         return new AbstractAction("Remove Indicator", ResourcesUtils.getIcon("remove"))
         {
+
             public void actionPerformed(ActionEvent e)
             {
                 ChartPanel.this.removeOverlay(overlay);
@@ -501,5 +568,4 @@ public class ChartPanel extends JLayeredPane implements Serializable
             }
         };
     }
-
 }

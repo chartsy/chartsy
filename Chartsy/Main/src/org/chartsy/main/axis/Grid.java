@@ -30,7 +30,7 @@ public class Grid extends JPanel
         setOpaque(false);
     }
 
-    public @Override void paint(Graphics g)
+    public @Override synchronized void paint(Graphics g)
     {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g.create();
@@ -111,6 +111,7 @@ public class Grid extends JPanel
                                         g2.draw(CoordCalc.line(0, y, getWidth(), y));
                                     }
                                 }
+                                values = null;
 
                                 if (panel.getIndicator().hasZeroLine())
                                 {

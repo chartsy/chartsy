@@ -66,8 +66,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     private ChartData chartData = null;
     private MainPanel mainPanel = null;
     private JScrollBar scrollBar = null;
-	private Template template = null;
-
+    private Template template = null;
     private boolean restored = false;
     private boolean focus = true;
     private boolean loadingFlag = false;
@@ -126,13 +125,13 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         addMouseWheelListener((MouseWheelListener) this);
     }
 
-	public ChartFrame(ChartData chartData, Template template)
-	{
-		this(chartData);
-		this.template = template;
-	}
+    public ChartFrame(ChartData chartData, Template template)
+    {
+        this(chartData);
+        this.template = template;
+    }
 
-    private void initComponents()
+    private synchronized void initComponents()
     {
         setLayout(new BorderLayout());
         if (!restored)
@@ -161,36 +160,22 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
         if (restored)
         {
-            synchronized (this)
+            getSplitPanel().getIndicatorsPanel().setIndicatorsList(chartData.getSavedIndicators());
+            chartData.clearSavedIndicators();
+            getSplitPanel().getChartPanel().setOverlays(chartData.getSavedOverlays());
+            chartData.clearSavedOverlays();
+            restoreAnnotations();
+            chartData.clearAnnotations();
+            chartData.clearAnnotationsCount();
+        } else
+        {
+            if (template != null)
             {
-                getSplitPanel().getIndicatorsPanel().setIndicatorsList(chartData.getSavedIndicators());
-                chartData.clearSavedIndicators();
-            }
-
-            synchronized (this)
-            {
-                getSplitPanel().getChartPanel().setOverlays(chartData.getSavedOverlays());
-                chartData.clearSavedOverlays();
-            }
-
-            synchronized (this)
-            {
-                restoreAnnotations();
-                chartData.clearAnnotations();
-                chartData.clearAnnotationsCount();
+                chartProperties = template.getChartProperties();
+                getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
+                getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
             }
         }
-		else
-		{
-			if (template != null)
-			{
-				chartProperties = template.getChartProperties();
-				synchronized (this)
-				{ getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators()); }
-				synchronized (this)
-				{ getSplitPanel().getChartPanel().setOverlays(template.getOverlays()); }
-			}
-		}
 
         history.setCurrent(new HistoryItem(
                 chartData.getStock(),
@@ -202,30 +187,30 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         componentFocused();
     }
 
-	public Template getTemplate()
-	{
-		return template;
-	}
+    public Template getTemplate()
+    {
+        return template;
+    }
 
-	public void setTemplate(Template template)
-	{
-		this.template = template;
-		this.chartProperties = template.getChartProperties();
+    public void setTemplate(Template template)
+    {
+        this.template = template;
+        this.chartProperties = template.getChartProperties();
 
-		// indicators
-		getSplitPanel().getIndicatorsPanel().removeAllIndicators();
-		getChartData().removeAllIndicatorsDatasetListeners();
-		getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
+        // indicators
+        getSplitPanel().getIndicatorsPanel().removeAllIndicators();
+        getChartData().removeAllIndicatorsDatasetListeners();
+        getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
 
-		// overlays
-		getSplitPanel().getChartPanel().clearOverlays();
-		getChartData().removeAllOverlaysDatasetListeners();
-		getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
+        // overlays
+        getSplitPanel().getChartPanel().clearOverlays();
+        getChartData().removeAllOverlaysDatasetListeners();
+        getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
 
-		revalidate();
-		repaint();
-	}
-    
+        revalidate();
+        repaint();
+    }
+
     public boolean getRestored()
     {
         return restored;
@@ -402,9 +387,11 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         popup.add(new JMenuItem(MainActions.printChart(this))); // print
         popup.add(new JMenuItem(MainActions.chartProperties(this))); // chart settings
         popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this))); // hide/show toolbar
-		if (!MainActions.isInFavorites(this))
-			popup.add(new JMenuItem(MainActions.addToFavorites(this))); // add to favorites
-		popup.add(MainActions.generateTemplatesMenu(this)); // save to template
+        if (!MainActions.isInFavorites(this))
+        {
+            popup.add(new JMenuItem(MainActions.addToFavorites(this))); // add to favorites
+        }
+        popup.add(MainActions.generateTemplatesMenu(this)); // save to template
         return popup;
     }
 
@@ -659,9 +646,12 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             loading.setVerticalTextPosition(SwingConstants.BOTTOM);
             loading.setHorizontalTextPosition(SwingConstants.CENTER);
 
+            this.getChartData().removeDataset();
+
             final RequestProcessor.Task task = RP.create(new Runnable()
             {
 
+                @Override
                 public void run()
                 {
                     if (!newChart)
@@ -677,6 +667,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             task.addTaskListener(new TaskListener()
             {
 
+                @Override
                 public void taskFinished(Task task)
                 {
                     if (DataProviderManager.getDefault().isUpdated())
@@ -780,6 +771,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             final RequestProcessor.Task task = RP.create(new Runnable()
             {
 
+                @Override
                 public void run()
                 {
                     if (!newChart)
@@ -787,7 +779,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
                         reinitialize();
                     }
                     add(loading, BorderLayout.CENTER);
-                    DataProviderManager.getDefault().update(newStock, dataProvider);
+                    DataProviderManager.getDefault().update(newStock, interval, dataProvider);
                 }
             });
 
@@ -795,6 +787,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             task.addTaskListener(new TaskListener()
             {
 
+                @Override
                 public void taskFinished(Task task)
                 {
                     if (DataProviderManager.getDefault().isUpdated())
@@ -926,10 +919,8 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             fwdList = chartFrame.getHistory().getFwdHistoryList();
         }
 
-        public Object readResolve()
+        public synchronized Object readResolve()
         {
-            synchronized (this)
-            {
                 DataProvider dp = DataProviderManager.getDefault().getDataProvider(dataProvider);
                 chartData.setDataProvider(dp);
 
@@ -945,7 +936,6 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
                 chartFrame.setRestored(true);
                 return chartFrame;
-            }
         }
     }
 }

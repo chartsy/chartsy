@@ -109,8 +109,6 @@ public class StockAPI extends Object implements DataProviderListener
 		{
 			dp.addStock(getStock());
 			dp.addDataset(dp.getKey(getStock(), DataProvider.DAILY), new Dataset());
-			dp.addDataset(dp.getKey(getStock(), DataProvider.WEEKLY), new Dataset());
-			dp.addDataset(dp.getKey(getStock(), DataProvider.MONTHLY), new Dataset());
 			dp.addDatasetListener((DataProviderListener) this);
 		}
 		else
@@ -125,8 +123,8 @@ public class StockAPI extends Object implements DataProviderListener
 		{
 			{getStock().getKey(),
 			String.valueOf(newValue < 0 ? (oldValue < 0 ? 0 : oldValue) : newValue),
-			String.valueOf(newValue < 0 ? 0 : (oldValue - newValue)),
-			String.valueOf(newValue < 0 ? 0 : ((oldValue - newValue) / oldValue)*100)}
+			String.valueOf(newValue < 0 ? 0 : (newValue - oldValue)),
+			String.valueOf(newValue < 0 ? 0 : ((newValue - oldValue) / oldValue)*100)}
 		};
 	}
 

@@ -27,14 +27,14 @@ public class RootAPINode extends AbstractNode
 
 	public RootAPI getRoot()
 	{
-		return (RootAPI) getLookup().lookup(RootAPI.class);
+		return getLookup().lookup(RootAPI.class);
 	}
 
 	public @Override Cookie getCookie(Class clazz)
 	{
 		Children children = getChildren();
 		if (clazz.isInstance(children))
-			return (Cookie) children;
+			return (Cookie)children;
 		return super.getCookie(clazz);
 	}
 
@@ -65,7 +65,7 @@ public class RootAPINode extends AbstractNode
 
 		if (dropNode != null)
 		{
-			final StockAPI stock = (StockAPI) dropNode.getLookup().lookup(StockAPI.class);
+			final StockAPI stock = dropNode.getLookup().lookup(StockAPI.class);
 			if (stock != null
 				&& !this.equals(dropNode.getParentNode()))
 			{

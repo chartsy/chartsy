@@ -33,7 +33,7 @@ public class ChartData implements Serializable
     public static final int MIN_ITEMS = 40;
     public static final int MAX_ITEMS = 1000;
     public static RectangleInsets axisOffset = new RectangleInsets(5.0, 5.0, 5.0, 5.0);
-    public static RectangleInsets dataOffset = new RectangleInsets(2.0, 20.0, 60.0, 50.0);
+    public static RectangleInsets dataOffset = new RectangleInsets(2.0, 20.0, 60.0, 55.0);
     private Stock stock = null;
     private Interval interval = null;
     private Chart chart = null;
@@ -81,6 +81,16 @@ public class ChartData implements Serializable
     public boolean isIntervalNull()
     {
         return interval == null;
+    }
+
+    public String getKey()
+    {
+        return this.getDataProvider().getKey(this.getStock(), this.getInterval());
+    }
+
+    public void removeDataset()
+    {
+        this.getDataProvider().removeDataset(this.getKey());
     }
 
     public boolean updateDataset(Interval newInterval)

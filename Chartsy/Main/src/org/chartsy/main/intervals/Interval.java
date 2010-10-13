@@ -8,38 +8,44 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public abstract class Interval implements Serializable {
+public abstract class Interval implements Serializable
+{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-
     protected String name = "";
-	protected String timeParam = "";
+    protected String timeParam = "";
     protected boolean intraDay = false;
 
-    public Interval(String name) {
+    public Interval(String name)
+    {
         this.name = name;
         this.intraDay = false;
     }
-    
-    public Interval(String name, boolean intraDay) {
+
+    public Interval(String name, boolean intraDay)
+    {
         this.name = name;
         this.intraDay = intraDay;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public boolean isIntraDay() { 
+    public boolean isIntraDay()
+    {
         return intraDay;
     }
 
     public abstract long startTime();
 
     public abstract String getTimeParam();
+
     public abstract int getLengthInSeconds();
 
-    public String getMarkerString(long time) {
+    public String getMarkerString(long time)
+    {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
 
@@ -50,73 +56,103 @@ public abstract class Interval implements Serializable {
             int month = cal.get(Calendar.MONTH) + 1;
             int year = cal.get(Calendar.YEAR);
 
-            if (month < 10) sb.append("0");
+            if (month < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(month));
             sb.append("/");
-            
-            if (day < 10) sb.append("0");
+
+            if (day < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(day));
             sb.append("/");
 
             sb.append(Integer.toString(year));
             return sb.toString();
-        }
-        else
+        } else
         {
             int day = cal.get(Calendar.DAY_OF_MONTH);
             int month = cal.get(Calendar.MONTH) + 1;
             int hour = cal.get(Calendar.HOUR_OF_DAY);
             int minute = cal.get(Calendar.MINUTE);
 
-            if (month < 10) sb.append("0");
+            if (month < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(month));
             sb.append("/");
 
-            if (day < 10) sb.append("0");
+            if (day < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(day));
             sb.append(" ");
 
-            if (hour < 10) sb.append("0");
+            if (hour < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(hour));
             sb.append(":");
 
-            if (minute < 10) sb.append("0");
+            if (minute < 10)
+            {
+                sb.append("0");
+            }
             sb.append(Integer.toString(minute));
 
             return sb.toString();
         }
     }
 
-    public @Override String toString()
-    { 
-		return name;
-	}
+    public 
+    @Override
+    String toString()
+    {
+        return name;
+    }
 
-	public @Override boolean equals(Object obj)
-	{
-		if (obj == this)
-			return true;
+    public
+    @Override
+    boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
 
-		if (!(obj instanceof Interval))
-			return false;
-		Interval that = (Interval) obj;
+        if (!(obj instanceof Interval))
+        {
+            return false;
+        }
+        Interval that = (Interval) obj;
 
-		if (!that.getName().equals(getName()))
-			return false;
+        if (!that.getName().equals(getName()))
+        {
+            return false;
+        }
 
-		if (!that.getTimeParam().equals(getTimeParam()))
-			return false;
+        if (!that.getTimeParam().equals(getTimeParam()))
+        {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public @Override int hashCode()
-	{
-		int hash = 5;
-		hash = 13 * hash + (this.name != null ? this.name.hashCode() : 0);
-		hash = 13 * hash + (this.timeParam != null ? this.timeParam.hashCode() : 0);
-		hash = 13 * hash + (this.intraDay ? 1 : 0);
-		return hash;
-	}
-
+    public
+    @Override
+    int hashCode()
+    {
+        int hash = 5;
+        hash = 13 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 13 * hash + (this.timeParam != null ? this.timeParam.hashCode() : 0);
+        hash = 13 * hash + (this.intraDay ? 1 : 0);
+        return hash;
+    }
 }

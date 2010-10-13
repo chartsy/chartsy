@@ -46,7 +46,7 @@ public class Actions
 			if (node != null)
 			{
 				final StockAPI stock
-					= (StockAPI) node.getLookup().lookup(StockAPI.class);
+					= node.getLookup().lookup(StockAPI.class);
 				if (stock != null)
 				{
 					ChartData chartData = new ChartData();

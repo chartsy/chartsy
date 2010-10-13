@@ -27,7 +27,7 @@ public class StockAPINode extends AbstractNode
 
 	public StockAPI getStock()
 	{
-		return (StockAPI) getLookup().lookup(StockAPI.class);
+		return getLookup().lookup(StockAPI.class);
 	}
 
 	public @Override boolean canDestroy()

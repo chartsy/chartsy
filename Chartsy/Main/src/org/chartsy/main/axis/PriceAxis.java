@@ -139,6 +139,7 @@ public class PriceAxis extends JPanel
                                     g2.drawString(df.format(value), (float)(axisTick + axisStick), (float)(y + lm.getDescent()));
                                 }
                             }
+                            list = null;
 
                             if (panel.getIndicator().hasZeroLine())
                             {

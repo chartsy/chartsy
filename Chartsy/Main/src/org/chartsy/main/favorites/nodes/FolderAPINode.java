@@ -34,7 +34,7 @@ public class FolderAPINode extends AbstractNode
 
 	public FolderAPI getFolder()
 	{
-		return (FolderAPI) getLookup().lookup(FolderAPI.class);
+		return getLookup().lookup(FolderAPI.class);
 	}
 
 	public @Override PasteType getDropType(Transferable transferable, final int action, final int index)
@@ -44,7 +44,7 @@ public class FolderAPINode extends AbstractNode
 
 		if (dropNode != null)
 		{
-			final StockAPI stock = (StockAPI) dropNode.getLookup().lookup(StockAPI.class);
+			final StockAPI stock = dropNode.getLookup().lookup(StockAPI.class);
 			if (stock != null
 				&& !this.equals(dropNode.getParentNode()))
 			{
