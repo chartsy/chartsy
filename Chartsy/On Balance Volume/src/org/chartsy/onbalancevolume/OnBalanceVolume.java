@@ -26,6 +26,7 @@ public class OnBalanceVolume
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String OBV = "obv";
+
     private IndicatorProperties properties;
 
     public OnBalanceVolume()
@@ -34,11 +35,9 @@ public class OnBalanceVolume
         properties = new IndicatorProperties();
     }
 
-    public String getName()
-    { return "OBV"; }
+    public String getName(){ return "OBV"; }
 
-    public String getLabel() 
-    { return properties.getLabel(); }
+    public String getLabel(){ return properties.getLabel(); }
 
     public String getPaintedLabel(ChartFrame cf)
     {

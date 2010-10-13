@@ -51,18 +51,6 @@ public class OverlayNode extends AbstractPropertiesNode
 
         try
         {
-
-            // Price
-            set.put(getProperty(
-                    "Price", // property name
-                    "Sets the price type", // property description
-                    OverlayProperties.class, // properties class
-                    String.class, // property class
-                    PricePropertyEditor.class, // property editor class (null if none)
-                    "getPrice", // get method name
-                    "setPrice", // set method name
-                    OverlayProperties.PRICE // default property value
-                    ));
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -84,6 +72,17 @@ public class OverlayNode extends AbstractPropertiesNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     OverlayProperties.MARKER // default property value
+                    ));
+            // Price
+            set.put(getProperty(
+                    "Price", // property name
+                    "Sets the price type", // property description
+                    OverlayProperties.class, // properties class
+                    String.class, // property class
+                    PricePropertyEditor.class, // property editor class (null if none)
+                    "getPrice", // get method name
+                    "setPrice", // set method name
+                    OverlayProperties.PRICE // default property value
                     ));
             // Line Color
             set.put(getProperty(

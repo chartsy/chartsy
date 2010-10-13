@@ -21,20 +21,21 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public static String LABEL = "Aroon";
     public static boolean MARKER = true;
-
     public static int PERIOD = 10;//standard Aroon period value mostly
-
     public static final Color UP_TREND_LINE_COLOR = new Color(0x5c3566);
     public static int UP_TREND_STROKE_INDEX = 0;
     public static final Color DOWN_TREND_LINE_COLOR = new Color(0x4e9a06);
     public static int DOWN_TREND_STROKE_INDEX = 0;
     public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
+    public static int DELIMITER_STROKE_INDEX = 1;
+
 
     private String label = LABEL;
     private boolean marker = MARKER;
     private int period = PERIOD;
     private int upTrendStrokeIndex = UP_TREND_STROKE_INDEX;
     private int downTrendStrokeIndex = DOWN_TREND_STROKE_INDEX;
+    private int delimiterStrokeIndex = DELIMITER_STROKE_INDEX;
     private Color downTrendColor = DOWN_TREND_LINE_COLOR;
     private Color upTrendColor = UP_TREND_LINE_COLOR;
     private Color delimiterColor = DELIMITER_COLOR;
@@ -60,6 +61,11 @@ public class IndicatorProperties extends AbstractPropertyListener
     public Stroke getUpTrendLineStroke() { return StrokeGenerator.getStroke(upTrendStrokeIndex); }
     public void setUpTrendLineStroke(Stroke s) { upTrendStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
+    public int getDelimiterStrokeIndex() {return delimiterStrokeIndex; }
+    public void setDelimiterStrokeIndex(int delimiterStrokeIndex) {this.delimiterStrokeIndex = delimiterStrokeIndex; }
+    public Stroke getDelimiterLineStroke() { return StrokeGenerator.getStroke(delimiterStrokeIndex); }
+    public void setDelimiterLineStroke(Stroke s) { delimiterStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
     public Color getDownTrendColor() {return downTrendColor; }
     public void setDownTrendColor(Color downTrendColor) {this.downTrendColor = downTrendColor; }
 
@@ -67,8 +73,6 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setUpTrendColor(Color upTrendColor) {this.upTrendColor = upTrendColor; }
 
     public Color getDelimiterColor() {return delimiterColor; }
-    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
-
-    
+    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }    
 
 }

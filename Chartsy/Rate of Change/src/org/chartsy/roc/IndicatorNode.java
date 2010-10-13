@@ -65,6 +65,17 @@ public class IndicatorNode extends AbstractPropertiesNode
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
                     ));
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the Period Line", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    IndicatorProperties.PERIOD// default property value
+                    ));
             // Line Color
             set.put(getProperty(
                     "Line Color", // property name

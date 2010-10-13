@@ -39,6 +39,28 @@ public class IndicatorNode
 
         try
         {
+            // Label
+            set.put(getProperty(
+                    "Label", // property name
+                    "Sets the label", // property description
+                    IndicatorProperties.class, // properties class
+                    String.class, // property class
+                    PropertyEditorSupport.class, // property editor class (null if none)
+                    "getLabel", // get method name
+                    "setLabel", // set method name
+                    IndicatorProperties.LABEL // default property value
+                    ));
+            // Marker Visibility
+            set.put(getProperty(
+                    "Marker Visibility", // property name
+                    "Sets the marker visibility", // property description
+                    IndicatorProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getMarker", // get method name
+                    "setMarker", // set method name
+                    IndicatorProperties.MARKER // default property value
+                    ));
             // Fast
             set.put(getProperty(
                     "Fast", // property name
@@ -72,28 +94,6 @@ public class IndicatorNode
                     "setSlow", // set method name
                     IndicatorProperties.SLOW // default property value
                     ));
-            // Label
-            set.put(getProperty(
-                    "Label", // property name
-                    "Sets the label", // property description
-                    IndicatorProperties.class, // properties class
-                    String.class, // property class
-                    PropertyEditorSupport.class, // property editor class (null if none)
-                    "getLabel", // get method name
-                    "setLabel", // set method name
-                    IndicatorProperties.LABEL // default property value
-                    ));
-            // Marker Visibility
-            set.put(getProperty(
-                    "Marker Visibility", // property name
-                    "Sets the marker visibility", // property description
-                    IndicatorProperties.class, // properties class
-                    boolean.class, // property class
-                    null, // property editor class (null if none)
-                    "getMarker", // get method name
-                    "setMarker", // set method name
-                    IndicatorProperties.MARKER // default property value
-                    ));
             // Line Color
             set.put(getProperty(
                     "Line Color", // property name
@@ -119,7 +119,7 @@ public class IndicatorNode
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.log(Level.SEVERE, "[UltimateOscillatorNode] : Method does not exist.", ex);
+            LOG.log(Level.SEVERE, "[Ultimate Oscillator Node] : Method does not exist.", ex);
         }
 
         return sheet;

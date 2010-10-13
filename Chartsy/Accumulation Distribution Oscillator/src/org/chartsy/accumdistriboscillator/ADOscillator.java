@@ -33,8 +33,7 @@ public class ADOscillator extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Accumulation/Distribution Oscillator";
-    public static final String ABBREV = "adoscillator";
-
+    public static final String HASKKEY = "adoscillator";
 
     private IndicatorProperties properties;
 
@@ -50,7 +49,6 @@ public class ADOscillator extends Indicator{
     int slowPeriod = 0;
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
     private double[] allVolume;
 
     //the next variable is used for fast calculations
@@ -65,7 +63,7 @@ public class ADOscillator extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel()+ " (" + properties.getFastPeriod() + ", " + properties.getSlowPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -74,16 +72,16 @@ public class ADOscillator extends Indicator{
     public Indicator newInstance(){ return new ADOscillator(); }
 
     @Override
-    public boolean hasZeroLine(){ return false; }
+    public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility(){ return false; }
+    public boolean getZeroLineVisibility(){ return true; }
 
     @Override
     public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke(){ return null; }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return false; }
@@ -140,7 +138,7 @@ public class ADOscillator extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASKKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -154,7 +152,7 @@ public class ADOscillator extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASKKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -163,7 +161,7 @@ public class ADOscillator extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASKKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -197,13 +195,12 @@ public class ADOscillator extends Indicator{
 
         allHigh = initial.getHighValues();
         allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
         allVolume = initial.getVolumeValues();
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.adOscLookback(fastPeriod, slowPeriod);
-        core.adOsc(0, count-1, allHigh, allLow, allClose, allVolume, fastPeriod, slowPeriod, outBegIdx, outNbElement, output);
+        core.adOsc(0, count-1, allHigh, allLow, initial.getCloseValues(), allVolume, fastPeriod, slowPeriod, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -218,6 +215,6 @@ public class ADOscillator extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASKKEY, calculatedDataset);
     }
 }

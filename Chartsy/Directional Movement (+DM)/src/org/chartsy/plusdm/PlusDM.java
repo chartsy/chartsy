@@ -33,7 +33,7 @@ public class PlusDM extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Directional Movement (+DM)";
-    public static final String ABBREV = "+dmline";
+    public static final String HASHKEY = "+dmline";
 
 
     private IndicatorProperties properties;
@@ -62,7 +62,7 @@ public class PlusDM extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -137,7 +137,7 @@ public class PlusDM extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -151,7 +151,7 @@ public class PlusDM extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -160,7 +160,7 @@ public class PlusDM extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -211,6 +211,6 @@ public class PlusDM extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

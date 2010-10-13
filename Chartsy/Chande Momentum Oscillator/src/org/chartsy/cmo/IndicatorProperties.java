@@ -23,7 +23,11 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final String LABEL = "CMO";
     public static final boolean MARKER = true;
     public static final Color COLOR = new Color(0x4e9a06);
+    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
+    public static int DELIMTER_STROKE_INDEX = 1;
     public static int STROKE_INDEX = 0;
+    public static final Color ZEROLINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 1;
     public static int DEFAULT_PERIOD = 20;//default value
     public static final Color INSIDE_COLOR = new Color(0x4e9a06);
     public static final int INSIDE_ALPHA = 25;
@@ -35,6 +39,10 @@ public class IndicatorProperties extends AbstractPropertyListener
     private boolean marker = MARKER;
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
+    private Color zeroLineColor = ZEROLINE_COLOR;
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
+    private Color delimiterColor = DELIMITER_COLOR;
+    private int delimiterStrokeIndex = DELIMTER_STROKE_INDEX;
     private Color insideColor = INSIDE_COLOR;
     private Color insideHighColor = INSIDE_HIGH_COLOR;
     private Color insideLowColor = INSIDE_LOW_COLOR;
@@ -69,6 +77,22 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getDelimiterColor() {return delimiterColor; }
+    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
+
+    public int getDelimiterStrokeIndex() {return delimiterStrokeIndex; }
+    public void setDelimiterStrokeIndex(int delimiterStrokeIndex) { this.delimiterStrokeIndex = delimiterStrokeIndex; }
+    public Stroke getDelimterLineStroke() { return StrokeGenerator.getStroke(delimiterStrokeIndex); }
+    public void setDelimiterLineStroke(Stroke s) { delimiterStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getZeroLineColor() {return zeroLineColor; }
+    public void setZeroLineColor(Color zeroLineColor) {this.zeroLineColor = zeroLineColor; }
+
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
     public Color getInsideColor() { return insideColor; }
     public void setInsideColor(Color c) { insideColor = c; }

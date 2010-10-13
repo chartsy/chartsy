@@ -23,23 +23,17 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final String LABEL = "N-ATR";
     public static final boolean MARKER = true;
     public static final Color COLOR = new Color(0x4e9a06);
-    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
     public static int STROKE_INDEX = 0;
     public static int DEFAULT_PERIOD = 14;//standard default according to W. Wilder
-    public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
-    public static int ZERO_LINE_STROKE_INDEX = 0;
-    public static boolean ZERO_LINE_VISIBILITY = true;
-
+    public static Color ZERO_LINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 1;
+    
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color color = COLOR;
-    private Color delimiterColor = DELIMITER_COLOR;
     private int strokeIndex = STROKE_INDEX;
     private Color zeroLineColor = ZERO_LINE_COLOR;
     private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
-    private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
-
-
     private int period = DEFAULT_PERIOD;//standard default according to W. Wilder
 
     public IndicatorProperties() {}
@@ -61,9 +55,6 @@ public class IndicatorProperties extends AbstractPropertyListener
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
-    public Color getDelimiterColor() {return delimiterColor; }
-    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
-
     public Color getZeroLineColor() { return zeroLineColor; }
     public void setZeroLineColor(Color c) { zeroLineColor = c; }
 
@@ -71,7 +62,5 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setZeroLineStrokeIndex(int i) { zeroLineStrokeIndex = i; }
     public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
     public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    public boolean getZeroLineVisibility() { return zeroLineVisibility; }
-    public void setZeroLineVisibility(boolean b) { zeroLineVisibility = b; }
+    
 }

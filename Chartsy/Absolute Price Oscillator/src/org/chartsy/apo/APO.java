@@ -21,7 +21,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -35,7 +34,7 @@ public class APO extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Absolute Price Oscillator";
-    public static final String ABBREV = "apo";
+    public static final String HASHVAL = "apo";
 
 
     private IndicatorProperties properties;
@@ -51,7 +50,7 @@ public class APO extends Indicator{
     private int fastPeriod = 0;
     private int slowPeriod = 0;
 
-    //the next variable is used for ultra-fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public APO() {
@@ -63,7 +62,7 @@ public class APO extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel()+ " (" + properties.getFastPeriod() + ", " + properties.getSlowPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -81,7 +80,7 @@ public class APO extends Indicator{
     public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return false; }
@@ -138,7 +137,7 @@ public class APO extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHVAL);
         if (dataset != null)
         {
             if(maximized)
@@ -152,7 +151,7 @@ public class APO extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHVAL);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -161,7 +160,7 @@ public class APO extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHVAL);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -211,6 +210,6 @@ public class APO extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHVAL, calculatedDataset);
     }
 }

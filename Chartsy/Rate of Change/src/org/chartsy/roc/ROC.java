@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -35,7 +34,7 @@ public class ROC extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Rate of Change";
-    public static final String ABBREV = "roc";
+    public static final String HASHKEY = "roc";
 
 
     private IndicatorProperties properties;
@@ -50,7 +49,7 @@ public class ROC extends Indicator{
     //variables specific to this indicator
     int period = 0;
 
-    //the next variable is used for ultra-fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public ROC() {
@@ -62,7 +61,7 @@ public class ROC extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -80,7 +79,7 @@ public class ROC extends Indicator{
     public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return false; }
@@ -137,7 +136,7 @@ public class ROC extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -151,7 +150,7 @@ public class ROC extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -160,7 +159,7 @@ public class ROC extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -209,6 +208,6 @@ public class ROC extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

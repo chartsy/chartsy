@@ -71,8 +71,7 @@ public class Stochastic extends Indicator
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
@@ -83,8 +82,7 @@ public class Stochastic extends Indicator
     { return (properties.getSF() ? "Fast" : "Slow") + getLabel(); }
 
     @Override
-    public Indicator newInstance()
-    { return new Stochastic(); }
+    public Indicator newInstance(){ return new Stochastic(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -108,8 +106,7 @@ public class Stochastic extends Indicator
     }
 
     @Override
-    public Range getRange(ChartFrame cf)
-    { return new Range(0, 100); }
+    public Range getRange(ChartFrame cf){ return new Range(0, 100); }
 
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
@@ -130,40 +127,31 @@ public class Stochastic extends Indicator
     }
 
     @Override
-    public boolean hasZeroLine()
-    { return false; }
+    public boolean hasZeroLine(){ return false; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return false; }
+    public boolean getZeroLineVisibility(){ return false; }
 
     @Override
-    public Color getZeroLineColor()
-    { return null; }
+    public Color getZeroLineColor(){ return null; }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return null; }
+    public Stroke getZeroLineStroke(){ return null; }
 
     @Override
-    public boolean hasDelimiters()
-    { return true; }
+    public boolean hasDelimiters(){ return true; }
 
     @Override
-    public boolean getDelimitersVisibility()
-    { return true; }
+    public boolean getDelimitersVisibility(){ return true; }
 
     @Override
-    public double[] getDelimitersValues()
-    { return new double[] {20d, 50d, 80d}; }
+    public double[] getDelimitersValues(){ return new double[] {20d, 50d, 80d}; }
 
     @Override
-    public Color getDelimitersColor()
-    { return new Color(0xbbbbbb); }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
     @Override
-    public Stroke getDelimitersStroke()
-    { return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimiterLineStroke(); }
 
     @Override
     public Color[] getColors()
@@ -192,12 +180,10 @@ public class Stochastic extends Indicator
     }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)

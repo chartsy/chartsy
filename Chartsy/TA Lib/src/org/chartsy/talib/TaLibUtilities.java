@@ -14,10 +14,10 @@ public class TaLibUtilities {
 
     public static double[] fixOutputArray(double[] outArray, int lookback){
         double tempOutput[] = new double[outArray.length];
-        for (int i = 0; i < tempOutput.length; i++) {
+        /*for (int i = 0; i < tempOutput.length; i++) {
             if(i<lookback)
                 tempOutput[i] = 0.0;
-        }
+        }*/
         System.arraycopy(outArray, 0, tempOutput, lookback, outArray.length-lookback);
 
         return tempOutput;

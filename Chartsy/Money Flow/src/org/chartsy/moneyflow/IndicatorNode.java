@@ -83,43 +83,10 @@ public class IndicatorNode
                     "setMFLColor", // set method name
                     IndicatorProperties.MFL_COLOR // default property value
                     ));
-            // Zero Line Color
-            set.put(getProperty(
-                    "Zero Line Color", // property name
-                    "Sets the zero line color", // property description
-                    IndicatorProperties.class, // properties class
-                    Color.class, // property class
-                    null, // property editor class (null if none)
-                    "getZeroLineColor", // get method name
-                    "setZeroLineColor", // set method name
-                    IndicatorProperties.ZERO_LINE_COLOR // default property value
-                    ));
-            // Zero Line Style
-            set.put(getProperty(
-                    "Zero Line Style", // property name
-                    "Sets the zero line style", // property description
-                    IndicatorProperties.class, // properties class
-                    Stroke.class, // property class
-                    StrokePropertyEditor.class, // property editor class (null if none)
-                    "getZeroLineStroke", // get method name
-                    "setZeroLineStroke", // set method name
-                    StrokeGenerator.getStroke(IndicatorProperties.ZERO_LINE_STROKE) // default property value
-                    ));
-            // Zero Line Visibility
-            set.put(getProperty(
-                    "Zero Line Visibility", // property name
-                    "Sets the zero line visibility flag", // property description
-                    IndicatorProperties.class, // properties class
-                    boolean.class, // property class
-                    null, // property editor class (null if none)
-                    "getZeroLineVisibility", // get method name
-                    "setZeroLineVisibility", // set method name
-                    IndicatorProperties.ZERO_LINE_VISIBILITY // default property value
-                    ));
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.log(Level.SEVERE, "[MFNode] : Method does not exist.", ex);
+            LOG.log(Level.SEVERE, "[MF Node] : Method does not exist.", ex);
         }
 
         return sheet;

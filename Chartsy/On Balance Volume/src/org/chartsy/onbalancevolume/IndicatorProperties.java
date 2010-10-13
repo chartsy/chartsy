@@ -19,10 +19,13 @@ public class IndicatorProperties
     public static final String LABEL = "OnBalanceVolume";
     public static Color COLOR = new Color(0xf57900);
     public static int STROKE_INDEX = 0;
+    public static final boolean MARKER = true;
+
 
     private String label = LABEL;
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
+    private boolean marker = MARKER;
 
     public IndicatorProperties() {}
 

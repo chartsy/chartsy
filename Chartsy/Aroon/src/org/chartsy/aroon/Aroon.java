@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -34,8 +33,8 @@ public class Aroon extends Indicator
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "Aroon";
-    public static final String UP_LINE = "upline";
-    public static final String DOWN_LINE = "downline";
+    public static final String UP_TREND_HASHKEY = "upline";
+    public static final String DOWN_TREND_HASHKEY = "downline";
 
     private IndicatorProperties properties;
 
@@ -71,8 +70,7 @@ public class Aroon extends Indicator
     public String getPaintedLabel(ChartFrame cf)
     { return getLabel(); }
 
-    public Indicator newInstance()
-    { return new Aroon(); }
+    public Indicator newInstance(){ return new Aroon(); }
 
     @Override
     public boolean hasZeroLine(){ return false; }
@@ -85,24 +83,18 @@ public class Aroon extends Indicator
 
     @Override
     public Stroke getZeroLineStroke() {return null; }
+    
+    public boolean hasDelimiters(){ return true; }
 
-    public boolean hasDelimiters()
-    { return true; }
+    public boolean getDelimitersVisibility(){ return true; }
 
-    public boolean getDelimitersVisibility()
-    { return true; }
+    public double[] getDelimitersValues(){ return new double[] {30d, 50d, 70d}; }
 
-    public double[] getDelimitersValues()
-    { return new double[] {30d, 50d, 70d}; }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
-    public Color getDelimitersColor()
-    { return properties.getDelimiterColor(); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimiterLineStroke(); }
 
-    public Stroke getDelimitersStroke()
-    { return StrokeGenerator.getStroke(1); }
-
-    public Color[] getColors()
-    { return new Color[] {properties.getUpTrendColor(), properties.getDownTrendColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getUpTrendColor(), properties.getDownTrendColor()}; }
 
     public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
@@ -140,8 +132,8 @@ public class Aroon extends Indicator
 
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset upTrend = visibleDataset(cf, UP_LINE);
-        Dataset downTrend = visibleDataset(cf, DOWN_LINE);
+        Dataset upTrend = visibleDataset(cf, UP_TREND_HASHKEY);
+        Dataset downTrend = visibleDataset(cf, DOWN_TREND_HASHKEY);
 
         if (upTrend != null && downTrend != null)
         {
@@ -158,8 +150,8 @@ public class Aroon extends Indicator
     
     public double[] getValues(ChartFrame cf)
     {
-        Dataset upTrend = visibleDataset(cf, UP_LINE);
-        Dataset downTrend = visibleDataset(cf, DOWN_LINE);
+        Dataset upTrend = visibleDataset(cf, UP_TREND_HASHKEY);
+        Dataset downTrend = visibleDataset(cf, DOWN_TREND_HASHKEY);
         
         double[] values = new double[2];
 
@@ -175,8 +167,8 @@ public class Aroon extends Indicator
 
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset upTrend = visibleDataset(cf, UP_LINE);
-        Dataset downTrend = visibleDataset(cf, DOWN_LINE);
+        Dataset upTrend = visibleDataset(cf, UP_TREND_HASHKEY);
+        Dataset downTrend = visibleDataset(cf, DOWN_TREND_HASHKEY);
         
         double[] values = new double[2];
 
@@ -241,9 +233,7 @@ public class Aroon extends Indicator
         for (int i = 0; i < outputDown.length; i++)
             calculatedDatasetDown.setDataItem(i, new DataItem(initial.getTimeAt(i), outputDown[i]));
 
-        addDataset(UP_LINE, calculatedDatasetUp);
-        addDataset(DOWN_LINE, calculatedDatasetDown);
+        addDataset(UP_TREND_HASHKEY, calculatedDatasetUp);
+        addDataset(DOWN_TREND_HASHKEY, calculatedDatasetDown);
     }
-
-
 }

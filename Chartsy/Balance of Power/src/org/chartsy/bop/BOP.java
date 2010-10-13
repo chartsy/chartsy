@@ -36,7 +36,7 @@ public class BOP extends Indicator
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "Balance of Power";
-    public static final String ABBREV = "bophist";
+    public static final String HASHKEY = "bophist";
     
     private IndicatorProperties properties;
 
@@ -51,9 +51,8 @@ public class BOP extends Indicator
     private double[] allOpen;
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
-
-    //the next variable is used for fast calculations
+    
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public BOP()
@@ -63,68 +62,52 @@ public class BOP extends Indicator
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
-    public String getLabel()
-    { return properties.getLabel(); }
+    public String getLabel(){ return properties.getLabel(); }
 
     @Override
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
     @Override
-    public Indicator newInstance()
-    { return new BOP(); }
+    public Indicator newInstance(){ return new BOP(); }
 
     @Override
-    public boolean hasZeroLine()
-    { return true; }
+    public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return properties.getZeroLineVisibility(); }
+    public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor()
-    { return properties.getZeroLineColor(); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return properties.getZeroLineStroke(); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
-    public boolean hasDelimiters()
-    { return false; }
+    public boolean hasDelimiters(){ return false; }
 
     @Override
-    public boolean getDelimitersVisibility()
-    { return false; }
+    public boolean getDelimitersVisibility(){ return false; }
 
     @Override
-    public double[] getDelimitersValues()
-    { return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {}; }
 
     @Override
-    public Color getDelimitersColor()
-    { return null; }
+    public Color getDelimitersColor(){ return null; }
 
     @Override
-    public Stroke getDelimitersStroke()
-    { return null; }
+    public Stroke getDelimitersStroke(){ return null; }
 
     @Override
-    public Color[] getColors()
-    {  return new Color[] {properties.getHistogramPositiveColor(), properties.getHistogramNegativeColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getHistogramPositiveColor(), properties.getHistogramNegativeColor()}; }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -161,7 +144,7 @@ public class BOP extends Indicator
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
+        Dataset histogram = visibleDataset(cf, HASHKEY);
 
         if (histogram != null)
         {
@@ -177,7 +160,7 @@ public class BOP extends Indicator
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
+        Dataset histogram = visibleDataset(cf, HASHKEY);
 
         int i = histogram.getLastIndex();
         double[] values = new double[1];
@@ -189,7 +172,7 @@ public class BOP extends Indicator
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset histogram = visibleDataset(cf, ABBREV);
+        Dataset histogram = visibleDataset(cf, HASHKEY);
 
         double[] values = new double[1];
         values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
@@ -253,13 +236,12 @@ public class BOP extends Indicator
         allOpen = initial.getOpenValues();
         allHigh = initial.getHighValues();
         allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
-
+        
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.bopLookback();
-        core.bop(0, count-1, allOpen, allHigh, allLow, allClose, outBegIdx, outNbElement, output);
+        core.bop(0, count-1, allOpen, allHigh, allLow, initial.getCloseValues(), outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -274,7 +256,7 @@ public class BOP extends Indicator
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 

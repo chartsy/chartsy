@@ -25,6 +25,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final Color COLOR = new Color(0x4e9a06);
     public static int STROKE_INDEX = 0;
     public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
+    public static int DELIMITER_STROKE_INDEX = 1;
     public static final int PERIOD = 10;//default
 
     private String label = LABEL;
@@ -32,6 +33,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
     private Color delimiterColor = DELIMITER_COLOR;
+    private int delimiterStrokeIndex = DELIMITER_STROKE_INDEX;
     private int period = PERIOD;
 
     public IndicatorProperties() {}
@@ -55,5 +57,10 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public Color getDelimiterColor() { return delimiterColor; }
     public void setDelimiterColor(Color delimiterColor) { this.delimiterColor = delimiterColor; }
+
+    public int getDelimiterStrokeIndex() {return delimiterStrokeIndex; }
+    public void setDelimiterStrokeIndex(int delimiterStrokeIndex) {this.delimiterStrokeIndex = delimiterStrokeIndex; }
+    public Stroke getDelimiterLineStroke() { return StrokeGenerator.getStroke(delimiterStrokeIndex); }
+    public void setDelimiterLineStroke(Stroke s) { delimiterStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

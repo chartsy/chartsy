@@ -34,19 +34,13 @@ public class UltimateOscillator
         properties = new IndicatorProperties();
     }
 
-    public String getName() {
-        return "Ultimate Oscillator";
-    }
+    public String getName() {return "Ultimate Oscillator"; }
 
-    public String getLabel() 
-    { return properties.getLabel(); }
+    public String getLabel(){ return properties.getLabel(); }
 
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
-    public Indicator newInstance() {
-        return new UltimateOscillator();
-    }
+    public Indicator newInstance() {return new UltimateOscillator(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
@@ -69,8 +63,7 @@ public class UltimateOscillator
     }
 
     @Override
-    public Range getRange(ChartFrame cf) 
-    { return new Range(0, 100); }
+    public Range getRange(ChartFrame cf){ return new Range(0, 100); }
 
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
@@ -94,36 +87,26 @@ public class UltimateOscillator
         }
     }
 
-    public boolean hasZeroLine() 
-    { return false; }
+    public boolean hasZeroLine(){ return false; }
 
-    public boolean getZeroLineVisibility() 
-    { return false; }
+    public boolean getZeroLineVisibility(){ return false; }
 
-    public Color getZeroLineColor() 
-    { return null; }
+    public Color getZeroLineColor(){ return null; }
 
-    public Stroke getZeroLineStroke() 
-    { return null; }
+    public Stroke getZeroLineStroke(){ return null; }
 
-    public boolean hasDelimiters() 
-    { return true; }
+    public boolean hasDelimiters(){ return true; }
 
-    public boolean getDelimitersVisibility() 
-    { return true; }
+    public boolean getDelimitersVisibility(){ return true; }
 
     public double[] getDelimitersValues()
     { return new double[] {30.0d, 50.0d, 70.0d}; }
 
-    public Color getDelimitersColor() 
-    { return new Color(0xbbbbbb); }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
-    public Stroke getDelimitersStroke()
-    { return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimiterLineStroke(); }
 
-    public Color[] getColors() {
-        return new Color[] {properties.getColor()};
-    }
+    public Color[] getColors() { return new Color[] {properties.getColor()}; }
 
     public double[] getValues(ChartFrame cf) {
         Dataset d = visibleDataset(cf, UO);
@@ -141,13 +124,9 @@ public class UltimateOscillator
         return new double[] {};
     }
 
-    public boolean getMarkerVisibility() {
-        return properties.getMarker();
-    }
+    public boolean getMarkerVisibility() {return properties.getMarker(); }
 
-    public AbstractNode getNode() {
-        return new IndicatorNode(properties);
-    }
+    public AbstractNode getNode() {return new IndicatorNode(properties); }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)

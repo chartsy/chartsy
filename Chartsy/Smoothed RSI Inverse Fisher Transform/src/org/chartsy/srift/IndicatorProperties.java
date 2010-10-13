@@ -13,19 +13,19 @@ import org.chartsy.main.utils.StrokeGenerator;
 public class IndicatorProperties extends AbstractPropertyListener
 {
 
-	private static final long serialVersionUID = SerialVersion.APPVERSION;
+    private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-	public static final int RSI_PERIOD = 4;
-	public static final int EMA_PERIOD = 4;
-	public static final int SVE_PERIOD = 2;
+    public static final int RSI_PERIOD = 4;
+    public static final int EMA_PERIOD = 4;
+    public static final int SVE_PERIOD = 2;
     public static final String LABEL = "SRIFT";
     public static boolean MARKER = true;
     public static Color COLOR = new Color(0x4e9a06);
     public static int STROKE_INDEX = 0;
 
-	private int rsiPeriod = RSI_PERIOD;
-	private int emaPeriod = EMA_PERIOD;
-	private int svePeriod = SVE_PERIOD;
+    private int rsiPeriod = RSI_PERIOD;
+    private int emaPeriod = EMA_PERIOD;
+    private int svePeriod = SVE_PERIOD;
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color color = COLOR;

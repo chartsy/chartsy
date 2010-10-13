@@ -36,7 +36,7 @@ public class PPO extends Indicator
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "PPO";
-    public static final String ABBREV = "ppo";
+    public static final String HASHKEY = "ppo";
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
@@ -63,7 +63,7 @@ public class PPO extends Indicator
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel()+ " (" + properties.getSlowPeriod() + ", " + properties.getFastPeriod() + ")" ; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -75,16 +75,13 @@ public class PPO extends Indicator
     public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return false; }
+    public boolean getZeroLineVisibility(){ return false; }
 
     @Override
-    public Color getZeroLineColor()
-    { return null; }
+    public Color getZeroLineColor(){ return null; }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return null; }
+    public Stroke getZeroLineStroke(){ return null; }
 
     @Override
     public boolean hasDelimiters(){ return false; }
@@ -141,7 +138,7 @@ public class PPO extends Indicator
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -155,7 +152,7 @@ public class PPO extends Indicator
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -164,7 +161,7 @@ public class PPO extends Indicator
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -215,7 +212,7 @@ public class PPO extends Indicator
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

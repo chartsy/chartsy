@@ -28,7 +28,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final Color COLOR = new Color(0x4e9a06);
     public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
     public static int STROKE_INDEX = 0;
-    public static Color ZERO_LINE_COLOR = new Color(0xeeeeec);
+    public static Color ZERO_LINE_COLOR = new Color(0xbbbbbb);
     public static int ZERO_LINE_STROKE_INDEX = 0;
     public static boolean ZERO_LINE_VISIBILITY = true;
 

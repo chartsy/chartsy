@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -54,7 +53,7 @@ public class MESA extends Indicator
     //variables specific to this indicator
 
 
-    //the next variables are used for ultra-fast calculations
+    //the next variables are used to hold indicator calculations
     private Dataset calculatedDatasetMAMA;
     private Dataset calculatedDatasetFAMA;
 
@@ -64,17 +63,13 @@ public class MESA extends Indicator
         properties = new IndicatorProperties();
     }
 
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
-    public String getLabel()
-    { return properties.getLabel(); }
+    public String getLabel(){ return properties.getLabel(); }
 
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
-    public Indicator newInstance()
-    { return new MESA(); }
+    public Indicator newInstance(){ return new MESA(); }
 
     @Override
     public boolean hasZeroLine(){ return false; }
@@ -88,20 +83,15 @@ public class MESA extends Indicator
     @Override
     public Stroke getZeroLineStroke() {return null; }
 
-    public boolean hasDelimiters()
-    { return false; }
+    public boolean hasDelimiters(){ return false; }
 
-    public boolean getDelimitersVisibility()
-    { return false; }
+    public boolean getDelimitersVisibility(){ return false; }
 
-    public double[] getDelimitersValues()
-    { return new double[] {};}
+    public double[] getDelimitersValues(){ return new double[] {};}
 
-    public Color getDelimitersColor()
-    { return null; }
+    public Color getDelimitersColor(){ return null; }
 
-    public Stroke getDelimitersStroke()
-    { return null; }
+    public Stroke getDelimitersStroke(){ return null; }
 
     public Color[] getColors()
     { return new Color[] {properties.getMamaLineColor(), properties.getFamaLineColor()}; }

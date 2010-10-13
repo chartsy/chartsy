@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -64,20 +63,17 @@ public class TRIX extends Indicator
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
     { return properties.getLabel()+ " (" + properties.getPeriod() + ")"; }
 
     @Override
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
     @Override
-    public Indicator newInstance()
-    { return new TRIX(); }
+    public Indicator newInstance(){ return new TRIX(); }
 
     @Override
     public boolean hasZeroLine(){ return true; }
@@ -86,30 +82,25 @@ public class TRIX extends Indicator
     public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor(){ return new Color(0xbbbbbb); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke() {return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke() {return properties.getZeroLineStroke(); }
 
     @Override
-    public boolean hasDelimiters()
-    { return false; }
+    public boolean hasDelimiters(){ return false; }
 
     @Override
-    public boolean getDelimitersVisibility()
-    { return false; }
+    public boolean getDelimitersVisibility(){ return false; }
 
     @Override
-    public double[] getDelimitersValues()
-    { return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {}; }
 
     @Override
-    public Color getDelimitersColor()
-    { return null; }
+    public Color getDelimitersColor(){ return null; }
 
     @Override
-    public Stroke getDelimitersStroke()
-    { return null; }
+    public Stroke getDelimitersStroke(){ return null; }
 
     @Override
     public Color[] getColors()

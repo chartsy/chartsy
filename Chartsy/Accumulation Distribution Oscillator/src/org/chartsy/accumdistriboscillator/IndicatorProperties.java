@@ -24,16 +24,18 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final boolean MARKER = true;
     public static final Color COLOR = new Color(0x4e9a06);
     public static int STROKE_INDEX = 0;
+    public static final Color ZERO_LINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 0;
     public static int DEFAULT_FAST_PERIOD = 3;
     public static int DEFAULT_SLOW_PERIOD = 10;
-    public static final Color ZERO_LINE_COLOR = new Color (0xbbbbbb);
-
+    
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color color = COLOR;
-    private int strokeIndex = STROKE_INDEX;
     private Color zeroLineColor = ZERO_LINE_COLOR;
-
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
+    private int strokeIndex = STROKE_INDEX;
+    
     private int fastPeriod = DEFAULT_FAST_PERIOD;//standard default according to Chaikin
     private int slowPeriod = DEFAULT_SLOW_PERIOD;//standard default according to Chaikin
 
@@ -54,12 +56,18 @@ public class IndicatorProperties extends AbstractPropertyListener
     public Color getColor() { return color; }
     public void setColor(Color c) { color = c; }
 
+    public Color getZeroLineColor() {return zeroLineColor; }
+    public void setZeroLineColor(Color zeroLineColor) {this.zeroLineColor = zeroLineColor; }
+
     public int getStrokeIndex() { return strokeIndex; }
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
-    public Color getZeroLineColor() {return zeroLineColor; }
-    public void setZeroLineColor(Color zeroLineColor) {this.zeroLineColor = zeroLineColor; }
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
 
 }

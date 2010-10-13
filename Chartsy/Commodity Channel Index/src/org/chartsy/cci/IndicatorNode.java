@@ -40,17 +40,7 @@ public class IndicatorNode
 
         try
         {
-            // Period
-            set.put(getProperty(
-                    "Period", // property name
-                    "Sets the period value", // property description
-                    IndicatorProperties.class, // properties class
-                    int.class, // property class
-                    null, // property editor class (null if none)
-                    "getPeriod", // get method name
-                    "setPeriod", // set method name
-                    IndicatorProperties.PERIOD // default property value
-                    ));
+            
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -72,6 +62,17 @@ public class IndicatorNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
+                    ));
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    IndicatorProperties.PERIOD // default property value
                     ));
             // Line Color
             set.put(getProperty(
@@ -127,39 +128,6 @@ public class IndicatorNode
                     "getInsideVisibility", // get method name
                     "setInsideVisibility", // set method name
                     IndicatorProperties.INSIDE_VISIBILITY // default property value
-                    ));
-            // Zero Line Color
-            set.put(getProperty(
-                    "Zero Line Color", // property name
-                    "Sets the zero line color", // property description
-                    IndicatorProperties.class, // properties class
-                    Color.class, // property class
-                    null, // property editor class (null if none)
-                    "getZeroLineColor", // get method name
-                    "setZeroLineColor", // set method name
-                    IndicatorProperties.ZERO_LINE_COLOR // default property value
-                    ));
-            // Zero Line Style
-            set.put(getProperty(
-                    "Zero Line Style", // property name
-                    "Sets the zero line style", // property description
-                    IndicatorProperties.class, // properties class
-                    Stroke.class, // property class
-                    StrokePropertyEditor.class, // property editor class (null if none)
-                    "getZeroLineStroke", // get method name
-                    "setZeroLineStroke", // set method name
-                    StrokeGenerator.getStroke(IndicatorProperties.ZERO_LINE_STROKE) // default property value
-                    ));
-            // Zero Line Visibility
-            set.put(getProperty(
-                    "Zero Line Visibility", // property name
-                    "Sets the zero line visibility flag", // property description
-                    IndicatorProperties.class, // properties class
-                    boolean.class, // property class
-                    null, // property editor class (null if none)
-                    "getZeroLineVisibility", // get method name
-                    "setZeroLineVisibility", // set method name
-                    IndicatorProperties.ZERO_LINE_VISIBILITY // default property value
                     ));
         }
         catch (NoSuchMethodException ex)

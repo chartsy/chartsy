@@ -48,6 +48,28 @@ public class OverlayNode
 
         try
         {
+            // Label
+            set.put(getProperty(
+                    "Label", // property name
+                    "Sets the label", // property description
+                    OverlayProperties.class, // properties class
+                    String.class, // property class
+                    PropertyEditorSupport.class, // property editor class (null if none)
+                    "getLabel", // get method name
+                    "setLabel", // set method name
+                    OverlayProperties.LABEL // default property value
+                    ));
+            // Marker Visibility
+            set.put(getProperty(
+                    "Marker Visibility", // property name
+                    "Sets the marker visibility", // property description
+                    OverlayProperties.class, // properties class
+                    boolean.class, // property class
+                    null, // property editor class (null if none)
+                    "getMarker", // get method name
+                    "setMarker", // set method name
+                    OverlayProperties.MARKER // default property value
+                    ));
             // # x Std. Dev.
             set.put(getProperty(
                     "# x Std. Dev.", // property name
@@ -80,28 +102,6 @@ public class OverlayNode
                     "getPrice", // get method name
                     "setPrice", // set method name
                     OverlayProperties.PRICE // default property value
-                    ));
-            // Label
-            set.put(getProperty(
-                    "Label", // property name
-                    "Sets the label", // property description
-                    OverlayProperties.class, // properties class
-                    String.class, // property class
-                    PropertyEditorSupport.class, // property editor class (null if none)
-                    "getLabel", // get method name
-                    "setLabel", // set method name
-                    OverlayProperties.LABEL // default property value
-                    ));
-            // Marker Visibility
-            set.put(getProperty(
-                    "Marker Visibility", // property name
-                    "Sets the marker visibility", // property description
-                    OverlayProperties.class, // properties class
-                    boolean.class, // property class
-                    null, // property editor class (null if none)
-                    "getMarker", // get method name
-                    "setMarker", // set method name
-                    OverlayProperties.MARKER // default property value
                     ));
             // Lower Line Color
             set.put(getProperty(
@@ -205,7 +205,7 @@ public class OverlayNode
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.log(Level.SEVERE, "[BollingerBandsNode] : Method does not exist.", ex);
+            LOG.log(Level.SEVERE, "[Bollinger Bands Node] : Method does not exist.", ex);
         }
 
         return sets;

@@ -24,8 +24,9 @@ import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
- *
- * @author home
+ * The weighted close indicator
+ * 
+ * @author joshua.taylor
  */
 public class WClose extends Overlay
 {
@@ -33,7 +34,7 @@ public class WClose extends Overlay
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "Weighted Close";
-    public static final String ABBREV = "wclose";
+    public static final String HASHKEY = "wclose";
 
     private OverlayProperties properties;
 
@@ -58,32 +59,26 @@ public class WClose extends Overlay
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
     { return properties.getLabel() + " (" + properties.getPrice() + ")"; }
 
     @Override
-    public Overlay newInstance()
-    { return new WClose(); }
+    public Overlay newInstance(){ return new WClose(); }
 
     @Override
-    public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new OverlayNode(properties); }
+    public AbstractNode getNode(){ return new OverlayNode(properties); }
 
     @Override
-    public String getPrice()
-    { return properties.getPrice(); }
+    public String getPrice(){ return properties.getPrice(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
@@ -107,7 +102,7 @@ public class WClose extends Overlay
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
         {
             Range range = cf.getSplitPanel().getChartPanel().getRange();
@@ -118,7 +113,7 @@ public class WClose extends Overlay
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             int price = Dataset.getPrice(properties.getPrice());
             return new double[] {d.getLastPrice(price)};
@@ -129,7 +124,7 @@ public class WClose extends Overlay
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             String price = properties.getPrice();
             return new double[] {d.getPriceAt(i, price)};
@@ -182,7 +177,7 @@ public class WClose extends Overlay
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

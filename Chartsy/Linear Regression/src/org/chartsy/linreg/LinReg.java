@@ -33,7 +33,7 @@ public class LinReg extends Overlay
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "Linear Regression";
-    public static final String ABBREV = "linreg";
+    public static final String HASHKEY = "linreg";
 
     private OverlayProperties properties;
 
@@ -47,7 +47,7 @@ public class LinReg extends Overlay
     //variables specific this moving average type
     int period = 0;
 
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public LinReg()
@@ -57,32 +57,26 @@ public class LinReg extends Overlay
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
     { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 
     @Override
-    public Overlay newInstance()
-    { return new LinReg(); }
+    public Overlay newInstance(){ return new LinReg(); }
 
     @Override
-    public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new OverlayNode(properties); }
+    public AbstractNode getNode(){ return new OverlayNode(properties); }
 
     @Override
-    public String getPrice()
-    { return properties.getPrice(); }
+    public String getPrice(){ return properties.getPrice(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
@@ -106,7 +100,7 @@ public class LinReg extends Overlay
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
         {
             Range range = cf.getSplitPanel().getChartPanel().getRange();
@@ -117,7 +111,7 @@ public class LinReg extends Overlay
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             int price = Dataset.getPrice(properties.getPrice());
             return new double[] {d.getLastPrice(price)};
@@ -128,7 +122,7 @@ public class LinReg extends Overlay
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             String price = properties.getPrice();
             return new double[] {d.getPriceAt(i, price)};
@@ -180,7 +174,7 @@ public class LinReg extends Overlay
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

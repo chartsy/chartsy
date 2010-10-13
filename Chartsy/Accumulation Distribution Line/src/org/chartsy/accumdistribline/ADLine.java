@@ -33,7 +33,7 @@ public class ADLine extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Accumulation/Distribution Line";
-    public static final String ABBREV = "adline";
+    public static final String HASHKEY = "adline";
 
     
     private IndicatorProperties properties;
@@ -48,7 +48,6 @@ public class ADLine extends Indicator{
     //variables specific to Accumulation/Distribution Line
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
     private double[] allVolume;
 
     //the next variable is used for ultra-fast calculations
@@ -138,7 +137,7 @@ public class ADLine extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -152,7 +151,7 @@ public class ADLine extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -161,7 +160,7 @@ public class ADLine extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -192,13 +191,12 @@ public class ADLine extends Indicator{
 
         allHigh = initial.getHighValues();//new double[count];
         allLow = initial.getLowValues();//new double[count];
-        allClose = initial.getCloseValues();//new double[count];
         allVolume = initial.getVolumeValues();//new double[count];
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.adLookback();
-        core.ad(0, count-1, allHigh, allLow, allClose, allVolume, outBegIdx, outNbElement, output);
+        core.ad(0, count-1, allHigh, allLow, initial.getCloseValues(), allVolume, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -213,6 +211,6 @@ public class ADLine extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

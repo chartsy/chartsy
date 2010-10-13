@@ -30,6 +30,10 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static int STROKE_INDEX_D = 0;
     public static Color COLOR_K = new Color(0xf57900);
     public static int STROKE_INDEX_K = 0;
+    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
+    public static int DELIMITER_STROKE_INDEX = 1;
+    public static final Color ZERO_LINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 0;
 
     private int periodK = PERIOD_K;
     private int periodD = PERIOD_D;
@@ -41,6 +45,10 @@ public class IndicatorProperties extends AbstractPropertyListener
     private int strokeIndexD = STROKE_INDEX_D;
     private Color colorK = COLOR_K;
     private int strokeIndexK = STROKE_INDEX_K;
+    private Color delimiterColor = DELIMITER_COLOR;
+    private int delimiterStrokeIndex = DELIMITER_STROKE_INDEX;
+    private Color zeroLineColor = ZERO_LINE_COLOR;
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
 
     public IndicatorProperties() {}
 
@@ -77,5 +85,21 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setStrokeIndexK(int i) { strokeIndexK = i; }
     public Stroke getStrokeK() { return StrokeGenerator.getStroke(strokeIndexK); }
     public void setStrokeK(Stroke s) { strokeIndexK = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getDelimiterColor() { return delimiterColor; }
+    public void setDelimiterColor(Color delimiterColor) { this.delimiterColor = delimiterColor; }
+
+    public int getDelimiterStrokeIndex() {return delimiterStrokeIndex; }
+    public void setDelimiterStrokeIndex(int delimiterStrokeIndex) {this.delimiterStrokeIndex = delimiterStrokeIndex; }
+    public Stroke getDelimiterLineStroke() { return StrokeGenerator.getStroke(delimiterStrokeIndex); }
+    public void setDelimiterLineStroke(Stroke s) { delimiterStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getZeroLineColor() {return zeroLineColor; }
+    public void setZeroLineColor(Color zeroLineColor) {this.zeroLineColor = zeroLineColor; }
+
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

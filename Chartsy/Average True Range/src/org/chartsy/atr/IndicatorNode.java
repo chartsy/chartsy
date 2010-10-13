@@ -39,17 +39,7 @@ public class IndicatorNode
 
         try
         {
-            // Period
-            set.put(getProperty(
-                    "Period", // property name
-                    "Sets the period value", // property description
-                    IndicatorProperties.class, // properties class
-                    int.class, // property class
-                    null, // property editor class (null if none)
-                    "getPeriod", // get method name
-                    "setPeriod", // set method name
-                    IndicatorProperties.PERIOD // default property value
-                    ));
+            
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -71,6 +61,17 @@ public class IndicatorNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
+                    ));
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    IndicatorProperties.PERIOD // default property value
                     ));
             // Line Color
             set.put(getProperty(

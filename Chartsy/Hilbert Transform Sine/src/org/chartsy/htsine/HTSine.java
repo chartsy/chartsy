@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -51,7 +50,7 @@ public class HTSine extends Indicator{
     //variables specific to Average Directional Index
     //NONE...
 
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDatasetSine;
     private Dataset calculatedDatasetLeadSine;
 
@@ -82,7 +81,7 @@ public class HTSine extends Indicator{
     public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return true; }

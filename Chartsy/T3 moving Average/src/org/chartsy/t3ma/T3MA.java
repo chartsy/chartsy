@@ -34,7 +34,7 @@ public class T3MA extends Overlay
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "T3 MA";
-    public static final String ABBREV = "t3ma";
+    public static final String HASHKEY = "t3ma";
 
     private OverlayProperties properties;
 
@@ -58,26 +58,19 @@ public class T3MA extends Overlay
         properties = new OverlayProperties();
     }
 
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
-    public String getLabel()
-    { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
+    public String getLabel(){ return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 
-    public Overlay newInstance()
-    { return new T3MA(); }
+    public Overlay newInstance(){ return new T3MA(); }
 
-    public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
-    public AbstractNode getNode()
-    { return new OverlayNode(properties); }
+    public AbstractNode getNode(){ return new OverlayNode(properties); }
 
-    public String getPrice()
-    { return properties.getPrice(); }
+    public String getPrice(){ return properties.getPrice(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
         LinkedHashMap ht = new LinkedHashMap();
@@ -99,7 +92,7 @@ public class T3MA extends Overlay
 
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
         {
             Range range = cf.getSplitPanel().getChartPanel().getRange();
@@ -109,7 +102,7 @@ public class T3MA extends Overlay
 
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             int price = Dataset.getPrice(properties.getPrice());
             return new double[] {d.getLastPrice(price)};
@@ -119,7 +112,7 @@ public class T3MA extends Overlay
 
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null) {
             String price = properties.getPrice();
             return new double[] {d.getPriceAt(i, price)};
@@ -171,7 +164,7 @@ public class T3MA extends Overlay
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

@@ -25,6 +25,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final Color COLOR = new Color(0x4e9a06);
     public static int STROKE_INDEX = 0;
     public static final Color ZEROLINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 1;
     public static final int PERIOD = 10;//default
 
     private String label = LABEL;
@@ -33,7 +34,8 @@ public class IndicatorProperties extends AbstractPropertyListener
     private int strokeIndex = STROKE_INDEX;
     private Color zeroLineColor = ZEROLINE_COLOR;
     private int period = PERIOD;
-
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
+    
     public IndicatorProperties() {}
 
     public String getLabel() { return label; }
@@ -55,5 +57,10 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public Color getZeroLineColor() { return zeroLineColor; }
     public void setZeroLineColor(Color zeroLineColor) { this.zeroLineColor = zeroLineColor; }
+
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

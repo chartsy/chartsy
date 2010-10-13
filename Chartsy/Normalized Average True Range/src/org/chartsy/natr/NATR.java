@@ -33,7 +33,7 @@ public class NATR extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Normalized-ATR";
-    public static final String ABBREV = "natr";
+    public static final String HASHKEY = "natr";
 
 
     private IndicatorProperties properties;
@@ -49,8 +49,7 @@ public class NATR extends Indicator{
     int period = 0;
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
-
+    
     //a variable to hold the dataset
     private Dataset calculatedDataset;
 
@@ -63,7 +62,7 @@ public class NATR extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel()+ " (" + properties.getPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -75,16 +74,13 @@ public class NATR extends Indicator{
     public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return false; }
+    public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor()
-    { return null; }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return null; }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return false; }
@@ -141,7 +137,7 @@ public class NATR extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -155,7 +151,7 @@ public class NATR extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -164,7 +160,7 @@ public class NATR extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -196,13 +192,12 @@ public class NATR extends Indicator{
         period = properties.getPeriod();
         allHigh = initial.getHighValues();
         allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
-
+        
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.natrLookback(period);
-        core.natr(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
+        core.natr(0, count-1, allHigh, allLow, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -217,7 +212,7 @@ public class NATR extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

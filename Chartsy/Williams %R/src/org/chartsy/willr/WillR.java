@@ -20,12 +20,12 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
 
 /**
+ * The Williams %R indicator
  *
  * @author joshua.taylor
  */
@@ -35,7 +35,7 @@ public class WillR extends Indicator
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String FULL_NAME = "Williams %R";
-    public static final String ABBREV = "willr";
+    public static final String HASHKEY = "willr";
     private IndicatorProperties properties;
 
     //variables for TA-Lib utilization
@@ -59,20 +59,17 @@ public class WillR extends Indicator
     }
 
     @Override
-    public String getName()
-    { return "Williams %R"; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
     { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
     @Override
-    public Indicator newInstance()
-    { return new WillR(); }
+    public Indicator newInstance(){ return new WillR(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -96,13 +93,12 @@ public class WillR extends Indicator
     }
 
     @Override
-    public Range getRange(ChartFrame cf)
-    { return new Range(0, -100); }
+    public Range getRange(ChartFrame cf){ return new Range(0, -100); }
 
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
 
         if (d != null)
         {
@@ -150,11 +146,11 @@ public class WillR extends Indicator
 
     @Override
     public Color getDelimitersColor()
-    { return new Color(0xbbbbbb); }
+    { return properties.getDelimiterColor(); }
 
     @Override
     public Stroke getDelimitersStroke()
-    { return StrokeGenerator.getStroke(1); }
+    { return properties.getDelimiterLineStroke(); }
 
     @Override
     public Color[] getColors()
@@ -163,7 +159,7 @@ public class WillR extends Indicator
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -172,7 +168,7 @@ public class WillR extends Indicator
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -234,7 +230,7 @@ public class WillR extends Indicator
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

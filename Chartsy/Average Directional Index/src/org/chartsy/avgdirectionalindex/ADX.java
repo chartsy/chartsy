@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -34,7 +33,7 @@ public class ADX extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Average Directional Index (ADX)";
-    public static final String ABBREV = "adx";
+    public static final String HASHKEY = "adx";
 
 
     private IndicatorProperties properties;
@@ -50,9 +49,8 @@ public class ADX extends Indicator{
     int period = 0;
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
     
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public ADX() {
@@ -64,7 +62,7 @@ public class ADX extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -97,7 +95,7 @@ public class ADX extends Indicator{
     public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
     @Override
-    public Stroke getDelimitersStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimterLineStroke(); }
 
     @Override
     public Color[] getColors(){ return new Color[] {properties.getColor()}; }
@@ -136,7 +134,7 @@ public class ADX extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -150,7 +148,7 @@ public class ADX extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -159,7 +157,7 @@ public class ADX extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -192,13 +190,12 @@ public class ADX extends Indicator{
         
         allHigh = initial.getHighValues();
         allLow = initial.getLowValues();
-        allClose = initial.getCloseValues();
         
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.adxLookback(period);
-        core.adx(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
+        core.adx(0, count-1, allHigh, allLow, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -213,6 +210,6 @@ public class ADX extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

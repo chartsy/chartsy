@@ -43,28 +43,6 @@ public class IndicatorNode extends AbstractPropertiesNode
 
         try
         {
-            // Fast Limit
-            set.put(getProperty(
-                    "Fast Limit", // property name
-                    "Sets the fast limit", // property description
-                    IndicatorProperties.class, // properties class
-                    double.class, // property class
-                    null, // property editor class (null if none)
-                    "getFastLimit", // get method name
-                    "setFastLimit", // set method name
-                    IndicatorProperties.FAST_LIMIT // default property value
-                    ));
-            // Slow Limit
-            set.put(getProperty(
-                    "Slow Limit", // property name
-                    "Sets the slow limit", // property description
-                    IndicatorProperties.class, // properties class
-                    double.class, // property class
-                    null, // property editor class (null if none)
-                    "getSlowLimit", // get method name
-                    "setSlowLimit", // set method name
-                    IndicatorProperties.SLOW_LIMIT // default property value
-                    ));
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -86,6 +64,28 @@ public class IndicatorNode extends AbstractPropertiesNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
+                    ));
+            // Fast Limit
+            set.put(getProperty(
+                    "Fast Limit", // property name
+                    "Sets the fast limit", // property description
+                    IndicatorProperties.class, // properties class
+                    double.class, // property class
+                    null, // property editor class (null if none)
+                    "getFastLimit", // get method name
+                    "setFastLimit", // set method name
+                    IndicatorProperties.FAST_LIMIT // default property value
+                    ));
+            // Slow Limit
+            set.put(getProperty(
+                    "Slow Limit", // property name
+                    "Sets the slow limit", // property description
+                    IndicatorProperties.class, // properties class
+                    double.class, // property class
+                    null, // property editor class (null if none)
+                    "getSlowLimit", // get method name
+                    "setSlowLimit", // set method name
+                    IndicatorProperties.SLOW_LIMIT // default property value
                     ));
             // FAMA Line Color
             set.put(getProperty(

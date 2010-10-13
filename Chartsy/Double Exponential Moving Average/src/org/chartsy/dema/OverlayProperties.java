@@ -22,7 +22,7 @@ public class OverlayProperties extends AbstractPropertyListener
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public static final int PERIOD = 20;
+    public static final int PERIOD = 10;
     public static final String PRICE = Dataset.CLOSE;
     public static final String LABEL = "DEMA";
     public static final boolean MARKER = true;

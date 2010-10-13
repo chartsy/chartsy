@@ -65,28 +65,6 @@ public class IndicatorNode extends AbstractPropertiesNode
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
                     ));
-            // Line Color
-            set.put(getProperty(
-                    "Line Color", // property name
-                    "Sets the line color", // property description
-                    IndicatorProperties.class, // properties class
-                    Color.class, // property class
-                    null, // property editor class (null if none)
-                    "getColor", // get method name
-                    "setColor", // set method name
-                    IndicatorProperties.COLOR // default property value
-                    ));
-            // Line Style
-            set.put(getProperty(
-                    "Line Style", // property name
-                    "Sets the line style", // property description
-                    IndicatorProperties.class, // properties class
-                    Stroke.class, // property class
-                    StrokePropertyEditor.class, // property editor class (null if none)
-                    "getStroke", // get method name
-                    "setStroke", // set method name
-                    StrokeGenerator.getStroke(IndicatorProperties.STROKE_INDEX) // default property value
-                    ));
             // Fast Period
             set.put(getProperty(
                     "Fast Period", // property name
@@ -109,6 +87,29 @@ public class IndicatorNode extends AbstractPropertiesNode
                     "setSlowPeriod", // set method name
                     IndicatorProperties.DEFAULT_SLOW_PERIOD// default property value
                     ));
+            // Line Color
+            set.put(getProperty(
+                    "Line Color", // property name
+                    "Sets the line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getColor", // get method name
+                    "setColor", // set method name
+                    IndicatorProperties.COLOR // default property value
+                    ));
+            // Line Style
+            set.put(getProperty(
+                    "Line Style", // property name
+                    "Sets the line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getStroke", // get method name
+                    "setStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.STROKE_INDEX) // default property value
+                    ));
+            
         }
         catch (NoSuchMethodException ex)
         {

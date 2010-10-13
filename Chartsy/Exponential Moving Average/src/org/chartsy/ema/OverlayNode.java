@@ -47,28 +47,6 @@ public class OverlayNode
 
         try
         {
-            // Period
-            set.put(getProperty(
-                    "Period", // property name
-                    "Sets the period value", // property description
-                    OverlayProperties.class, // properties class
-                    int.class, // property class
-                    null, // property editor class (null if none)
-                    "getPeriod", // get method name
-                    "setPeriod", // set method name
-                    OverlayProperties.PERIOD // default property value
-                    ));
-            // Price
-            set.put(getProperty(
-                    "Price", // property name
-                    "Sets the price type", // property description
-                    OverlayProperties.class, // properties class
-                    String.class, // property class
-                    PricePropertyEditor.class, // property editor class (null if none)
-                    "getPrice", // get method name
-                    "setPrice", // set method name
-                    OverlayProperties.PRICE // default property value
-                    ));
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -90,6 +68,28 @@ public class OverlayNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     OverlayProperties.MARKER // default property value
+                    ));
+            // Period
+            set.put(getProperty(
+                    "Period", // property name
+                    "Sets the period value", // property description
+                    OverlayProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod", // get method name
+                    "setPeriod", // set method name
+                    OverlayProperties.PERIOD // default property value
+                    ));
+            // Price
+            set.put(getProperty(
+                    "Price", // property name
+                    "Sets the price type", // property description
+                    OverlayProperties.class, // properties class
+                    String.class, // property class
+                    PricePropertyEditor.class, // property editor class (null if none)
+                    "getPrice", // get method name
+                    "setPrice", // set method name
+                    OverlayProperties.PRICE // default property value
                     ));
             // Line Color
             set.put(getProperty(

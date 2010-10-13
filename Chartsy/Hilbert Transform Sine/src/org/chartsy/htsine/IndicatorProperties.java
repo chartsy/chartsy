@@ -27,6 +27,8 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final Color LEAD_SINE_LINE_COLOR = new Color(0x4e9a06);
     public static int LEAD_SINE_LINE_STROKE_INDEX = 0;
     public static final Color ZERO_LINE_COLOR = new Color(0xbbbbbb);
+    public static int ZERO_LINE_STROKE_INDEX = 0;
+
 
 
     private String label = LABEL;
@@ -36,6 +38,8 @@ public class IndicatorProperties extends AbstractPropertyListener
     private Color leadSineLineColor = LEAD_SINE_LINE_COLOR;
     private int leadSineLineStrokeIndex = LEAD_SINE_LINE_STROKE_INDEX;
     private Color zeroLineColor = ZERO_LINE_COLOR;
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
+    
 
     public IndicatorProperties() {}
 
@@ -64,5 +68,10 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public Color getZeroLineColor() { return zeroLineColor; }
     public void setZeroLineColor(Color zeroLineColor) { this.zeroLineColor = zeroLineColor; }
+
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

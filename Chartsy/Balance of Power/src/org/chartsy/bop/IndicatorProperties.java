@@ -24,7 +24,6 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static boolean MARKER = true;
     public static Color ZERO_LINE_COLOR = new Color(0x000000);
     public static int ZERO_LINE_STROKE_INDEX = 0;
-    public static boolean ZERO_LINE_VISIBILITY = true;
     public static Color HISTOGRAM_POSITIVE_COLOR = new Color(0x73880A);
     public static Color HISTOGRAM_NEGATIVE_COLOR = new Color(0xCC0000);
 
@@ -32,7 +31,6 @@ public class IndicatorProperties extends AbstractPropertyListener
     private boolean marker = MARKER;
     private Color zeroLineColor = ZERO_LINE_COLOR;
     private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
-    private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
     private Color histogramPositiveColor = HISTOGRAM_POSITIVE_COLOR;
     private Color histogramNegativeColor = HISTOGRAM_NEGATIVE_COLOR;
 
@@ -51,9 +49,6 @@ public class IndicatorProperties extends AbstractPropertyListener
     public void setZeroLineStrokeIndex(int i) { zeroLineStrokeIndex = i; }
     public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
     public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    public boolean getZeroLineVisibility() { return zeroLineVisibility; }
-    public void setZeroLineVisibility(boolean b) { zeroLineVisibility = b; }
 
     public Color getHistogramPositiveColor() { return histogramPositiveColor; }
     public void setHistogramPositiveColor(Color c) { histogramPositiveColor = c; }

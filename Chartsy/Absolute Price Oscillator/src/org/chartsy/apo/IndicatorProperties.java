@@ -23,8 +23,9 @@ public class IndicatorProperties extends AbstractPropertyListener
     public static final String LABEL = "Absolute Price Oscillator";
     public static final boolean MARKER = true;
     public static final Color COLOR = new Color(0x4e9a06);
-    public static int STROKE_INDEX = 0;
     public static final Color ZEROLINE_COLOR = new Color(0xbbbbbb);
+    public static int STROKE_INDEX = 0;
+    public static int ZERO_LINE_STROKE_INDEX = 1;
     public static final int FAST_PERIOD = 12;//default
     public static final int SLOW_PERIOD = 26;//default
 
@@ -33,6 +34,7 @@ public class IndicatorProperties extends AbstractPropertyListener
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
     private Color zeroLineColor = ZEROLINE_COLOR;
+    private int zeroLineStrokeIndex = ZERO_LINE_STROKE_INDEX;
     private int fastPeriod = FAST_PERIOD;
     private int slowPeriod = SLOW_PERIOD;
 
@@ -60,5 +62,10 @@ public class IndicatorProperties extends AbstractPropertyListener
 
     public Color getZeroLineColor() { return zeroLineColor; }
     public void setZeroLineColor(Color zeroLineColor) { this.zeroLineColor = zeroLineColor; }
+
+    public int getZeroLineStrokeIndex() {return zeroLineStrokeIndex; }
+    public void setZeroLineStrokeIndex(int zeroLineStrokeIndex) {this.zeroLineStrokeIndex = zeroLineStrokeIndex; }
+    public Stroke getZeroLineStroke() { return StrokeGenerator.getStroke(zeroLineStrokeIndex); }
+    public void setZeroLineStroke(Stroke s) { zeroLineStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

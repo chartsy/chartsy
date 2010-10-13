@@ -33,7 +33,7 @@ public class HTTrendMode extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Hilbert Transform Trend Mode";
-    public static final String ABBREV = "httrendmode";
+    public static final String HASHKEY = "httrendmode";
 
 
     private IndicatorProperties properties;
@@ -49,7 +49,7 @@ public class HTTrendMode extends Indicator{
     //variables specific to Average Directional Index
     //NONE...
 
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public HTTrendMode() {
@@ -136,7 +136,7 @@ public class HTTrendMode extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -150,7 +150,7 @@ public class HTTrendMode extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -159,7 +159,7 @@ public class HTTrendMode extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -216,7 +216,7 @@ public class HTTrendMode extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

@@ -32,14 +32,12 @@ public class TEMA
         properties = new OverlayProperties();
     }
 
-    public String getName() 
-    { return "TEMA"; }
+    public String getName(){ return "TEMA"; }
 
     public String getLabel()
     { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
 
-    public Overlay newInstance() 
-    { return new TEMA(); }
+    public Overlay newInstance(){ return new TEMA(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {
@@ -83,8 +81,7 @@ public class TEMA
         }
     }
 
-    public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    public Color[] getColors(){ return new Color[] {properties.getColor()}; }
 
     public double[] getValues(ChartFrame cf) {
         Dataset tema = visibleDataset(cf, TEMA);
@@ -107,13 +104,10 @@ public class TEMA
         return new double[] {};
     }
 
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
-    public AbstractNode getNode()
-    { return new OverlayNode(properties); }
+    public AbstractNode getNode(){ return new OverlayNode(properties); }
 
-    public String getPrice() 
-    { return properties.getPrice(); }
+    public String getPrice(){ return properties.getPrice(); }
 
 }

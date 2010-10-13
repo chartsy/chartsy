@@ -33,7 +33,7 @@ public class MinusDI extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Directional Indicator (-DI)";
-    public static final String ABBREV = "-diline";
+    public static final String HASHKEY = "-diline";
 
 
     private IndicatorProperties properties;
@@ -49,9 +49,8 @@ public class MinusDI extends Indicator{
     //variables specific to +/-DI Line
     private double[] allHigh;
     private double[] allLow;
-    private double[] allClose;
     
-    //the next variable is used for ultra-fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public MinusDI() {
@@ -63,7 +62,7 @@ public class MinusDI extends Indicator{
     public String getName(){ return FULL_NAME;}
 
     @Override
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
 
     @Override
     public String getPaintedLabel(ChartFrame cf){ return ""; }
@@ -135,7 +134,7 @@ public class MinusDI extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -149,7 +148,7 @@ public class MinusDI extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -158,7 +157,7 @@ public class MinusDI extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -189,13 +188,12 @@ public class MinusDI extends Indicator{
         period = properties.getPeriod();
         allHigh = initial.getHighValues();//new double[count];
         allLow = initial.getLowValues();//new double[count];
-        allClose = initial.getCloseValues();//new double[count];
         
         //now do the calculation over the entire dataset
         //[First, perform the lookback call if one exists]
         //[Second, do the calculation call from TA-lib]
         lookback = core.minusDILookback(period);
-        core.minusDI(0, count-1, allHigh, allLow, allClose, period, outBegIdx, outNbElement, output);
+        core.minusDI(0, count-1, allHigh, allLow, initial.getCloseValues(), period, outBegIdx, outNbElement, output);
 
         //Everything between the /***/ lines is what needs to be changed.
         //Everything else remains the same. You are done with your part now.
@@ -210,6 +208,6 @@ public class MinusDI extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

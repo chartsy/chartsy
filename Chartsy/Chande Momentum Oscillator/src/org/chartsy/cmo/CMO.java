@@ -20,7 +20,6 @@ import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.talib.TaLibInit;
 import org.chartsy.talib.TaLibUtilities;
 import org.openide.nodes.AbstractNode;
@@ -33,8 +32,7 @@ public class CMO extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Chande Momentum Oscillator (CMO)";
-    public static final String ABBREV = "cmo";
-
+    public static final String HASHKEY = "cmo";
 
     private IndicatorProperties properties;
 
@@ -48,7 +46,7 @@ public class CMO extends Indicator{
     //variables specific to Average Directional Index
     int period = 0;
 
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public CMO() {
@@ -75,10 +73,10 @@ public class CMO extends Indicator{
     public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor(){ return new Color(0xbbbbbb); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
     public boolean hasDelimiters(){ return true; }
@@ -87,13 +85,13 @@ public class CMO extends Indicator{
     public boolean getDelimitersVisibility(){ return true; }
 
     @Override
-    public double[] getDelimitersValues(){ return new double[] {-50d, 50d}; }
+    public double[] getDelimitersValues(){ return new double[] {-100d, -50d, 50d, 100}; }
 
     @Override
-    public Color getDelimitersColor(){ return new Color(0xbbbbbb); }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
     @Override
-    public Stroke getDelimitersStroke(){ return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimterLineStroke(); }
 
     @Override
     public Color[] getColors(){ return new Color[] {properties.getColor()}; }
@@ -103,6 +101,10 @@ public class CMO extends Indicator{
 
     @Override
     public AbstractNode getNode(){ return new IndicatorNode(properties); }
+
+    @Override
+    public Double[] getPriceValues(ChartFrame cf)
+    {  return new Double[] {new Double(-100), new Double(-50), new Double(50), new Double(100)}; }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -132,7 +134,7 @@ public class CMO extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -148,7 +150,7 @@ public class CMO extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -157,7 +159,7 @@ public class CMO extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -206,7 +208,7 @@ public class CMO extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

@@ -24,6 +24,7 @@ public class BollingerBands
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     
+    public static final String FULL_NAME = "Bollinger Bands";
     public static final String UPPER = "upper";
     public static final String MIDDLE = "middle";
     public static final String LOWER = "lower";
@@ -36,14 +37,12 @@ public class BollingerBands
         properties = new OverlayProperties();
     }
 
-    public String getName()
-    { return "Bollinger Bands"; }
+    public String getName(){ return FULL_NAME; }
 
     public String getLabel() 
     { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getStd() + ", " + properties.getPeriod() + ")"; }
 
-    public Overlay newInstance() 
-    { return new BollingerBands(); }
+    public Overlay newInstance(){ return new BollingerBands(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {

@@ -45,11 +45,9 @@ public class MACD
     public String getLabel()
     { return properties.getLabel() + " (" + properties.getFast() + ", " + properties.getSlow() + ", " + properties.getSmooth() + ")"; }
 
-    public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    public String getPaintedLabel(ChartFrame cf){ return getLabel(); }
 
-    public Indicator newInstance() 
-    { return new MACD(); }
+    public Indicator newInstance(){ return new MACD(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {
@@ -125,32 +123,23 @@ public class MACD
         }
     }
 
-    public boolean hasZeroLine()
-    { return true; }
+    public boolean hasZeroLine(){ return true; }
 
-    public boolean getZeroLineVisibility()
-    { return properties.getZeroLineVisibility(); }
+    public boolean getZeroLineVisibility(){ return properties.getZeroLineVisibility(); }
 
-    public Color getZeroLineColor()
-    { return properties.getZeroLineColor(); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
-    public Stroke getZeroLineStroke()
-    { return properties.getZeroLineStroke(); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
-    public boolean hasDelimiters() 
-    { return false; }
+    public boolean hasDelimiters(){ return false; }
 
-    public boolean getDelimitersVisibility() 
-    { return false; }
+    public boolean getDelimitersVisibility(){ return false; }
 
-    public double[] getDelimitersValues() 
-    { return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {}; }
 
-    public Color getDelimitersColor() 
-    { return null; }
+    public Color getDelimitersColor(){ return null; }
 
-    public Stroke getDelimitersStroke() 
-    { return null; }
+    public Stroke getDelimitersStroke(){ return null; }
 
     public Color[] getColors()
     {  return new Color[] {histogramColor!=null ? histogramColor : properties.getHistogramPositiveColor(), properties.getSignalColor(), properties.getMacdColor()}; }
@@ -190,11 +179,9 @@ public class MACD
         return values;
     }
 
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
-    public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)

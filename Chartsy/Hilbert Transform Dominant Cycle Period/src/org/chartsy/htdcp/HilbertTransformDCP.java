@@ -33,7 +33,7 @@ public class HilbertTransformDCP extends Indicator{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Hilbert Transform DC Period (HT-DC Period)";
-    public static final String ABBREV = "htdcperiod";
+    public static final String HASHKEY = "htdcperiod";
 
 
     private IndicatorProperties properties;
@@ -48,7 +48,7 @@ public class HilbertTransformDCP extends Indicator{
     //variables specific to Average Directional Index
     //NONE...
     
-    //the next variable is used for fast calculations
+    //the next variable is used to hold indicator calculations
     private Dataset calculatedDataset;
 
     public HilbertTransformDCP() {
@@ -135,7 +135,7 @@ public class HilbertTransformDCP extends Indicator{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             if(maximized)
@@ -149,7 +149,7 @@ public class HilbertTransformDCP extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getLastClose()};
         return new double[] {};
@@ -158,7 +158,7 @@ public class HilbertTransformDCP extends Indicator{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset d = visibleDataset(cf, ABBREV);
+        Dataset d = visibleDataset(cf, HASHKEY);
         if (d != null)
             return new double[] {d.getCloseAt(i)};
         return new double[] {};
@@ -207,7 +207,7 @@ public class HilbertTransformDCP extends Indicator{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 
 }

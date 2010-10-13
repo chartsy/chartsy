@@ -39,28 +39,6 @@ public class IndicatorNode
 
         try
         {
-            // Period 1
-            set.put(getProperty(
-                    "Period 1", // property name
-                    "Sets the period 1 value", // property description
-                    IndicatorProperties.class, // properties class
-                    int.class, // property class
-                    null, // property editor class (null if none)
-                    "getPeriod1", // get method name
-                    "setPeriod1", // set method name
-                    IndicatorProperties.PERIOD1 // default property value
-                    ));
-            // Period 2
-            set.put(getProperty(
-                    "Period 2", // property name
-                    "Sets the period 2 value", // property description
-                    IndicatorProperties.class, // properties class
-                    int.class, // property class
-                    null, // property editor class (null if none)
-                    "getPeriod2", // get method name
-                    "setPeriod2", // set method name
-                    IndicatorProperties.PERIOD2 // default property value
-                    ));
             // Label
             set.put(getProperty(
                     "Label", // property name
@@ -82,6 +60,28 @@ public class IndicatorNode
                     "getMarker", // get method name
                     "setMarker", // set method name
                     IndicatorProperties.MARKER // default property value
+                    ));
+            // Period 1
+            set.put(getProperty(
+                    "Period 1", // property name
+                    "Sets the period 1 value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod1", // get method name
+                    "setPeriod1", // set method name
+                    IndicatorProperties.PERIOD1 // default property value
+                    ));
+            // Period 2
+            set.put(getProperty(
+                    "Period 2", // property name
+                    "Sets the period 2 value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getPeriod2", // get method name
+                    "setPeriod2", // set method name
+                    IndicatorProperties.PERIOD2 // default property value
                     ));
             // Line Color 1
             set.put(getProperty(
@@ -130,7 +130,7 @@ public class IndicatorNode
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.log(Level.SEVERE, "[FINode] : Method does not exist.", ex);
+            LOG.log(Level.SEVERE, "[FI Node] : Method does not exist.", ex);
         }
 
         return sheet;

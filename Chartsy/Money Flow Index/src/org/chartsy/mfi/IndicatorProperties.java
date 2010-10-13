@@ -25,6 +25,9 @@ public class IndicatorProperties
     public static final Color INSIDE_COLOR = new Color(0x4e9a06);
     public static final int INSIDE_ALPHA = 25;
     public static final boolean INSIDE_VISIBILITY = true;
+    public static final Color DELIMITER_COLOR = new Color(0xbbbbbb);
+    public static int DELIMITER_STROKE_INDEX = 1;
+
 
     private int period = PERIOD;
     private String label = LABEL;
@@ -34,6 +37,9 @@ public class IndicatorProperties
     private Color insideColor = INSIDE_COLOR;
     private int insideAlpha = INSIDE_ALPHA;
     private boolean insideVisibility = INSIDE_VISIBILITY;
+    private int delimiterStrokeIndex = DELIMITER_STROKE_INDEX;
+    private Color delimiterColor = DELIMITER_COLOR;
+
 
     public IndicatorProperties() {}
 
@@ -53,6 +59,14 @@ public class IndicatorProperties
     public void setStrokeIndex(int i) { strokeIndex = i; }
     public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
     public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public int getDelimiterStrokeIndex() {return delimiterStrokeIndex; }
+    public void setDelimiterStrokeIndex(int delimiterStrokeIndex) {this.delimiterStrokeIndex = delimiterStrokeIndex; }
+    public Stroke getDelimiterLineStroke() { return StrokeGenerator.getStroke(delimiterStrokeIndex); }
+    public void setDelimiterLineStroke(Stroke s) { delimiterStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+
+    public Color getDelimiterColor() {return delimiterColor; }
+    public void setDelimiterColor(Color delimiterColor) {this.delimiterColor = delimiterColor; }
 
     public Color getInsideColor() { return insideColor; }
     public void setInsideColor(Color c) { insideColor = c; }

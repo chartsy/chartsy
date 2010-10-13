@@ -32,7 +32,7 @@ public class ParabolicSAR extends Overlay implements Serializable{
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final String FULL_NAME = "Parabolic SAR";
-    public static final String ABBREV = "sar";
+    public static final String HASHKEY = "sar";
 
     private OverlayProperties properties;
 
@@ -99,7 +99,7 @@ public class ParabolicSAR extends Overlay implements Serializable{
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null)
         {
             Range range = cf.getSplitPanel().getChartPanel().getRange();
@@ -110,7 +110,7 @@ public class ParabolicSAR extends Overlay implements Serializable{
     @Override
     public double[] getValues(ChartFrame cf)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null) {
             int price = Dataset.getPrice(properties.getPrice());
             return new double[] {dataset.getLastPrice(price)};
@@ -121,7 +121,7 @@ public class ParabolicSAR extends Overlay implements Serializable{
     @Override
     public double[] getValues(ChartFrame cf, int i)
     {
-        Dataset dataset = visibleDataset(cf, ABBREV);
+        Dataset dataset = visibleDataset(cf, HASHKEY);
         if (dataset != null) {
             String price = properties.getPrice();
             return new double[] {dataset.getPriceAt(i, price)};
@@ -177,6 +177,6 @@ public class ParabolicSAR extends Overlay implements Serializable{
         for (int i = 0; i < output.length; i++)
             calculatedDataset.setDataItem(i, new DataItem(initial.getTimeAt(i), output[i]));
 
-        addDataset(ABBREV, calculatedDataset);
+        addDataset(HASHKEY, calculatedDataset);
     }
 }

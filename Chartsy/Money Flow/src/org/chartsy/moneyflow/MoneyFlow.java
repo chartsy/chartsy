@@ -41,11 +41,11 @@ public class MoneyFlow
         properties = new IndicatorProperties();
     }
 
-    public String getName()
-    { return "Money Flow"; }
+    public String getName(){ return "Money Flow"; }
 
-    public String getLabel()
-    { return properties.getLabel(); }
+    public String getLabel(){ return properties.getLabel(); }
+
+    public Indicator newInstance(){ return new MoneyFlow(); }
 
     public String getPaintedLabel(ChartFrame cf)
     {
@@ -60,9 +60,6 @@ public class MoneyFlow
             return "Money Flow indicator is available only for daily data";
         }
     }
-
-    public Indicator newInstance() 
-    { return new MoneyFlow(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {
@@ -147,32 +144,23 @@ public class MoneyFlow
         }
     }
 
-    public boolean hasZeroLine()
-    { return true; }
+    public boolean hasZeroLine(){ return true; }
 
-    public boolean getZeroLineVisibility()
-    { return properties.getZeroLineVisibility(); }
+    public boolean getZeroLineVisibility(){ return properties.getZeroLineVisibility(); }
 
-    public Color getZeroLineColor()
-    { return properties.getZeroLineColor(); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
-    public Stroke getZeroLineStroke()
-    { return properties.getZeroLineStroke(); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
-    public boolean hasDelimiters() 
-    { return false; }
+    public boolean hasDelimiters(){ return false; }
 
-    public boolean getDelimitersVisibility() 
-    { return false; }
+    public boolean getDelimitersVisibility(){ return false; }
 
-    public double[] getDelimitersValues() 
-    { return new double[] {}; }
+    public double[] getDelimitersValues(){ return new double[] {}; }
 
-    public Color getDelimitersColor() 
-    { return null; }
+    public Color getDelimitersColor(){ return null; }
 
-    public Stroke getDelimitersStroke() 
-    { return null; }
+    public Stroke getDelimitersStroke(){ return null; }
 
     public Color[] getColors()
     { 
@@ -224,11 +212,9 @@ public class MoneyFlow
         return new double[] {};
     }
 
-    public boolean getMarkerVisibility() 
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
-    public AbstractNode getNode() 
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)

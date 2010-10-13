@@ -68,8 +68,7 @@ public class StochRSI extends Indicator
     }
 
     @Override
-    public String getName()
-    { return FULL_NAME; }
+    public String getName(){ return FULL_NAME; }
 
     @Override
     public String getLabel()
@@ -80,8 +79,7 @@ public class StochRSI extends Indicator
     { return (properties.getSF() ? "Fast" : "Slow") + getLabel(); }
 
     @Override
-    public Indicator newInstance()
-    { return new StochRSI(); }
+    public Indicator newInstance(){ return new StochRSI(); }
 
     @Override
     public LinkedHashMap getHTML(ChartFrame cf, int i)
@@ -105,8 +103,7 @@ public class StochRSI extends Indicator
     }
 
     @Override
-    public Range getRange(ChartFrame cf)
-    { return new Range(0, 100); }
+    public Range getRange(ChartFrame cf){ return new Range(0, 100); }
 
     @Override
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
@@ -127,40 +124,31 @@ public class StochRSI extends Indicator
     }
 
     @Override
-    public boolean hasZeroLine()
-    { return true; }
+    public boolean hasZeroLine(){ return true; }
 
     @Override
-    public boolean getZeroLineVisibility()
-    { return true; }
+    public boolean getZeroLineVisibility(){ return true; }
 
     @Override
-    public Color getZeroLineColor()
-    { return new Color(0xbbbbbb); }
+    public Color getZeroLineColor(){ return properties.getZeroLineColor(); }
 
     @Override
-    public Stroke getZeroLineStroke()
-    { return StrokeGenerator.getStroke(0); }
+    public Stroke getZeroLineStroke(){ return properties.getZeroLineStroke(); }
 
     @Override
-    public boolean hasDelimiters()
-    { return true; }
+    public boolean hasDelimiters(){ return true; }
 
     @Override
-    public boolean getDelimitersVisibility()
-    { return true; }
+    public boolean getDelimitersVisibility(){ return true; }
 
     @Override
-    public double[] getDelimitersValues()
-    { return new double[] {20d, 50d, 80d}; }
+    public double[] getDelimitersValues(){ return new double[] {20d, 50d, 80d}; }
 
     @Override
-    public Color getDelimitersColor()
-    { return new Color(0xbbbbbb); }
+    public Color getDelimitersColor(){ return properties.getDelimiterColor(); }
 
     @Override
-    public Stroke getDelimitersStroke()
-    { return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke(){ return properties.getDelimiterLineStroke(); }
 
     @Override
     public Color[] getColors()
@@ -189,12 +177,10 @@ public class StochRSI extends Indicator
     }
 
     @Override
-    public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    public boolean getMarkerVisibility(){ return properties.getMarker(); }
 
     @Override
-    public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    public AbstractNode getNode(){ return new IndicatorNode(properties); }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)
