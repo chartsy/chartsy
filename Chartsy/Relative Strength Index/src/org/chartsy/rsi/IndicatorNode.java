@@ -62,6 +62,28 @@ public class IndicatorNode
                     "setLabel", // set method name
                     IndicatorProperties.LABEL // default property value
                     ));
+            // Used dataset (close or Hull Moving Average)
+            set.put(getProperty(
+                    "Source dataset", // property name
+                    "Sets the dataset used in calculation. Can be close price or Hull Moving Average", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    SourceDatasetPropertyEditor.class, // property editor class (null if none)
+                    "getSourceDataset", // get method name
+                    "setSourceDataset", // set method name
+                    IndicatorProperties.SOURCE_CLOSE // default property value
+                    ));
+            // HMA Period
+            set.put(getProperty(
+                    "HMA Period", // property name
+                    "Sets the HMA period value (only used if the HMA source dataset is used)", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getHmaPeriod", // get method name
+                    "setHmaPeriod", // set method name
+                    IndicatorProperties.HMA_PERIOD // default property value
+                    ));
             // Marker Visibility
             set.put(getProperty(
                     "Marker Visibility", // property name

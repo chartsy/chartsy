@@ -20,12 +20,11 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public class RSI 
+public class RSI
         extends Indicator
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    
     public static final String RSI = "rsi";
     private IndicatorProperties properties;
 
@@ -36,16 +35,24 @@ public class RSI
     }
 
     public String getName()
-    { return "RSI"; }
+    {
+        return "RSI";
+    }
 
-    public String getLabel() 
-    { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
+    public String getLabel()
+    {
+        return properties.getLabel() + " (" + properties.getPeriod() + ")";
+    }
 
     public String getPaintedLabel(ChartFrame cf)
-    { return getLabel(); }
+    {
+        return getLabel();
+    }
 
-    public Indicator newInstance() 
-    { return new RSI(); }
+    public Indicator newInstance()
+    {
+        return new RSI();
+    }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {
@@ -53,12 +60,17 @@ public class RSI
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
         double[] values = getValues(cf, i);
-        String[] labels = {"RSI:"};
+        String[] labels =
+        {
+            "RSI:"
+        };
 
         ht.put(getLabel(), " ");
-        if (values.length > 0) {
+        if (values.length > 0)
+        {
             Color[] colors = getColors();
-            for (int j = 0; j < values.length; j++) {
+            for (int j = 0; j < values.length; j++)
+            {
                 ht.put(getFontHTML(colors[j], labels[j]),
                         getFontHTML(colors[j], df.format(values[j])));
             }
@@ -68,8 +80,10 @@ public class RSI
     }
 
     @Override
-    public Range getRange(ChartFrame cf) 
-    { return new Range(0, 100); }
+    public Range getRange(ChartFrame cf)
+    {
+        return new Range(0, 100);
+    }
 
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
@@ -102,100 +116,166 @@ public class RSI
         }
     }
 
-    public boolean hasZeroLine() 
-    { return false; }
+    public boolean hasZeroLine()
+    {
+        return false;
+    }
 
-    public boolean getZeroLineVisibility() 
-    { return false; }
+    public boolean getZeroLineVisibility()
+    {
+        return false;
+    }
 
-    public Color getZeroLineColor() 
-    { return null; }
+    public Color getZeroLineColor()
+    {
+        return null;
+    }
 
     public Stroke getZeroLineStroke()
-    { return null; }
+    {
+        return null;
+    }
 
-    public boolean hasDelimiters() 
-    { return true; }
+    public boolean hasDelimiters()
+    {
+        return true;
+    }
 
-    public boolean getDelimitersVisibility() 
-    { return true; }
+    public boolean getDelimitersVisibility()
+    {
+        return true;
+    }
 
-    public double[] getDelimitersValues() 
-    { return new double[] {30d, 50d, 70d}; }
+    public double[] getDelimitersValues()
+    {
+        return new double[]
+                {
+                    30d, 50d, 70d
+                };
+    }
 
-    public Color getDelimitersColor() 
-    { return new Color(0xbbbbbb); }
+    public Color getDelimitersColor()
+    {
+        return new Color(0xbbbbbb);
+    }
 
-    public Stroke getDelimitersStroke() 
-    { return StrokeGenerator.getStroke(1); }
+    public Stroke getDelimitersStroke()
+    {
+        return StrokeGenerator.getStroke(1);
+    }
 
     public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    {
+        return new Color[]
+                {
+                    properties.getColor()
+                };
+    }
 
     public double[] getValues(ChartFrame cf)
     {
         Dataset d = visibleDataset(cf, RSI);
         if (d != null)
-            return new double[] {d.getLastClose()};
-        return new double[] {};
+        {
+            return new double[]
+                    {
+                        d.getLastClose()
+                    };
+        }
+        return new double[]
+                {
+                };
     }
 
     public double[] getValues(ChartFrame cf, int i)
     {
         Dataset d = visibleDataset(cf, RSI);
         if (d != null)
-            return new double[] {d.getCloseAt(i)};
-        return new double[] {};
+        {
+            return new double[]
+                    {
+                        d.getCloseAt(i)
+                    };
+        }
+        return new double[]
+                {
+                };
     }
 
     public boolean getMarkerVisibility()
-    { return properties.getMarker(); }
+    {
+        return properties.getMarker();
+    }
 
     public AbstractNode getNode()
-    { return new IndicatorNode(properties); }
+    {
+        return new IndicatorNode(properties);
+    }
 
     @Override
     public Double[] getPriceValues(ChartFrame cf)
-    { return new Double[] {new Double(10), new Double(30), new Double(50), new Double(70), new Double(90)}; }
-
+    {
+        return new Double[]
+                {
+                    new Double(10), new Double(30), new Double(50), new Double(70), new Double(90)
+                };
+    }
 
     private Dataset getDataset(final Dataset initial, final int period)
     {
         int count = initial.getItemsCount();
         Dataset result = Dataset.EMPTY(count);
 
-        for (int i = period; i < count; i++)
+        Dataset source_dataset = null;
+        if (properties.getSourceDataset() == IndicatorProperties.SOURCE_CLOSE)
         {
-            double adva = 0;
-            double decl = 0;
-            double currentRSI;
+            source_dataset = initial;
+        } else
+        {
+            source_dataset = Dataset.HMA(initial, properties.getHmaPeriod());
+        }
 
-            for (int j = 0; j < period; j++)
+
+
+        // Build upward dataset
+        Dataset upward = Dataset.EMPTY(count);
+        Dataset downward = Dataset.EMPTY(count);
+        upward.setDataItem(0, new DataItem(source_dataset.getTimeAt(0), 0));
+        downward.setDataItem(0, new DataItem(source_dataset.getTimeAt(0), 0));
+        for (int i = 1; i < count; i++)
+        {
+            if (source_dataset.getCloseAt(i) > source_dataset.getCloseAt(i - 1))
             {
-                if (initial.getCloseAt(i-j) > initial.getCloseAt(i-j-1))
-                {
-                    adva += initial.getCloseAt(i-j) - initial.getCloseAt(i-j-1);
-                } 
-                else if (initial.getCloseAt(i-j) < initial.getCloseAt(i-j-1))
-                {
-                    decl += initial.getCloseAt(i-j-1) - initial.getCloseAt(i-j);
-                }
-            }
-
-            if (decl == 0)
+                upward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), source_dataset.getCloseAt(i) - source_dataset.getCloseAt(i - 1)));
+                downward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), 0));
+            } else if (source_dataset.getCloseAt(i) < source_dataset.getCloseAt(i - 1))
             {
-                currentRSI = 100000D;
-            }
-            else 
+                upward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), 0));
+                downward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), source_dataset.getCloseAt(i - 1) - source_dataset.getCloseAt(i)));
+            } else
             {
-                currentRSI = (double) adva/decl + 1;
+                // last close and previous close are equal, u and d are 0
+                upward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), 0));
+                downward.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), 0));
             }
+        }
 
-            result.setDataItem(i, new DataItem(initial.getTimeAt(i), (100 - 100/currentRSI)));
+        Dataset rsup = Dataset.EMAWilder(upward, period);
+        Dataset rsdown = Dataset.EMAWilder(downward, period);
 
+        for (int i = 0; i < count; i++)
+        {
+            if (rsdown.getCloseAt(i) == 0)
+            {
+                result.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), 100));
+            } else
+            {
+                double rs = rsup.getCloseAt(i) / rsdown.getCloseAt(i);
+                double rsival = 100d - (100d / (1d + rs));
+                result.setDataItem(i, new DataItem(source_dataset.getTimeAt(i), rsival));
+            }
         }
 
         return result;
     }
-
 }
