@@ -222,7 +222,9 @@ public class BOP extends Indicator
             }
         }
 
-        return list.toArray(new Double[list.size()]);
+        Double[] retval = list.toArray(new Double[list.size()]);
+        list = null;
+        return retval;
     }
 
     @Override
