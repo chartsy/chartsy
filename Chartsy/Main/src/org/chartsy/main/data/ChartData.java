@@ -4,11 +4,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.swing.event.EventListenerList;
 import org.chartsy.main.ChartFrame;
+import org.chartsy.main.ChartFrameListener;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.chart.Chart;
 import org.chartsy.main.chart.Indicator;
@@ -17,6 +20,9 @@ import org.chartsy.main.events.DatasetEvent;
 import org.chartsy.main.events.DatasetListener;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.intervals.MonthlyInterval;
+import org.chartsy.main.intervals.WeeklyInterval;
+import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.utils.Bounds;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.RectangleInsets;
@@ -26,28 +32,30 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class ChartData implements Serializable
+public class ChartData implements Serializable, ChartFrameListener
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
+	
     public static final int MIN_ITEMS = 40;
     public static final int MAX_ITEMS = 1000;
-    public static RectangleInsets axisOffset = new RectangleInsets(5.0, 5.0, 5.0, 5.0);
-    public static RectangleInsets dataOffset = new RectangleInsets(2.0, 20.0, 60.0, 55.0);
-    private Stock stock = null;
-    private Interval interval = null;
-    private Chart chart = null;
-    private DataProvider dataProvider = null;
-    private Dataset dataset = null;
-    private Dataset visible = null;
-    private Range visibleRange = null;
-    private List<Indicator> savedIndicators = new ArrayList<Indicator>();
-    private List<Overlay> savedOverlays = new ArrayList<Overlay>();
-    private List<Integer> annotationsCount = new ArrayList<Integer>();
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    public static final RectangleInsets axisOffset = new RectangleInsets(5.0, 5.0, 5.0, 5.0);
+    public static final RectangleInsets dataOffset = new RectangleInsets(2.0, 20.0, 40.0, 55.0);
+	
+    private Stock stock;
+    private Interval interval;
+    private Chart chart;
+    private String dataProviderName;
+    private String datasetKey;
+    private Dataset visible;
+    private Range visibleRange;
+    private List<Indicator> savedIndicators;
+    private List<Overlay> savedOverlays;
+    private List<Integer> annotationsCount;
+    private List<Annotation> annotations;
     private int period = -1;
     private int last = -1;
-    private boolean logarithmic = false;
+	private int size = -1;
 
     public ChartData()
     {
@@ -83,33 +91,22 @@ public class ChartData implements Serializable
         return interval == null;
     }
 
-    public String getKey()
-    {
-        return this.getDataProvider().getKey(this.getStock(), this.getInterval());
-    }
-
-    public void removeDataset()
-    {
-        this.getDataProvider().removeDataset(this.getKey());
-    }
-
     public boolean updateDataset(Interval newInterval)
     {
-        Dataset newDataset = dataProvider.getDataset(stock, newInterval);
+        /*Dataset newDataset = dataProvider.getDataset(stock, newInterval);
         if (newDataset != null)
         {
             setInterval(newInterval);
             setDataset(newDataset);
             setLast(-1);
             return fireDatasetEvent(new DatasetEvent(this));
-        }
-
+        }*/
         return false;
     }
 
     public void updateDataset()
     {
-        fireDatasetEvent(new DatasetEvent(this));
+        //fireDatasetEvent(new DatasetEvent(this));
     }
 
     public Chart getChart()
@@ -129,45 +126,48 @@ public class ChartData implements Serializable
 
     public DataProvider getDataProvider()
     {
-        return dataProvider;
+        return DataProviderManager.getDefault().getDataProvider(dataProviderName);
     }
 
-    public void setDataProvider(DataProvider dataProvider)
+    public void setDataProviderName(String dataProviderName)
     {
-        this.dataProvider = dataProvider;
+        this.dataProviderName = dataProviderName;
     }
+
+	public String getDataProviderName()
+	{
+		return dataProviderName;
+	}
 
     public boolean isDataProviderNull()
     {
-        return dataProvider == null;
+        return dataProviderName == null;
     }
 
     public Dataset getDataset()
     {
-        if (logarithmic)
-        {
-            return Dataset.LOG(dataset);
-        }
-        return dataset;
+		return DatasetUsage.getInstance().getDatasetFromMemory(datasetKey);
     }
 
     public Dataset getDataset(boolean b)
     {
-        if (b)
-        {
-            return getDataset();
-        }
-        return dataset;
+        return getDataset();
     }
 
-    public void setDataset(Dataset dataset)
+    public void setDatasetKey(String datasetKey)
     {
-        this.dataset = dataset;
+        this.datasetKey = datasetKey;
+		size = getDataset().getItemsCount();
     }
+
+	public String getDatasetKey()
+	{
+		return datasetKey;
+	}
 
     public boolean isDatasetNull()
     {
-        return dataset == null;
+        return datasetKey == null;
     }
 
     public Dataset getVisible()
@@ -217,7 +217,9 @@ public class ChartData implements Serializable
 
     public void clearSavedIndicators()
     {
-        savedIndicators.clear();
+		if (savedIndicators != null)
+			savedIndicators.clear();
+		savedIndicators = null;
     }
 
     public void setSavedOverlays(List<Overlay> list)
@@ -232,7 +234,9 @@ public class ChartData implements Serializable
 
     public void clearSavedOverlays()
     {
-        savedOverlays.clear();
+		if (savedOverlays != null)
+			savedOverlays.clear();
+		savedOverlays = null;
     }
 
     public void setAnnotationsCount(List<Integer> list)
@@ -247,7 +251,9 @@ public class ChartData implements Serializable
 
     public void clearAnnotationsCount()
     {
-        annotationsCount.clear();
+		if (annotationsCount != null)
+			annotationsCount.clear();
+		annotationsCount = null;
     }
 
     public void setAnnotations(List<Annotation> list)
@@ -262,7 +268,9 @@ public class ChartData implements Serializable
 
     public void clearAnnotations()
     {
-        annotations.clear();
+		if (annotations != null)
+			annotations.clear();
+		annotations = null;
     }
 
     public void setVisibleRange(Range r)
@@ -278,121 +286,264 @@ public class ChartData implements Serializable
     public void calculateRange(ChartFrame chartFrame, List<Overlay> overlays)
     {
         Range range = new Range();
-        if (!isVisibleNull() && !getVisible().isEmpty())
+        if (!isVisibleNull())
         {
             double min = getVisible().getMinNotZero();
             double max = getVisible().getMaxNotZero();
             range = new Range(min - (max - min) * 0.01, max + (max - min) * 0.01);
-            if (overlays != null && !overlays.isEmpty())
-            {
-                for (Overlay overlay : overlays)
-                {
-                    if (overlay.isIncludedInRange())
-                    {
-                        Range oRange = overlay.getRange(chartFrame, overlay.getPrice());
-                        if (oRange != null)
-                        {
-                            range = Range.combine(range, oRange);
-                        }
-                    }
-                }
-            }
+			
+			for (int i = 0; i < overlays.size(); i++)
+			{
+				Overlay overlay = overlays.get(i);
+				if (overlay.isIncludedInRange())
+				{
+					Range oRange = overlay.getRange(chartFrame, overlay.getPrice());
+					if (oRange != null)
+					{
+						if (oRange.getLowerBound() > 0)
+							range = Range.expandToInclude(range, oRange.getLowerBound());
+						if (!Double.isInfinite(oRange.getUpperBound()))
+							range = Range.expandToInclude(range, oRange.getUpperBound());
+					}
+				}
+			}
         }
         setVisibleRange(range);
     }
 
     public void calculate(ChartFrame chartFrame)
     {
-        if (!isDatasetNull() && !getDataset().isEmpty())
-        {
-            double barWidth = chartFrame.getChartProperties().getBarWidth();
-            Rectangle rect = chartFrame.getSplitPanel().getBounds();
-            rect.grow(-2, -2);
+		double barWidth = chartFrame.getChartProperties().getBarWidth();
+		Rectangle rect = chartFrame.getSplitPanel().getBounds();
+		rect.grow(-2, -2);
 
-            last = last == -1 ? dataset.getItemsCount() : last;
-            period = (int) (rect.getWidth() / (barWidth + 2));
-            if (period == 0)
-            {
-                period = 150;
-            }
-            if (period > dataset.getItemsCount())
-            {
-                period = dataset.getItemsCount();
-            }
+		last = last == -1 ? size : last;
+		period = (int) (rect.getWidth() / (barWidth + 2));
+		if (period == 0)
+			period = 150;
+		if (period > size)
+			period = size;
 
-            setVisible(getDataset().getVisibleDataset(period, last));
+		if (getDataset() != null)
+		{
+			setVisible(getDataset().getVisibleDataset(period, last));
 
-            int index = chartFrame.getSplitPanel().getIndex();
-            chartFrame.getSplitPanel().setIndex(index > period - 1 ? period - 1 : index);
-            chartFrame.updateHorizontalScrollBar();
-        }
+			int index = chartFrame.getSplitPanel().getIndex();
+			chartFrame.getSplitPanel().setIndex(index > period - 1 ? period - 1 : index);
+			chartFrame.updateHorizontalScrollBar();
+		}
     }
 
-    public void zoomIn(ChartFrame chartFrame)
+    public double[] getDateValues()
     {
-        double barWidth = chartFrame.getChartProperties().getBarWidth();
-        double newWidth = barWidth + 1;
+		if (!isVisibleNull())
+		{
+			int count = getVisible().getItemsCount();
+			Interval itrv = getInterval();
+			double[] list = new double[getVisible().getItemsCount()];
 
-        int i = (int) ((period * barWidth) / newWidth);
-        newWidth = i < MIN_ITEMS ? barWidth : newWidth;
+			if (!itrv.isIntraDay())
+			{
+				Calendar cal = Calendar.getInstance();
+				cal.setFirstDayOfWeek(Calendar.MONDAY);
+				cal.setTimeInMillis(getVisible().getTimeAt(0));
+				list[0] = 0;
+				
+				if (itrv instanceof MonthlyInterval)
+				{
+					int year = cal.get(Calendar.YEAR);
+					for (int i = 2; i < count + 1; i++)
+					{
+						cal.setTimeInMillis(getVisible().getTimeAt(i - 1));
+						if (year != cal.get(Calendar.YEAR))
+						{
+							list[i - 1] = i - 1;
+							year = cal.get(Calendar.YEAR);
+						} else
+						{
+							list[i - 1] = -1;
+						}
+					}
+				} else
+				{
+					int month = cal.get(Calendar.MONTH);
+					for (int i = 2; i < count + 1; i++)
+					{
+						cal.setTimeInMillis(getVisible().getTimeAt(i - 1));
+						if (month != cal.get(Calendar.MONTH))
+						{
+							list[i - 1] = i - 1;
+							month = cal.get(Calendar.MONTH);
+						} else
+						{
+							list[i - 1] = -1;
+						}
+					}
+				}
+			} else
+			{
+				for (int i = 0; i < count; i++)
+				{
+					if (i % 10 == 0)
+						list[i] = i;
+					else
+						list[i] = -1;
+				}
+			}
 
-        chartFrame.getChartProperties().setBarWidth(newWidth);
-        calculate(chartFrame);
-        chartFrame.repaint();
+			return list;
+		}
+		
+		return new double[0];
     }
 
-    public void zoomOut(ChartFrame chartFrame)
-    {
-        double barWidth = chartFrame.getChartProperties().getBarWidth();
-        double newWidth = barWidth - 1;
+	public boolean isFirstWorkingDayOfMonth(long time)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.setFirstDayOfWeek(Calendar.MONDAY);
+		calendar.setTimeInMillis(time);
+		if (getInterval() instanceof WeeklyInterval)
+		{
+			int day = calendar.get(Calendar.DAY_OF_WEEK);
+			int week = getFirstWeekMondayOfMonth(
+				calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.YEAR));
+			if (week == calendar.get(Calendar.WEEK_OF_MONTH))
+			{
+				return day == Calendar.MONDAY;
+			}
+			return false;
+		} else
+		{
+			int week = getFirstWorkingWeekOfMonth(
+				calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.YEAR));
+			if (calendar.get(Calendar.WEEK_OF_MONTH) == week)
+				return calendar.get(Calendar.DAY_OF_WEEK) ==
+					getFirstWorkingDayOfMonth(
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.YEAR));
+			else
+				return false;
+		}
+	}
 
-        int i = (int) ((period * barWidth) / newWidth);
-        newWidth = i > getDataset().getItemsCount() ? barWidth : newWidth;
+	private int getFirstWeekMondayOfMonth(int month, int year)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONDAY, month);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY)
+		{
+			return calendar.get(Calendar.WEEK_OF_MONTH);
+		} else
+		{
+			while (calendar.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+				calendar.add(Calendar.DAY_OF_MONTH, 1);
+			return calendar.get(Calendar.WEEK_OF_MONTH);
+		}
+	}
 
-        chartFrame.getChartProperties().setBarWidth(newWidth);
-        calculate(chartFrame);
-        chartFrame.repaint();
-    }
+	private static int getFirstWorkingWeekOfMonth(int month, int year)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONDAY, month);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		switch (calendar.get(Calendar.DAY_OF_WEEK))
+		{
+			case Calendar.SATURDAY:
+				calendar.add(Calendar.DAY_OF_MONTH, 2);
+				return calendar.get(Calendar.WEEK_OF_MONTH);
+			case Calendar.SUNDAY:
+				calendar.add(Calendar.DAY_OF_MONTH, 1);
+				return calendar.get(Calendar.WEEK_OF_MONTH);
+			default:
+				return calendar.get(Calendar.WEEK_OF_MONTH);
+		}
+	}
 
-    public List<Double> getDateValues()
-    {
-        List<Double> list = new ArrayList<Double>();
-        if (!isVisibleNull())
-        {
-            Calendar cal = Calendar.getInstance();
-            cal.setFirstDayOfWeek(Calendar.MONDAY);
-            cal.setTimeInMillis(getVisible().getTimeAt(0));
+	private int getFirstWorkingDayOfMonth(int month, int year)
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONDAY, month);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		switch (calendar.get(Calendar.DAY_OF_WEEK))
+		{
+			case Calendar.SATURDAY:
+				calendar.add(Calendar.DAY_OF_MONTH, 2);
+				return calendar.get(Calendar.DAY_OF_WEEK);
+			case Calendar.SUNDAY:
+				calendar.add(Calendar.DAY_OF_MONTH, 1);
+				return calendar.get(Calendar.DAY_OF_WEEK);
+			default:
+				return calendar.get(Calendar.DAY_OF_WEEK);
+		}
+	}
 
-            if (getInterval() instanceof MonthlyInterval)
-            {
-                list.add(new Double(0));
-            }
+	private static DecimalFormat D1 = new DecimalFormat("0.###");
+	private static DecimalFormat D2 = new DecimalFormat("0.0");
 
-            if (!getInterval().isIntraDay())
-            {
-                int month = cal.get(Calendar.MONTH);
-                for (int i = 0; i < getVisible().getItemsCount(); i++)
-                {
-                    cal.setTimeInMillis(getVisible().getTimeAt(i));
-                    if (month != cal.get(Calendar.MONTH))
-                    {
-                        list.add(new Double(i));
-                        month = cal.get(Calendar.MONTH);
-                    }
-                }
-            } else
-            {
-                for (int i = 0; i < getVisible().getItemsCount(); i++)
-                {
-                    if (i % 10 == 0)
-                    {
-                        list.add(new Double(i));
-                    }
-                }
-            }
-        }
-        return list;
-    }
+	public double[] getYValues(Rectangle rectangle, Range range, int fontHeight)
+	{
+		int count = 15;
+		while (((rectangle.height / count) < (fontHeight + 20)) && (count > -2))
+			count--;
+
+		double rangeMin = range.getLowerBound();
+		double rangeMax = range.getUpperBound();
+		
+		double vRange = rangeMax - rangeMin;
+		double rangeUnit = vRange / count;
+
+		int roundedExponent = (int)Math.round(Math.log10(rangeUnit)) - 1;
+		double factor = Math.pow(10, -roundedExponent);
+		int adjustedValue = (int)(rangeUnit * factor);
+		rangeUnit = (double)adjustedValue / factor;
+
+		if (rangeUnit < 0.001)
+		{
+			rangeUnit = 0.001d;
+		} else if (rangeUnit >= 0.001 && rangeUnit < 0.005)
+		{
+			String unitStr = D1.format(rangeUnit);
+			try
+			{
+				rangeUnit = D1.parse(unitStr.trim()).doubleValue();
+			} catch (ParseException ex)
+			{
+			}
+		} else if (rangeUnit >= 0.005 && rangeUnit < 1)
+		{
+			String unitStr = D2.format(rangeUnit);
+			try
+			{
+				rangeUnit = D2.parse(unitStr.trim()).doubleValue();
+			} catch (ParseException ex)
+			{
+			}
+		}
+
+		rangeMin = (int)(rangeMin / rangeUnit) * rangeUnit;
+		count = (int)(vRange / rangeUnit);
+
+		if (count + 2 > 0)
+		{
+			double[] result = new double[count + 2];
+			for (int i = 0; i < count + 2; i++)
+				result[i] = rangeMin + rangeUnit * i;
+			return result;
+		} else
+		{
+			List<Double> list = getPriceValues(rectangle, range);
+			double[] result = new double[list.size()];
+			for (int i = 0; i < list.size(); i++)
+				result[i] = list.get(i).doubleValue();
+			return result;
+		}
+	}
 
     public List<Double> getPriceValues(Rectangle rect, Range range)
     {
@@ -428,17 +579,17 @@ public class ChartData implements Serializable
         return w * count;
     }
 
-    public Point2D.Double valueToJava2D(final double xvalue, final double yvalue, Rectangle bounds, Range range)
+    public Point2D.Double valueToJava2D(final double xvalue, final double yvalue, Rectangle bounds, Range range, boolean isLog)
     {
         double px = getX(xvalue, bounds);
-        double py = getY(yvalue, bounds, range);
+        double py = getY(yvalue, bounds, range, isLog);
         Point2D.Double p = new Point2D.Double(px, py);
         return p;
     }
 
-    public Point2D getPoint(double x, double y, Range range, Rectangle rect)
+    public Point2D getPoint(double x, double y, Range range, Rectangle rect, boolean isLog)
     {
-        return new Point2D.Double(getX(x, rect), getY(y, rect, range));
+        return new Point2D.Double(getX(x, rect), getY(y, rect, range, isLog));
     }
 
     public double getX(double value, Rectangle rect)
@@ -446,18 +597,30 @@ public class ChartData implements Serializable
         return rect.getMinX() + (((value + 0.5D) / (double) getPeriod()) * rect.getWidth());
     }
 
-    public double getY(double value, Rectangle rect, Range range)
+    private double getY(double value, Rectangle rect, Range range)
     {
         return rect.getMinY() + (range.getUpperBound() - value) / (range.getUpperBound() - range.getLowerBound()) * rect.getHeight();
     }
 
-    public double getLogY(double value, Rectangle rect, Range range)
+	public double getY(double value, Rectangle rect, Range range, boolean isLog)
+    {
+		if (isLog)
+			return getLogY(value, rect, range);
+        return getY(value, rect, range);
+    }
+
+    private double getLogY(double value, Rectangle rect, Range range)
     {
         double base = 0;
-        if (range.getLowerBound() < 0)
-            base = -1 * range.getLowerBound() + 0.1D;
-        double scale = rect.getHeight() / (Math.log(range.getUpperBound() + base) - Math.log(range.getLowerBound() + base));
-        return Math.round((Math.log(range.getUpperBound() + base) - Math.log(value + base)) * scale);
+		if (range.getLowerBound() < 0)
+			base = Math.abs(range.getLowerBound()) + 1.0D;
+		double scale = (rect.getHeight() / 
+			(Math.log(range.getUpperBound() + base) -
+			Math.log(range.getLowerBound() + base)));
+		return rect.getMinY() +
+			Math.round(
+			(Math.log(range.getUpperBound() + base) -
+			Math.log(value + base)) * scale);
     }
 
     public int getIndex(int x, Rectangle rect)
@@ -489,97 +652,123 @@ public class ChartData implements Serializable
         return index;
     }
 	
-    private transient EventListenerList indicatorsDatasetListeners = new EventListenerList();
-    private transient EventListenerList overlaysDatasetListeners = new EventListenerList();
+	private transient EventListenerList datasetListeners;
+
+	private EventListenerList datasetListeners()
+	{
+		if (datasetListeners == null)
+			datasetListeners = new EventListenerList();
+		return datasetListeners;
+	}
 
     public void addIndicatorsDatasetListeners(DatasetListener listener)
     {
-        if (indicatorsDatasetListeners == null)
-        {
-            indicatorsDatasetListeners = new EventListenerList();
-        }
-        indicatorsDatasetListeners.add(DatasetListener.class, listener);
+        datasetListeners().add(DatasetListener.class, listener);
     }
 
     public void removeIndicatorsDatasetListeners(DatasetListener listener)
     {
-        if (indicatorsDatasetListeners == null)
-        {
-            indicatorsDatasetListeners = new EventListenerList();
-            return;
-        }
-        indicatorsDatasetListeners.remove(DatasetListener.class, listener);
+        datasetListeners().remove(DatasetListener.class, listener);
     }
 
     public void removeAllIndicatorsDatasetListeners()
     {
-        if (indicatorsDatasetListeners == null)
-        {
-            indicatorsDatasetListeners = new EventListenerList();
-            return;
-        }
-        DatasetListener[] listeners = indicatorsDatasetListeners.getListeners(DatasetListener.class);
+        DatasetListener[] listeners = datasetListeners().getListeners(DatasetListener.class);
         for (int i = 0; i < listeners.length; i++)
         {
-            indicatorsDatasetListeners.remove(DatasetListener.class, listeners[i]);
+			if (listeners[i] instanceof Indicator)
+				datasetListeners().remove(DatasetListener.class, listeners[i]);
         }
     }
 
     public void addOverlaysDatasetListeners(DatasetListener listener)
     {
-        if (overlaysDatasetListeners == null)
-        {
-            overlaysDatasetListeners = new EventListenerList();
-        }
-        overlaysDatasetListeners.add(DatasetListener.class, listener);
+        datasetListeners().add(DatasetListener.class, listener);
     }
 
     public void removeOverlaysDatasetListeners(DatasetListener listener)
     {
-        if (overlaysDatasetListeners == null)
-        {
-            overlaysDatasetListeners = new EventListenerList();
-            return;
-        }
-        overlaysDatasetListeners.remove(DatasetListener.class, listener);
+        datasetListeners().remove(DatasetListener.class, listener);
     }
 
     public void removeAllOverlaysDatasetListeners()
     {
-        if (overlaysDatasetListeners == null)
-        {
-            overlaysDatasetListeners = new EventListenerList();
-            return;
-        }
-        DatasetListener[] listeners = overlaysDatasetListeners.getListeners(DatasetListener.class);
+        DatasetListener[] listeners = datasetListeners().getListeners(DatasetListener.class);
         for (int i = 0; i < listeners.length; i++)
         {
-            overlaysDatasetListeners.remove(DatasetListener.class, listeners[i]);
+			if (listeners[i] instanceof Overlay)
+				datasetListeners().remove(DatasetListener.class, listeners[i]);
         }
     }
 
     public boolean fireDatasetEvent(DatasetEvent evt)
     {
-        DatasetListener[] listeners;
-
-        if (indicatorsDatasetListeners != null)
-        {
-            listeners = indicatorsDatasetListeners.getListeners(DatasetListener.class);
-            for (int i = 0; i < listeners.length; i++)
-            {
-                listeners[i].datasetChanged(evt);
-            }
-        }
-
-        if (overlaysDatasetListeners != null)
-        {
-            listeners = overlaysDatasetListeners.getListeners(DatasetListener.class);
-            for (int i = 0; i < listeners.length; i++)
-            {
-                listeners[i].datasetChanged(evt);
-            }
-        }
-
+        DatasetListener[] listeners = datasetListeners().getListeners(DatasetListener.class);
+		for (int i = 0; i < listeners.length; i++)
+			listeners[i].datasetChanged(evt);
         return true;
     }
+
+	@Override
+	public void stockChanged(Stock newStock)
+	{
+		setStock(newStock);
+	}
+
+	@Override
+	public void intervalChanged(Interval newInterval)
+	{
+		setInterval(newInterval);
+	}
+
+	@Override
+	public void chartChanged(Chart newChart)
+	{
+		setChart(newChart);
+	}
+
+	@Override
+	public void indicatorAdded(Indicator indicator)
+	{
+	}
+
+	@Override
+	public void indicatorRemoved(Indicator indicator)
+	{
+	}
+
+	@Override
+	public void overlayAdded(Overlay overlay)
+	{
+	}
+
+	@Override
+	public void overlayRemoved(Overlay overlay)
+	{
+	}
+
+	@Override
+	public double zoomIn(double barWidth)
+	{
+		double newWidth = barWidth + 1;
+		int i = (int) ((period * barWidth) / newWidth);
+		newWidth = i < MIN_ITEMS ? barWidth : newWidth;
+		return newWidth;
+	}
+
+	@Override
+	public double zoomOut(double barWidth)
+	{
+		double newWidth = barWidth - 1;
+		int i = (int) ((period * barWidth) / newWidth);
+		newWidth = i > getDataset().getItemsCount() ? barWidth : newWidth;
+		return newWidth;
+	}
+
+	@Override
+	public void datasetKeyChanged(String datasetKey)
+	{
+		setDatasetKey(datasetKey);
+	}
+	
 }

@@ -31,6 +31,11 @@
             <file name="org-chartsy-main-Register.instance"/>
         </folder>
     </folder>
+    <folder name="Shortcuts">
+        <file name="D-N.shadow">
+            <attr name="originalFile" stringvalue="Actions/File/org-chartsy-main-NewChart.instance"/>
+        </file>
+    </folder>
     <folder name="Menu">
         <file name="BuildProject_hidden"/>
         <file name="Edit_hidden"/>

@@ -78,6 +78,7 @@ public abstract class Interval implements Serializable
             int month = cal.get(Calendar.MONTH) + 1;
             int hour = cal.get(Calendar.HOUR_OF_DAY);
             int minute = cal.get(Calendar.MINUTE);
+			int seconds = cal.get(Calendar.SECOND);
 
             if (month < 10)
             {
@@ -105,6 +106,14 @@ public abstract class Interval implements Serializable
                 sb.append("0");
             }
             sb.append(Integer.toString(minute));
+
+			if (getLengthInSeconds() < 60)
+			{
+				sb.append(":");
+				if (seconds < 10)
+					sb.append("0");
+				sb.append(Integer.toString(seconds));
+			}
 
             return sb.toString();
         }
@@ -155,4 +164,5 @@ public abstract class Interval implements Serializable
         hash = 13 * hash + (this.intraDay ? 1 : 0);
         return hash;
     }
+	
 }

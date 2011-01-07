@@ -9,9 +9,17 @@ import java.util.EventObject;
 public class DataProviderEvent extends EventObject
 {
 
-	public DataProviderEvent(Object source)
+	private int itemsAdded;
+
+	public DataProviderEvent(Object source, int itemsAdded)
 	{
 		super(source);
+		this.itemsAdded = itemsAdded;
+	}
+
+	public int getItemsAdded()
+	{
+		return this.itemsAdded;
 	}
 
 }

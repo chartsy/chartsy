@@ -15,7 +15,9 @@ public abstract class Chart
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    public Chart() {}
+    public Chart()
+	{
+	}
 
     public abstract String getName();
     public abstract void paint(Graphics2D g, ChartFrame cf);

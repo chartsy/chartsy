@@ -19,9 +19,9 @@ public class SpringUtilities
 
 	public static void printSizes(Component c)
 	{
-		System.out.println("minimumSize = " + c.getMinimumSize());
-		System.out.println("preferredSize = " + c.getPreferredSize());
-		System.out.println("maximumSize = " + c.getMaximumSize());
+		//System.out.println("minimumSize = " + c.getMinimumSize());
+		//System.out.println("preferredSize = " + c.getPreferredSize());
+		//System.out.println("maximumSize = " + c.getMaximumSize());
 	}
 
 	public static void makeGrid(Container parent,

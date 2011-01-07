@@ -2,6 +2,7 @@ package org.chartsy.main.history;
 
 import java.io.Serializable;
 import org.chartsy.main.data.Stock;
+import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.utils.SerialVersion;
 
 /**
@@ -14,12 +15,12 @@ public class HistoryItem implements Serializable
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private Stock stock;
-    private int intervalHash;
+    private Interval interval;
 
-    public HistoryItem(Stock stock, int intervalHash)
+    public HistoryItem(Stock stock, Interval interval)
     {
         this.stock = stock;
-        this.intervalHash = intervalHash;
+        this.interval = interval;
     }
 
     public Stock getStock()
@@ -32,17 +33,18 @@ public class HistoryItem implements Serializable
 		this.stock = stock;
 	}
 
-    public int getIntervalHash()
+    public Interval getInterval()
     { 
-		return this.intervalHash;
+		return this.interval;
 	}
 
-    public void setInterval(int intervalHash)
+    public void setInterval(Interval interval)
     { 
-		this.intervalHash = intervalHash;
+		this.interval = interval;
 	}
 
-	public @Override boolean equals(Object obj)
+	@Override
+	public boolean equals(Object obj)
 	{
 		if (obj == null)
 			return false;
@@ -61,9 +63,9 @@ public class HistoryItem implements Serializable
 	@Override
 	public int hashCode()
 	{
-		int hash = 5;
-		hash = 79 * hash + (this.stock != null ? this.stock.hashCode() : 0);
-		hash = 79 * hash + this.intervalHash;
+		int hash = 7;
+		hash = 37 * hash + (this.stock != null ? this.stock.hashCode() : 0);
+		hash = 37 * hash + (this.interval != null ? this.interval.hashCode() : 0);
 		return hash;
 	}
 

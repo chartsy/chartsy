@@ -337,10 +337,8 @@ public class Indicators extends javax.swing.JDialog
         if (i != -1)
         {
             selected.remove(i);
-            if (selected.size() == 0)
-            {
+            if (selected.isEmpty())
                 btnRemove.setEnabled(false);
-            }
             scrollPane.setEnabled(false);
             lstSelected.setListData(getArray(selected, true));
             validate();
@@ -350,15 +348,14 @@ public class Indicators extends javax.swing.JDialog
 
     private void btnOkActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnOkActionPerformed
     {//GEN-HEADEREND:event_btnOkActionPerformed
-        parent.getSplitPanel().getIndicatorsPanel().removeAllIndicators();
+        /*parent.getSplitPanel().getIndicatorsPanel().removeAllIndicators();
         parent.getChartData().removeAllIndicatorsDatasetListeners();
         if (selected.size() > 0)
         {
             for (int i = 0; i < selected.size(); i++)
             {
                 Indicator ind = selected.get(i);
-                ind.setLogarithmic(parent.getChartProperties().getAxisLogarithmicFlag());
-                ind.setDataset(parent.getChartData().getDataset(false));
+                ind.setDatasetKey(parent.getChartData().getDatasetKey());
                 ind.calculate();
                 parent.getSplitPanel().getIndicatorsPanel().addIndicator(ind);
             }
@@ -367,28 +364,32 @@ public class Indicators extends javax.swing.JDialog
         }
         parent.revalidate();
         parent.repaint();
-        setVisible(false);
+        setVisible(false);*/
+		for (int i = 0; i < initial.size(); i++)
+		{
+			Indicator indicator = initial.get(i);
+			parent.indicatorRemoved(indicator);
+		}
+		for (int i = 0; i < selected.size(); i++)
+		{
+			Indicator indicator = selected.get(i);
+			parent.indicatorAdded(indicator);
+		}
+		setVisible(false);
 }//GEN-LAST:event_btnOkActionPerformed
 
     private void btnApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnApplyActionPerformed
     {//GEN-HEADEREND:event_btnApplyActionPerformed
-        parent.getSplitPanel().getIndicatorsPanel().removeAllIndicators();
-        parent.getChartData().removeAllIndicatorsDatasetListeners();
-        if (selected.size() > 0)
-        {
-            for (int i = 0; i < selected.size(); i++)
-            {
-                Indicator ind = selected.get(i);
-                ind.setLogarithmic(parent.getChartProperties().getAxisLogarithmicFlag());
-                ind.setDataset(parent.getChartData().getDataset(false));
-                ind.calculate();
-                parent.getSplitPanel().getIndicatorsPanel().addIndicator(ind);
-            }
-            parent.getSplitPanel().getIndicatorsPanel().calculateHeight();
-            parent.getSplitPanel().getIndicatorsPanel().updateIndicatorsToolbar();
-        }
-        parent.revalidate();
-        parent.repaint();
+        for (int i = 0; i < initial.size(); i++)
+		{
+			Indicator indicator = initial.get(i);
+			parent.indicatorRemoved(indicator);
+		}
+		for (int i = 0; i < selected.size(); i++)
+		{
+			Indicator indicator = selected.get(i);
+			parent.indicatorAdded(indicator);
+		}
 }//GEN-LAST:event_btnApplyActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed

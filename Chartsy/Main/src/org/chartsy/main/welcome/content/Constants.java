@@ -14,15 +14,15 @@ import org.openide.util.ImageUtilities;
 public interface Constants
 {
 
-	public static final Image BG_IMG			= ImageUtilities.loadImage("/org/chartsy/welcome/resources/bg.jpg", true);
-	public static final String CHARTSY_ICON		= "/org/chartsy/main/welcome/resources/logo.png";
-	public static final String RANDOM_ICON		= "/org/chartsy/main/welcome/resources/random.png";
-	public static final String FOLLOW_ICON		= "/org/chartsy/main/welcome/resources/follow.png";
-	public static final String NEWS_ICON		= "/org/chartsy/main/welcome/resources/news.png";
-	public static final String TUTS_ICON		= "/org/chartsy/main/welcome/resources/tutorials.png";
-	public static final String TUT_VID_ICON		= "/org/chartsy/main/welcome/resources/tutorial-video.png";
-	public static final String FORUM_ICON		= "/org/chartsy/main/welcome/resources/forum.png";
-	public static final String BULLET_ICON		= "/org/chartsy/main/welcome/resources/bullet.png";
+	public static final Image BG_IMG			= ImageUtilities.loadImage("org/chartsy/main/welcome/resources/bg.jpg", true);
+	public static final String CHARTSY_ICON		= "org/chartsy/main/welcome/resources/logo.png";
+	public static final String RANDOM_ICON		= "org/chartsy/main/welcome/resources/random.png";
+	public static final String FOLLOW_ICON		= "org/chartsy/main/welcome/resources/follow.png";
+	public static final String NEWS_ICON		= "org/chartsy/main/welcome/resources/news.png";
+	public static final String TUTS_ICON		= "org/chartsy/main/welcome/resources/tutorials.png";
+	public static final String TUT_VID_ICON		= "org/chartsy/main/welcome/resources/tutorial-video.png";
+	public static final String FORUM_ICON		= "org/chartsy/main/welcome/resources/forum.png";
+	public static final String BULLET_ICON		= "org/chartsy/main/welcome/resources/bullet.png";
 
 	public static final Color LINK_COLOR		= Color.decode("0xffffff");
 	public static final Color LINK_HOVER_COLOR	= Color.decode("0xcbda57");

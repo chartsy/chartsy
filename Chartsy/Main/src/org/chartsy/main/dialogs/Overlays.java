@@ -335,7 +335,7 @@ public class Overlays extends javax.swing.JDialog
         if (i != -1)
         {
             selected.remove(i);
-            if (selected.size() == 0)
+            if (selected.isEmpty())
             {
                 btnRemove.setEnabled(false);
             }
@@ -348,41 +348,31 @@ public class Overlays extends javax.swing.JDialog
 
     private void btnOkActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnOkActionPerformed
     {//GEN-HEADEREND:event_btnOkActionPerformed
-        parent.getSplitPanel().getChartPanel().clearOverlays();
-        parent.getChartData().removeAllOverlaysDatasetListeners();
-        if (selected.size() > 0)
-        {
-            for (int i = 0; i < selected.size(); i++)
-            {
-                Overlay o = selected.get(i);
-                o.setLogarithmic(parent.getChartProperties().getAxisLogarithmicFlag());
-                o.setDataset(parent.getChartData().getDataset(false));
-                o.calculate();
-                parent.getSplitPanel().getChartPanel().addOverlay(o);
-            }
-        }
-        parent.revalidate();
-        parent.repaint();
+		for (int i = 0; i < initial.size(); i++)
+		{
+			Overlay overlay = initial.get(i);
+			parent.overlayRemoved(overlay);
+		}
+		for (int i = 0; i < selected.size(); i++)
+		{
+			Overlay overlay = selected.get(i);
+			parent.overlayAdded(overlay);
+		}
         setVisible(false);
 }//GEN-LAST:event_btnOkActionPerformed
 
     private void btnApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnApplyActionPerformed
     {//GEN-HEADEREND:event_btnApplyActionPerformed
-        parent.getSplitPanel().getChartPanel().clearOverlays();
-        parent.getChartData().removeAllOverlaysDatasetListeners();
-        if (selected.size() > 0)
-        {
-            for (int i = 0; i < selected.size(); i++)
-            {
-                Overlay o = selected.get(i);
-                o.setLogarithmic(parent.getChartProperties().getAxisLogarithmicFlag());
-                o.setDataset(parent.getChartData().getDataset(false));
-                o.calculate();
-                parent.getSplitPanel().getChartPanel().addOverlay(o);
-            }
-        }
-        parent.revalidate();
-        parent.repaint();
+        for (int i = 0; i < initial.size(); i++)
+		{
+			Overlay overlay = initial.get(i);
+			parent.overlayRemoved(overlay);
+		}
+		for (int i = 0; i < selected.size(); i++)
+		{
+			Overlay overlay = selected.get(i);
+			parent.overlayAdded(overlay);
+		}
 }//GEN-LAST:event_btnApplyActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed

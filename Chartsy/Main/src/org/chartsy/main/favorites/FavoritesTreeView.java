@@ -74,16 +74,18 @@ public class FavoritesTreeView extends TreeView
 
 							if (stock != null)
 							{
-								Template template = TemplateManager.getDefault().getTemplate(
-									TemplateManager.getDefault().getDefaultTemplate());
+								String defaultTemplate = TemplateManager.getDefault().getDefaultTemplate();
+								Template template = TemplateManager.getDefault().getTemplate(defaultTemplate);
+								
 								ChartData chartData = new ChartData();
 								chartData.setStock(stock.getStock());
-								chartData.setDataProvider(stock.getDataProvider());
+								chartData.setDataProviderName(stock.getDataProviderName());
 								chartData.setInterval(new DailyInterval());
-								chartData.setChart(
-									ChartManager.getDefault().getChart("Candle Stick"));
+								chartData.setChart(ChartManager.getDefault().getChart("Candle Stick"));
 
-								ChartFrame chartFrame = new ChartFrame(chartData, template);
+								ChartFrame chartFrame = ChartFrame.getInstance();
+								chartFrame.setChartData(chartData);
+								chartFrame.setTemplate(template);
 								chartFrame.open();
 								chartFrame.requestActive();
 							}

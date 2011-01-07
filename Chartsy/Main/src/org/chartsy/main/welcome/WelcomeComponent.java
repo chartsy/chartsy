@@ -110,6 +110,7 @@ public class WelcomeComponent extends TopComponent
 		{
 			initialized = true;
 			doInitialize();
+			Feeds.getDefault().start();
 		}
 		if (null != content && getComponentCount() == 0)
 		{
@@ -119,15 +120,18 @@ public class WelcomeComponent extends TopComponent
 		setActivatedNodes(new Node[] {});
 	}
 
-	private static boolean firstTimeOpen = true;
-
 	@Override protected void componentOpened()
 	{
 		super.componentOpened();
-		if (firstTimeOpen)
+		if (!initialized)
 		{
-			firstTimeOpen = false;
-
+			initialized = true;
+			doInitialize();
+			Feeds.getDefault().start();
+		}
+		if (null != content && getComponentCount() == 0)
+		{
+			add(content, BorderLayout.CENTER);
 		}
 	}
 

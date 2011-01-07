@@ -3,6 +3,7 @@ package org.chartsy.main.utils.autocomplete;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -44,10 +45,17 @@ public abstract class AutoCompleter
 	{
 		delayTimer = new Timer(500, new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				timerStoped = false;
-				showPopup();
+				try
+				{
+					showPopup();
+				} catch (IOException ex)
+				{
+					return;
+				}
 			}
 		});
 		delayTimer.setRepeats(false);
@@ -89,8 +97,8 @@ public abstract class AutoCompleter
 
 		popupMenu.addPopupMenuListener(new PopupMenuListener()
 		{
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			@Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
+			@Override public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
 			{
                 component.unregisterKeyboardAction(
 					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
@@ -103,7 +111,7 @@ public abstract class AutoCompleter
 						JComponent.WHEN_FOCUSED);
 				}
             }
-            public void popupMenuCanceled(PopupMenuEvent e) {}
+            @Override public void popupMenuCanceled(PopupMenuEvent e) {}
         });
 		list.setRequestFocusEnabled(false);
 	}
@@ -116,6 +124,7 @@ public abstract class AutoCompleter
 
 	static Action acceptAction = new AbstractAction()
 	{
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			JComponent comp = (JComponent) e.getSource();
@@ -129,6 +138,7 @@ public abstract class AutoCompleter
 
 	DocumentListener documentListener = new DocumentListener()
 	{
+		@Override
 		public void insertUpdate(DocumentEvent e)
 		{
 			if (!timerStoped)
@@ -145,6 +155,7 @@ public abstract class AutoCompleter
 				}
 			}
 		}
+		@Override
 		public void removeUpdate(DocumentEvent e)
 		{
 			if (!timerStoped)
@@ -161,10 +172,12 @@ public abstract class AutoCompleter
 				}
 			}
 		}
+		@Override
 		public void changedUpdate(DocumentEvent e) {}
 	};
 
 	private void showPopup()
+		throws IOException
 	{
 		popupMenu.setVisible(false);
 		if(component.isEnabled()
@@ -201,6 +214,7 @@ public abstract class AutoCompleter
 
 	static Action showAction = new AbstractAction()
 	{
+		@Override
         public void actionPerformed(ActionEvent e)
 		{
             JComponent tf = (JComponent)e.getSource();
@@ -211,13 +225,22 @@ public abstract class AutoCompleter
                 if(completer.popupMenu.isVisible())
                     completer.selectNextPossibleValue();
                 else
-                    completer.showPopup();
+				{
+					try
+					{
+						completer.showPopup();
+					} catch (IOException ex)
+					{
+						return;
+					}
+				}
             }
         }
     };
 
     static Action upAction = new AbstractAction()
 	{
+		@Override
         public void actionPerformed(ActionEvent e)
 		{
             JComponent tf = (JComponent)e.getSource();
@@ -233,6 +256,7 @@ public abstract class AutoCompleter
 
     static Action hidePopupAction = new AbstractAction()
 	{
+		@Override
         public void actionPerformed(ActionEvent e)
 		{
             JComponent tf = (JComponent)e.getSource();
@@ -272,7 +296,7 @@ public abstract class AutoCompleter
     }
 
 	// update list model depending on the data in textfield
-    protected abstract boolean updateListData();
+    protected abstract boolean updateListData() throws IOException;
 
     // user has selected some item in the list. update textfield accordingly...
     protected abstract void acceptedListItem(Object selected);

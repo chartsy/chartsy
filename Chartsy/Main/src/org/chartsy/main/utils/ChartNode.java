@@ -130,7 +130,7 @@ public class ChartNode
                     StrokeGenerator.getStroke(ChartProperties.AXIS_STROKE_INDEX) // default property value
                     ));
             // Logarithmic Flag
-            /*axis.put(getProperty(
+            axis.put(getProperty(
                     "Logarithmic Axis", // property name
                     "Sets the flag for logarithmic axis", // property description
                     ChartProperties.class, // properties class
@@ -139,7 +139,7 @@ public class ChartNode
                     "getAxisLogarithmicFlag", // get method name
                     "setAxisLogarithmicFlag", // set method name
                     ChartProperties.AXIS_LOGARITHMIC_FLAG // default property value
-                    ));*/
+                    ));
 
             // Data Properties
 

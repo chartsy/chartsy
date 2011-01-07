@@ -207,4 +207,54 @@ public class TemplateManager
 		initTemplates();
 	}
 
+	public Overlay getOverlay(int index)
+	{
+		Overlay overlay = null;
+		Document document = XMLUtil.loadXMLDocument(templatesXML);
+		Element root = XMLUtil.getRoot(document, XMLUtil.TEMPLATES_NODE);
+
+		NodeList nodeList = root.getElementsByTagName(XMLUtil.TEMPLATE_NODE);
+		for (int i = 0; i < nodeList.getLength(); i++)
+		{
+			Element element = (Element) nodeList.item(i);
+			if (element.getAttribute(XMLUtil.NAME_ATTR).equals(defTemp))
+			{
+				Element overlays = XMLUtil.getOverlaysNode(element);
+				NodeList overlaysList = overlays.getElementsByTagName(XMLUtil.OVERLAY_NODE);
+				Element overlayNode = (Element) overlaysList.item(index);
+				Element overlayProperties = XMLUtil.getPropertiesNode(overlayNode);
+				overlay = OverlayManager.getDefault().getOverlay(
+					XMLUtil.getNameAttr(overlayNode)).newInstance();
+				overlay.loadFromTemplate(overlayProperties);
+			}
+		}
+
+		return overlay;
+	}
+
+	public Indicator getIndicator(int index)
+	{
+		Indicator indicator = null;
+		Document document = XMLUtil.loadXMLDocument(templatesXML);
+		Element root = XMLUtil.getRoot(document, XMLUtil.TEMPLATES_NODE);
+
+		NodeList nodeList = root.getElementsByTagName(XMLUtil.TEMPLATE_NODE);
+		for (int i = 0; i < nodeList.getLength(); i++)
+		{
+			Element element = (Element) nodeList.item(i);
+			if (element.getAttribute(XMLUtil.NAME_ATTR).equals(defTemp))
+			{
+				Element indicators = XMLUtil.getIndicatorsNode(element);
+				NodeList indicatorsList = indicators.getElementsByTagName(XMLUtil.INDICATOR_NODE);
+				Element indicatorNode = (Element) indicatorsList.item(index);
+				Element indicatorProperties = XMLUtil.getPropertiesNode(indicatorNode);
+				indicator = IndicatorManager.getDefault().getIndicator(
+					XMLUtil.getNameAttr(indicatorNode)).newInstance();
+				indicator.loadFromTemplate(indicatorProperties);
+			}
+		}
+
+		return indicator;
+	}
+
 }

@@ -34,7 +34,7 @@ public class RootAPINode extends AbstractNode
 	{
 		Children children = getChildren();
 		if (clazz.isInstance(children))
-			return (Cookie)children;
+			return (Cookie) children;
 		return super.getCookie(clazz);
 	}
 

@@ -1,6 +1,6 @@
 package org.chartsy.main.welcome;
 
-import org.chartsy.main.welcome.content.Feed;
+import org.chartsy.main.welcome.content.FeedListener;
 import org.chartsy.main.welcome.content.RSSFeedParser;
 import org.openide.util.NbBundle;
 
@@ -13,9 +13,13 @@ public class Feeds
 
 	private static Feeds instance;
 
-	private static Feed randomPlugin;
-	private static Feed latestNews;
-	private static Feed forum;
+	private static RSSFeedParser randomPluginParser;
+	private static RSSFeedParser latestNewsParser;
+	private static RSSFeedParser forumParser;
+
+	public static final String randomPluginFeed = "randomPlugin";
+	public static final String latestNewsFeed = "latestNews";
+	public static final String forumFeed = "forum";
 
 	public static Feeds getDefault()
 	{
@@ -25,30 +29,35 @@ public class Feeds
 	}
 
 	private Feeds()
-	{}
+	{
+		randomPluginParser = new RSSFeedParser(
+			NbBundle.getMessage(Feeds.class, "URL_RandomPlugin"),
+			randomPluginFeed);
+
+		latestNewsParser = new RSSFeedParser(
+			NbBundle.getMessage(Feeds.class, "URL_LatestNews"),
+			latestNewsFeed);
+
+		forumParser = new RSSFeedParser(
+			NbBundle.getMessage(Feeds.class, "URL_Forum"),
+			forumFeed);
+	}
 
 	public static void start()
 	{
-		getDefault();
-
-		randomPlugin = (new RSSFeedParser(NbBundle.getMessage(Feeds.class, "URL_RandomPlugin"))).readFeed();
-		latestNews = (new RSSFeedParser(NbBundle.getMessage(Feeds.class, "URL_LatestNews"))).readFeed();
-		forum = (new RSSFeedParser(NbBundle.getMessage(Feeds.class, "URL_Forum"))).readFeed();
+		randomPluginParser.readFeed();
+		latestNewsParser.readFeed();
+		forumParser.readFeed();
 	}
 
-	public Feed getRandomPlugin()
+	public static void addFeedListener(String feedName, FeedListener listener)
 	{
-		return randomPlugin;
-	}
-
-	public Feed getLatestNews()
-	{
-		return latestNews;
-	}
-
-	public Feed getForum()
-	{
-		return forum;
+		if (feedName.equals(randomPluginFeed))
+			randomPluginParser.addFeedListener(listener);
+		if (feedName.equals(latestNewsFeed))
+			latestNewsParser.addFeedListener(listener);
+		if (feedName.equals(forumFeed))
+			forumParser.addFeedListener(listener);
 	}
 
 }

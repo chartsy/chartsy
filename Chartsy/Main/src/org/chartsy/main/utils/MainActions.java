@@ -1,21 +1,31 @@
 package org.chartsy.main.utils;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartToolbar;
 import org.chartsy.main.chart.Annotation;
 import org.chartsy.main.chart.Chart;
 import org.chartsy.main.data.ChartData;
-import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.AnnotationProperties;
 import org.chartsy.main.dialogs.Indicators;
 import org.chartsy.main.dialogs.Overlays;
@@ -24,12 +34,21 @@ import org.chartsy.main.favorites.nodes.RootAPI;
 import org.chartsy.main.favorites.nodes.RootAPINode;
 import org.chartsy.main.favorites.nodes.StockAPI;
 import org.chartsy.main.favorites.nodes.StockAPINode;
-import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.TemplateManager;
 import org.chartsy.main.resources.ResourcesUtils;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.chartsy.chatsy.chat.ChatManager;
+import org.chartsy.chatsy.chat.ChatsyManager;
+import org.chartsy.chatsy.chat.ui.ChatRoom;
+import org.chartsy.chatsy.chat.ui.conferences.ConferenceUtils;
+import org.chartsy.chatsy.chat.ui.rooms.GroupChatRoom;
+import org.chartsy.main.data.DataProvider;
+import org.chartsy.main.history.HistoryItem;
 import org.netbeans.api.print.PrintManager;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -38,6 +57,7 @@ import org.openide.NotifyDescriptor.InputLine;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -125,12 +145,22 @@ public final class MainActions
         return SaveToTemplate.getAction(chartFrame);
     }
 
+	public static Action joinToConference(ChartFrame chartFrame)
+    {
+        return JoinConference.getAction(chartFrame);
+    }
+
     /*
      * Submenu actions
      */
     public static Action changeInterval(ChartFrame chartFrame, Interval interval, boolean current)
     {
         return ChangeInterval.getAction(chartFrame, interval, current);
+    }
+
+	public static Action customInterval(ChartFrame chartFrame)
+    {
+        return CustomInterval.getAction(chartFrame);
     }
 
     public static Action changeChart(ChartFrame chartFrame, String chartName, boolean current)
@@ -336,10 +366,10 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
-            chartFrame.getChartData().zoomIn(chartFrame);
-            chartFrame.componentFocused();
+            chartFrame.zoomIn();
         }
     }
 
@@ -359,10 +389,10 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
-            chartFrame.getChartData().zoomOut(chartFrame);
-            chartFrame.componentFocused();
+            chartFrame.zoomOut();
         }
     }
 
@@ -382,11 +412,13 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             JButton button = (JButton) e.getSource();
             JPopupMenu popupMenu = new JPopupMenu();
 
+			DataProvider dataProvider = chartFrame.getChartData().getDataProvider();
             Interval current = chartFrame.getChartData().getInterval();
 
             JMenuItem item;
@@ -407,6 +439,57 @@ public final class MainActions
                             MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
                     item.setMargin(new java.awt.Insets(0, 0, 0, 0));
                 }
+
+				boolean supportsCustomIntervals = dataProvider.supportsCustomInterval();
+				boolean hasCustomIntervals = false;
+
+				String folder = FileUtils.intervalFolder(dataProvider.getName());
+				File file = new File(folder);
+				if (file.isDirectory())
+				{
+					String[] files = file.list();
+					hasCustomIntervals = files.length > 0;
+				}
+				
+				if (supportsCustomIntervals || hasCustomIntervals)
+				{
+					popupMenu.addSeparator();
+
+					if (hasCustomIntervals)
+					{
+						JMenu menu = new JMenu("Saved Intervals");
+						popupMenu.add(menu);
+
+						String[] files = file.list();
+						try
+						{
+							for (String string : files)
+							{
+								File intervalFile = new File(folder, string);
+								Properties properties = new Properties();
+								FileInputStream fileInputStream = new FileInputStream(intervalFile);
+								properties.load(fileInputStream);
+
+								String name = properties.getProperty("name");
+								String timeParam = properties.getProperty("time_param");
+								int lengthInSeconds = Integer.parseInt(properties.getProperty("length_in_seconds"));
+								Interval interval = new org.chartsy.main.intervals.CustomInterval
+									(name, true, 0, timeParam, lengthInSeconds);
+								menu.add(item = new JMenuItem(
+									MainActions.changeInterval(chartFrame, interval, interval.equals(current))));
+								item.setMargin(new java.awt.Insets(0, 0, 0, 0));
+							}
+						} catch (IOException ex)
+						{}
+					}
+
+					if (supportsCustomIntervals)
+					{
+						popupMenu.add(item = new JMenuItem(
+							MainActions.customInterval(chartFrame)));
+						item.setMargin(new java.awt.Insets(0, 0, 0, 0));
+					}
+				}
             }
 
             if (popupMenu.getComponents().length > 0)
@@ -438,45 +521,135 @@ public final class MainActions
             this.current = current;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             if (!current)
             {
-                Stock stock = chartFrame.getChartData().getStock();
-                if (chartFrame.getChartData().getDataProvider().datasetExists(stock, interval))
-                {
-                    if (chartFrame.getChartData().updateDataset(interval))
-                    {
-                        if (chartFrame.getHistory() != null)
-                        {
-                            HistoryItem item = chartFrame.getHistory().getCurrent();
-                            if (item != null)
-                            {
-                                chartFrame.getHistory().addHistoryItem(item);
-                                chartFrame.getHistory().clearForwardHistory();
-                                chartFrame.getHistory().setCurrent(
-                                        new HistoryItem(stock, interval.hashCode()));
-                            }
-                        }
-
-                        chartFrame.getChartData().calculate(chartFrame);
-                        chartFrame.updateToolbar();
-                        chartFrame.validate();
-                        chartFrame.repaint();
-                    }
-                } else
-                {
-                    HistoryItem item = chartFrame.getHistory().getCurrent();
-                    if (item != null)
-                    {
-                        chartFrame.getHistory().addHistoryItem(item);
-                        chartFrame.getHistory().clearForwardHistory();
-                    }
-                    chartFrame.changeDataset(stock, interval, false);
-                }
+				HistoryItem item = chartFrame.getHistory().getCurrent();
+				if (item != null)
+				{
+					chartFrame.getHistory().addHistoryItem(item);
+					chartFrame.getHistory().clearForwardHistory();
+				}
+				chartFrame.intervalChanged(interval);
             }
         }
     }
+
+	private static class CustomInterval extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new CustomInterval(chartFrame);
+		}
+
+		private CustomInterval(ChartFrame chartFrame)
+		{
+			super("CustomInterval", false);
+			this.chartFrame = chartFrame;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			DataProvider dataProvider = chartFrame.getChartData().getDataProvider();
+			JPanel formPanel = new JPanel();
+			formPanel.setLayout(new GridBagLayout());
+
+			GridBagConstraints gbc = new GridBagConstraints();
+
+			gbc.gridwidth = GridBagConstraints.REMAINDER;
+			gbc.anchor = GridBagConstraints.CENTER;
+			gbc.insets = new Insets(20, 0, 15, 0);
+			formPanel.add(new JLabel("Create Custom Interval"), gbc);
+
+			gbc.anchor = GridBagConstraints.WEST;
+			gbc.insets = new Insets(5, 10, 5, 5);
+
+			JLabel nameLabel = new JLabel("Name:");
+			JTextField nameTxt = new JTextField(30);
+			gbc.gridwidth = GridBagConstraints.RELATIVE;
+			formPanel.add(nameLabel, gbc);
+			gbc.gridwidth = GridBagConstraints.REMAINDER;
+			formPanel.add(nameTxt, gbc);
+
+			JLabel lengthLabel = new JLabel("Length:");
+			JTextField lengthTxt = new JTextField(15);
+			JLabel inLabel = new JLabel("In:");
+			Object[] values = new Object[] {"Seconds","Minutes","Hours"};
+			JComboBox inBox = new JComboBox(values);
+
+			JLabel intervalLabel = new JLabel("Interval:");
+			Object[] intervals = dataProvider.getSupportedIntervals();
+			JComboBox intervalBox = new JComboBox(intervals);
+
+			boolean supportsAnyInterval = dataProvider.supportsAnyInterval();
+			if (supportsAnyInterval)
+			{
+				gbc.gridwidth = GridBagConstraints.RELATIVE;
+				formPanel.add(lengthLabel, gbc);
+				gbc.gridwidth = GridBagConstraints.REMAINDER;
+				formPanel.add(lengthTxt, gbc);
+
+				gbc.gridwidth = GridBagConstraints.RELATIVE;
+				formPanel.add(inLabel, gbc);
+				gbc.gridwidth = GridBagConstraints.REMAINDER;
+				formPanel.add(inBox, gbc);
+			} else
+			{
+				gbc.gridwidth = GridBagConstraints.RELATIVE;
+				formPanel.add(intervalLabel, gbc);
+				gbc.gridwidth = GridBagConstraints.REMAINDER;
+				formPanel.add(intervalBox, gbc);
+			}
+
+			DialogDescriptor descriptor
+				= new DialogDescriptor(formPanel, "Create Custom Interval", true, null);
+			descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
+			descriptor.setOptions(new Object[]
+			{
+				DialogDescriptor.OK_OPTION,
+				DialogDescriptor.CANCEL_OPTION
+			});
+			Object responce = DialogDisplayer.getDefault().notify(descriptor);
+			if (responce.equals(DialogDescriptor.OK_OPTION))
+			{
+				String name = nameTxt.getText();
+				if (supportsAnyInterval)
+				{
+					// do nothing for now
+				} else
+				{
+					int index = intervalBox.getSelectedIndex();
+					Interval interval = dataProvider.getSupportedIntervals()[index];
+					if (name == null || name.isEmpty())
+						name = interval.getName();
+					try
+					{
+						File file = new File(FileUtils.intervalPath(dataProvider.getName(), name));
+						if (!file.exists())
+							file.createNewFile();
+						Properties properties = new Properties();
+						properties.setProperty("name", name);
+						properties.setProperty("time_param", interval.getTimeParam());
+						properties.setProperty("length_in_seconds", String.valueOf(interval.getLengthInSeconds()));
+						FileOutputStream fileOutputStream = new FileOutputStream(file);
+						properties.store(fileOutputStream, "");
+						fileOutputStream.flush();
+						fileOutputStream.close();
+					} catch (IOException ex)
+					{
+						System.out.println("Could not save the interval.");
+					}
+				}
+			}
+		}
+
+	}
 
     private static class ChartPopup extends MainAction
     {
@@ -494,6 +667,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             String current = chartFrame.getChartData().getChart().getName();
@@ -533,12 +707,11 @@ public final class MainActions
             putValue(SHORT_DESCRIPTION, chartName);
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             Chart chart = ChartManager.getDefault().getChart(chartName);
-            chartFrame.getChartData().setChart(chart);
-            chartFrame.validate();
-            chartFrame.repaint();
+			chartFrame.chartChanged(chart);
         }
     }
 
@@ -558,6 +731,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             Indicators dialog = new Indicators(new JFrame(), true);
@@ -584,6 +758,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             Overlays dialog = new Overlays(new JFrame(), true);
@@ -610,6 +785,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             JButton button = (JButton) e.getSource();
@@ -664,6 +840,7 @@ public final class MainActions
             this.annotationName = annotationName;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             Annotation annotation = AnnotationManager.getDefault().getAnnotation(annotationName);
@@ -687,6 +864,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             chartFrame.removeAllAnnotations();
@@ -711,6 +889,7 @@ public final class MainActions
             this.annotation = annotation;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             AnnotationProperties dialog = new AnnotationProperties(new JFrame(), true);
@@ -736,6 +915,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             if (e.getSource() instanceof JToggleButton)
@@ -766,6 +946,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             ImageExporter.getDefault().export(chartFrame);
@@ -789,6 +970,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             PrintManager.printAction(chartFrame.getMainPanel()).actionPerformed(e);
@@ -811,6 +993,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             SettingsPanel.getDefault().openSettingsWindow(chartFrame);
@@ -837,6 +1020,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             chartFrame.getChartProperties().toggleToolbarVisibility();
@@ -862,6 +1046,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             TopComponent component = WindowManager.getDefault().findTopComponent("FavoritesComponent");
@@ -891,6 +1076,83 @@ public final class MainActions
         }
     }
 
+	private static class JoinConference extends MainAction
+	{
+
+		private ChartFrame chartFrame;
+
+		public static Action getAction(ChartFrame chartFrame)
+		{
+			return new JoinConference(chartFrame);
+		}
+
+		private JoinConference(ChartFrame chartFrame)
+		{
+			super("JoinConference", true);
+			this.chartFrame = chartFrame;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if (NbPreferences.root().node("/org/chartsy/chat").getBoolean("loggedin", false))
+			{
+				try
+				{
+					String roomName = chartFrame.getChartData().getStock().getKey();
+					String roomJID = "symbol_conference_" + roomName.toLowerCase() + "@conference.chat.mrswing.com";
+					boolean exists = false;
+					Object[] list = ConferenceUtils.getRoomList("conference.chat.mrswing.com").toArray();
+					for (Object object : list)
+					{
+						HostedRoom hostedRoom = (HostedRoom) object;
+						if (hostedRoom.getJid().equals(roomJID))
+						{
+							exists = true;
+							break;
+						}
+					}
+
+					if (!exists)
+					{
+						final MultiUserChat multiUserChat = new MultiUserChat(ChatsyManager.getConnection(), roomJID);
+						final GroupChatRoom room = new GroupChatRoom(multiUserChat);
+						room.setTabTitle(roomName);
+
+						multiUserChat.create(NbPreferences.root().node("/org/chartsy/chat").get("nickname", ""));
+
+						Form submitForm = multiUserChat.getConfigurationForm().createAnswerForm();
+						submitForm.setAnswer("muc#roomconfig_publicroom", true);
+						submitForm.setAnswer("muc#roomconfig_roomname", roomName);
+						submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", false);
+						submitForm.setAnswer("muc#roomconfig_moderatedroom", false);
+						submitForm.setAnswer("muc#roomconfig_persistentroom", false);
+
+						multiUserChat.sendConfigurationForm(submitForm);
+
+						ChatManager chatManager = ChatsyManager.getChatManager();
+						ChatRoom chatRoom = chatManager.getChatContainer().getChatRoom(room.getRoomname());
+						if (chatRoom == null)
+						{
+							chatManager.getChatContainer().addChatRoom(room);
+							chatManager.getChatContainer().activateChatRoom(room);
+						}
+					}
+					else
+					{
+						ChatRoom chatRoom = ChatsyManager.getChatManager().getChatContainer().getChatRoom(roomName);
+						if (chatRoom == null)
+							ConferenceUtils.joinConferenceOnSeperateThread(roomName, roomJID, null);
+					}
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+		}
+
+	}
+
     private static class ChangeTemplate extends MainAction
     {
 
@@ -911,6 +1173,7 @@ public final class MainActions
             putValue(SHORT_DESCRIPTION, template);
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             chartFrame.setTemplate(TemplateManager.getDefault().getTemplate(template));
@@ -933,6 +1196,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             InputLine descriptor = new DialogDescriptor.InputLine(
@@ -982,6 +1246,7 @@ public final class MainActions
             this.chartToolbar = chartToolbar;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             chartFrame.getChartProperties().toggleToolbarSmallIcons();
@@ -1007,10 +1272,13 @@ public final class MainActions
             this.chartToolbar = chartToolbar;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             chartFrame.getChartProperties().toggleShowLabels();
             chartToolbar.toggleLabels();
         }
+		
     }
+	
 }

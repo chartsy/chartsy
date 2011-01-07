@@ -1,16 +1,17 @@
 package org.chartsy.main.axis;
 
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.util.List;
+import java.io.Serializable;
 import javax.swing.JPanel;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
 import org.chartsy.main.IndicatorPanel;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.GraphicsUtils;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
@@ -18,7 +19,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class Grid extends JPanel
+public class Grid extends JPanel implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -27,23 +28,18 @@ public class Grid extends JPanel
     public Grid(ChartFrame frame)
     {
         chartFrame = frame;
-        setOpaque(false);
+		setOpaque(false);
+		setDoubleBuffered(true);
     }
 
-    public @Override synchronized void paint(Graphics g)
-    {
-        super.paint(g);
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
+	@Override
+	public void paint(Graphics g)
+	{
+		Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
 
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
-
-        ChartData cd = chartFrame.getChartData();
+		ChartData cd = chartFrame.getChartData();
         ChartProperties cp = chartFrame.getChartProperties();
+		boolean isLog = cp.getAxisLogarithmicFlag();
 
         if (!cd.isVisibleNull() && !cd.getVisible().isEmpty())
         {
@@ -55,13 +51,28 @@ public class Grid extends JPanel
             // Vertical Grid
             if (cp.getGridVerticalVisibility())
             {
-                g2.setPaint(cp.getGridVerticalColor());
+                g2.setColor(cp.getGridVerticalColor());
                 g2.setStroke(cp.getGridVerticalStroke());
-                List<Double> list = cd.getDateValues();
-                for (int i = 0; i < list.size(); i++)
+				double[] list = cd.getDateValues();
+				boolean firstFlag = true;
+                for (int i = 0; i < list.length; i++)
                 {
-                    x = cd.getX(list.get(i), chartBounds);
-                    g2.draw(CoordCalc.line(x, 0, x, getHeight()));
+					double value = list[i];
+					if (value != -1)
+					{
+						x = cd.getX(value, chartBounds);
+						if (firstFlag)
+						{
+							int index = (int) value;
+							long time = cd.getVisible().getTimeAt(index);
+							if (cd.isFirstWorkingDayOfMonth(time))
+								g2.draw(CoordCalc.line(x, 0, x, getHeight()));
+							firstFlag = false;
+						} else
+						{
+							g2.draw(CoordCalc.line(x, 0, x, getHeight()));
+						}
+					}
                 }
             }
 
@@ -69,12 +80,14 @@ public class Grid extends JPanel
             if (cp.getGridHorizontalVisibility())
             {
                 // paint grid for chart
-                g2.setPaint(cp.getGridHorizontalColor());
+                g2.setColor(cp.getGridHorizontalColor());
                 g2.setStroke(cp.getGridHorizontalStroke());
-                List<Double> list = cd.getPriceValues(chartBounds, chartRange);
-                for (int i = 0; i < list.size(); i++)
+				FontMetrics fm = getFontMetrics(chartFrame.getChartProperties().getFont());
+				double[] list = cd.getYValues(chartBounds, chartRange, fm.getHeight());
+                for (int i = 0; i < list.length; i++)
                 {
-                    y = cd.getY(list.get(i), chartBounds, chartRange);
+					double value = list[i];
+                    y = cd.getY(value, chartBounds, chartRange, isLog);
                     if (chartBounds.contains(2, y))
                     {
                         g2.draw(CoordCalc.line(0, y, getWidth(), y));
@@ -91,7 +104,7 @@ public class Grid extends JPanel
                     for (IndicatorPanel panel : chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorPanels())
                     {
                         g2.translate(0, hy);
-                        g2.setPaint(cp.getGridHorizontalColor());
+                        g2.setColor(cp.getGridHorizontalColor());
                         g2.setStroke(cp.getGridHorizontalStroke());
 
                         if (panel.isMaximized())
@@ -105,7 +118,7 @@ public class Grid extends JPanel
                                 Double[] values = panel.getIndicator().getPriceValues(chartFrame);
                                 for (Double d : values)
                                 {
-                                    y = cd.getY(d, indicatorBounds, indicatorRange);
+                                    y = cd.getY(d, indicatorBounds, indicatorRange, false);
                                     if (indicatorBounds.contains(2, y))
                                     {
                                         g2.draw(CoordCalc.line(0, y, getWidth(), y));
@@ -117,8 +130,8 @@ public class Grid extends JPanel
                                 {
                                     if (panel.getIndicator().getZeroLineVisibility())
                                     {
-                                        y = cd.getY(0, indicatorBounds, indicatorRange);
-                                        g2.setPaint(panel.getIndicator().getZeroLineColor());
+                                        y = cd.getY(0, indicatorBounds, indicatorRange, false);
+                                        g2.setColor(panel.getIndicator().getZeroLineColor());
                                         g2.setStroke(panel.getIndicator().getZeroLineStroke());
                                         g2.draw(CoordCalc.line(0, y, getWidth(), y));
                                     }
@@ -130,8 +143,8 @@ public class Grid extends JPanel
                                     {
                                         for (double d : panel.getIndicator().getDelimitersValues())
                                         {
-                                            y = cd.getY(d, indicatorBounds, indicatorRange);
-                                            g2.setPaint(panel.getIndicator().getDelimitersColor());
+                                            y = cd.getY(d, indicatorBounds, indicatorRange, false);
+                                            g2.setColor(panel.getIndicator().getDelimitersColor());
                                             g2.setStroke(panel.getIndicator().getDelimitersStroke());
                                             g2.draw(CoordCalc.line(0, y, getWidth(), y));
                                         }
@@ -151,7 +164,12 @@ public class Grid extends JPanel
                 }
             }
         }
-        g2.dispose();
-    }
+	}
+
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
 }

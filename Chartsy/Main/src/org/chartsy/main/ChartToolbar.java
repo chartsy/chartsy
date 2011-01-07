@@ -7,6 +7,9 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,18 +21,20 @@ import javax.swing.SwingConstants;
 import javax.swing.border.AbstractBorder;
 import org.chartsy.main.utils.MainActions;
 import org.chartsy.main.utils.SerialVersion;
+import org.openide.util.NbPreferences;
 
 /**
  *
  * @author Administrator
  */
-public class ChartToolbar extends JToolBar implements Serializable
+public class ChartToolbar extends JToolBar implements Serializable, PreferenceChangeListener
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     private ChartFrame chartFrame;
     private SymbolChanger symbolChanger;
+	private Preferences chatPreferences = NbPreferences.root().node("/org/chartsy/chat");
 
     public ChartToolbar(ChartFrame frame)
     {
@@ -37,8 +42,10 @@ public class ChartToolbar extends JToolBar implements Serializable
         chartFrame = frame;
         initComponents();
         setFloatable(false);
+		setDoubleBuffered(true);
         setBorder(new BottomBorder());
         addMouseListener(new ToolbarOptions(this));
+		chatPreferences.addPreferenceChangeListener((PreferenceChangeListener) this);
     }
 
     private void initComponents()
@@ -70,8 +77,11 @@ public class ChartToolbar extends JToolBar implements Serializable
 			= ToolbarButton.getButton(MainActions.printChart(chartFrame)));
         add(propertiesBtn
 			= ToolbarButton.getButton(MainActions.chartProperties(chartFrame)));
+		add(joinConference
+			= ToolbarButton.getButton(MainActions.joinToConference(chartFrame)));
 
 		markerBtn.setSelected(true);
+		joinConference.setVisible(chatPreferences.getBoolean("loggedin", false));
     }
 
     public void updateToolbar()
@@ -93,6 +103,7 @@ public class ChartToolbar extends JToolBar implements Serializable
 		exportBtn.toggleLabel(show);
 		printBtn.toggleLabel(show);
 		propertiesBtn.toggleLabel(show);
+		joinConference.toggleLabel(show);
 	}
 
 	public void toggleIcons()
@@ -109,6 +120,7 @@ public class ChartToolbar extends JToolBar implements Serializable
 		exportBtn.toggleIcon(small);
 		printBtn.toggleIcon(small);
 		propertiesBtn.toggleIcon(small);
+		joinConference.toggleIcon(small);
 	}
 
     public JPopupMenu getToolbarMenu()
@@ -129,6 +141,12 @@ public class ChartToolbar extends JToolBar implements Serializable
 
         return popup;
     }
+
+	@Override public void preferenceChange(PreferenceChangeEvent evt)
+	{
+		if (evt.getKey().equals("loggedin"))
+			joinConference.setVisible(evt.getNode().getBoolean("loggedin", false));
+	}
 
     public static class ToolbarOptions extends MouseAdapter
     {
@@ -285,5 +303,6 @@ public class ChartToolbar extends JToolBar implements Serializable
 	private ToolbarButton exportBtn;
 	private ToolbarButton printBtn;
 	private ToolbarButton propertiesBtn;
+	private ToolbarButton joinConference;
 
 }

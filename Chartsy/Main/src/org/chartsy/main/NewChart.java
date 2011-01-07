@@ -7,17 +7,19 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
-import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.exceptions.InvalidStockException;
 import org.chartsy.main.exceptions.RegistrationException;
 import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.intervals.DailyInterval;
+import org.chartsy.main.intervals.Interval;
+import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.templates.Template;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.Cancellable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
@@ -30,12 +32,14 @@ import org.openide.windows.WindowManager;
 public class NewChart implements ActionListener
 {
 
-    private final static RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
+    private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
+	private final Interval defaultInterval = new DailyInterval();
     private NewChartDialog dialog;
     private boolean newChart = true;
     private boolean canOpen = true;
+	private RequestProcessor.Task stockTask;
 
-    public void actionPerformed(final ActionEvent e)
+    @Override public void actionPerformed(final ActionEvent e)
     {
         if (newChart)
         {
@@ -46,63 +50,80 @@ public class NewChart implements ActionListener
 
         if (!dialog.isVisible())
         {
-            final Stock stock = dialog.getStock();
-            final DataProvider dataProvider = dialog.getDataProvider();
+            final String symbol = dialog.getStock();
+            final String dataProvider = dialog.getDataProvider();
+			final DataProvider provider = DataProviderManager.getDefault().getDataProvider(dataProvider);
             final Template template = dialog.getTemplate();
 
             if (dataProvider != null
-                    && stock != null
+                    && symbol != null
                     && template != null)
             {
-                final RequestProcessor.Task stockTask = RP.create(new Runnable()
-                {
-
-                    public void run()
-                    {
-                        canOpen = true;
-                        try
+				final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", new Cancellable()
+				{
+					@Override
+					public boolean cancel()
+					{
+						if (stockTask == null)
+							return false;
+						return stockTask.cancel();
+					}
+				});
+				
+				final Runnable runnable = new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						handle.start();
+						handle.switchToIndeterminate();
+						
+						canOpen = true;
+						try
+						{
+							if (!provider.stockExists(symbol))
+								provider.fetchStock(symbol);
+						} catch (InvalidStockException ex)
                         {
-                            dataProvider.setStockCompanyName(stock);
-                        } catch (InvalidStockException ex)
-                        {
+							handle.finish();
                             notifyError(e, ex);
                         } catch (StockNotFoundException ex)
                         {
+							handle.finish();
                             notifyError(e, ex);
                         } catch (RegistrationException ex)
                         {
+							handle.finish();
                             notifyError(e, ex);
                         } catch (IOException ex)
                         {
+							handle.finish();
                             notifyError(e, new InvalidStockException());
                         }
-                    }
-                });
-
-                final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", stockTask);
+					}
+				};
+				
+                stockTask = RP.create(runnable);
                 stockTask.addTaskListener(new TaskListener()
                 {
-
-                    public void taskFinished(Task task)
+                    @Override
+					public void taskFinished(Task task)
                     {
                         handle.finish();
-                        if (canOpen)
+						final Stock stock = provider.fetchStockFromCache(symbol);
+                        if (canOpen && stock != null)
                         {
                             SwingUtilities.invokeLater(new Runnable()
-                            {
-
-                                public void run()
-                                {
-                                    dataProvider.addStock(stock);
-                                    openNewChart(stock, dataProvider, template);
+							{
+                                @Override public void run()
+								{
+									openNewChart(stock, dataProvider, template);
                                 }
                             });
                         }
                     }
                 });
-
-                handle.start();
-                stockTask.schedule(0);
+				stockTask.schedule(0);
             }
         }
     }
@@ -117,8 +138,7 @@ public class NewChart implements ActionListener
             newChart = false;
             SwingUtilities.invokeLater(new Runnable()
             {
-
-                public void run()
+                @Override public void run()
                 {
                     actionPerformed(e);
                 }
@@ -126,18 +146,20 @@ public class NewChart implements ActionListener
         }
     }
 
-    private void openNewChart(Stock stock, DataProvider dataProvider, Template template)
+    private void openNewChart(Stock stock, String dataProvider, Template template)
     {
         newChart = true;
-        ChartData cd = new ChartData();
-        cd.setStock(stock);
-        cd.setChart(template.getChart());
-        cd.setDataProvider(dataProvider);
-        cd.setInterval(new DailyInterval());
-        cd.setDataset(new Dataset());
+        ChartData chartData = new ChartData();
+        chartData.setStock(stock);
+        chartData.setChart(template.getChart());
+        chartData.setDataProviderName(dataProvider);
+        chartData.setInterval(defaultInterval);
 
-        ChartFrame chartFrame = new ChartFrame(cd, template);
+		ChartFrame chartFrame = ChartFrame.getInstance();
+		chartFrame.setChartData(chartData);
+		chartFrame.setTemplate(template);
         chartFrame.open();
         chartFrame.requestActive();
     }
+	
 }

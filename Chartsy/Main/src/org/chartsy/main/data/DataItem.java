@@ -8,7 +8,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class DataItem implements Serializable
+public class DataItem implements Serializable, Comparable<DataItem>
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -82,6 +82,7 @@ public class DataItem implements Serializable
     public void setVolume(double volume) 
     { this.volume = volume; }
 
+	@Override
     public boolean equals(Object obj)
     {
         if (obj == this)
@@ -112,35 +113,47 @@ public class DataItem implements Serializable
         return true;
     }
 
-    public int compareTo(Object object)
-    {
-        if (object instanceof DataItem)
-        {
-            DataItem item = (DataItem) object;
-            return getDate().compareTo(item.getDate());
-        }
-        else
-        {
-            throw new ClassCastException("DataItem.compareTo().");
-        }
-    }
+	@Override
+	public int hashCode()
+	{
+		int hash = 3;
+		hash = 53 * hash + (int) (this.time ^ (this.time >>> 32));
+		hash = 53 * hash + (int) (Double.doubleToLongBits(this.open) ^ (Double.doubleToLongBits(this.open) >>> 32));
+		hash = 53 * hash + (int) (Double.doubleToLongBits(this.high) ^ (Double.doubleToLongBits(this.high) >>> 32));
+		hash = 53 * hash + (int) (Double.doubleToLongBits(this.low) ^ (Double.doubleToLongBits(this.low) >>> 32));
+		hash = 53 * hash + (int) (Double.doubleToLongBits(this.close) ^ (Double.doubleToLongBits(this.close) >>> 32));
+		hash = 53 * hash + (int) (Double.doubleToLongBits(this.volume) ^ (Double.doubleToLongBits(this.volume) >>> 32));
+		return hash;
+	}
 
+	@Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("DataItem [open=");
-        sb.append(Double.toString(open));
-        sb.append(", high=");
-        sb.append(Double.toString(high));
-        sb.append(", low=");
-        sb.append(Double.toString(low));
-        sb.append(", close=");
-        sb.append(Double.toString(close));
-        sb.append(", volume=");
+		sb.append(Long.toString(time)).append(",");
+        //sb.append("DataItem [open=");
+        sb.append(Double.toString(open)).append(",");
+        //sb.append(", high=");
+        sb.append(Double.toString(high)).append(",");
+        //sb.append(", low=");
+        sb.append(Double.toString(low)).append(",");
+        //sb.append(", close=");
+        sb.append(Double.toString(close)).append(",");
+        //sb.append(", volume=");
         sb.append(Double.toString(volume));
-        sb.append(", time=");
-        sb.append(Long.toString(time));
+        //sb.append(", time=");
         return sb.toString();
     }
+
+	@Override
+	public int compareTo(DataItem item)
+	{
+		return getDate().compareTo(item.getDate());
+	}
+
+	public boolean updateClose(DataItem item)
+	{
+		return Double.compare(close, item.getClose()) != 0;
+	}
 
 }

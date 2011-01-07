@@ -246,6 +246,19 @@ public final class XMLUtil
 		return null;
 	}
 
+	public static boolean elementExists(Element properties, String name)
+	{
+		NodeList nodeList = properties.getElementsByTagName(PROPERTY_NODE);
+		for (int i = 0; i < nodeList.getLength(); i++)
+		{
+			Element element = (Element) nodeList.item(i);
+			if (name.equals(element.getAttributes().getNamedItem(NAME_ATTR)
+				.getNodeValue()))
+				return true;
+		}
+		return false;
+	}
+
 	public static void addStringProperty
 		(Document document, Element parent, String name, String value)
 	{

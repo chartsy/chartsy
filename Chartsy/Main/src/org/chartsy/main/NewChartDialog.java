@@ -1,17 +1,21 @@
 package org.chartsy.main;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.text.AbstractDocument;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Exchange;
-import org.chartsy.main.data.Stock;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.managers.TemplateManager;
 import org.chartsy.main.templates.Template;
+import org.chartsy.main.utils.DesktopUtil;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
 import org.chartsy.main.utils.autocomplete.StockAutoCompleter;
+import org.openide.util.Exceptions;
 import org.openide.windows.WindowManager;
 
 public class NewChartDialog extends javax.swing.JDialog
@@ -19,9 +23,10 @@ public class NewChartDialog extends javax.swing.JDialog
 
     private static final String defaultDataProvider = "MrSwing";
     private StockAutoCompleter completer = null;
-    private Stock stock = null;
-    private DataProvider dataProvider = null;
+	private String stock = null;
+    private String dataProvider = null;
     private Template template = null;
+	private String msgUrl = "";
 
     /** Creates new form NewChartDialog */
     public NewChartDialog(java.awt.Frame parent, boolean modal)
@@ -36,7 +41,11 @@ public class NewChartDialog extends javax.swing.JDialog
 
     private void initForm()
     {
-        dataProvider = DataProviderManager.getDefault().getDataProvider(defaultDataProvider);
+		msgLabel.setForeground(Color.red);
+		msgLabel.setVisible(false);
+		msgLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        dataProvider = DataProviderManager.getDefault().getDataProvider(defaultDataProvider).getName();
         List<String> dataProviders = DataProviderManager.getDefault().getDataProviders();
         Collections.sort(dataProviders);
 
@@ -59,12 +68,12 @@ public class NewChartDialog extends javax.swing.JDialog
         completer.setDataProvider(dataProvider);
     }
 
-    public Stock getStock()
-    {
-        return stock;
-    }
+	public String getStock()
+	{
+		return stock;
+	}
 
-    public DataProvider getDataProvider()
+    public String getDataProvider()
     {
         return dataProvider;
     }
@@ -94,6 +103,7 @@ public class NewChartDialog extends javax.swing.JDialog
         lstTemplate = new javax.swing.JComboBox();
         btnNewChart = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
+        msgLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.title")); // NOI18N
@@ -146,22 +156,32 @@ public class NewChartDialog extends javax.swing.JDialog
             }
         });
 
+        msgLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        msgLabel.setText(org.openide.util.NbBundle.getMessage(NewChartDialog.class, "NewChartDialog.msgLabel.text")); // NOI18N
+        msgLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        msgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                msgLabelMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 509, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(lblLogo, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(lblSymbol)
-                            .addGap(56, 56, 56)
-                            .addComponent(txtSymbol, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(27, 27, 27))
-                        .addGroup(layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(msgLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblSymbol)
+                                .addGap(56, 56, 56)
+                                .addComponent(txtSymbol, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(11, 11, 11))
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(lblTemplate)
                                 .addGroup(layout.createSequentialGroup()
@@ -170,44 +190,51 @@ public class NewChartDialog extends javax.swing.JDialog
                                         .addComponent(lblExchange))
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(lstExchange, 0, 378, Short.MAX_VALUE)
-                                        .addComponent(lstTemplate, 0, 378, Short.MAX_VALUE)
-                                        .addComponent(lstDataProvider, 0, 378, Short.MAX_VALUE)
+                                        .addComponent(lstExchange, 0, 388, Short.MAX_VALUE)
+                                        .addComponent(lstTemplate, 0, 388, Short.MAX_VALUE)
+                                        .addComponent(lstDataProvider, 0, 388, Short.MAX_VALUE)
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                             .addComponent(btnNewChart)
                                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(btnCancel)))))
-                            .addGap(26, 26, 26)))
+                                            .addComponent(btnCancel))))))
+                        .addGap(26, 26, 26))))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(lblLogo, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 302, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(166, Short.MAX_VALUE)
+                .addComponent(msgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblSymbol)
+                    .addComponent(txtSymbol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(9, 9, 9)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDataProvider)
+                    .addComponent(lstDataProvider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblExchange)
+                    .addComponent(lstExchange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTemplate)
+                    .addComponent(lstTemplate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCancel)
+                    .addComponent(btnNewChart))
+                .addContainerGap())
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(11, 11, 11)
                     .addComponent(lblLogo, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
-                    .addGap(18, 18, 18)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblSymbol)
-                        .addComponent(txtSymbol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(9, 9, 9)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblDataProvider)
-                        .addComponent(lstDataProvider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblExchange)
-                        .addComponent(lstExchange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblTemplate)
-                        .addComponent(lstTemplate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnCancel)
-                        .addComponent(btnNewChart))
-                    .addGap(11, 11, 11)))
+                    .addGap(159, 159, 159)))
         );
 
         pack();
@@ -215,15 +242,17 @@ public class NewChartDialog extends javax.swing.JDialog
 
     private void lstDataProviderActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_lstDataProviderActionPerformed
     {//GEN-HEADEREND:event_lstDataProviderActionPerformed
-        JComboBox list = (JComboBox) evt.getSource();
-        String provider = (String) list.getSelectedItem();
+        this.msgLabel.setVisible(false);
+		msgUrl = "";
+		JComboBox list = (JComboBox) evt.getSource();
+        dataProvider = (String) list.getSelectedItem();
         lstExchange.removeAllItems();
-        dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
         if (completer != null)
         {
             completer.setDataProvider(dataProvider);
         }
-        Exchange[] exchanges = dataProvider.getExchanges();
+		DataProvider dp = DataProviderManager.getDefault().getDataProvider(dataProvider);
+        Exchange[] exchanges = dp.getExchanges();
         if (exchanges == null || exchanges.length == 0)
         {
             lblExchange.setVisible(false);
@@ -235,6 +264,12 @@ public class NewChartDialog extends javax.swing.JDialog
                 lstExchange.addItem(exchange.getExchange());
             }
         }
+		if (dp.needsRegistration() && !dp.isRegistred())
+		{
+			this.msgLabel.setText(dp.getRegistrationMessage());
+			this.msgLabel.setVisible(true);
+			this.msgUrl = dp.getRegistrationURL();
+		}
 }//GEN-LAST:event_lstDataProviderActionPerformed
 
     private void lstExchangeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_lstExchangeActionPerformed
@@ -269,9 +304,8 @@ public class NewChartDialog extends javax.swing.JDialog
     private void btnNewChartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnNewChartActionPerformed
     {//GEN-HEADEREND:event_btnNewChartActionPerformed
         completer.stopTimer();
-        dataProvider = DataProviderManager.getDefault().getDataProvider((String) lstDataProvider.getSelectedItem());
-        Exchange exchange = dataProvider.getExchanges()[lstExchange.getSelectedIndex()];
-        stock = new Stock(txtSymbol.getText(), exchange.getSufix());
+        dataProvider = (String) lstDataProvider.getSelectedItem();
+        stock = txtSymbol.getText().trim();
         template = TemplateManager.getDefault().getTemplate(lstTemplate.getSelectedItem());
         setVisible(false);
 }//GEN-LAST:event_btnNewChartActionPerformed
@@ -283,6 +317,17 @@ public class NewChartDialog extends javax.swing.JDialog
         template = null;
         setVisible(false);
 }//GEN-LAST:event_btnCancelActionPerformed
+
+	private void msgLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_msgLabelMouseClicked
+		if (!msgUrl.isEmpty())
+		{
+			try
+			{
+				DesktopUtil.browse(msgUrl);
+			} catch (Exception ex)
+			{}
+		}
+	}//GEN-LAST:event_msgLabelMouseClicked
 
     /**
      * @param args the command line arguments
@@ -318,6 +363,7 @@ public class NewChartDialog extends javax.swing.JDialog
     private javax.swing.JComboBox lstDataProvider;
     private javax.swing.JComboBox lstExchange;
     private javax.swing.JComboBox lstTemplate;
+    private javax.swing.JLabel msgLabel;
     private javax.swing.JTextField txtSymbol;
     // End of variables declaration//GEN-END:variables
 }

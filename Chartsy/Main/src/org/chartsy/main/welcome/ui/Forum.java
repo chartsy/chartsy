@@ -1,6 +1,5 @@
 package org.chartsy.main.welcome.ui;
 
-import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -8,6 +7,8 @@ import javax.swing.SpringLayout;
 import org.chartsy.main.welcome.Feeds;
 import org.chartsy.main.welcome.content.Constants;
 import org.chartsy.main.welcome.content.Feed;
+import org.chartsy.main.welcome.content.FeedEvent;
+import org.chartsy.main.welcome.content.FeedListener;
 import org.chartsy.main.welcome.content.FeedMessage;
 import org.chartsy.main.welcome.content.SpringUtilities;
 import org.chartsy.main.welcome.content.WebLink;
@@ -17,11 +18,10 @@ import org.openide.util.ImageUtilities;
  *
  * @author Viorel
  */
-public class Forum extends JPanel implements Constants
+public class Forum extends JPanel implements Constants, FeedListener
 {
 
 	private JLabel loading;
-	private boolean initialized = false;
 
 	public Forum()
 	{
@@ -29,6 +29,7 @@ public class Forum extends JPanel implements Constants
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		initComponents();
+		Feeds.getDefault().addFeedListener(Feeds.forumFeed, (FeedListener) this);
 	}
 
 	private void initComponents()
@@ -55,28 +56,27 @@ public class Forum extends JPanel implements Constants
 			5, 5);
 	}
 
-	@Override public void paint(Graphics g)
+	@Override public void fireFeedParsed(FeedEvent event)
 	{
-		Feed forum = Feeds.getDefault().getForum();
-		if (forum != null)
+		Feed feed = (Feed) event.getSource();
+		if (feed.getFeedName().equals(Feeds.forumFeed))
 		{
-			if (!initialized)
-			{
-				for (int i = 0; i < forum.getMessages().size(); i++)
-				{
-					FeedMessage message = forum.getMessages().get(i);
-					add(WebLink.createWebLink(message.getTitle(), message.getLink(), true));
-				}
-				initialized = true;
-				remove(loading);
-				SpringUtilities.makeCompactGrid(this,
-					getComponentCount(), 1,
-					5, 5,
-					5, 5);
-			}
-		}
+			remove(loading);
 
-		super.paint(g);
+			for (int i = 0; i < feed.getMessages().size(); i++)
+			{
+				FeedMessage message = feed.getMessages().get(i);
+				add(WebLink.createWebLink(message.getTitle(), message.getLink(), true));
+			}
+
+			SpringUtilities.makeCompactGrid(this,
+				getComponentCount(), 1,
+				5, 5,
+				5, 5);
+
+			revalidate();
+			repaint();
+		}
 	}
 
 }

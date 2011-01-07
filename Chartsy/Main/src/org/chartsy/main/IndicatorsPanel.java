@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -34,6 +35,7 @@ public class IndicatorsPanel extends JPanel implements Serializable
     {
         chartFrame = frame;
         setOpaque(false);
+		setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new LayoutManager() {
             public void addLayoutComponent(String name, Component comp) {}
@@ -47,7 +49,8 @@ public class IndicatorsPanel extends JPanel implements Serializable
                 int width = parent.getWidth() - insets.left - insets.right;
                 int x = insets.left;
                 int y = insets.top;
-                for (int i = 0; i < components.length; i++) {
+                for (int i = 0; i < components.length; i++)
+				{
                     int height = ((IndicatorPanel)components[i]).getPanelHeight();
                     components[i].setBounds(x, y, width, height);
                     y += height;
@@ -57,6 +60,40 @@ public class IndicatorsPanel extends JPanel implements Serializable
         Resizeable resizeable = new Resizeable(this);
         addMouseListener(resizeable);
         addMouseMotionListener(resizeable);
+
+		ChartFrameAdapter frameAdapter = new ChartFrameAdapter()
+		{
+			@Override
+			public void indicatorAdded(Indicator indicator)
+			{
+				int count = getIndicatorsCount();
+				IndicatorPanel indicatorPanel = new IndicatorPanel(chartFrame, indicator);
+				int height = Indicator.DEFAULT_HEIGHT != indicator.getMaximizedHeight()
+					? indicator.getMaximizedHeight()
+					: Indicator.DEFAULT_HEIGHT;
+				indicatorPanel.setMaximizedHeight(height);
+				add(indicatorPanel, count);
+				updateIndicatorsToolbar();
+				calculateHeight();
+				chartFrame.validate();
+				chartFrame.repaint();
+			}
+
+			@Override
+			public void indicatorRemoved(Indicator indicator)
+			{
+				IndicatorPanel indicatorPanel = getIndicatorPanel(indicator);
+				if (indicatorPanel != null)
+				{
+					indicator.clearDatasets();
+					remove(indicatorPanel);
+					updateIndicatorsToolbar();
+					chartFrame.validate();
+					chartFrame.repaint();
+				}
+			}
+		};
+		chartFrame.addChartFrameListener(frameAdapter);
     }
 
     public ChartFrame getChartFrame() 
@@ -65,52 +102,64 @@ public class IndicatorsPanel extends JPanel implements Serializable
     public void setChartFrame(ChartFrame frame)
     { chartFrame = frame; }
 
-    public int getIndicatorsCount() {
+    public int getIndicatorsCount()
+	{
         return getComponentCount();
     }
 
-    public IndicatorPanel getIndicatorPanel(Indicator ind) {
+    public IndicatorPanel getIndicatorPanel(Indicator ind)
+	{
         IndicatorPanel[] panels = getIndicatorPanels();
-        for (int i = 0; i < panels.length; i++) {
-            if (ind.equals(panels[i].getIndicator())) return panels[i];
-        }
+        for (int i = 0; i < panels.length; i++)
+            if (ind.equals(panels[i].getIndicator()))
+				return panels[i];
         return null;
     }
 
-    public IndicatorPanel[] getIndicatorPanels() {
-        Component[] components = getComponents();
-        IndicatorPanel[] result = new IndicatorPanel[components.length];
-        for (int i = 0; i < components.length; i++)
-            result[i] = (IndicatorPanel)components[i];
-        return result;
+    public IndicatorPanel[] getIndicatorPanels()
+	{
+		IndicatorPanel[] indicatorPanels = new IndicatorPanel[getComponentCount()];
+		for (int i = 0; i < indicatorPanels.length; i++)
+		{
+			Component component = getComponent(i);
+			if (component instanceof IndicatorPanel)
+				indicatorPanels[i] = (IndicatorPanel) component;
+		}
+        return indicatorPanels;
     }
 
-    public int getPanelHeight() {
+    public int getPanelHeight()
+	{
         IndicatorPanel[] panels = getIndicatorPanels();
-        if (panels.length > 0) {
+        if (panels.length > 0)
+		{
             int height = 0;
             for (IndicatorPanel panel : panels)
                 height += panel.getPanelHeight();
             return height;
-        } else {
+        } else
+		{
             return 0;
         }
     }
 
-    public int getPanelY(int index) {
+    public int getPanelY(int index)
+	{
         IndicatorPanel[] panels = getIndicatorPanels();
-        if (panels.length > 0) {
+        if (panels.length > 0)
+		{
             int height = 0;
-            for (int i = 0; i < index; i++) {
+            for (int i = 0; i < index; i++)
                 height += panels[i].getPanelHeight();
-            }
             return height;
-        } else {
+        } else
+		{
             return 0;
         }
     }
 
-    public AnnotationPanel[] getAnnotationPanels() {
+    public AnnotationPanel[] getAnnotationPanels()
+	{
         IndicatorPanel[] indicatorPanels = getIndicatorPanels();
         AnnotationPanel[] annotationPanels = new AnnotationPanel[indicatorPanels.length];
         for (int i = 0; i < indicatorPanels.length; i++)
@@ -118,7 +167,8 @@ public class IndicatorsPanel extends JPanel implements Serializable
         return annotationPanels;
     }
 
-    public IndicatorPanel getIndicatorPanel(AnnotationPanel panel) {
+    public IndicatorPanel getIndicatorPanel(AnnotationPanel panel)
+	{
         IndicatorPanel[] indicatorPanels = getIndicatorPanels();
         for (int i = 0; i < indicatorPanels.length; i++)
             if (indicatorPanels[i].getAnnotationPanel() == panel)
@@ -129,20 +179,16 @@ public class IndicatorsPanel extends JPanel implements Serializable
     public boolean allMinimized()
     {
         for (IndicatorPanel ip : getIndicatorPanels())
-        {
             if (ip.isMaximized())
                 return true;
-        }
         return false;
     }
 
     public int getMaximizedHeight()
     {
         for (IndicatorPanel ip : getIndicatorPanels())
-        {
             if (ip.isMaximized())
                 return ip.getPanelHeight();
-        }
         return 24;
     }
 
@@ -174,7 +220,8 @@ public class IndicatorsPanel extends JPanel implements Serializable
             panel.setMaximizedHeight(indicatorH);
     }
 
-    public Indicator[] getIndicators() {
+    public Indicator[] getIndicators()
+	{
         IndicatorPanel[] indicatorPanels = getIndicatorPanels();
         Indicator[] indicators = new Indicator[indicatorPanels.length];
         for (int i = 0; i < indicatorPanels.length; i++)
@@ -182,51 +229,35 @@ public class IndicatorsPanel extends JPanel implements Serializable
         return indicators;
     }
 
-    public List<Indicator> getIndicatorsList() {
+    public List<Indicator> getIndicatorsList()
+	{
         Indicator[] inds = getIndicators();
         List<Indicator> list = new ArrayList<Indicator>();
-        for (Indicator ind : inds)
-            list.add(ind);
+		list.addAll(Arrays.asList(inds));
         return list;
     }
 
-    public synchronized void setIndicatorsList(List<Indicator> list)
-    {
-        removeAllIndicators();
-        chartFrame.getChartData().removeAllIndicatorsDatasetListeners();
-        if (list.size() > 0)
-        {
-            for (int i = 0; i < list.size(); i++)
-            {
-                Indicator indicator = list.get(i);
-                indicator.setLogarithmic(chartFrame.getChartProperties().getAxisLogarithmicFlag());
-                indicator.setDataset(chartFrame.getChartData().getDataset());
-                indicator.calculate();
-                addIndicator(indicator);
-            }
-        }
-        updateIndicatorsToolbar();
-        chartFrame.revalidate();
-        chartFrame.repaint();
-    }
-
-    public void addIndicator(Indicator i) {
+    public void addIndicator(Indicator indicator)
+	{
         int count = getIndicatorsCount();
-        IndicatorPanel indicatorPanel = new IndicatorPanel(chartFrame, i);
+        IndicatorPanel indicatorPanel = new IndicatorPanel(chartFrame, indicator);
         indicatorPanel.updateToolbox();
-        int height = Indicator.DEFAULT_HEIGHT != i.getMaximizedHeight() ? i.getMaximizedHeight() : Indicator.DEFAULT_HEIGHT;
+        int height = Indicator.DEFAULT_HEIGHT != indicator.getMaximizedHeight() 
+			? indicator.getMaximizedHeight()
+			: Indicator.DEFAULT_HEIGHT;
         indicatorPanel.setMaximizedHeight(height);
-        chartFrame.getChartProperties().addLogListener(i);
-        chartFrame.getChartData().addIndicatorsDatasetListeners(i);
         add(indicatorPanel, count);
+		calculateHeight();
     }
 
     public int getIndicatorIndex(IndicatorPanel panel)
     {
         int result = -1;
         IndicatorPanel[] indicatorPanels = getIndicatorPanels();
-        for (int i = 0; i < indicatorPanels.length; i++) {
-            if (indicatorPanels[i] == panel) {
+        for (int i = 0; i < indicatorPanels.length; i++)
+		{
+            if (indicatorPanels[i] == panel)
+			{
                 result = i;
                 break;
             }
@@ -234,48 +265,42 @@ public class IndicatorsPanel extends JPanel implements Serializable
         return result;
     }
 
-    public void moveUp(IndicatorPanel panel) {
+    public void moveUp(IndicatorPanel panel)
+	{
         int index = getIndicatorIndex(panel);
         int count = getIndicatorsCount();
         int dest = index - 1;
         if (dest < 0) dest = count - 1;
-        if (dest != index) {
+        if (dest != index)
+		{
             remove(panel);
             add(panel, dest);
-            validate();
-            chartFrame.validate();
-            chartFrame.repaint();
         }
     }
 
-    public void moveDown(IndicatorPanel panel) {
+    public void moveDown(IndicatorPanel panel)
+	{
         int index = getIndicatorIndex(panel);
         int count = getIndicatorsCount();
         int dest = index + 1;
         if (dest >= count) dest = 0;
-        if (dest != index) {
+        if (dest != index)
+		{
             remove(panel);
             add(panel, dest);
-            validate();
-            chartFrame.validate();
-            chartFrame.repaint();
         }
     }
 
-    public void removeIndicator(IndicatorPanel panel) {
+    public void removeIndicator(IndicatorPanel panel)
+	{
         remove(panel);
         calculateHeight();
         updateIndicatorsToolbar();
-        validate();
-        chartFrame.validate();
-        chartFrame.repaint();
     }
 
-    public void removeAllIndicators() {
+    public void removeAllIndicators()
+	{
         removeAll();
-        validate();
-        chartFrame.validate();
-        chartFrame.repaint();
     }
 
     public static class Resizeable extends MouseAdapter implements MouseMotionListener

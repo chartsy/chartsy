@@ -1,13 +1,13 @@
 package org.chartsy.main.axis;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.font.LineMetrics;
+import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.List;
 import javax.swing.JPanel;
 import org.chartsy.main.ChartFrame;
 import org.chartsy.main.ChartProperties;
@@ -15,6 +15,7 @@ import org.chartsy.main.IndicatorPanel;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.GraphicsUtils;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
@@ -22,7 +23,7 @@ import org.chartsy.main.utils.SerialVersion;
  *
  * @author viorel.gheba
  */
-public class PriceAxis extends JPanel
+public class PriceAxis extends JPanel implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
@@ -32,39 +33,35 @@ public class PriceAxis extends JPanel
     {
         chartFrame = frame;
         setOpaque(false);
+		setDoubleBuffered(true);
     }
 
-    public @Override void paint(Graphics g)
-    {
-        super.paint(g);
-        int height = getHeight();
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
+	@Override
+	public void paint(Graphics g)
+	{
+        Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
 
         ChartData cd = chartFrame.getChartData();
         ChartProperties cp = chartFrame.getChartProperties();
+		boolean isLog = cp.getAxisLogarithmicFlag();
 
         if (!cd.isVisibleNull() && !cd.getVisible().isEmpty())
         {
-            g2.setFont(cp.getFont());
+            // paint values for chart
+            Rectangle chartBounds = chartFrame.getSplitPanel().getChartPanel().getBounds();
+			int indicatorsHeight = chartFrame.getSplitPanel().getIndicatorsPanel().getHeight();
+            Range chartRange = chartFrame.getSplitPanel().getChartPanel().getRange();
+			FontMetrics fm = getFontMetrics(chartFrame.getChartProperties().getFont());
+
+			g2.setFont(cp.getFont());
             g2.translate(0, 0);
             g2.setPaint(cp.getAxisColor());
             g2.setStroke(cp.getAxisStroke());
-            g2.drawLine(0, 0, 0, height);
+            g2.drawLine(0, 0, 0, chartBounds.height + indicatorsHeight);
 
-            // paint values for chart
-            Rectangle chartBounds = chartFrame.getSplitPanel().getChartPanel().getBounds();
-            chartBounds.grow(-2, -2);
-            Range chartRange = chartFrame.getSplitPanel().getChartPanel().getRange();
+			chartBounds.grow(-2, -2);
 
-            List<Double> values = cd.getPriceValues(chartBounds, chartRange);
+			double[] values = cd.getYValues(chartBounds, chartRange, fm.getHeight());
             double axisTick = cp.getAxisTick();
             double axisStick = cp.getAxisPriceStick();
             double y;
@@ -73,9 +70,10 @@ public class PriceAxis extends JPanel
             LineMetrics lm = cp.getFont().getLineMetrics("0123456789", g2.getFontRenderContext());
             DecimalFormat df = new DecimalFormat("#,###.##");
 
-            for (int i = 0; i < values.size(); i++) {
-                double value = values.get(i);
-                y = cd.getY(value, chartBounds, chartRange);
+            for (int i = 0; i < values.length; i++)
+			{
+                double value = values[i];
+                y = cd.getY(value, chartBounds, chartRange, isLog);
                 if (chartBounds.contains(chartBounds.getCenterX(), y))
                 {
                     g2.setPaint(cp.getAxisColor());
@@ -88,7 +86,7 @@ public class PriceAxis extends JPanel
             // paint chart marker
             double open = cd.getVisible().getLastOpen();
             double close = cd.getVisible().getLastClose();
-            y = cd.getY(close, chartBounds, chartRange);
+            y = cd.getY(close, chartBounds, chartRange, isLog);
             PriceAxisMarker.paint(g2, chartFrame, close, open > close ? cp.getBarDownColor() : cp.getBarUpColor(), y);
 
             // paint overlays marker
@@ -104,7 +102,7 @@ public class PriceAxis extends JPanel
                             Color[] cs = overlay.getColors();
                             for (int i = 0; i < ds.length; i++)
                             {
-                                y = cd.getY(ds[i], chartBounds, chartRange);
+                                y = cd.getY(ds[i], chartBounds, chartRange, isLog);
                                 PriceAxisMarker.paint(g2, chartFrame, ds[i], cs[i], y);
                             }
                         }
@@ -130,7 +128,7 @@ public class PriceAxis extends JPanel
                         {
                             Double[] list = panel.getIndicator().getPriceValues(chartFrame);
                             for (Double value : list) {
-                                y = cd.getY(value, indicatorBounds, indicatorRange);
+                                y = cd.getY(value, indicatorBounds, indicatorRange, false);
                                 if (indicatorBounds.contains(indicatorBounds.getCenterX(), y))
                                 {
                                     g2.setPaint(cp.getAxisColor());
@@ -143,7 +141,7 @@ public class PriceAxis extends JPanel
 
                             if (panel.getIndicator().hasZeroLine())
                             {
-                                y = cd.getY(0, indicatorBounds, indicatorRange);
+                                y = cd.getY(0, indicatorBounds, indicatorRange, false);
                                 g2.setPaint(cp.getAxisColor());
                                 g2.draw(CoordCalc.line(0, y, axisTick, y));
                                 g2.setPaint(cp.getFontColor());
@@ -159,7 +157,7 @@ public class PriceAxis extends JPanel
                                     Color[] cs = panel.getIndicator().getColors();
                                     for (int i = 0; i < ds.length; i++)
                                     {
-                                        y = cd.getY(ds[i], indicatorBounds, indicatorRange);
+                                        y = cd.getY(ds[i], indicatorBounds, indicatorRange, false);
                                         if (cs[i] != null)
                                             PriceAxisMarker.paint(g2, chartFrame, ds[i], cs[i], y);
                                     }
@@ -178,6 +176,12 @@ public class PriceAxis extends JPanel
             }
         }
         g2.dispose();
-    }
+	}
+
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
 }

@@ -29,6 +29,8 @@ import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.GraphicsUtils;
+import org.chartsy.main.utils.HtmlRendererImpl;
 import org.chartsy.main.utils.SerialVersion;
 import org.openide.util.NbBundle;
 
@@ -44,11 +46,11 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
     private ChartFrame chartFrame;
     private ChartPanel chartPanel;
     private IndicatorsPanel indicatorsPanel;
-    private JLabel label;
+    private MarkerLabel label;
 
     private int index = -1;
-    private int width = 200;
-    private int height;
+    private static int width = 200;
+    private static int height;
     private int lines = 5;
 
     private Color lineColor = new Color(0xef2929);
@@ -56,30 +58,24 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
     private Color backgroundColor = ColorGenerator.getTransparentColor(color, 100);
     private Color fontColor = new Color(0xffffff);
 
-    private Font font;
+    private static Font font;
+
+	static
+	{
+		font = new Font("Dialog", Font.PLAIN, 10);
+        height = 14;
+	}
 
     public ChartSplitPanel(ChartFrame frame)
     {
         chartFrame = frame;
         chartPanel = new ChartPanel(chartFrame);
         indicatorsPanel = new IndicatorsPanel(chartFrame);
-
-        font = new Font(chartFrame.getChartProperties().getFont().getName(), Font.PLAIN, 10);
-        height = font.getSize() + 4;
-
-        label = new JLabel();
-        label.setOpaque(true);
-        label.setBackground(backgroundColor);
-        label.setBorder(BorderFactory.createLineBorder(color));
-        label.setFont(font);
-        label.setForeground(fontColor);
-        label.setVisible(index != -1);
-        label.setPreferredSize(new Dimension(width, height));
-		Draggable draggable = new Draggable(label);
-        label.addMouseListener(draggable);
-		label.addMouseMotionListener(draggable);
+        label = new MarkerLabel();
 
         setOpaque(false);
+		setDoubleBuffered(true);
+
         setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new LayoutManager()
         {
@@ -94,13 +90,15 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
             public void layoutContainer(Container parent)
             {
                 Insets insets = parent.getInsets();
+				int x = insets.left;
+				int y = insets.top;
                 int w = parent.getWidth() - insets.left - insets.right;
                 int h = parent.getHeight() - insets.top - insets.bottom;
                 int indicatorsHeight = indicatorsPanel.getPanelHeight();
                 int chartHeight = h - indicatorsHeight;
 
-                indicatorsPanel.setBounds(insets.left, insets.top + chartHeight, w, indicatorsHeight);
-                chartPanel.setBounds(insets.left, insets.top, w, chartHeight);
+                indicatorsPanel.setBounds(x, y + chartHeight, w, indicatorsHeight);
+                chartPanel.setBounds(x, y, w, chartHeight);
 
                 Point dp = new Point(0, 50);
                 Point p = label.getLocation();
@@ -145,15 +143,7 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
     public void paint(Graphics g)
     {
         super.paint(g);
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
+        Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
 
         if (chartFrame.getChartProperties().getMarkerVisibility())
         {
@@ -171,6 +161,12 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
         
         g2.dispose();
     }
+
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
     private void paintMarkerLine(Graphics2D g)
     {
@@ -402,5 +398,39 @@ public class ChartSplitPanel extends JLayeredPane implements Serializable
         }
 
     }
+
+	private class MarkerLabel extends HtmlRendererImpl
+	{
+
+		private static final long serialVersionUID = SerialVersion.APPVERSION;
+
+		private MarkerLabel()
+		{
+			setOpaque(false);
+			setFont(font);
+			setForeground(fontColor);
+			setVisible(index != -1);
+			setPreferredSize(new Dimension(width, height));
+			Draggable draggable = new Draggable(this);
+			addMouseListener(draggable);
+			addMouseMotionListener(draggable);
+		}
+
+		@Override protected void paintComponent(Graphics g)
+		{
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
+			g2.setColor(backgroundColor);
+			g2.fillRect(0, 0, width + 2, height * lines + 2);
+			g2.setColor(color);
+			g2.drawRect(0, 0, width + 1, height * lines + 1);
+
+			super.paintComponent(g);
+		}
+		
+	}
 
 }

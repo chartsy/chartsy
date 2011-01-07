@@ -78,6 +78,31 @@ public strictfp class Range implements Serializable {
         }
     }
 
+	public static Range combineNotZero(Range r1, Range r2)
+	{
+		if (r1 == null) {
+			return r2;
+		} else {
+			if (r2 == null) {
+				return r1;
+			} else {
+				if (r2.getLowerBound() > 0) {
+					double l = Math.min(r1.getLowerBound(), r2.getLowerBound());
+					double u = Math.max(r1.getUpperBound(), r2.getUpperBound());
+					return new Range(
+						Math.min(l, u),
+						Math.max(l, u));
+				} else {
+					double l = r1.getLowerBound();
+					double u = Math.max(r1.getUpperBound(), r2.getUpperBound());
+					return new Range(
+						Math.min(l, u),
+						Math.max(l, u));
+				}
+			}
+		}
+	}
+
     public static Range expandToInclude(Range range, double value) {
         if (range == null) {
             return new Range(value, value);

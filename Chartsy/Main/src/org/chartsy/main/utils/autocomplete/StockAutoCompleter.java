@@ -1,8 +1,10 @@
 package org.chartsy.main.utils.autocomplete;
 
+import java.io.IOException;
 import javax.swing.text.JTextComponent;
-import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.StockNode;
+import org.chartsy.main.data.StockSet;
+import org.chartsy.main.managers.DataProviderManager;
 
 /**
  *
@@ -11,24 +13,26 @@ import org.chartsy.main.data.StockNode;
 public class StockAutoCompleter extends AutoCompleter
 {
 
-	private DataProvider dataProvider;
+	private String dataProvider;
 
 	public StockAutoCompleter(JTextComponent comp)
 	{
 		super(comp);
 	}
 
-	public void setDataProvider(DataProvider dataProvider)
+	public void setDataProvider(String dataProvider)
 	{
 		this.dataProvider = dataProvider;
 	}
 
-	protected boolean updateListData()
+	@Override
+	protected boolean updateListData() throws IOException
 	{
 		String value = component.getText();
 		if (!value.isEmpty())
 		{
-			list.setListData(dataProvider.getAutocomplete(value).stocks());
+			StockSet stockSet = DataProviderManager.getDefault().getDataProvider(dataProvider).fetchAutocomplete(value);
+			list.setListData(stockSet.stocks());
 			return true;
 		}
 		else
@@ -38,6 +42,7 @@ public class StockAutoCompleter extends AutoCompleter
 		}
 	}
 
+	@Override
 	protected void acceptedListItem(Object selected)
 	{
 		if (selected == null)

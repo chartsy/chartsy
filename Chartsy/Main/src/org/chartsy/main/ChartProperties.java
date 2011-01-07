@@ -3,10 +3,7 @@ package org.chartsy.main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
-import javax.swing.event.EventListenerList;
 import org.chartsy.main.chart.AbstractPropertyListener;
-import org.chartsy.main.events.LogEvent;
-import org.chartsy.main.events.LogListener;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.XMLUtil;
@@ -87,134 +84,377 @@ public class ChartProperties
 
     private boolean markerVisibility = MARKER_VISIBILITY;
 
-    private String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    private String[] months = {"", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
     private boolean toolbarVisibility = TOOLBAR_VISIBILITY;
     private boolean toolbarSmallIcons = TOOLBAR_SMALL_ICONS;
     private boolean toolbarShowLabels = TOOLBAR_SHOW_LABELS;
 
-    public ChartProperties() {}
+    public ChartProperties() 
+	{
+	}
 
     public double getAxisTick() { return this.axisTick; }
     public double getAxisDateStick() { return this.axisDateStick; }
     public double getAxisPriceStick() {  return this.axisPriceStick; }
 
-    public Color getAxisColor() { return this.axisColor; }
-    public void setAxisColor(Color color) {  this.axisColor = color; }
+    public Color getAxisColor()
+	{
+		return this.axisColor;
+	}
+    public void setAxisColor(Color color)
+	{
+		if (color == null)
+			return;
+		axisColor = color;
+	}
 
-    public int getAxisStrokeIndex() { return this.axisStrokeIndex; }
-    public void setAxisStrokeIndex(int i) { this.axisStrokeIndex = i; }
-    public Stroke getAxisStroke() { return StrokeGenerator.getStroke(axisStrokeIndex); }
-    public void setAxisStroke(Stroke s) { this.axisStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
+    public int getAxisStrokeIndex() 
+	{
+		return this.axisStrokeIndex;
+	}
 
-    public boolean getAxisLogarithmicFlag() { return axisLogarithmicFlag; }
+    public void setAxisStrokeIndex(int i) 
+	{
+		if (!StrokeGenerator.isStrokeIndex(i))
+			return;
+		axisStrokeIndex = i;
+	}
+
+    public Stroke getAxisStroke() 
+	{
+		return StrokeGenerator.getStroke(axisStrokeIndex);
+	}
+
+    public void setAxisStroke(Stroke s)
+	{
+		if (s == null)
+			return;
+		axisStrokeIndex = StrokeGenerator.getStrokeIndex(s);
+	}
+
+    public boolean getAxisLogarithmicFlag() 
+	{
+		return axisLogarithmicFlag;
+	}
+	
     public void setAxisLogarithmicFlag(boolean b) 
-    { axisLogarithmicFlag = b;
-      fireLogEvent(new LogEvent(this)); }
-
-    public void setBarWidth(double itemWidth) { barWidth = itemWidth; }
-    public double getBarWidth() {  return barWidth; }
-
-    public Color getBarColor() { return this.barColor; }
-    public void setBarColor(Color color) { this.barColor = color; }
-
-    public int getBarStrokeIndex() { return this.barStrokeIndex; }
-    public void setBarStrokeIndex(int i) { this.barStrokeIndex = i; }
-    public Stroke getBarStroke() { return StrokeGenerator.getStroke(barStrokeIndex); }
-    public void setBarStroke(Stroke s) { this.barStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    public boolean getBarVisibility() { return this.barVisibility; }
-    public void setBarVisibility(boolean b) {  this.barVisibility = b; }
-
-    public Color getBarDownColor() { return this.barDownColor; }
-    public void setBarDownColor(Color color) {  this.barDownColor = color; }
-
-    public boolean getBarDownVisibility() { return this.barDownVisibility; }
-    public void setBarDownVisibility(boolean b) {  this.barDownVisibility = b; }
-
-    public Color getBarUpColor() { return this.barUpColor; }
-    public void setBarUpColor(Color color) {  this.barUpColor = color; }
-
-    public boolean getBarUpVisibility() { return this.barUpVisibility; }
-    public void setBarUpVisibility(boolean b) {  this.barUpVisibility = b; }
-
-    public Color getGridHorizontalColor() { return this.gridHorizontalColor; }
-    public void setGridHorizontalColor(Color color) {  this.gridHorizontalColor = color; }
-
-    public int getGridHorizontalStrokeIndex() { return this.gridHorizontalStrokeIndex; }
-    public void setGridHorizontalStrokeIndex(int i) { this.gridHorizontalStrokeIndex = i; }
-    public Stroke getGridHorizontalStroke() { return StrokeGenerator.getStroke(gridHorizontalStrokeIndex); }
-    public void setGridHorizontalStroke(Stroke s) { this.gridHorizontalStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    public boolean getGridHorizontalVisibility() { return this.gridHorizontalVisibility; }
-    public void setGridHorizontalVisibility(boolean b) { this.gridHorizontalVisibility = b; }
-
-    public Color getGridVerticalColor() { return this.gridVerticalColor; }
-    public void setGridVerticalColor(Color color) {  this.gridVerticalColor = color; }
-
-    public int getGridVerticalStrokeIndex() { return this.gridVerticalStrokeIndex; }
-    public void setGridVerticalStrokeIndex(int i) { this.gridVerticalStrokeIndex = i; }
-    public Stroke getGridVerticalStroke() { return StrokeGenerator.getStroke(gridVerticalStrokeIndex); }
-    public void setGridVerticalStroke(Stroke s) { this.gridVerticalStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
-
-    public boolean getGridVerticalVisibility() { return this.gridVerticalVisibility; }
-    public void setGridVerticalVisibility(boolean b) {  this.gridVerticalVisibility = b; }
-
-    public Color getBackgroundColor() { return this.backgroundColor; }
-    public void setBackgroundColor(Color color) {  this.backgroundColor = color; }
-
-    public Font getFont() { return this.font; }
-    public void setFont(Font font) { this.font = font; }
-
-    public Color getFontColor() { return this.fontColor; }
-    public void setFontColor(Color color) {  this.fontColor = color; }
-
-    public void setMarkerVisibility(boolean b) { markerVisibility = b; }
-    public boolean getMarkerVisibility() { return markerVisibility; }
-
-    public String[] getMonths() { return this.months; }
-
-    public boolean getToolbarVisibility() { return toolbarVisibility; }
-    public void setToolbarVisibility(boolean b) { toolbarVisibility = b; }
-	public void toggleToolbarVisibility() { toolbarVisibility = !toolbarVisibility; }
-
-    public boolean getToolbarSmallIcons() { return toolbarSmallIcons; }
-    public void setToolbarSmallIcons(boolean b) { toolbarSmallIcons = b; }
-	public void toggleToolbarSmallIcons() { toolbarSmallIcons = !toolbarSmallIcons; }
-
-    public boolean getToolbarShowLabels() { return toolbarShowLabels; }
-    public void setToolbarShowLabels(boolean b) { toolbarShowLabels = b; }
-	public void toggleShowLabels() { toolbarShowLabels = !toolbarShowLabels; }
-
-    private transient EventListenerList logListeners = new EventListenerList();
-
-    public void addLogListener(LogListener l)
     {
-        if (logListeners == null)
-            logListeners = new EventListenerList();
-        logListeners.add(LogListener.class, l);
-    }
+		axisLogarithmicFlag = b;
+	}
 
-    public void removeLogListener(LogListener l)
-    {
-        if (logListeners == null)
-        {
-            logListeners = new EventListenerList();
-            return;
-        }
-        logListeners.remove(LogListener.class, l);
-    }
+    public void setBarWidth(double itemWidth)
+	{
+		if (itemWidth <= 0)
+			return;
+		barWidth = itemWidth;
+	}
 
-    public void fireLogEvent(LogEvent evt)
-    {
-        if (logListeners != null)
-        {
-            LogListener[] list = logListeners.getListeners(LogListener.class);
-            for (LogListener l : list)
-                l.fire(evt);
-        }
-    }
+    public double getBarWidth()
+	{
+		return barWidth;
+	}
 
+    public Color getBarColor() 
+	{
+		return this.barColor;
+	}
+
+    public void setBarColor(Color color) 
+	{
+		if (color == null)
+			return;
+		barColor = color;
+	}
+
+    public int getBarStrokeIndex() 
+	{
+		return this.barStrokeIndex;
+	}
+
+    public void setBarStrokeIndex(int i)
+	{
+		if (!StrokeGenerator.isStrokeIndex(i))
+			return;
+		barStrokeIndex = i;
+	}
+
+    public Stroke getBarStroke() 
+	{
+		return StrokeGenerator.getStroke(barStrokeIndex);
+	}
+
+    public void setBarStroke(Stroke s) 
+	{
+		if (s == null)
+			return;
+		barStrokeIndex = StrokeGenerator.getStrokeIndex(s);
+	}
+
+    public boolean getBarVisibility() 
+	{
+		return this.barVisibility;
+	}
+
+    public void setBarVisibility(boolean b)
+	{
+		barVisibility = b;
+	}
+
+    public Color getBarDownColor() 
+	{
+		return this.barDownColor;
+	}
+
+    public void setBarDownColor(Color color) 
+	{
+		if (color == null)
+			return;
+		barDownColor = color;
+	}
+
+    public boolean getBarDownVisibility() 
+	{
+		return this.barDownVisibility;
+	}
+
+    public void setBarDownVisibility(boolean b)
+	{
+		barDownVisibility = b;
+	}
+
+    public Color getBarUpColor() 
+	{
+		return this.barUpColor;
+	}
+
+    public void setBarUpColor(Color color) 
+	{
+		if (color == null)
+			return;
+		barUpColor = color;
+	}
+
+    public boolean getBarUpVisibility() 
+	{
+		return this.barUpVisibility;
+	}
+
+    public void setBarUpVisibility(boolean b)
+	{
+		barUpVisibility = b;
+	}
+
+    public Color getGridHorizontalColor() 
+	{
+		return this.gridHorizontalColor;
+	}
+
+    public void setGridHorizontalColor(Color color) 
+	{
+		if (color == null)
+			return;
+		gridHorizontalColor = color;
+	}
+
+    public int getGridHorizontalStrokeIndex() 
+	{
+		return this.gridHorizontalStrokeIndex;
+	}
+
+    public void setGridHorizontalStrokeIndex(int i)
+	{
+		if (!StrokeGenerator.isStrokeIndex(i))
+			return;
+		gridHorizontalStrokeIndex = i;
+	}
+
+    public Stroke getGridHorizontalStroke() 
+	{
+		return StrokeGenerator.getStroke(gridHorizontalStrokeIndex);
+	}
+
+    public void setGridHorizontalStroke(Stroke s) 
+	{
+		if (s == null)
+			return;
+		gridHorizontalStrokeIndex = StrokeGenerator.getStrokeIndex(s);
+	}
+
+    public boolean getGridHorizontalVisibility() 
+	{
+		return this.gridHorizontalVisibility;
+	}
+
+    public void setGridHorizontalVisibility(boolean b)
+	{
+		gridHorizontalVisibility = b;
+	}
+
+    public Color getGridVerticalColor() 
+	{
+		return this.gridVerticalColor;
+	}
+
+    public void setGridVerticalColor(Color color) 
+	{
+		if (color == null)
+			return;
+		gridVerticalColor = color;
+	}
+
+    public int getGridVerticalStrokeIndex() 
+	{
+		return this.gridVerticalStrokeIndex;
+	}
+
+    public void setGridVerticalStrokeIndex(int i)
+	{
+		if (!StrokeGenerator.isStrokeIndex(i))
+			return;
+		gridVerticalStrokeIndex = i;
+	}
+
+    public Stroke getGridVerticalStroke() {
+		return StrokeGenerator.getStroke(gridVerticalStrokeIndex);
+	}
+
+    public void setGridVerticalStroke(Stroke s) 
+	{
+		if (s == null)
+			return;
+		gridVerticalStrokeIndex = StrokeGenerator.getStrokeIndex(s);
+	}
+
+    public boolean getGridVerticalVisibility() 
+	{
+		return this.gridVerticalVisibility;
+	}
+
+    public void setGridVerticalVisibility(boolean b)
+	{
+		gridVerticalVisibility = b;
+	}
+
+    public Color getBackgroundColor() 
+	{
+		return this.backgroundColor;
+	}
+
+    public void setBackgroundColor(Color color) 
+	{
+		if (color == null)
+			return;
+		backgroundColor = color;
+	}
+
+    public Font getFont() 
+	{
+		return this.font;
+	}
+
+    public void setFont(Font font) 
+	{
+		if (font == null)
+			return;
+		this.font = font;
+	}
+
+    public Color getFontColor() 
+	{
+		return this.fontColor;
+	}
+
+    public void setFontColor(Color color)
+	{
+		if (color == null)
+			return;
+		fontColor = color;
+	}
+
+    public void setMarkerVisibility(boolean b) 
+	{
+		markerVisibility = b;
+	}
+
+    public boolean getMarkerVisibility()
+	{
+		return markerVisibility;
+	}
+
+    public String[] getMonths()
+	{
+		return this.months;
+	}
+
+    public boolean getToolbarVisibility() 
+	{
+		return toolbarVisibility;
+	}
+
+    public void setToolbarVisibility(boolean b) 
+	{
+		toolbarVisibility = b;
+	}
+
+	public void toggleToolbarVisibility()
+	{
+		setToolbarVisibility(!toolbarVisibility);
+	}
+
+    public boolean getToolbarSmallIcons() 
+	{
+		return toolbarSmallIcons;
+	}
+
+    public void setToolbarSmallIcons(boolean b) 
+	{
+		toolbarSmallIcons = b;
+	}
+
+	public void toggleToolbarSmallIcons()
+	{
+		setToolbarSmallIcons(!toolbarSmallIcons);
+	}
+
+    public boolean getToolbarShowLabels() 
+	{
+		return toolbarShowLabels;
+	}
+
+    public void setToolbarShowLabels(boolean b) 
+	{
+		toolbarShowLabels = b;
+	}
+
+	public void toggleShowLabels()
+	{
+		setToolbarShowLabels(!toolbarShowLabels);
+	}
+
+	public void copyFrom(ChartProperties chartProperties)
+	{
+		setAxisColor(chartProperties.getAxisColor());
+		setAxisStrokeIndex(chartProperties.getAxisStrokeIndex());
+		setBarColor(chartProperties.getBarColor());
+		setBarStrokeIndex(chartProperties.getBarStrokeIndex());
+		setBarVisibility(chartProperties.getBarVisibility());
+		setBarDownColor(chartProperties.getBarDownColor());
+		setBarDownVisibility(chartProperties.getBarDownVisibility());
+		setBarUpColor(chartProperties.getBarUpColor());
+		setBarUpVisibility(chartProperties.getBarUpVisibility());
+		setGridHorizontalColor(chartProperties.getGridHorizontalColor());
+		setGridHorizontalStrokeIndex(chartProperties.getGridHorizontalStrokeIndex());
+		setGridHorizontalVisibility(chartProperties.getGridHorizontalVisibility());
+		setGridVerticalColor(chartProperties.getGridVerticalColor());
+		setGridVerticalStrokeIndex(chartProperties.getGridVerticalStrokeIndex());
+		setGridVerticalVisibility(chartProperties.getGridVerticalVisibility());
+		setBackgroundColor(chartProperties.getBackgroundColor());
+		setFont(chartProperties.getFont());
+		setFontColor(chartProperties.getFontColor());
+	}
+
+	@Override
 	public void saveToTemplate(Document document, Element element)
 	{
 		XMLUtil.addColorProperty	(document, element, "axisColor",					axisColor);
@@ -238,6 +478,7 @@ public class ChartProperties
 		XMLUtil.addColorProperty	(document, element, "fontColor",					fontColor);
 	}
 
+	@Override
 	public void loadFromTemplate(Element element)
 	{
 		axisColor					= XMLUtil.getColorProperty(element,		"axisColor");

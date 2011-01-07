@@ -5,21 +5,29 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
 import org.chartsy.main.chart.Annotation;
+import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.chart.Overlay;
+import org.chartsy.main.data.ChartData;
+import org.chartsy.main.data.Dataset;
 import org.chartsy.main.dialogs.AnnotationProperties;
 import org.chartsy.main.managers.AnnotationManager;
+import org.chartsy.main.utils.GraphicsUtils;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
@@ -42,13 +50,19 @@ public class AnnotationPanel extends JPanel
     private ChartFrame chartFrame;
     private List<Annotation> annotations;
     private Annotation current = null;
+	private ToolTipManager toolTipManager;
 
     public AnnotationPanel(ChartFrame frame)
     {
         state = NONE;
         chartFrame = frame;
+		toolTipManager = ToolTipManager.sharedInstance();
+		toolTipManager.setLightWeightPopupEnabled(true);
+		toolTipManager.registerComponent(this);
         annotations = new ArrayList<Annotation>();
+
         setOpaque(false);
+		setDoubleBuffered(true);
 
         addMouseListener((MouseListener) this);
         addMouseMotionListener((MouseMotionListener) this);
@@ -64,25 +78,19 @@ public class AnnotationPanel extends JPanel
     public void setState(int i)
     { state = i; }
 
-    @Override
-    public void paint(Graphics g)
-    {
-        super.paintComponent(g);
+	@Override
+	public void paint(Graphics g)
+	{
+		Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
+        for (Annotation annotation : annotations)
+            annotation.paint(g2);
+	}
 
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
-
-        g2.setPaint(chartFrame.getChartProperties().getAxisColor());
-
-        for (Annotation a : annotations)
-            a.paint(g2);
-    }
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
     public Range getRange()
     {
@@ -289,9 +297,8 @@ public class AnnotationPanel extends JPanel
 
     public void mouseEntered(MouseEvent e)
     {
-        if (e.isConsumed())
-            e.consume();
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		//tooltipHandler(e);
     }
 
     public void mouseExited(MouseEvent e)
@@ -329,7 +336,9 @@ public class AnnotationPanel extends JPanel
     }
 
     public void mouseMoved(MouseEvent e)
-    {}
+    {
+		//tooltipHandler(e);
+	}
 
     public void keyTyped(KeyEvent e)
     {}
@@ -400,5 +409,108 @@ public class AnnotationPanel extends JPanel
 
     public void keyReleased(KeyEvent e)
     {}
+
+	public void tooltipHandler(MouseEvent e)
+	{
+		ChartData chartData = chartFrame.getChartData();
+		Dataset dataset = chartData.getVisible();
+		DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+		String newLine = "<br>";
+
+		Rectangle rect = getBounds();
+		rect.grow(-2, -2);
+		int index = chartData.getIndex(e.getPoint(), rect);
+		if (index != -1)
+		{
+			StringBuilder builder = new StringBuilder();
+			Container parent = getParent();
+			if (parent instanceof ChartPanel)
+			{
+				ChartPanel chartPanel = (ChartPanel) parent;
+				long time = dataset.getTimeAt(index);
+				double open = dataset.getOpenAt(index);
+				double high = dataset.getHighAt(index);
+				double low = dataset.getLowAt(index);
+				double close = dataset.getLowAt(index);
+				double volume = dataset.getVolumeAt(index);
+
+				builder.append("<html>");
+				builder.append("Date: ")
+					.append(chartData.getInterval().getMarkerString(time))
+					.append(newLine).append(newLine);
+				builder.append("Open: ")
+					.append(decimalFormat.format(open))
+					.append(newLine);
+				builder.append("High: ")
+					.append(decimalFormat.format(high))
+					.append(newLine);
+				builder.append("Low: ")
+					.append(decimalFormat.format(low))
+					.append(newLine);
+				builder.append("Close: ")
+					.append(decimalFormat.format(close))
+					.append(newLine);
+				builder.append("Volume: ")
+					.append(decimalFormat.format(volume))
+					.append(newLine);
+
+				if (chartPanel.hasOverlays())
+				{
+					for (Overlay overlay : chartPanel.getOverlays())
+					{
+						LinkedHashMap map = overlay.getHTML(chartFrame, index);
+						Iterator it = map.keySet().iterator();
+						while (it.hasNext())
+						{
+							String key = it.next().toString();
+							String value = map.get(key).toString();
+							if (value.equals(" "))
+							{
+								builder.append(newLine);
+								builder.append(key).append(newLine);
+							} else
+							{
+								builder.append(key).append(" ")
+									.append(value).append(newLine);
+							}
+						}
+					}
+				}
+				
+				builder.append("</html>");
+			}
+			else
+			{
+				IndicatorPanel indicatorPanel = (IndicatorPanel) parent;
+				Indicator indicator = indicatorPanel.getIndicator();
+				long time = dataset.getTimeAt(index);
+
+				builder.append("<html>");
+				builder.append("Date: ")
+					.append(chartData.getInterval().getMarkerString(time))
+					.append(newLine).append(newLine);
+
+				LinkedHashMap map = indicator.getHTML(chartFrame, index);
+				Iterator it = map.keySet().iterator();
+				while (it.hasNext())
+				{
+					String key = it.next().toString();
+					String value = map.get(key).toString();
+					if (value.equals(" "))
+					{
+						builder.append(key).append(newLine);
+					} else
+					{
+						builder.append(key).append(" ")
+							.append(value).append(newLine);
+					}
+				}
+				
+				builder.append("</html>");
+			}
+
+			setToolTipText(builder.toString());
+		}
+	}
 
 }

@@ -17,11 +17,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Stock;
-import org.chartsy.main.events.StockEvent;
 import org.chartsy.main.exceptions.InvalidStockException;
 import org.chartsy.main.exceptions.RegistrationException;
 import org.chartsy.main.exceptions.StockNotFoundException;
 import org.chartsy.main.history.HistoryItem;
+import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.UppercaseDocumentFilter;
@@ -51,7 +51,7 @@ public class SymbolChanger extends JToolBar implements Serializable
     private JButton btnForward;
     private JButton btnBackHistory;
     private JButton btnForwardHistory;
-    private DataProvider dataProvider;
+    private String dataProvider;
     private boolean canOpen = true;
 
     public SymbolChanger(ChartFrame frame)
@@ -59,6 +59,8 @@ public class SymbolChanger extends JToolBar implements Serializable
         super(JToolBar.HORIZONTAL);
         chartFrame = frame;
         setFloatable(false);
+		setOpaque(false);
+		setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         initComponents();
     }
@@ -115,13 +117,13 @@ public class SymbolChanger extends JToolBar implements Serializable
         add(btnBackHistory);
         add(btnForwardHistory);
 
-        dataProvider = chartFrame.getChartData().getDataProvider();
+        dataProvider = chartFrame.getChartData().getDataProviderName();
         final StockAutoCompleter completer = new StockAutoCompleter(txtSymbol);
         completer.setDataProvider(dataProvider);
     }
     public Action submit = new AbstractAction()
     {
-
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             btnSubmit.doClick();
@@ -170,44 +172,22 @@ public class SymbolChanger extends JToolBar implements Serializable
     public class ChangeStock extends SymbolChangerAction
     {
 
+		private RequestProcessor.Task stockTask;
+
         public ChangeStock()
         {
             super("Submit", "Submit Symbol", "ok");
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             buttonsStatus(false);
-            Stock oldStock = chartFrame.getChartData().getStock();
-            final Stock newStock = new Stock(txtSymbol.getText().trim());
-
-            final RequestProcessor.Task stockTask = RP.create(new Runnable()
+            final String symbol = txtSymbol.getText().trim();
+			final DataProvider provider = DataProviderManager.getDefault().getDataProvider(dataProvider);
+			final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", new Cancellable()
             {
-
-                public void run()
-                {
-                    canOpen = true;
-                    try
-                    {
-                        dataProvider.setStockCompanyName(newStock);
-                    } catch (InvalidStockException ex)
-                    {
-                        notifyError(ex);
-                    } catch (StockNotFoundException ex)
-                    {
-                        notifyError(ex);
-                    } catch (RegistrationException ex)
-                    {
-                        notifyError(ex);
-                    } catch (IOException ex)
-                    {
-                        notifyError(new InvalidStockException());
-                    }
-                }
-            });
-            final ProgressHandle handle = ProgressHandleFactory.createHandle("Aquiring stock info", new Cancellable()
-            {
-
+				@Override
                 public boolean cancel()
                 {
                     canOpen = false;
@@ -218,9 +198,44 @@ public class SymbolChanger extends JToolBar implements Serializable
                     return true;
                 }
             });
+
+			final Runnable runnable = new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					handle.start();
+					handle.switchToIndeterminate();
+
+					canOpen = true;
+					try
+					{
+						if (!provider.stockExists(symbol))
+							provider.fetchStock(symbol);
+					} catch (InvalidStockException ex)
+					{
+						handle.finish();
+						notifyError(ex);
+					} catch (StockNotFoundException ex)
+					{
+						handle.finish();
+						notifyError(ex);
+					} catch (RegistrationException ex)
+					{
+						handle.finish();
+						notifyError(ex);
+					} catch (IOException ex)
+					{
+						handle.finish();
+						notifyError(new InvalidStockException());
+					}
+				}
+			};
+
+            stockTask = RP.create(runnable);
             stockTask.addTaskListener(new TaskListener()
             {
-
+				@Override
                 public void taskFinished(Task task)
                 {
                     handle.finish();
@@ -228,24 +243,20 @@ public class SymbolChanger extends JToolBar implements Serializable
                     {
                         SwingUtilities.invokeLater(new Runnable()
                         {
-
+							@Override
                             public void run()
                             {
                                 buttonsStatus(true);
                                 HistoryItem current = chartFrame.getHistory().getCurrent();
                                 chartFrame.getHistory().clearForwardHistory();
                                 chartFrame.getHistory().addHistoryItem(current);
-                                HistoryItem item = new HistoryItem(
-                                        newStock,
-                                        chartFrame.getChartData().getInterval().hashCode());
-                                chartFrame.stockChanged(new StockEvent(item));
+								Stock stock = provider.fetchStockFromCache(symbol);
+								chartFrame.stockChanged(stock);
                             }
                         });
                     }
                 }
             });
-
-            handle.start();
             stockTask.schedule(0);
         }
     }
@@ -258,13 +269,14 @@ public class SymbolChanger extends JToolBar implements Serializable
             super("Go Back", "Go Back", "back");
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             buttonsStatus(false);
             HistoryItem item = chartFrame.getHistory().go(-1);
             if (item != null)
             {
-                chartFrame.stockChanged(new StockEvent(item));
+                chartFrame.historyItemChanged(item);
             }
             buttonsStatus(true);
         }
@@ -278,13 +290,14 @@ public class SymbolChanger extends JToolBar implements Serializable
             super("Go Forward", "Go Forward", "forward");
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             buttonsStatus(false);
             HistoryItem item = chartFrame.getHistory().go(1);
             if (item != null)
             {
-                chartFrame.stockChanged(new StockEvent(item));
+                chartFrame.historyItemChanged(item);
             }
             buttonsStatus(true);
             updateToolbar();
@@ -299,6 +312,7 @@ public class SymbolChanger extends JToolBar implements Serializable
             super("Go Back", "Go Back", "backHistory");
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             HistoryItem[] items = chartFrame.getHistory().getBackHistoryList();
@@ -316,7 +330,7 @@ public class SymbolChanger extends JToolBar implements Serializable
                         String name =
                                 items[i].getStock().getKey()
                                 + " : "
-                                + DataProvider.getInterval(items[i].getIntervalHash());
+                                + items[i].getInterval();
 
                         popup.add(item = new JMenuItem(new GoToItemAction(name, index)));
                         item.setMargin(new Insets(0, 0, 0, 0));
@@ -341,6 +355,7 @@ public class SymbolChanger extends JToolBar implements Serializable
             super("Go Forward", "Go Forward", "forwardHistory");
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             HistoryItem[] items = chartFrame.getHistory().getFwdHistoryList();
@@ -358,7 +373,7 @@ public class SymbolChanger extends JToolBar implements Serializable
                         String name =
                                 items[i].getStock().getKey()
                                 + " : "
-                                + DataProvider.getInterval(items[i].getIntervalHash());
+                                + items[i].getInterval();
 
                         popup.add(item = new JMenuItem(new GoToItemAction(name, index)));
                         item.setMargin(new Insets(0, 0, 0, 0));
@@ -386,13 +401,14 @@ public class SymbolChanger extends JToolBar implements Serializable
             this.step = step;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             buttonsStatus(false);
             HistoryItem item = chartFrame.getHistory().go(step);
             if (item != null)
             {
-                chartFrame.stockChanged(new StockEvent(item));
+                chartFrame.historyItemChanged(item);
             }
             buttonsStatus(true);
         }
@@ -409,6 +425,7 @@ public class SymbolChanger extends JToolBar implements Serializable
             this.back = back;
         }
 
+		@Override
         public void actionPerformed(ActionEvent e)
         {
             buttonsStatus(false);

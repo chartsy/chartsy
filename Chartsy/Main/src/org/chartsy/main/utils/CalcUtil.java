@@ -1,5 +1,6 @@
 package org.chartsy.main.utils;
 
+import java.util.GregorianCalendar;
 import org.chartsy.main.data.Dataset;
 
 /**
@@ -99,5 +100,47 @@ public class CalcUtil {
         double result = Math.sqrt(sum - med * med);
         return result;
     }
+
+	public static boolean isFirstWorkingDayOfMonth(long time)
+	{
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setFirstDayOfWeek(GregorianCalendar.MONDAY);
+		calendar.setTimeInMillis(time);
+		int week = calendar.get(GregorianCalendar.WEEK_OF_MONTH);
+		if (week == 1)
+		{
+			int day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			calendar.set(GregorianCalendar.DAY_OF_MONTH, 1);
+			int first_day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			while (first_day != GregorianCalendar.SATURDAY && first_day != GregorianCalendar.SUNDAY)
+			{
+				calendar.add(GregorianCalendar.DAY_OF_MONTH, 1);
+				first_day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			}
+			return day == first_day;
+		}
+		return false;
+	}
+
+	public static boolean isFirstWorkingDayOfYear(long time)
+	{
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setFirstDayOfWeek(GregorianCalendar.MONDAY);
+		calendar.setTimeInMillis(time);
+		int week = calendar.get(GregorianCalendar.WEEK_OF_YEAR);
+		if (week == 1)
+		{
+			int day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			calendar.set(GregorianCalendar.DAY_OF_MONTH, 1);
+			int first_day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			while (first_day != GregorianCalendar.SATURDAY && first_day != GregorianCalendar.SUNDAY)
+			{
+				calendar.add(GregorianCalendar.DAY_OF_MONTH, 1);
+				first_day = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+			}
+			return day == first_day;
+		}
+		return false;
+	}
 
 }

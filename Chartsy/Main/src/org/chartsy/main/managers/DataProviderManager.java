@@ -6,9 +6,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.chartsy.main.data.DataProvider;
-import org.chartsy.main.data.Dataset;
-import org.chartsy.main.data.Stock;
-import org.chartsy.main.intervals.Interval;
 import org.openide.util.Lookup;
 
 /**
@@ -71,34 +68,6 @@ public class DataProviderManager
         List<String> list = new ArrayList<String>(dataProviders.keySet());
         Collections.sort(list);
         return list;
-    }
-
-    public void setUpdated(boolean b)
-    {
-        updated = b;
-    }
-
-    public boolean isUpdated()
-    {
-        return updated;
-    }
-
-    public void update(Stock stock, Interval interval, DataProvider dataProvider)
-    {
-        if (dataProvider == null)
-        {
-            return;
-        }
-
-        Dataset dataset = dataProvider.getData(stock, interval);
-
-        if (dataset == null)
-        {
-            return;
-        }
-
-        dataProvider.addDataset(dataProvider.getKey(stock, interval), dataset);
-        setUpdated(true);
     }
 
     static

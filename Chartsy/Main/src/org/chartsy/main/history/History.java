@@ -14,6 +14,7 @@ public class History implements Serializable
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     protected static final Logger LOG = Logger.getLogger(History.class.getPackage().getName());
+
     private HistoryItem current;
     transient private Stack<HistoryItem> backStack;
     transient private Stack<HistoryItem> fwdStack;

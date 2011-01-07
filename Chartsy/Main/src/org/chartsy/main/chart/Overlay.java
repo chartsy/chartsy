@@ -6,18 +6,14 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.chartsy.main.ChartFrame;
-import org.chartsy.main.ChartProperties;
-import org.chartsy.main.data.ChartData;
+import org.chartsy.main.ChartFrameAdapter;
 import org.chartsy.main.data.Dataset;
-import org.chartsy.main.events.DatasetEvent;
-import org.chartsy.main.events.DatasetListener;
-import org.chartsy.main.events.LogEvent;
-import org.chartsy.main.events.LogListener;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.XMLUtil;
@@ -30,29 +26,19 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public abstract class Overlay
-        implements Serializable, DatasetListener, LogListener, XMLTemplate
+public abstract class Overlay extends ChartFrameAdapter
+        implements Serializable, XMLTemplate
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     
-    protected Dataset dataset;
-    protected LinkedHashMap<String, Dataset> datasets;
-    private boolean logarithmic = false;
+    protected String datasetKey;
+	protected ConcurrentHashMap<String, Dataset> datasets;
+	protected boolean active = true;
 
     public Overlay()
     {
-        datasets = new LinkedHashMap<String, Dataset>();
-    }
-
-    public boolean isLogarithmic()
-    {
-        return logarithmic;
-    }
-
-   public void setLogarithmic(boolean b)
-    {
-        logarithmic = b;
+		datasets = new ConcurrentHashMap<String, Dataset>();
     }
 
     public String getFontHTML(Color color, String text)
@@ -63,47 +49,50 @@ public abstract class Overlay
 
     public Dataset getDataset()
     {
-        if (logarithmic)
-        {
-            return Dataset.LOG(dataset);
-        }
-        return dataset;
+        return DatasetUsage.getInstance().getDatasetFromMemory(datasetKey);
     }
 
-    public void setDataset(Dataset d)
+    public void setDatasetKey(String datasetKey)
     {
-        dataset = d;
+        this.datasetKey = datasetKey;
     }
+
+	public void clearDatasets()
+	{
+		datasets.clear();
+	}
 
     public void addDataset(String key, Dataset value)
     {
-        datasets.put(key, value);
+		datasets.put(key, value);
     }
 
     public Dataset getDataset(String key)
     {
-        return datasets.get(key);
+		return datasets.get(key);
     }
+
+	private boolean datasetExists(String key)
+	{
+		return datasets.containsKey(key);
+	}
 
     public Dataset visibleDataset(ChartFrame cf, String key)
     {
-        if (datasets.containsKey(key))
+        if (datasetExists(key))
         {
-            Dataset d = getDataset(key);
-            if (d == null)
+            Dataset dataset = getDataset(key);
+            if (dataset == null)
             {
                 return null;
             }
 
-            Dataset v = d.getVisibleDataset(cf.getChartData().getPeriod(), cf.getChartData().getLast());
-            return v;
+			int period = cf.getChartData().getPeriod();
+			int last = cf.getChartData().getLast();
+            Dataset visible = dataset.getVisibleDataset(period, last);
+            return visible;
         }
         return null;
-    }
-
-    public void removeDatasets()
-    {
-        datasets.clear();
     }
 
     public abstract String getName();
@@ -116,20 +105,13 @@ public abstract class Overlay
 
     public Range getRange(ChartFrame cf, String price)
     {
-        if (datasets.isEmpty())
-        {
-            return new Range();
-        }
-
         Range range = null;
-        Iterator<String> it = datasets.keySet().iterator();
-
-        while (it.hasNext())
+		String[] keys = datasets.keySet().toArray(new String[datasets.size()]);
+        for (String key : keys)
         {
-            Dataset d = visibleDataset(cf, it.next());
-            double min = d.getMinNotZero(price);
-            double max = d.getMaxNotZero(price);
-
+            Dataset dataset = visibleDataset(cf, key);
+            double min = dataset.getMinNotZero(price);
+            double max = dataset.getMaxNotZero(price);
             if (range == null)
             {
                 range = new Range(min - (max - min) * 0.01, max + (max - min) * 0.01);
@@ -138,7 +120,6 @@ public abstract class Overlay
                 range = Range.combine(range, new Range(min - (max - min) * 0.01, max + (max - min) * 0.01));
             }
         }
-
         return range;
     }
 
@@ -157,23 +138,6 @@ public abstract class Overlay
     public abstract AbstractNode getNode();
 
     public abstract String getPrice();
-
-    public void datasetChanged(DatasetEvent evt)
-    {
-        synchronized (this)
-        {
-            ChartData cd = (ChartData) evt.getSource();
-            setDataset(cd.getDataset(false));
-            calculate();
-        }
-    }
-
-    public void fire(LogEvent evt)
-    {
-        ChartProperties cp = (ChartProperties) evt.getSource();
-        logarithmic = cp.getAxisLogarithmicFlag();
-        calculate();
-    }
 
     /**
      * If an override in the overlay class sets this to false
@@ -218,18 +182,22 @@ public abstract class Overlay
 				field.setAccessible(true);
 				if (field.getModifiers() == Modifier.PRIVATE) 
 				{
-					if (field.getType().equals(String.class))
-						field.set(listener, XMLUtil.getStringProperty(element, field.getName()));
-					else if (field.getType().equals(int.class))
-						field.set(listener, XMLUtil.getIntegerProperty(element, field.getName()));
-					else if (field.getType().equals(double.class))
-						field.set(listener, XMLUtil.getDoubleProperty(element, field.getName()));
-					else if (field.getType().equals(float.class))
-						field.set(listener, XMLUtil.getFloatProperty(element, field.getName()));
-					else if (field.getType().equals(boolean.class))
-						field.set(listener, XMLUtil.getBooleanProperty(element, field.getName()));
-					else if (field.getType().equals(Color.class))
-						field.set(listener, XMLUtil.getColorProperty(element, field.getName()));
+					if (XMLUtil.elementExists(element, field.getName()))
+					{
+						Class type = field.getType();
+						if (type.equals(String.class))
+							field.set(listener, XMLUtil.getStringProperty(element, field.getName()));
+						else if (type.equals(int.class))
+							field.set(listener, XMLUtil.getIntegerProperty(element, field.getName()));
+						else if (type.equals(double.class))
+							field.set(listener, XMLUtil.getDoubleProperty(element, field.getName()));
+						else if (type.equals(float.class))
+							field.set(listener, XMLUtil.getFloatProperty(element, field.getName()));
+						else if (type.equals(boolean.class))
+							field.set(listener, XMLUtil.getBooleanProperty(element, field.getName()));
+						else if (type.equals(Color.class))
+							field.set(listener, XMLUtil.getColorProperty(element, field.getName()));
+					}
 				}
 			}
 			catch (Exception ex)
@@ -237,6 +205,23 @@ public abstract class Overlay
 				Logger.getLogger(getName()).log(Level.SEVERE, "", ex);
 			}
 		}
+	}
+
+	public void setActive(boolean active)
+	{
+		this.active = active;
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+
+	@Override
+	public void datasetKeyChanged(String datasetKey)
+	{
+		setDatasetKey(datasetKey);
+		calculate();
 	}
     
 }

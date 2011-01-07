@@ -5,13 +5,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,11 +29,13 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import org.chartsy.main.chart.Chart;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
+import org.chartsy.main.utils.GraphicsUtils;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 import org.openide.util.NbBundle;
@@ -48,6 +48,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
+	
     private ChartFrame chartFrame;
     private AnnotationPanel annotationPanel;
     private JLabel stockInfo;
@@ -64,6 +65,9 @@ public class ChartPanel extends JLayeredPane implements Serializable
 
     private void initializeUIElements()
     {
+		setOpaque(false);
+		setDoubleBuffered(true);
+		
         annotationPanel = new AnnotationPanel(chartFrame);
 
         overlayToolboxes = new JToolBar(JToolBar.HORIZONTAL);
@@ -75,15 +79,12 @@ public class ChartPanel extends JLayeredPane implements Serializable
         stockInfo.setOpaque(false);
         stockInfo.setHorizontalAlignment(SwingConstants.LEFT);
         stockInfo.setVerticalAlignment(SwingConstants.TOP);
-        Font font = chartFrame.getChartProperties().getFont();
-        font = font.deriveFont(font.getStyle() ^ Font.BOLD);
-        stockInfo.setFont(font);
+        stockInfo.setFont(chartFrame.getChartProperties().getFont());
         stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
 
         if (!chartFrame.getChartData().isStockNull())
         {
             Stock stock = chartFrame.getChartData().getStock();
-
             String stockInfoText = "";
             if (stock.hasCompanyName())
             {
@@ -119,29 +120,57 @@ public class ChartPanel extends JLayeredPane implements Serializable
             stockInfo.setText(stockInfoText);
         }
 
-        setOpaque(false);
+		ChartFrameAdapter frameAdapter = new ChartFrameAdapter()
+		{
+			@Override
+			public void stockChanged(Stock newStock)
+			{
+				updateStockInfo(newStock);
+			}
+			@Override
+			public void chartChanged(Chart newChart)
+			{
+				repaint();
+			}
+			@Override
+			public void overlayAdded(Overlay overlay)
+			{
+				addOverlay(overlay);
+				chartFrame.getChartData().calculateRange(chartFrame, overlays);
+				chartFrame.revalidate();
+				chartFrame.repaint();
+			}
+			@Override
+			public void overlayRemoved(Overlay overlay)
+			{
+				removeOverlay(overlay);
+				chartFrame.getChartData().calculateRange(chartFrame, overlays);
+				chartFrame.revalidate();
+				chartFrame.repaint();
+			}
+		};
+		chartFrame.addChartFrameListener(frameAdapter);
+
         setLayout(new LayoutManager()
         {
-
-            public void addLayoutComponent(String name, Component comp)
-            {
-            }
-
-            public void removeLayoutComponent(Component comp)
-            {
-            }
-
-            public Dimension preferredLayoutSize(Container parent)
+			@Override
+			public void addLayoutComponent(String name, Component comp)
+            {}
+            @Override
+			public void removeLayoutComponent(Component comp)
+            {}
+            @Override
+			public Dimension preferredLayoutSize(Container parent)
             {
                 return new Dimension(0, 0);
             }
-
-            public Dimension minimumLayoutSize(Container parent)
+            @Override
+			public Dimension minimumLayoutSize(Container parent)
             {
                 return new Dimension(0, 0);
             }
-
-            public void layoutContainer(Container parent)
+            @Override
+			public void layoutContainer(Container parent)
             {
                 int width = parent.getWidth();
                 int height = parent.getHeight();
@@ -151,11 +180,17 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 overlayToolboxes.setLocation(0, stockInfo.getPreferredSize().height + 1);
             }
         });
+		
+		setFont(chartFrame.getChartProperties().getFont());
+		setForeground(chartFrame.getChartProperties().getFontColor());
 
         add(overlayToolboxes);
         add(annotationPanel);
         add(stockInfo);
-        doLayout();
+
+		setComponentZOrder(overlayToolboxes, 0);
+		setComponentZOrder(annotationPanel, 1);
+		setComponentZOrder(stockInfo, 2);
     }
 
     public ChartFrame getChartFrame()
@@ -187,100 +222,62 @@ public class ChartPanel extends JLayeredPane implements Serializable
     @Override
     void paint(Graphics g)
     {
-        Font font = chartFrame.getChartProperties().getFont();
-        font = font.deriveFont(font.getStyle() ^ Font.BOLD);
-        if (!stockInfo.getFont().equals(font))
-        {
-            stockInfo.setFont(font);
-        }
+		Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
+		if (!overlayToolboxesUpdated)
+			updateOverlayToolbar();
 
-        if (!stockInfo.getForeground().equals(chartFrame.getChartProperties().getFontColor()))
-        {
-            stockInfo.setForeground(chartFrame.getChartProperties().getFontColor());
-        }
+		chartFrame.getChartData().calculateRange(chartFrame, overlays);
+		if (!chartFrame.getChartData().isChartNull())
+			chartFrame.getChartData().getChart().paint(g2, chartFrame);
 
-        if (!overlayToolboxesUpdated)
-        {
-            updateOverlayToolbar();
-        }
+		if (!overlays.isEmpty())
+		{
+			Rectangle bounds = getBounds();
+			bounds.grow(-2, -2);
+			for (Overlay overlay : overlays)
+				overlay.paint(g2, chartFrame, bounds);
+		}
 
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
-
-        chartFrame.getChartData().calculateRange(chartFrame, overlays);
-        if (!chartFrame.getChartData().isChartNull())
-        {
-            chartFrame.getChartData().getChart().paint(g2, chartFrame);
-        }
-
-        if (!overlays.isEmpty())
-        {
-            Rectangle bounds = getBounds();
-            bounds.grow(-2, -2);
-            for (Overlay overlay : overlays)
-            {
-                overlay.paint(g2, chartFrame, bounds);
-            }
-        }
-
-        super.paint(g);
-
-        g2.dispose();
+		super.paint(g);
     }
 
-    public void updateStock()
-    {
-        if (!chartFrame.getChartData().isStockNull())
-        {
-            Stock stock = chartFrame.getChartData().getStock();
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
-            String stockInfoText = "";
-            if (stock.hasCompanyName())
-            {
-                stockInfoText = NbBundle.getMessage(
-                        ChartPanel.class,
-                        "LBL_StockInfo",
-                        new String[]
-                        {
-                            stock.getKey(),
-                            stock.getCompanyName(),
-                            chartFrame.getChartData().getInterval().getName(),
-                            chartFrame.getChartData().getDataProvider().getName()
-                        });
-            } else
-            {
-                stockInfoText = NbBundle.getMessage(
-                        ChartPanel.class,
-                        "LBL_StockInfoNoCompany",
-                        new String[]
-                        {
-                            stock.getKey(),
-                            chartFrame.getChartData().getInterval().getName(),
-                            chartFrame.getChartData().getDataProvider().getName()
-                        });
-            }
+	private void updateStockInfo(Stock stock)
+	{
+		String stockInfoText = "";
+		if (stock.hasCompanyName())
+		{
+			stockInfoText = NbBundle.getMessage(
+				ChartPanel.class,
+				"LBL_StockInfo",
+				new String[]
+				{
+					stock.getKey(),
+					stock.getCompanyName(),
+					chartFrame.getChartData().getInterval().getName(),
+					chartFrame.getChartData().getDataProvider().getName()
+				});
+		} else
+		{
+			stockInfoText = NbBundle.getMessage(
+				ChartPanel.class,
+				"LBL_StockInfoNoCompany",
+				new String[]
+				{
+					stock.getKey(),
+					chartFrame.getChartData().getInterval().getName(),
+					chartFrame.getChartData().getDataProvider().getName()
+				});
+		}
 
-            if (!stockInfo.getText().equals(stockInfoText))
-            {
-                stockInfo.setText(stockInfoText);
-            }
-        } else
-        {
-            String stockInfoText = NbBundle.getMessage(
-                    ChartPanel.class,
-                    "LBL_StockInfoNoData");
-            if (!stockInfo.getText().equals(stockInfoText))
-            {
-                stockInfo.setText(stockInfoText);
-            }
-        }
-    }
+		if (!stockInfo.getText().equals(stockInfoText))
+			stockInfo.setText(stockInfoText);
+	}
 
     public synchronized void setOverlays(List<Overlay> list)
     {
@@ -288,12 +285,11 @@ public class ChartPanel extends JLayeredPane implements Serializable
         chartFrame.getChartData().removeAllOverlaysDatasetListeners();
         for (Overlay o : list)
         {
-            o.setDataset(chartFrame.getChartData().getDataset());
+            o.setDatasetKey(chartFrame.getChartData().getDatasetKey());
             o.calculate();
-            chartFrame.getChartData().addOverlaysDatasetListeners(o);
             addOverlay(o);
         }
-        overlayToolboxesUpdated = false;
+		updateOverlayToolbar();
     }
 
     public List<Overlay> getOverlays()
@@ -315,6 +311,11 @@ public class ChartPanel extends JLayeredPane implements Serializable
         return overlays.get(index);
     }
 
+	public boolean hasOverlays()
+	{
+		return !overlays.isEmpty();
+	}
+
     public int getOverlaysCount()
     {
         return overlays.size();
@@ -322,23 +323,21 @@ public class ChartPanel extends JLayeredPane implements Serializable
 
     public void addOverlay(Overlay overlay)
     {
-        chartFrame.getChartProperties().addLogListener(overlay);
-        chartFrame.getChartData().addOverlaysDatasetListeners(overlay);
         overlays.add(overlay);
-        overlayToolboxesUpdated = false;
+		updateOverlayToolbar();
     }
 
     public void removeOverlay(Overlay overlay)
     {
         overlays.remove(overlay);
-        overlayToolboxesUpdated = false;
+		updateOverlayToolbar();
     }
 
     public void clearOverlays()
     {
         overlays.clear();
         overlays = new ArrayList<Overlay>();
-        overlayToolboxesUpdated = false;
+		updateOverlayToolbar();
     }
 
     public synchronized void updateOverlayToolbar()
@@ -360,14 +359,11 @@ public class ChartPanel extends JLayeredPane implements Serializable
         overlayToolboxes.validate();
         overlayToolboxes.repaint();
 
-        overlayToolboxesUpdated = true;
-
         overlayToolboxes.setBounds(overlayToolboxes.getX(), overlayToolboxes.getY(), width, height);
     }
 
-    public
     @Override
-    Rectangle getBounds()
+    public Rectangle getBounds()
     {
         return new Rectangle(0, 0, getWidth(), getHeight());
     }
@@ -394,6 +390,8 @@ public class ChartPanel extends JLayeredPane implements Serializable
             overlayLabel.setVerticalTextPosition(SwingConstants.CENTER);
             overlayLabel.setOpaque(false);
             overlayLabel.setBorder(BorderFactory.createEmptyBorder());
+			overlayLabel.setFont(ChartPanel.this.getFont());
+			overlayLabel.setForeground(ChartPanel.this.getForeground());
             add(overlayLabel);
 
             container = new JPanel();
@@ -465,16 +463,14 @@ public class ChartPanel extends JLayeredPane implements Serializable
         @Override
         void paint(Graphics g)
         {
-            overlayLabel.setFont(ChartPanel.this.chartFrame.getChartProperties().getFont());
-            overlayLabel.setForeground(ChartPanel.this.chartFrame.getChartProperties().getFontColor());
-            overlayLabel.setText(overlay.getLabel());
+			if (!overlayLabel.getFont().equals(chartFrame.getChartProperties().getFont()))
+				overlayLabel.setFont(chartFrame.getChartProperties().getFont());
+			if (!overlayLabel.getForeground().equals(chartFrame.getChartProperties().getFontColor()))
+				overlayLabel.setForeground(chartFrame.getChartProperties().getFontColor());
+			if (!overlayLabel.getText().equals(overlay.getLabel()))
+				overlayLabel.setText(overlay.getLabel());
 
-            Graphics2D g2 = (Graphics2D) g.create();
-
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
+            Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
             g2.setPaintMode();
 
             if (mouseOver)
@@ -487,9 +483,14 @@ public class ChartPanel extends JLayeredPane implements Serializable
             }
 
             super.paint(g);
-
             g2.dispose();
         }
+
+		@Override
+		public void update(Graphics g)
+		{
+			paint(g);
+		}
 
         public class OverlayToolboxButton extends JButton implements Serializable
         {
@@ -562,10 +563,9 @@ public class ChartPanel extends JLayeredPane implements Serializable
 
             public void actionPerformed(ActionEvent e)
             {
-                ChartPanel.this.removeOverlay(overlay);
-                ChartPanel.this.validate();
-                ChartPanel.this.repaint();
+				chartFrame.overlayRemoved(overlay);
             }
         };
     }
+	
 }

@@ -19,7 +19,6 @@ import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.PricePropertyEditor;
 import org.chartsy.main.utils.StrokePropertyEditor;
-import org.chartsy.main.welcome.Feeds;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileUtil;
@@ -34,17 +33,19 @@ public class Installer extends ModuleInstall implements Runnable
 	private Preferences chartsyPreferences = NbPreferences.root().node("/org/chartsy/register");
 	private Preferences printPreferences = NbPreferences.root().node("/org/netbeans/modules/print");
 	private Preferences autoUpdatePreferences = NbPreferences.root().node("/org/netbeans/modules/autoupdate");
-
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
 
 	@Override public void run()
 	{
-		Feeds.start();
+		System.setProperty("sun.java2d.opengl", "true");
+		System.setProperty("sun.java2d.d3d", "false");
+		
 		addKeystore();
 		setPrintProperties();
 
 		boolean registred = chartsyPreferences.getBoolean("registred", false);
-		if (!registred) {
+		if (!registred)
+		{
 			RegisterForm register = new RegisterForm(new JFrame(), true);
 			register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
 			register.setVisible(true);
@@ -133,7 +134,8 @@ public class Installer extends ModuleInstall implements Runnable
 
     private void setPrintProperties()
     {
-		if (!chartsyPreferences.getBoolean("print.init", false)) {
+		if (!chartsyPreferences.getBoolean("print.init", false))
+		{
 			printPreferences.put("print.area.height", "697.8897637795276");
 			printPreferences.put("print.area.width", "451.2755905511811");
 			printPreferences.put("print.area.x", "72.0");

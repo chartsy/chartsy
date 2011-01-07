@@ -59,7 +59,7 @@ public class URLChecker {
             HttpClient client = ProxyManager.getDefault().getHttpClient();
             GetMethod method = new GetMethod("http://www.google.com");
             int responce = client.executeMethod(method);
-            System.out.println(HttpStatus.getStatusText(responce));
+            //System.out.println(HttpStatus.getStatusText(responce));
             method.releaseConnection();
         }
         catch (UnknownHostException ex)

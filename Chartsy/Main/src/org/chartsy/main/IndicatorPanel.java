@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -31,8 +30,9 @@ import javax.swing.border.Border;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
-import org.chartsy.main.templates.Template;
 import org.chartsy.main.utils.ColorGenerator;
+import org.chartsy.main.utils.GraphicsUtils;
+import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
 /**
@@ -53,8 +53,6 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         this.chartFrame = frame;
         this.indicator = indicator;
-		Template template = new Template("Test");
-		template.setProperties(indicator);
         initializeUIElements();
     }
 
@@ -65,16 +63,22 @@ public class IndicatorPanel extends JPanel implements Serializable
         toolbox.setLocation(0, 0);
 
         setOpaque(false);
+		setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
         setLayout(new LayoutManager() {
+			@Override
             public void addLayoutComponent(String name, Component comp)
             {}
+			@Override
             public void removeLayoutComponent(Component comp)
             {}
+			@Override
             public Dimension preferredLayoutSize(Container parent)
             {return new Dimension(0, 0);}
+			@Override
             public Dimension minimumLayoutSize(Container parent)
             {return new Dimension(0, 0);}
+			@Override
             public void layoutContainer(Container parent)
             {
                 int width = parent.getWidth();
@@ -178,6 +182,7 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Indicator Settings", ResourcesUtils.getIcon("settings"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
 				SettingsPanel.getDefault().openSettingsWindow(panel.getIndicator());
@@ -189,6 +194,7 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Move Indicator Up", ResourcesUtils.getIcon("up"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
                 frame.getSplitPanel().getIndicatorsPanel().moveUp(panel);
@@ -200,6 +206,7 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Move Indicator Down", ResourcesUtils.getIcon("down"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
                 frame.getSplitPanel().getIndicatorsPanel().moveDown(panel);
@@ -211,6 +218,7 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("minimize"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
                 panel.setMaximized(false);
@@ -222,6 +230,7 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Minimize Indicator", ResourcesUtils.getIcon("maximize"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
                 panel.setMaximized(true);
@@ -233,47 +242,47 @@ public class IndicatorPanel extends JPanel implements Serializable
     {
         return new AbstractAction("Remove Indicator", ResourcesUtils.getIcon("remove"))
         {
+			@Override
             public void actionPerformed(ActionEvent e)
             {
-                frame.getSplitPanel().getIndicatorsPanel().remove(panel);
+                frame.indicatorRemoved(indicator);
             }
         };
     }
 
-    public @Override void paint(Graphics g)
+	@Override
+    public void paint(Graphics g)
     {
         int width = getWidth();
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        setDoubleBuffered(true);
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
-        g2.setPaintMode();
-
+        Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
         ChartProperties cp = chartFrame.getChartProperties();
         
-        g2.setPaint(cp.getAxisColor());
+        g2.setColor(cp.getAxisColor());
         g2.setStroke(cp.getAxisStroke());
         g2.drawLine(0, 0, width, 0);
 
-        Rectangle rect = getBounds();
+        Rectangle rect = this.getBounds();
         rect.grow(-2, -2);
-        Rectangle old = g2.getClipBounds();
-        g2.setClip(rect);
 
         if (indicator != null)
+		{
+			boolean isLog = cp.getAxisLogarithmicFlag();
+			if ( isLog ) cp.setAxisLogarithmicFlag(false);
             indicator.paint(g2, chartFrame, rect);
+			if ( isLog ) cp.setAxisLogarithmicFlag(true);
+		}
 
         super.paint(g);
-
-        g2.setClip(old);
-        g2.dispose();
     }
 
-    public @Override Rectangle getBounds()
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
+
+	@Override
+    public Rectangle getBounds()
     {
         return new Rectangle(0, 0, getWidth(), getPanelHeight());
     }
@@ -377,17 +386,12 @@ public class IndicatorPanel extends JPanel implements Serializable
 
         public @Override void paint(Graphics g)
         {
-			Font font = IndicatorPanel.this.chartFrame.getChartProperties().getFont();
-			if (!indicatorLabel.getFont().equals(font))
-				indicatorLabel.setFont(font);
-
-			Color foreground = IndicatorPanel.this.chartFrame.getChartProperties().getFontColor();
-			if (!indicatorLabel.getForeground().equals(foreground))
-				indicatorLabel.setForeground(foreground);
-
-			String text = IndicatorPanel.this.indicator.getLabel();
-			if (!indicatorLabel.getText().equals(text))
-				indicatorLabel.setText(text);
+			if (!indicatorLabel.getFont().equals(chartFrame.getChartProperties().getFont()))
+				indicatorLabel.setFont(chartFrame.getChartProperties().getFont());
+			if (!indicatorLabel.getForeground().equals(chartFrame.getChartProperties().getFontColor()))
+				indicatorLabel.setForeground(chartFrame.getChartProperties().getFontColor());
+			if (!indicatorLabel.getText().equals(indicator.getLabel()))
+				indicatorLabel.setText(indicator.getLabel());
             
             Rectangle oldClip = g.getClipBounds();
             Rectangle newClip = getBounds();
@@ -428,12 +432,15 @@ public class IndicatorPanel extends JPanel implements Serializable
                 setMargin(new Insets(0, 0, 0, 0));
                 setBorder(new Border()
                 {
+					@Override
                     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
                     {}
+					@Override
                     public Insets getBorderInsets(Component c)
                     {
                         return new Insets(0, 2, 0, 2);
                     }
+					@Override
                     public boolean isBorderOpaque()
                     {
                         return true;

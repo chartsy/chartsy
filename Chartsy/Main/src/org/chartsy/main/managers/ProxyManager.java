@@ -45,6 +45,10 @@ public final class ProxyManager
     {
         setOnline(true);
 
+		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+		System.setProperty ("org.apache.commons.logging.simplelog.showdatetime", "true");
+		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "error");
+
         MultiThreadedHttpConnectionManager manager = new MultiThreadedHttpConnectionManager();
         HttpConnectionManagerParams params = new HttpConnectionManagerParams();
         params.setMaxTotalConnections(100);
@@ -62,79 +66,63 @@ public final class ProxyManager
     }
 
     public String inputStringPOST(String url, NameValuePair[] query, NameValuePair[] request)
+		throws IOException
     {
         String response = "";
         PostMethod method = new PostMethod(url);
         method.setQueryString(query);
         method.setRequestBody(request);
 
-        try
-        {
-            int status = client.executeMethod(method);
-            if (status != HttpStatus.SC_OK)
-            {
-                System.err.println(method.getStatusText());
-            } else
-            {
-                //response = method.getResponseBodyAsString();
+		int status = client.executeMethod(method);
+		if (status != HttpStatus.SC_OK)
+		{
+			throw new IOException(method.getStatusText());
+		} else
+		{
+			InputStream is = method.getResponseBodyAsStream();
+			BufferedInputStream bis = new BufferedInputStream(is);
 
-                InputStream is = method.getResponseBodyAsStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
+			String datastr = null;
+			StringBuilder sb = new StringBuilder();
+			byte[] bytes = new byte[8192]; // reading as chunk of 8192 bytes
 
-                String datastr = null;
-                StringBuilder sb = new StringBuilder();
-                byte[] bytes = new byte[8192]; // reading as chunk of 8192 bytes
+			int count = bis.read(bytes);
+			while (count != -1 && count <= 8192)
+			{
+				datastr = new String(bytes, 0, count);
+				sb.append(datastr);
+				count = bis.read(bytes);
+			}
 
-                int count = bis.read(bytes);
-                while (count != -1 && count <= 8192)
-                {
-                    datastr = new String(bytes, 0, count);
-                    sb.append(datastr);
-                    count = bis.read(bytes);
-                }
-
-                bis.close();
-                response = sb.toString();
-            }
-        } catch (IOException ex)
-        {
-            System.err.println(ex.getMessage());
-        } finally
-        {
-            method.releaseConnection();
-        }
+			bis.close();
+			response = sb.toString();
+		}
+		
+		method.releaseConnection();
 
         return response;
     }
 
     public InputStream inputStreamGET(String url)
+		throws IOException
     {
         InputStream stream = null;
         GetMethod method = new GetMethod(url);
-        try
-        {
-            int status = client.executeMethod(method);
-            if (status != HttpStatus.SC_OK)
-            {
-                System.err.println(method.getStatusText());
-            } else
-            {
-                //stream = method.getResponseBodyAsStream();
 
-                stream = new ByteArrayInputStream(method.getResponseBody());
-            }
-        } catch (IOException ex)
-        {
-            stream = null;
-            System.err.println(ex.getMessage());
-        } finally
-        {
-            method.releaseConnection();
-        }
+		int status = client.executeMethod(method);
+		if (status != HttpStatus.SC_OK)
+		{
+			throw new IOException(method.getStatusText());
+		} else
+		{
+			stream = new ByteArrayInputStream(method.getResponseBody());
+		}
+		
         return stream;
     }
 
     public BufferedReader bufferReaderGET(String url)
+		throws IOException
     {
         InputStream stream = inputStreamGET(url);
         if (stream != null)
@@ -145,33 +133,26 @@ public final class ProxyManager
     }
 
     public InputStream inputStreamPOST(String url, NameValuePair[] query)
+		throws IOException
     {
         InputStream stream = null;
         PostMethod method = new PostMethod(url);
         method.setRequestBody(query);
-        try
-        {
-            int status = client.executeMethod(method);
-            if (status != HttpStatus.SC_OK)
-            {
-                System.err.println(method.getStatusText());
-            } else
-            {
-                //stream = method.getResponseBodyAsStream();
-                stream = new ByteArrayInputStream(method.getResponseBody());
-            }
-        } catch (IOException ex)
-        {
-            stream = null;
-            System.err.println(ex.getMessage());
-        } finally
-        {
-            method.releaseConnection();
-        }
+
+		int status = client.executeMethod(method);
+		if (status != HttpStatus.SC_OK)
+		{
+			throw new IOException(method.getStatusText());
+		} else
+		{
+			stream = new ByteArrayInputStream(method.getResponseBody());
+		}
+
         return stream;
     }
 
     public BufferedReader bufferReaderPOST(String url, NameValuePair[] query)
+		throws IOException
     {
         InputStream stream = inputStreamPOST(url, query);
         if (stream != null)
@@ -242,10 +223,12 @@ public final class ProxyManager
     {
         return isOnline;
     }
+	
     private static final String PROXY_TYPE_KEY = "proxyType";
     private static final String PROXY_HTTP_HOST_KEY = "proxyHttpHost";
     private static final String PROXY_HTTP_PORT_KEY = "proxyHttpPort";
     private static final String PROXY_USE_AUTH_KEY = "useProxyAuthentication";
     private static final String PROXY_USERNAME_KEY = "proxyAuthenticationUsername";
     private static final String PROXY_PASSWORD_KEY = "proxyAuthenticationPassword";
+	
 }

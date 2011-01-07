@@ -18,20 +18,40 @@ public abstract class AbstractPropertyListener
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-    private List<PropertyChangeListener> listeners = Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
+    private final List<PropertyChangeListener> listeners = Collections.synchronizedList(new LinkedList<PropertyChangeListener>());
 
     public void addPropertyChangeListener(PropertyChangeListener pcl)
-    { listeners.add(pcl); }
+    {
+		synchronized (listeners)
+		{
+			listeners.add(pcl);
+		}
+	}
 
     public void removePropertyChangeListener(PropertyChangeListener pcl)
-    { listeners.remove(pcl); }
-
-    private void fire(String propertyName, Object old, Object nue)
     {
-        PropertyChangeListener[] pcls = listeners.toArray(new PropertyChangeListener[0]);
-        for (int i = 0; i < pcls.length; i++) {
-            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-        }
+		synchronized (listeners)
+		{
+			listeners.remove(pcl);
+		}
+	}
+
+	public void clearPropertyChangeListenerList()
+	{
+		synchronized (listeners)
+		{
+			listeners.clear();
+		}
+	}
+
+    protected void fire(String propertyName, Object old, Object nue)
+    {
+		synchronized (listeners)
+		{
+			if (!old.equals(nue))
+				for (PropertyChangeListener listener : listeners)
+					listener.propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
+		}
     }
 
 }

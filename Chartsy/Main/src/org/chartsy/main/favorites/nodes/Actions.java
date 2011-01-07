@@ -7,6 +7,8 @@ import org.chartsy.main.ChartFrame;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.intervals.DailyInterval;
 import org.chartsy.main.managers.ChartManager;
+import org.chartsy.main.managers.TemplateManager;
+import org.chartsy.main.templates.Template;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor.InputLine;
@@ -49,14 +51,19 @@ public class Actions
 					= node.getLookup().lookup(StockAPI.class);
 				if (stock != null)
 				{
+					String defaultTemplate = TemplateManager.getDefault().getDefaultTemplate();
+					Template template = TemplateManager.getDefault().getTemplate(defaultTemplate);
+
 					ChartData chartData = new ChartData();
 					chartData.setStock(stock.getStock());
-					chartData.setDataProvider(stock.getDataProvider());
+					chartData.setDataProviderName(stock.getDataProviderName());
 					chartData.setInterval(new DailyInterval());
 					chartData.setChart(
 						ChartManager.getDefault().getChart("Candle Stick"));
 
-					ChartFrame chartFrame = new ChartFrame(chartData);
+					ChartFrame chartFrame = ChartFrame.getInstance();
+					chartFrame.setChartData(chartData);
+					chartFrame.setTemplate(template);
 					chartFrame.open();
 					chartFrame.requestActive();
 				}

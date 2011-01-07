@@ -5,6 +5,7 @@ import org.chartsy.main.ChartProperties;
 import org.chartsy.main.chart.Chart;
 import org.chartsy.main.chart.Indicator;
 import org.chartsy.main.chart.Overlay;
+import org.chartsy.main.managers.TemplateManager;
 
 /**
  *
@@ -65,7 +66,13 @@ public class Template
 
 	public ArrayList<Overlay> getOverlays()
 	{
-		return overlays;
+		ArrayList<Overlay> list = new ArrayList<Overlay>();
+		for (int i = 0; i < overlays.size(); i++)
+		{
+			Overlay instance = TemplateManager.getDefault().getOverlay(i);
+			list.add(instance);
+		}
+		return list;
 	}
 
 	public void addIndicator(Indicator indicator)
@@ -77,12 +84,13 @@ public class Template
 
 	public ArrayList<Indicator> getIndicators()
 	{
-		return indicators;
-	}
-
-	public void setProperties(Indicator indicator)
-	{
-		System.out.println(indicator.getName());
+		ArrayList<Indicator> list = new ArrayList<Indicator>();
+		for (Indicator indicator : indicators)
+		{
+			Indicator instance = indicator.newInstance();
+			list.add(instance);
+		}
+		return list;
 	}
 
 }

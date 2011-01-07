@@ -27,6 +27,7 @@ public final class DefaultPainter {
 
     public static void line(Graphics2D g, ChartFrame cf, Range range, Rectangle bounds, Dataset dataset, Color color, Stroke stroke, int price)
     {
+		boolean isLog = cf.getChartProperties().getAxisLogarithmicFlag();
         Stroke old = g.getStroke();
         g.setPaint(color);
         if (stroke != null) g.setStroke(stroke);
@@ -37,7 +38,7 @@ public final class DefaultPainter {
             {
                 double value = dataset.getPriceAt(i, price);
                 double x = cf.getChartData().getX(i, bounds);
-                double y = cf.getChartData().getY(value, bounds, range);
+                double y = cf.getChartData().getY(value, bounds, range, isLog);
 
                 Point2D.Double p = new Point2D.Double(x, y);
                 if (point != null)
@@ -57,14 +58,14 @@ public final class DefaultPainter {
     {
         g.setPaint(color);
         ChartData cd = cf.getChartData();
-        double zeroY = cd.getY(0D, bounds, range);
+        double zeroY = cd.getY(0D, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
         for (int i = 0; i < dataset.getItemsCount(); i++)
         {
             if (dataset.getDataItem(i) != null)
             {
                 double value = dataset.getPriceAt(i, price);
                 double x = cd.getX(i, bounds);
-                double y = cd.getY(value, bounds, range);
+                double y = cd.getY(value, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
                 
                 double width = cf.getChartProperties().getBarWidth();
                 double height = Math.abs(y - zeroY);
@@ -89,14 +90,14 @@ public final class DefaultPainter {
     public static void histogram(Graphics2D g, ChartFrame cf, Range range, Rectangle bounds, Dataset dataset, Color c1, Color c2, int price)
     {
         ChartData cd = cf.getChartData();
-        double zeroY = cd.getY(0D, bounds, range);
+        double zeroY = cd.getY(0D, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
         for (int i = 0; i < dataset.getItemsCount(); i++)
         {
             if (dataset.getDataItem(i) != null)
             {
                 double value = dataset.getPriceAt(i, price);
                 double x = cd.getX(i, bounds);
-                double y = cd.getY(value, bounds, range);
+                double y = cd.getY(value, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
 
                 double width = cf.getChartProperties().getBarWidth();
                 double height = Math.abs(y - zeroY);
@@ -134,8 +135,8 @@ public final class DefaultPainter {
                 double value2 = lower.getPriceAt(i, price);
 
                 double x = cd.getX(i, bounds);
-                double y1 = cd.getY(value1, bounds, range);
-                double y2 = cd.getY(value2, bounds, range);
+                double y1 = cd.getY(value1, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
+                double y2 = cd.getY(value2, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
 
                 Point2D.Double p1 = new Point2D.Double(x, y1);
                 Point2D.Double p2 = new Point2D.Double(x, y2);
@@ -166,7 +167,7 @@ public final class DefaultPainter {
     {
         ChartData cd = cf.getChartData();
         double x;
-        double y = cd.getY(min, bounds, range);
+        double y = cd.getY(min, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
         double dx;
 
         Range r = new Range(min > max ? max : min, min > max ? min : max);
@@ -181,8 +182,8 @@ public final class DefaultPainter {
                 
                 if (value1 != 0 && value2 != 0)
                 {
-                    Point2D p1 = cd.getPoint(i-1, value1, range, bounds);
-                    Point2D p2 = cd.getPoint(i, value2, range, bounds);
+                    Point2D p1 = cd.getPoint(i-1, value1, range, bounds, false);
+                    Point2D p2 = cd.getPoint(i, value2, range, bounds, false);
 
                     if (!r.contains(value1) && r.contains(value2))
                     {
@@ -238,7 +239,7 @@ public final class DefaultPainter {
             {
                 double value = dataset.getPriceAt(i, price);
                 double x = cf.getChartData().getX(i, bounds);
-                double y = cf.getChartData().getY(value, bounds, range);
+                double y = cf.getChartData().getY(value, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
 
                 Ellipse2D.Double circle =  new Ellipse2D.Double(x, y, 5, 5);
                 g.fill(circle);

@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -57,12 +59,68 @@ public final class FileUtils {
         return result;
     }
 
+	public static String intervalsFolder()
+	{
+		String result = LocalFolder() + File.separator + "intervals";
+        createFolder(result);
+        return result;
+	}
+
+	public static String intervalFolder(String dataProvider)
+	{
+		String folder = intervalsFolder() + File.separator + dataProvider;
+		return folder;
+	}
+
+	public static String intervalPath(String dataProvider, String interval)
+	{
+		String folder = intervalsFolder() + File.separator + dataProvider;
+		createFolder(folder);
+		String path = folder + File.separator + interval + ".properties";
+		return path;
+	}
+
     public static String cacheFolder()
     {
         String result = LocalFolder() + File.separator + "cache";
         createFolder(result);
         return result;
     }
+
+	public static String cacheStocksFolder()
+	{
+		String result = cacheFolder() + File.separator + "stocks";
+		createFolder(result);
+		return result;
+	}
+
+	public static String cacheDatasetsFolder()
+	{
+		String result = cacheFolder() + File.separator + "datasets";
+		createFolder(result);
+		return result;
+	}
+
+	public static String cacheChartsFolder()
+	{
+		String result = cacheFolder() + File.separator + "charts";
+		createFolder(result);
+		return result;
+	}
+
+	public static String cacheChartFolder(String id)
+	{
+		String result = cacheChartsFolder() + File.separator + id;
+		createFolder(result);
+		return result;
+	}
+
+	public static String cacheHistoryFolder(String id)
+	{
+		String result = cacheChartFolder(id) + File.separator + "history";
+		createFolder(result);
+		return result;
+	}
 
     public static String cacheFile(String file) throws IOException
     {
@@ -71,9 +129,48 @@ public final class FileUtils {
 		return object.getPath();
     }
 
+	public static String cacheFilePath(String file) throws IOException
+    {
+		String filePath = cacheFolder() + File.separator + file;
+		return filePath;
+    }
+
+	public static String hashedCacheFilePath(String folder, String fileName)
+	{
+		String result = folder + File.separator + getStringHash(fileName) + ".properties";
+		return result;
+	}
+
+	public static File hashedCacheFile(String folder, String fileName)
+	{
+		String path = hashedCacheFilePath(folder, fileName);
+		File file = new File(path);
+		return file;
+	}
+
 	public static FileObject cacheFileObject(String fileName) throws IOException
 	{
 		return FileUtil.createData(new File(cacheFile(fileName)));
+	}
+
+	public static String getStringHash(String fileName)
+	{
+		try
+		{
+			MessageDigest digest = MessageDigest.getInstance("md5");
+			digest.reset();
+			digest.update(fileName.getBytes());
+			byte messageDigest[] = digest.digest();
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < messageDigest.length; i++)
+				builder.append(Integer.toHexString(0xFF & messageDigest[i]));
+			String result = builder.toString();
+			return result;
+
+		} catch (NoSuchAlgorithmException ex)
+		{
+			return fileName;
+		}
 	}
 
     public static String getHistoryFolder()

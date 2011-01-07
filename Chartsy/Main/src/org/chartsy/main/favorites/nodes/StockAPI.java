@@ -1,21 +1,19 @@
 package org.chartsy.main.favorites.nodes;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.text.DecimalFormat;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.Stock;
+import org.chartsy.main.events.DataProviderAdapter;
 import org.chartsy.main.events.DataProviderEvent;
-import org.chartsy.main.events.DataProviderListener;
 import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.DatasetUsage;
 
 /**
  *
  * @author Viorel
  */
-public class StockAPI extends Object implements DataProviderListener
+public class StockAPI extends Object
 {
 
 	private String dataProviderName;
@@ -26,16 +24,8 @@ public class StockAPI extends Object implements DataProviderListener
 	private double newValue = -1;
 	private double oldValue = -1;
 
-	private long newTime;
-	DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
 	public StockAPI()
 	{
-		Calendar cal = Calendar.getInstance();
-		String date = formatter.format(cal.getTime());
-
-		try { newTime = formatter.parse(date).getTime(); }
-		catch (ParseException ex) {}
 	}
 
 	public String getDisplayName()
@@ -104,64 +94,74 @@ public class StockAPI extends Object implements DataProviderListener
 
 	public void initializeDataProvider()
 	{
-		DataProvider dp = DataProviderManager.getDefault().getDataProvider(dataProviderName);
+		final DataProvider dp = getDataProvider();
 		if (dp != null)
 		{
-			dp.addStock(getStock());
-			dp.addDataset(dp.getKey(getStock(), DataProvider.DAILY), new Dataset());
-			dp.addDatasetListener((DataProviderListener) this);
-		}
-		else
-		{
-			System.out.println(dataProviderName + " is null.");
+			final Stock stock = getStock();
+			String key = dp.getDatasetKey(stock, dp.DAILY);
+			if (!DatasetUsage.getInstance().isDatasetInMemory(key))
+			{
+				try
+				{
+					dp.fetchDatasetForFavorites(stock);
+				} catch (Exception ex)
+				{
+					// do nothing
+				}
+			}
+			
+			DataProviderAdapter adapter = new DataProviderAdapter()
+			{
+				@Override
+				public void triggerDataProviderListener(DataProviderEvent evt)
+				{
+					String key = dp.getDatasetKey(stock, dp.DAILY);
+					if (key.equals((String) evt.getSource()))
+					{
+						Dataset dataset = DatasetUsage.getInstance().getDatasetFromMemory(key);
+						if (dataset != null && !dataset.isEmpty())
+						{
+							oldValue = dataset.getCloseAt(dataset.getLastIndex() - 1);
+							newValue = dataset.getLastClose();
+						} else
+						{
+							oldValue = 0;
+							newValue = 0;
+						}
+					}
+				}
+			};
+			
+			DatasetUsage.getInstance().addDataProviderListener(adapter);
+			DatasetUsage.getInstance().addDatasetUpdater(dataProviderName, stock, dp.DAILY);
+			Dataset dataset = DatasetUsage.getInstance().getDatasetFromMemory(key);
+			if (dataset != null && !dataset.isEmpty())
+			{
+				DatasetUsage.getInstance().fetchDataset(key);
+				oldValue = dataset.getCloseAt(dataset.getLastIndex() - 1);
+				newValue = dataset.getLastClose();
+			} else
+			{
+				oldValue = 0;
+				newValue = 0;
+			}
 		}
 	}
 
 	public Object[][] getData()
 	{
+		double value = newValue;
+		double dif = newValue - oldValue;
+		double percent = oldValue == 0 ? 0 : dif / oldValue * 100;
 		return new String[][]
 		{
-			{getStock().getKey(),
-			String.valueOf(newValue < 0 ? (oldValue < 0 ? 0 : oldValue) : newValue),
-			String.valueOf(newValue < 0 ? 0 : (newValue - oldValue)),
-			String.valueOf(newValue < 0 ? 0 : ((newValue - oldValue) / oldValue)*100)}
-		};
-	}
-
-	public void triggerDataProviderListener(DataProviderEvent evt)
-	{
-		Stock updated = (Stock) evt.getSource();
-		Stock stock = getStock();
-
-		if (stock != null
-			&& updated.equals(getStock())
-			&& dataProviderName != null)
-		{
-			DataProvider provider = DataProviderManager.getDefault().getDataProvider(dataProviderName);
-			Dataset dataset = provider.getDataset(provider.getKey(stock, DataProvider.DAILY));
-
-			if (dataset != null && !dataset.isEmpty())
 			{
-				if (dataset.getLastTime() == newTime)
-				{
-					oldValue = dataset.getCloseAt(dataset.getLastIndex() - 1);
-					newValue = dataset.getLastClose();
-				}
-				else
-				{
-					if (dataset.getItemsCount() > 2)
-					{
-						oldValue = dataset.getCloseAt(dataset.getLastIndex() - 1);
-						newValue = dataset.getLastClose();
-					}
-					else
-					{
-						oldValue = dataset.getLastClose();
-						newValue = -1;
-					}
-				}
+				getStock().getKey(),
+				String.valueOf(value),
+				String.valueOf(dif),
+				String.valueOf(percent)
 			}
-		}
+		};
 	}
 
 	public @Override String toString()

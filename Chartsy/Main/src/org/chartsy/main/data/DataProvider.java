@@ -2,17 +2,10 @@ package org.chartsy.main.data;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.swing.event.EventListenerList;
-import org.chartsy.main.events.DataProviderEvent;
-import org.chartsy.main.events.DataProviderListener;
-import org.chartsy.main.exceptions.DataNotFoundException;
-import org.chartsy.main.exceptions.InvalidDatasetException;
 import org.chartsy.main.exceptions.InvalidStockException;
 import org.chartsy.main.exceptions.RegistrationException;
 import org.chartsy.main.exceptions.StockNotFoundException;
@@ -25,10 +18,10 @@ import org.chartsy.main.intervals.OneMinuteInterval;
 import org.chartsy.main.intervals.SixtyMinuteInterval;
 import org.chartsy.main.intervals.ThirtyMinuteInterval;
 import org.chartsy.main.intervals.WeeklyInterval;
-import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.CacheManager;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.utils.SerialVersion;
 import org.openide.util.NbBundle;
-import java.util.logging.Logger;
 
 /**
  *
@@ -37,44 +30,24 @@ import java.util.logging.Logger;
 public abstract class DataProvider implements Serializable
 {
 
-    private static final Logger LOG = Logger.getLogger(DataProvider.class.getPackage().getName());
-    private static final long serialVersionUID = SerialVersion.APPVERSION;
-    transient protected LinkedHashMap<String, LinkedHashMap<String, Timer>> timerMap;
-    transient protected int currentTask = 0;
-    public static final Interval ONE_MINUTE = new OneMinuteInterval();
-    public static final Interval FIVE_MINUTE = new FiveMinuteInterval();
-    public static final Interval FIFTEEN_MINUTE = new FifteenMinuteInterval();
-    public static final Interval THIRTY_MINUTE = new ThirtyMinuteInterval();
-    public static final Interval SIXTY_MINUTE = new SixtyMinuteInterval();
-    public static final Interval DAILY = new DailyInterval();
-    public static final Interval WEEKLY = new WeeklyInterval();
-    public static final Interval MONTHLY = new MonthlyInterval();
-    public static final Interval[] INTRA_DAY_INTERVALS =
-    {
-        ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, SIXTY_MINUTE
-    };
-    public static final Interval[] INTERVALS =
-    {
-        DAILY, WEEKLY, MONTHLY
-    };
-    protected String name;
-    protected Exchange[] exchanges;
-    protected boolean supportsIntraDay = false;
-    protected String stocksPath;
-    protected String datasetsPath;
-    transient protected LinkedHashMap<String, LinkedList<Stock>> allStocks;
-    transient protected LinkedHashMap<String, LinkedHashMap<String, Dataset>> allDatasets;
-    transient protected LinkedHashMap<String, LinkedHashMap<String, Integer>> allDatasetUsageCount;
-    protected boolean initializeFlag = true;
+	private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public DataProvider(ResourceBundle bundle)
     {
-        this(bundle, false);
+        this(bundle, false, false);
     }
 
-    public DataProvider(ResourceBundle bundle, boolean supportsIntraday)
+    public DataProvider(ResourceBundle bundle, boolean supportsIntraDay)
     {
-        this.name = bundle.getString("DataProvider_NAME");
+        this(bundle, supportsIntraDay, false);
+    }
+
+	public DataProvider(
+		ResourceBundle bundle,
+		boolean supportsIntraDay,
+		boolean supportsCustomIntervals)
+	{
+		this.name = bundle.getString("DataProvider_NAME");
 
         String[] exgs = bundle.getString("DataProvider_EXG").split(":");
         exchanges = new Exchange[exgs.length];
@@ -89,50 +62,12 @@ public abstract class DataProvider implements Serializable
             }
             exchanges[i] = new Exchange(exchange, sufix);
         }
-        this.supportsIntraDay = supportsIntraday;
-
-    }
-
-    private LinkedHashMap<String, LinkedList<Stock>> stocks()
-    {
-        if (allStocks == null)
-        {
-            allStocks = new LinkedHashMap<String, LinkedList<Stock>>();
-        }
-        return allStocks;
-    }
-
-    private LinkedHashMap<String, LinkedHashMap<String, Dataset>> datasets()
-    {
-        if (allDatasets == null)
-        {
-            allDatasets = new LinkedHashMap<String, LinkedHashMap<String, Dataset>>();
-        }
-        return allDatasets;
-    }
-
-    private LinkedHashMap<String, LinkedHashMap<String, Integer>> dataset_usage_count()
-    {
-        if (allDatasetUsageCount == null)
-        {
-            allDatasetUsageCount = new LinkedHashMap<String, LinkedHashMap<String, Integer>>();
-        }
-        return allDatasetUsageCount;
-    }
+        this.supportsIntraDay = supportsIntraDay;
+		this.supportsCustomInterval = supportsCustomIntervals;
+	}
 
     public synchronized void initialize()
     {
-        LinkedList<Stock> stocks = new LinkedList<Stock>();
-        stocks().put(name, stocks);
-
-        LinkedHashMap<String, Dataset> datasets = new LinkedHashMap<String, Dataset>();
-        datasets().put(name, datasets);
-
-        LinkedHashMap<String, Integer> dataset_usage_count = new LinkedHashMap<String, Integer>();
-        dataset_usage_count().put(name, dataset_usage_count);
-
-        LinkedHashMap<String, Timer> timers = new LinkedHashMap<String, Timer>();
-        timers().put(name, timers);
     }
 
     public String getName()
@@ -155,118 +90,12 @@ public abstract class DataProvider implements Serializable
         return INTERVALS;
     }
 
-    public boolean supportsIntraday()
-    {
-        return supportsIntraDay;
-    }
+	public Interval[] getSupportedIntervals()
+	{
+		return new Interval[] {};
+	}
 
-    public void setStockCompanyName(Stock stock)
-            throws InvalidStockException, StockNotFoundException,
-            RegistrationException, IOException
-    {
-        if (hasStock(stock))
-        {
-            stock.setCompanyName(getStock(stock).getCompanyName());
-            return;
-        }
-        stock.setCompanyName(this.fetchCompanyName(stock));
-    }
-
-    public Dataset getDatas(Stock stock, Interval interval)
-            throws InvalidDatasetException, DataNotFoundException,
-            RegistrationException, IOException
-    {
-        return null;
-    }
-
-    public abstract String fetchCompanyName(Stock stock)
-            throws InvalidStockException, StockNotFoundException, RegistrationException, IOException;
-
-    public abstract Dataset getData(Stock stock, Interval interval);
-
-    public abstract Dataset getLastDataItem(Stock stock, Interval interval, Dataset dataset);
-
-    public abstract StockSet getAutocomplete(String text);
-
-    /*
-     * Return the refresh interval in seconds
-     */
-    public abstract int getRefreshInterval();
-
-    public String getKey(String symbol, Interval interval)
-    {
-        return NbBundle.getMessage(DataProvider.class, "Dataset_KEY", symbol, interval.getTimeParam());
-    }
-
-    public String getKey(Stock stock, Interval interval)
-    {
-        return NbBundle.getMessage(DataProvider.class, "Dataset_KEY", stock.getKey(), interval.getTimeParam());
-    }
-    
-    public void addDataset(String key, Dataset value)
-    {
-        if (!datasetExists(key))
-        {
-            datasets().get(name).put(key, value);
-            addNewTimer(key);
-            dataset_usage_count().get(name).put(key, 1);
-        } else
-        {
-            int usage_count = (Integer) (dataset_usage_count().get(name).get(key));
-            usage_count++;
-            dataset_usage_count().get(name).put(key, usage_count);
-        }
-    }
-
-    protected void setDataset(String key, Dataset value)
-    {
-        datasets().get(name).put(key, value);
-    }
-
-    public void removeDataset(String key)
-    {
-        int usage_count = (Integer) (dataset_usage_count().get(name).get(key));
-        usage_count--;
-        dataset_usage_count().get(name).put(key, usage_count);
-
-        if (usage_count == 0)
-        {
-            removeTimer(key);
-            datasets().get(name).remove(key);
-        }
-    }
-
-    public Dataset getDataset(Stock stock, Interval interval)
-    {
-        return datasets().get(name).get(getKey(stock, interval));
-    }
-
-    public Dataset getDataset(String key)
-    {
-        return datasets().get(name).get(key);
-    }
-
-    public boolean datasetExists(String key)
-    {
-        return (datasets().get(name).get(key) != null);
-    }
-
-    public boolean datasetExists(Stock stock)
-    {
-        return (datasets().get(name).get(getKey(stock, DAILY)) != null);
-    }
-
-    public boolean datasetExists(Stock stock, Interval interval)
-    {
-        return (datasets().get(name).get(getKey(stock, interval)) != null);
-    }
-
-    public LinkedHashMap<String, Dataset> getDatasetsMap()
-    {
-        return datasets().get(name);
-    }
-
-    public Interval getIntervalFromKey(String key)
+	public Interval getIntervalFromKey(String key)
     {
         for (Interval i : INTERVALS)
         {
@@ -285,58 +114,7 @@ public abstract class DataProvider implements Serializable
         return null;
     }
 
-    public synchronized void addStock(Stock stock)
-    {
-        if (!hasStock(stock))
-        {
-            stocks().get(name).add(stock);
-        }
-    }
-
-    public synchronized boolean hasStock(Stock stock)
-    {
-        return stocks().get(name).contains(stock);
-    }
-
-    public synchronized Stock getStockFromKey(String key)
-    {
-        LinkedList<Stock> list = stocks().get(name);
-        for (Stock s : list)
-        {
-            for (Interval i : INTERVALS)
-            {
-                if (key.equals(getKey(s, i)))
-                {
-                    return s;
-                }
-            }
-            for (Interval i : INTRA_DAY_INTERVALS)
-            {
-                if (key.equals(getKey(s, i)))
-                {
-                    return s;
-                }
-            }
-        }
-        return null;
-    }
-
-    public synchronized Stock getStock(Stock stock)
-    {
-        int index = stocks().get(name).indexOf(stock);
-        if (index != -1)
-        {
-            return stocks().get(name).get(index);
-        }
-        return null;
-    }
-
-    public synchronized List<Stock> getStocks()
-    {
-        return stocks().get(name);
-    }
-
-    public static Interval getInterval(int intervalHash)
+	public static Interval getInterval(int intervalHash)
     {
         for (Interval interval : INTERVALS)
         {
@@ -355,126 +133,230 @@ public abstract class DataProvider implements Serializable
         return null;
     }
 
-    public synchronized Stock getStockFromHash(int stockHash)
+    public boolean supportsIntraday()
     {
-        for (Stock stock : stocks().get(name))
-        {
-            if (stock.hashCode() == stockHash)
-            {
-                return stock;
-            }
-        }
-        return null;
-    }
-    transient private EventListenerList datasetListener;
-
-    private EventListenerList eventListenerList()
-    {
-        if (datasetListener == null)
-        {
-            datasetListener = new EventListenerList();
-        }
-        return datasetListener;
+        return supportsIntraDay;
     }
 
-    public void addDatasetListener(DataProviderListener listener)
+	public boolean supportsCustomInterval()
+	{
+		return supportsCustomInterval;
+	}
+
+	public boolean supportsAnyInterval()
+	{
+		return false;
+	}
+
+	public void fetchStock(String symbol)
+		throws InvalidStockException, StockNotFoundException, RegistrationException, IOException
+	{
+		String symb = "";
+		String exchange = "";
+		String company = "";
+
+		symbol.trim();
+		String delimiter = ".";
+
+		if (symbol.contains(delimiter))
+		{
+			int index = symbol.indexOf(delimiter);
+			symb = symbol.substring(0, index);
+			exchange = symbol.substring(index - 1, symbol.length() - 1);
+		} else
+		{
+			symb = symbol;
+		}
+
+		company = fetchCompanyName(symbol);
+
+		Stock stock = new Stock(symb, exchange);
+		stock.setCompanyName(company);
+		cacheStock(stock);
+	}
+
+	protected abstract String fetchCompanyName(String symbol)
+            throws InvalidStockException, StockNotFoundException, RegistrationException, IOException;
+
+	protected void cacheStock(Stock stock)
+		throws IOException
+	{
+		String fileName = getStockKey(stock);
+		CacheManager.getInstance().cacheStock(stock, fileName);
+	}
+
+    public synchronized boolean stockExists(String symbol)
     {
-        eventListenerList().add(DataProviderListener.class, listener);
+		String fileName = getStockKey(symbol);
+		return CacheManager.getInstance().stockCacheExists(fileName);
     }
 
-    public void removeDatasetListener(DataProviderListener listener)
+    public synchronized Stock fetchStockFromCache(String symbol)
     {
-        eventListenerList().remove(DataProviderListener.class, listener);
+		Stock stock = null;
+		String fileName = getStockKey(symbol);
+		try
+		{
+			stock = CacheManager.getInstance().fetchStockFromCache(fileName);
+		} catch (Exception ex)
+		{
+			System.err.println(ex.getMessage());
+			stock = null;
+		}
+
+		return stock;
     }
 
-    private void fireDatasetEvent(DataProviderEvent evt)
+	public void fetchDatasetForFavorites(Stock stock)
+		throws IOException, ParseException
+	{
+		Dataset dataset = fetchDataForFavorites(stock);
+		if (dataset != null)
+		{
+			String key = getDatasetKey(stock, DAILY);
+			DatasetUsage.getInstance().addDataset(key, dataset);
+		} else
+			throw new IOException();
+	}
+
+	protected abstract Dataset fetchDataForFavorites(Stock stock)
+		throws IOException, ParseException;
+
+    public void fetchDataset(Stock stock, Interval interval)
+		throws IOException, ParseException
+	{
+		Dataset dataset = fetchData(stock, interval);
+		if (dataset != null)
+		{
+			String key = getDatasetKey(stock, interval);
+			DatasetUsage.getInstance().addDataset(key, dataset);
+			//cacheDataset(key, dataset);
+		} else
+			throw new IOException();
+	}
+
+	protected abstract Dataset fetchData(Stock stock, Interval interval)
+		throws IOException, ParseException;
+
+	public DataItem getLastDataItem(Stock stock, Interval interval)
+	{
+		try
+		{
+			return fetchLastDataItem(stock, interval);
+		} catch (Exception ex)
+		{
+			return null;
+		}
+	}
+
+    protected abstract DataItem fetchLastDataItem(Stock stock, Interval interval)
+		throws IOException, ParseException;
+
+	public List<DataItem> getLastDataItems(Stock stock, Interval interval)
+	{
+		return new ArrayList<DataItem>();
+	}
+
+	public boolean updateIntraDay(String key, List<DataItem> dataItems)
+	{
+		return false;
+	}
+
+	protected void cacheDataset(String key, Dataset dataset)
+		throws IOException
+	{
+		CacheManager.getInstance().cacheDataset(dataset, key);
+	}
+
+	public boolean datasetExists(Stock stock, Interval interval)
+	{
+		String fileName = getDatasetKey(stock, interval);
+		return CacheManager.getInstance().datasetCacheExists(fileName);
+	}
+
+	public void fetchDatasetFromCache(Stock stock, Interval interval)
+		throws IOException
+	{
+		String fileName = getDatasetKey(stock, interval);
+		CacheManager.getInstance().fetchDatasetFromCache(fileName);
+	}
+
+    public abstract StockSet fetchAutocomplete(String text)
+		throws IOException;
+
+    /*
+     * Return the refresh interval in seconds
+     */
+    public abstract int getRefreshInterval();
+
+    public String getStockKey(Stock stock)
     {
-        DataProviderListener[] listeners = eventListenerList().getListeners(DataProviderListener.class);
-        for (DataProviderListener listener : listeners)
-        {
-            listener.triggerDataProviderListener(evt);
-        }
+        return getStockKey(stock.getKey());
     }
 
-    public LinkedHashMap<String, LinkedHashMap<String, Timer>> timers()
+	public String getStockKey(String symbol)
     {
-        if (timerMap == null)
-        {
-            timerMap = new LinkedHashMap<String, LinkedHashMap<String, Timer>>();
-        }
-        return timerMap;
+        return NbBundle.getMessage(
+			DataProvider.class,
+			"Stock_KEY",
+			getName(),
+			symbol);
     }
 
-
-
-    protected void addNewTimer(String key)
+    public String getDatasetKey(Stock stock, Interval interval)
     {
-        Timer timer = new Timer();
-        timer.schedule(new PeriodTimer(key), 0, this.getRefreshInterval()*1000);
-        if (!timers().get(name).containsKey(key))
-        {
-            timers().get(name).put(key, timer);
-        }
+        return getDatasetKey(stock.getKey(), interval);
     }
 
-    protected void removeTimer(String key)
+	public String getDatasetKey(String symbol, Interval interval)
     {
-        timers().get(name).get(key).cancel();
-        timers().get(name).remove(key);
+        return NbBundle.getMessage(
+			DataProvider.class,
+			"Dataset_KEY",
+			getName(),
+			symbol,
+			interval.getTimeParam());
     }
 
-    public class PeriodTimer extends TimerTask
-    {
+	public boolean needsRegistration()
+	{
+		return needsRegistration;
+	}
 
-        private String key;
+	public boolean isRegistred()
+	{
+		return isRegistered;
+	}
 
-        public PeriodTimer(String key)
-        {
-            this.key = key;
-        }
+	public String getRegistrationMessage()
+	{
+		return "";
+	}
 
-        public
-        @Override
-        void run()
-        {
-            Stock stock = getStockFromKey(key);
-            Interval interval = getIntervalFromKey(key);
+	public String getRegistrationURL()
+	{
+		return "";
+	}
 
-            if (stock == null)
-            {
-                return;
-            }
+    public static final Interval ONE_MINUTE = new OneMinuteInterval();
+    public static final Interval FIVE_MINUTE = new FiveMinuteInterval();
+    public static final Interval FIFTEEN_MINUTE = new FifteenMinuteInterval();
+    public static final Interval THIRTY_MINUTE = new ThirtyMinuteInterval();
+    public static final Interval SIXTY_MINUTE = new SixtyMinuteInterval();
+    public static final Interval DAILY = new DailyInterval();
+    public static final Interval WEEKLY = new WeeklyInterval();
+    public static final Interval MONTHLY = new MonthlyInterval();
+    public static final Interval[] INTRA_DAY_INTERVALS = { ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, SIXTY_MINUTE };
+    public static final Interval[] INTERVALS = { DAILY, WEEKLY, MONTHLY };
 
-            if (interval == null)
-            {
-                return;
-            }
-
-            Dataset oldDataset = getDataset(key);
-            if (oldDataset == null)
-            {
-                return;
-            }
-
-
-            Dataset newDataset = null;
-
-            if (!oldDataset.isEmpty())
-            {
-                newDataset = DataProviderManager.getDefault().getDataProvider(name).getLastDataItem(stock, interval, oldDataset);
-            } else
-            {
-                newDataset = DataProviderManager.getDefault().getDataProvider(name).getData(stock, interval);
-            }
-
-            if (newDataset == null)
-            {
-                return;
-            }
-
-            setDataset(key, newDataset);
-
-            fireDatasetEvent(new DataProviderEvent(stock));
-        }
-    }
+    protected String name;
+    protected Exchange[] exchanges;
+    protected boolean supportsIntraDay = false;
+	protected boolean supportsCustomInterval = false;
+    protected String stocksPath;
+    protected String datasetsPath;
+    protected boolean initializeFlag = true;
+	protected boolean needsRegistration = false;
+	protected boolean isRegistered = false;
+	
 }

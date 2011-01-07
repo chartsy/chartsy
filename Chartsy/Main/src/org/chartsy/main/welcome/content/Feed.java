@@ -14,6 +14,7 @@ public class Feed {
     final String description;
     final String language;
     final List<FeedMessage> entries = new ArrayList<FeedMessage>();
+	String feedName;
 
     public Feed(String title, String link, String description, String language) {
         this.title = title;
@@ -23,6 +24,8 @@ public class Feed {
     }
 
     public List<FeedMessage> getMessages() { return entries; }
+	public void setFeedName(String name) { feedName = name; }
+	public String getFeedName() { return feedName; }
     public String getTitle() { return title; }
     public String getLink() { return link; }
     public String getDescription() { return description; }

@@ -92,9 +92,9 @@ public class SettingsPanel extends JPanel
 		Object ret = DialogDisplayer.getDefault().notify(descriptor);
 		if (ret != null)
 		{
-			if (object instanceof ChartFrame)
+			/*if (object instanceof ChartFrame)
 				((ChartFrame) object).repaint();
-			else if (object instanceof Indicator)
+			else */if (object instanceof Indicator)
 				((Indicator) object).calculate();
 			else if (object instanceof Overlay)
 				((Overlay) object).calculate();

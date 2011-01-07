@@ -10,19 +10,17 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.chartsy.main.ChartFrame;
-import org.chartsy.main.ChartProperties;
+import org.chartsy.main.ChartFrameAdapter;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.Dataset;
-import org.chartsy.main.events.DatasetEvent;
-import org.chartsy.main.events.DatasetListener;
-import org.chartsy.main.events.LogEvent;
-import org.chartsy.main.events.LogListener;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 import org.chartsy.main.utils.XMLUtil;
@@ -35,21 +33,21 @@ import org.w3c.dom.Element;
  *
  * @author viorel.gheba
  */
-public abstract class Indicator
-        implements Serializable, DatasetListener, LogListener, XMLTemplate
+public abstract class Indicator extends ChartFrameAdapter
+        implements Serializable, XMLTemplate
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     public static final int DEFAULT_HEIGHT = 150;
-    protected Dataset dataset;
-    protected LinkedHashMap<String, Dataset> datasets;
+    protected String datasetKey;
+    protected HashMap<String, Dataset> datasets;
     protected boolean maximized = true;
-    private boolean logarithmic = false;
     private int maximizedHeight = DEFAULT_HEIGHT;
+	protected boolean active = true;
 
     public Indicator()
     {
-        datasets = new LinkedHashMap<String, Dataset>();
+        datasets = new HashMap<String, Dataset>();
     }
 
     public void setMaximizedHeight(int height)
@@ -78,130 +76,102 @@ public abstract class Indicator
         maximized = b;
     }
 
-    public boolean isLogarithmic()
+    protected Dataset getDataset()
     {
-        return logarithmic;
+        return DatasetUsage.getInstance().getDatasetFromMemory(datasetKey);
     }
 
-    public void setLogarithmic(boolean b)
+    public void setDatasetKey(String datasetKey)
     {
-        logarithmic = b;
+        this.datasetKey = datasetKey;
     }
 
-    public Dataset getDataset()
+    protected void addDataset(String key, Dataset value)
     {
-        if (logarithmic)
-        {
-            return Dataset.LOG(dataset);
-        }
-        return dataset;
+		datasets.put(key, value);
     }
 
-    public void setDataset(Dataset d)
+    protected Dataset getDataset(String key)
     {
-        dataset = d;
+		return datasets.get(key);
     }
 
-    public void addDataset(String key, Dataset value)
-    {
-        datasets.put(key, value);
-    }
-
-    public Dataset getDataset(String key)
-    {
-        return datasets.get(key);
-    }
+	protected boolean datasetExists(String key)
+	{
+		return datasets.containsKey(key);
+	}
 
     public Dataset visibleDataset(ChartFrame cf, String key)
     {
-        if (datasets.containsKey(key))
-        {
-            Dataset d = getDataset(key);
-            if (d == null)
-            {
-                return null;
-            }
+		if (datasets.containsKey(key))
+		{
+			Dataset d = getDataset(key);
+			if (d == null)
+			{
+				return null;
+			}
 
-            Dataset v = d.getVisibleDataset(cf.getChartData().getPeriod(), cf.getChartData().getLast());
-            return v;
-        }
-        return null;
+			Dataset v = d.getVisibleDataset(cf.getChartData().getPeriod(), cf.getChartData().getLast());
+			return v;
+		}
+		return null;
     }
 
-    public void removeDatasets()
+    public void clearDatasets()
     {
-        datasets.clear();
+		datasets.clear();
     }
 
     public abstract String getName();
-
     public abstract String getLabel();
-
     public abstract String getPaintedLabel(ChartFrame cf);
-
     public abstract Indicator newInstance();
-
     public abstract LinkedHashMap getHTML(ChartFrame cf, int i);
 
     public Range getRange(ChartFrame cf)
     {
-        if (datasets.values().isEmpty())
-        {
-            return new Range();
-        }
+		if (datasets.values().isEmpty())
+		{
+			return new Range();
+		}
 
-        Range range = null;
-        Iterator<String> it = datasets.keySet().iterator();
+		Range range = null;
+		Iterator<String> it = datasets.keySet().iterator();
 
-        while (it.hasNext())
-        {
-            Dataset d = visibleDataset(cf, it.next());
+		while (it.hasNext())
+		{
+			Dataset d = visibleDataset(cf, it.next());
 
-            double min = d.getMin(Dataset.CLOSE_PRICE);
-            double max = d.getMax(Dataset.CLOSE_PRICE);
+			double min = d.getMin(Dataset.CLOSE_PRICE);
+			double max = d.getMax(Dataset.CLOSE_PRICE);
 
-            if (range == null)
-            {
-                range = new Range(min - (max - min) * 0.01, max + (max - min) * 0.01);
-            } else
-            {
-                range = Range.combine(range, new Range(min - (max - min) * 0.01, max + (max - min) * 0.01));
-            }
-        }
+			if (range == null)
+			{
+				range = new Range(min - (max - min) * 0.01, max + (max - min) * 0.01);
+			} else
+			{
+				range = Range.combine(range, new Range(min - (max - min) * 0.01, max + (max - min) * 0.01));
+			}
+		}
 
-        return range;
+		return range;
     }
 
     public abstract void paint(Graphics2D g, ChartFrame cf, Rectangle bounds);
-
     public abstract void calculate();
-
     public abstract boolean hasZeroLine();
-
     public abstract boolean getZeroLineVisibility();
-
     public abstract Color getZeroLineColor();
-
     public abstract Stroke getZeroLineStroke();
-
     public abstract boolean hasDelimiters();
-
     public abstract boolean getDelimitersVisibility();
-
     public abstract double[] getDelimitersValues();
-
     public abstract Color getDelimitersColor();
-
     public abstract Stroke getDelimitersStroke();
-
     public abstract Color[] getColors();
-
     public abstract double[] getValues(ChartFrame cf);
-
     public abstract double[] getValues(ChartFrame cf, int i);
-
     public abstract boolean getMarkerVisibility();
-
     public abstract AbstractNode getNode();
 
     public boolean paintValues()
@@ -272,7 +242,7 @@ public abstract class Indicator
         ChartData cd = cf.getChartData();
         int count = dataset.getItemsCount();
 
-        double x, dx, y = cd.getY(min, bounds, range);
+        double x, dx, y = cd.getY(min, bounds, range, false);
         Range newRange = new Range(min, max);
 
         g.setColor(color);
@@ -283,8 +253,8 @@ public abstract class Indicator
                 double value1 = dataset.getCloseAt(i - 1);
                 double value2 = dataset.getCloseAt(i);
 
-                Point2D p1 = cd.getPoint(i - 1, value1, range, bounds);
-                Point2D p2 = cd.getPoint(i, value2, range, bounds);
+                Point2D p1 = cd.getPoint(i - 1, value1, range, bounds, false);
+                Point2D p2 = cd.getPoint(i, value2, range, bounds, false);
 
                 if (!newRange.contains(value1) && newRange.contains(value2))
                 {
@@ -322,22 +292,6 @@ public abstract class Indicator
         }
     }
 
-    public void datasetChanged(DatasetEvent evt)
-    {
-        synchronized (this)
-        {
-            ChartData cd = (ChartData) evt.getSource();
-            setDataset(cd.getDataset(false));
-            calculate();
-        }
-    }
-
-    public void fire(LogEvent evt)
-    {
-        ChartProperties cp = (ChartProperties) evt.getSource();
-        logarithmic = cp.getAxisLogarithmicFlag();
-    }
-
     public void saveToTemplate(Document document, Element element)
     {
         AbstractPropertiesNode node = (AbstractPropertiesNode) getNode();
@@ -371,25 +325,29 @@ public abstract class Indicator
                 field.setAccessible(true);
                 if (field.getModifiers() == Modifier.PRIVATE)
                 {
-                    if (field.getType().equals(String.class))
-                    {
-                        field.set(listener, XMLUtil.getStringProperty(element, field.getName()));
-                    } else if (field.getType().equals(int.class))
-                    {
-                        field.set(listener, XMLUtil.getIntegerProperty(element, field.getName()));
-                    } else if (field.getType().equals(double.class))
-                    {
-                        field.set(listener, XMLUtil.getDoubleProperty(element, field.getName()));
-                    } else if (field.getType().equals(float.class))
-                    {
-                        field.set(listener, XMLUtil.getFloatProperty(element, field.getName()));
-                    } else if (field.getType().equals(boolean.class))
-                    {
-                        field.set(listener, XMLUtil.getBooleanProperty(element, field.getName()));
-                    } else if (field.getType().equals(Color.class))
-                    {
-                        field.set(listener, XMLUtil.getColorProperty(element, field.getName()));
-                    }
+					if (XMLUtil.elementExists(element, field.getName()))
+					{
+						Class type = field.getType();
+						if (type.equals(String.class))
+						{
+							field.set(listener, XMLUtil.getStringProperty(element, field.getName()));
+						} else if (type.equals(int.class))
+						{
+							field.set(listener, XMLUtil.getIntegerProperty(element, field.getName()));
+						} else if (type.equals(double.class))
+						{
+							field.set(listener, XMLUtil.getDoubleProperty(element, field.getName()));
+						} else if (type.equals(float.class))
+						{
+							field.set(listener, XMLUtil.getFloatProperty(element, field.getName()));
+						} else if (type.equals(boolean.class))
+						{
+							field.set(listener, XMLUtil.getBooleanProperty(element, field.getName()));
+						} else if (type.equals(Color.class))
+						{
+							field.set(listener, XMLUtil.getColorProperty(element, field.getName()));
+						}
+					}
                 }
             } catch (Exception ex)
             {
@@ -397,4 +355,22 @@ public abstract class Indicator
             }
         }
     }
+
+	public void setActive(boolean active)
+	{
+		this.active = active;
+	}
+
+	public boolean isActive()
+	{
+		return active;
+	}
+
+	@Override
+	public void datasetKeyChanged(String datasetKey)
+	{
+		setDatasetKey(datasetKey);
+		calculate();
+	}
+
 }

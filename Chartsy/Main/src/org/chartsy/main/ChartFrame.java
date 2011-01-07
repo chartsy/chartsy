@@ -2,8 +2,9 @@ package org.chartsy.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
@@ -12,29 +13,34 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
-import javax.swing.BoundedRangeModel;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.SwingConstants;
+import javax.swing.event.EventListenerList;
 import org.chartsy.main.chart.Annotation;
+import org.chartsy.main.chart.Chart;
+import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.events.DataProviderEvent;
 import org.chartsy.main.events.DataProviderListener;
-import org.chartsy.main.events.StockEvent;
 import org.chartsy.main.history.History;
 import org.chartsy.main.history.HistoryItem;
 import org.chartsy.main.intervals.Interval;
-import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.CacheManager;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.templates.Template;
 import org.chartsy.main.utils.ChartNode;
+import org.chartsy.main.utils.GraphicsUtils;
 import org.chartsy.main.utils.MainActions;
 import org.chartsy.main.utils.SerialVersion;
 import org.netbeans.api.progress.ProgressHandle;
@@ -42,7 +48,9 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.AbstractNode;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
@@ -53,138 +61,92 @@ import org.openide.windows.WindowManager;
  *
  * @author viorel.gheba
  */
-public class ChartFrame extends TopComponent implements AdjustmentListener, MouseWheelListener, DataProviderListener
+public class ChartFrame extends TopComponent
+	implements AdjustmentListener, MouseWheelListener, DataProviderListener
 {
-
-    private static ChartFrame instance;
-    private static final String PREFERRED_ID = "ChartFrame";
-    public static final Logger LOG = Logger.getLogger(ChartFrame.class.getName());
-    private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
-    private History history = null;
-    private ChartProperties chartProperties = null;
-    private ChartToolbar chartToolbar = null;
-    private ChartData chartData = null;
-    private MainPanel mainPanel = null;
-    private JScrollBar scrollBar = null;
-    private Template template = null;
-    private boolean restored = false;
-    private boolean focus = true;
-    private boolean loadingFlag = false;
-
-    public static synchronized ChartFrame getDefault()
-    {
-        if (instance == null)
-        {
-            instance = new ChartFrame();
-        }
-        return instance;
-    }
-
-    public static synchronized ChartFrame findInstance()
-    {
-        TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
-        if (win == null)
-        {
-            return getDefault();
-        }
-        if (win instanceof ChartFrame)
-        {
-            return (ChartFrame) win;
-        }
-        return getDefault();
-    }
 
     public ChartFrame()
     {
+		int id = ID.incrementAndGet();
+		PREFERRED_ID = NbBundle.getMessage(ChartFrame.class, "ID_ChartFrame", Integer.toString(id));
+		storeLastID();
+
+		setLayout(new BorderLayout());
+		setName(NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
+		setToolTipText(NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
+
+		chartProperties = new ChartProperties();		
+		history = new History();
     }
 
-    public ChartFrame(ChartData data)
-    {
-        setLayout(new BorderLayout());
-        chartData = data;
-        if (!chartData.isStockNull())
-        {
-            setName(
-                    NbBundle.getMessage(
-                    ChartFrame.class,
-                    "CTL_ChartFrame",
-                    chartData.getStock().getKey()));
-            setToolTipText(
-                    NbBundle.getMessage(
-                    ChartFrame.class,
-                    "TOOL_ChartFrame",
-                    chartData.getStock().getCompanyName()));
-        } else
-        {
-            setName(
-                    NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
-            setToolTipText(
-                    NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
-        }
-        chartData.getDataProvider().addDatasetListener((DataProviderListener) this);
-        addMouseWheelListener((MouseWheelListener) this);
-    }
-
-    public ChartFrame(ChartData chartData, Template template)
-    {
-        this(chartData);
-        this.template = template;
-    }
+	public ChartFrame(String id)
+	{
+		PREFERRED_ID = id;
+		setLayout(new BorderLayout());
+		setName(NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrameEmpty"));
+		setToolTipText(NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
+	}
 
     private synchronized void initComponents()
     {
-        setLayout(new BorderLayout());
-        if (!restored)
-        {
-            if (chartProperties == null)
-            {
-                chartProperties = new ChartProperties();
-            }
-            if (history == null)
-            {
-                history = new History();
-                history.initialize();
-            }
-        } else
-        {
-            chartProperties.setMarkerVisibility(true);
-        }
+		setOpaque(false);
+		setDoubleBuffered(true);
 
         chartToolbar = new ChartToolbar(this);
         mainPanel = new MainPanel(this);
-        scrollBar = initHorizontalScrollBar();
+		scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
+        scrollBar.setAlignmentX(java.awt.Component.RIGHT_ALIGNMENT);
 
-        add(chartToolbar, BorderLayout.NORTH);
+		add(chartToolbar, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
 
-        if (restored)
-        {
-            getSplitPanel().getIndicatorsPanel().setIndicatorsList(chartData.getSavedIndicators());
+		if (restored)
+		{
+			chartProperties.setMarkerVisibility(true);
+
+			for (Overlay overlay : chartData.getSavedOverlays())
+				overlayAdded(overlay);
+			for (Indicator indicator : chartData.getSavedIndicators())
+				indicatorAdded(indicator);
+			restoreAnnotations();
+
             chartData.clearSavedIndicators();
-            getSplitPanel().getChartPanel().setOverlays(chartData.getSavedOverlays());
             chartData.clearSavedOverlays();
-            restoreAnnotations();
             chartData.clearAnnotations();
             chartData.clearAnnotationsCount();
-        } else
-        {
-            if (template != null)
-            {
-                chartProperties = template.getChartProperties();
-                getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
-                getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
-            }
-        }
 
-        history.setCurrent(new HistoryItem(
+			setRestored(false);
+		} else
+		{
+			HistoryItem historyItem = new HistoryItem(
                 chartData.getStock(),
-                chartData.getInterval().hashCode()));
+                chartData.getInterval());
+			history.setCurrent(historyItem);
 
-        setRestored(false);
+			if (template != null)
+			{
+				EventQueue.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						List<Overlay> overlays = template.getOverlays();
+						for (int i = 0; i < overlays.size(); i++)
+							overlayAdded(overlays.get(i));
+						List<Indicator> indicators = template.getIndicators();
+						for (int i = 0; i < indicators.size(); i++)
+							indicatorAdded(indicators.get(i));
+					}
+				});
+			}
+		}
 
-        revalidate();
-        componentFocused();
+		DatasetUsage.getInstance().addDataProviderListener(this);
+		addMouseWheelListener((MouseWheelListener) this);
+		scrollBar.addAdjustmentListener((AdjustmentListener) this);
+
+		initialized = true;
     }
 
     public Template getTemplate()
@@ -195,20 +157,24 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
     public void setTemplate(Template template)
     {
         this.template = template;
-        this.chartProperties = template.getChartProperties();
+        this.chartProperties.copyFrom(template.getChartProperties());
 
-        // indicators
-        getSplitPanel().getIndicatorsPanel().removeAllIndicators();
-        getChartData().removeAllIndicatorsDatasetListeners();
-        getSplitPanel().getIndicatorsPanel().setIndicatorsList(template.getIndicators());
+		if (initialized)
+		{
+			List<Overlay> overlays = getSplitPanel().getChartPanel().getOverlays();
+			for (int i = 0; i < overlays.size(); i++)
+				overlayRemoved(overlays.get(i));
+			overlays = template.getOverlays();
+			for (int i = 0; i < overlays.size(); i++)
+				overlayAdded(overlays.get(i));
 
-        // overlays
-        getSplitPanel().getChartPanel().clearOverlays();
-        getChartData().removeAllOverlaysDatasetListeners();
-        getSplitPanel().getChartPanel().setOverlays(template.getOverlays());
-
-        revalidate();
-        repaint();
+			List<Indicator> indicators = getSplitPanel().getIndicatorsPanel().getIndicatorsList();
+			for (int i = 0; i < indicators.size(); i++)
+				indicatorRemoved(indicators.get(i));
+			indicators = template.getIndicators();
+			for (int i = 0; i < indicators.size(); i++)
+				indicatorAdded(indicators.get(i));
+		}
     }
 
     public boolean getRestored()
@@ -248,7 +214,13 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public void setChartData(ChartData data)
     {
+		if (data == null)
+			throw new IllegalArgumentException("ChartData shouldn't be null");
         chartData = data;
+		addChartFrameListener(data);
+		Stock stock = chartData.getStock();
+		setName(NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrame", stock.getKey()));
+		setToolTipText(NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrame", stock.getCompanyName()));
     }
 
     public History getHistory()
@@ -268,13 +240,7 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public ChartSplitPanel getSplitPanel()
     {
-        if (mainPanel != null)
-        {
-            return mainPanel.getSplitPanel();
-        } else
-        {
-            return null;
-        }
+        return mainPanel.getSplitPanel();
     }
 
     public boolean hasCurrentAnnotation()
@@ -377,38 +343,30 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
     public JPopupMenu getMenu()
     {
-        JPopupMenu popup = new JPopupMenu();
-        popup.add(MainActions.generateIntervalsMenu(this)); // change interval
-        popup.add(MainActions.generateChartsMenu(this)); // change chart
-        popup.add(new JMenuItem(MainActions.openIndicators(this))); // add indicators
-        popup.add(new JMenuItem(MainActions.openOverlays(this))); // add overlays
-        popup.add(MainActions.generateAnnotationsMenu(this)); // add annotation
-        popup.add(new JMenuItem(MainActions.exportImage(this))); // export image
-        popup.add(new JMenuItem(MainActions.printChart(this))); // print
-        popup.add(new JMenuItem(MainActions.chartProperties(this))); // chart settings
-        popup.add(new JMenuItem(MainActions.toggleToolbarVisibility(this))); // hide/show toolbar
-        if (!MainActions.isInFavorites(this))
-        {
-            popup.add(new JMenuItem(MainActions.addToFavorites(this))); // add to favorites
-        }
-        popup.add(MainActions.generateTemplatesMenu(this)); // save to template
-        return popup;
-    }
+		if (popupMenu == null)
+		{
+			popupMenu = new JPopupMenu();
+			popupMenu.add(MainActions.generateIntervalsMenu(this)); // change interval
+			popupMenu.add(MainActions.generateChartsMenu(this)); // change chart
+			popupMenu.add(new JMenuItem(MainActions.openIndicators(this))); // add indicators
+			popupMenu.add(new JMenuItem(MainActions.openOverlays(this))); // add overlays
+			popupMenu.add(MainActions.generateAnnotationsMenu(this)); // add annotation
+			popupMenu.add(new JMenuItem(MainActions.exportImage(this))); // export image
+			popupMenu.add(new JMenuItem(MainActions.printChart(this))); // print
+			popupMenu.add(new JMenuItem(MainActions.chartProperties(this))); // chart settings
+			popupMenu.add(new JMenuItem(MainActions.joinToConference(this))); // join to symbol conference
+			popupMenu.add(new JMenuItem(MainActions.addToFavorites(this))); // add to favorites
+			popupMenu.add(new JMenuItem(MainActions.toggleToolbarVisibility(this))); // hide/show toolbar
+			popupMenu.add(MainActions.generateTemplatesMenu(this)); // save to template
 
-    public void zoomIn()
-    {
-        if (chartData != null)
-        {
-            chartData.zoomIn(this);
-        }
-    }
-
-    public void zoomOut()
-    {
-        if (chartData != null)
-        {
-            chartData.zoomOut(this);
-        }
+			popupMenu.getComponent(8).setVisible(false);
+			popupMenu.getComponent(9).setVisible(false);
+		}
+		if (NbPreferences.root().node("/org/chartsy/chat").getBoolean("loggedin", false))
+			popupMenu.getComponent(8).setVisible(true);
+		if (!MainActions.isInFavorites(this))
+			popupMenu.getComponent(9).setVisible(true);
+        return popupMenu;
     }
 
     public void setToolbarVisibility()
@@ -423,6 +381,12 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             chartToolbar.updateToolbar();
         }
     }
+
+	@Override
+	public void update(Graphics g)
+	{
+		paint(g);
+	}
 
     @Override
     public int getPersistenceType()
@@ -442,20 +406,27 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         return new ResolvableHelper(this);
     }
 
+	@Override
+	protected void componentClosed()
+	{
+		super.componentClosed();
+		DatasetUsage.getInstance().removeDataProviderListener(this);
+		String key = chartData.getDatasetKey();
+		DatasetUsage.getInstance().chartClosed(key);
+	}
+
     @Override
     protected void componentOpened()
     {
         super.componentOpened();
         if (chartData != null)
-        {
-            loading(chartData.getStock(), true);
-        }
+            loading(chartData.getStock(), chartData.getInterval(), true);
     }
 
     @Override
     protected void componentActivated()
     {
-        super.componentActivated();
+		super.componentActivated();
         componentFocused();
     }
 
@@ -470,25 +441,18 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         }
     }
 
-    private JScrollBar initHorizontalScrollBar()
-    {
-        JScrollBar bar = new JScrollBar(JScrollBar.HORIZONTAL);
-
-        int end = chartData.getLast();
-        int items = chartData.getPeriod();
-
-        BoundedRangeModel model = bar.getModel();
-        model.setExtent(items);
-        model.setMinimum(0);
-        model.setMaximum(end);
-        model.setValue(end - items);
-        bar.setModel(model);
-
-        bar.setAlignmentX(java.awt.Component.RIGHT_ALIGNMENT);
-        bar.addAdjustmentListener((AdjustmentListener) this);
-
-        return bar;
-    }
+	public void resetHorizontalScrollBar()
+	{
+		chartData.setPeriod(-1);
+		chartData.setLast(-1);
+		chartData.calculate(this);
+		int last = getChartData().getLast();
+		int items = getChartData().getPeriod();
+		scrollBar.getModel().setExtent(items);
+		scrollBar.getModel().setMinimum(0);
+		scrollBar.getModel().setMaximum(last);
+		scrollBar.getModel().setValue(last - items);
+	}
 
     public void updateHorizontalScrollBar()
     {
@@ -525,11 +489,12 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         }
     }
 
+	@Override
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
         int items = getChartData().getPeriod();
         int itemsCount = getChartData().getDataset().getItemsCount();
-        int end = scrollBar.getModel().getValue() + items;
+        int end = e.getValue() + items;
 
         end = end > itemsCount ? itemsCount : (end < items ? items : end);
 
@@ -538,9 +503,10 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
             getChartData().setLast(end);
             getChartData().calculate(this);
         }
-        repaint();
+		repaint();
     }
 
+	@Override
     public void mouseWheelMoved(MouseWheelEvent e)
     {
         if (!getChartData().isDatasetNull())
@@ -561,341 +527,195 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
         }
     }
 
-    public void triggerDataProviderListener(DataProviderEvent evt)
-    {
-        if (!loadingFlag)
-        {
-            Stock source = (Stock) evt.getSource();
-            if (source.equals(getChartData().getStock()))
-            {
-                String provider = getChartData().getDataProvider().getName();
-                DataProvider dataProvider = DataProviderManager.getDefault().getDataProvider(provider);
-                Dataset newDataset = dataProvider.getDataset(dataProvider.getKey(source, getChartData().getInterval()));
-
-                if (newDataset != null)
-                {
-                    getChartData().setDataset(newDataset);
-                    getChartData().updateDataset();
-
-                    int last = getChartData().getLast();
-                    int items = newDataset.getItemsCount();
-                    if (last + 1 == items)
-                    {
-                        getChartData().setLast(items);
-                    }
-                    repaint();
-                }
-            }
-        }
-    }
-
     public BufferedImage getBufferedImage(int width, int height)
     {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D g = image.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
+        Graphics2D g = GraphicsUtils.prepareGraphics(image.createGraphics());
         g.setColor(chartProperties.getBackgroundColor());
         g.fillRect(0, 0, width, height);
-
         mainPanel.paintComponents(g);
-
         g.dispose();
-
         return image;
     }
 
     public AbstractNode getNode()
     {
-        return new ChartNode(chartProperties);
+		if (node == null)
+			node = new ChartNode(chartProperties);
+        return node;
     }
 
-    private void reinitialize()
+    private void loading(final Stock stock, final Interval interval, final boolean newChart)
     {
-        chartData.setSavedIndicators(getSplitPanel().getIndicatorsPanel().getIndicatorsList());
-        chartData.setSavedOverlays(getSplitPanel().getChartPanel().getOverlays());
-        chartData.setAnnotationsCount(getAnnotationCount());
-        chartData.setAnnotations(getAnnotations());
-        chartData.removeAllIndicatorsDatasetListeners();
-        chartData.removeAllOverlaysDatasetListeners();
-        setRestored(true);
-        remove(chartToolbar);
-        remove(mainPanel);
-        remove(scrollBar);
+		if (!newChart)
+		{
+			oldStock = chartData.getStock();
+			chartData.setStock(stock);
+			oldInterval = chartData.getInterval();
+			chartData.setInterval(interval);
+			chartToolbar.setVisible(false);
+			mainPanel.setVisible(false);
+			scrollBar.setVisible(false);
+			revalidate();
+			repaint();
+		}
+		
+		final DataProvider dataProvider = getChartData().getDataProvider();
+		final String key = dataProvider.getDatasetKey(stock, interval);
+		final JLabel loading = getLoadingLabel(stock);
+
+		final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), new Cancellable()
+		{
+			@Override
+			public boolean cancel()
+			{
+				if (task == null)
+					return true;
+				return task.cancel();
+			}
+		});
+
+		final Runnable runnable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				loadingError = false;
+				handle.start();
+				handle.switchToIndeterminate();
+				add(loading, BorderLayout.CENTER);
+				try
+				{
+					if (!DatasetUsage.getInstance().isDatasetInMemory(key))
+					{
+						dataProvider.fetchDataset(stock, interval);
+					} else
+					{
+						Dataset dataset = DatasetUsage.getInstance().getDatasetFromMemory(key);
+						if (dataset.getItemsCount() < 3)
+							dataProvider.fetchDataset(stock, interval);
+					}
+				} catch (Exception ex)
+				{
+					loadingError = true;
+				}
+			}
+		};
+
+		task = RP.create(runnable);
+		task.addTaskListener(new TaskListener()
+		{
+			@Override
+			public void taskFinished(Task task)
+			{
+				handle.finish();
+				if (!loadingError)
+				{
+					DatasetUsage.getInstance().fetchDataset(key);
+					DatasetUsage.getInstance().addDatasetUpdater(dataProvider.getName(), stock, interval);
+					datasetKeyChanged(key);
+					remove(loading);
+					if (!newChart)
+					{
+						HistoryItem item = new HistoryItem(stock, interval);
+						history.setCurrent(item);
+						DatasetUsage.getInstance().chartClosed(
+							dataProvider.getDatasetKey(oldStock, oldInterval));
+						resetHorizontalScrollBar();
+						chartToolbar.setVisible(true);
+						chartToolbar.updateToolbar();
+						mainPanel.setVisible(true);
+						scrollBar.setVisible(true);
+					} else
+					{
+						initComponents();
+					}
+				} else
+				{
+					if (stock.hasCompanyName())
+					{
+						loading.setText(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoDataNew", stock.getCompanyName()));
+					} else
+					{
+						loading.setText(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoDataNew", stock.getKey()));
+					}
+					if (!newChart)
+						showConfirmation(stock, loading);
+				}
+				revalidate();
+				repaint();
+			}
+		});
+		task.schedule(0);
     }
 
-    public void changeDataset(final Stock stock, final Interval interval, final boolean newChart)
-    {
-        try
-        {
-            final DataProvider dataProvider = getChartData().getDataProvider();
-            final JLabel loading = new JLabel(
-                    NbBundle.getMessage(
-                    ChartFrame.class,
-                    "LBL_Loading",
-                    stock.getCompanyName().equals("")
-                    ? stock.getKey()
-                    : stock.getCompanyName()),
-                    ResourcesUtils.getLogo(),
-                    SwingConstants.CENTER);
-            loading.setOpaque(true);
-            loading.setBackground(Color.WHITE);
-            loading.setVerticalTextPosition(SwingConstants.BOTTOM);
-            loading.setHorizontalTextPosition(SwingConstants.CENTER);
+	private JLabel getLoadingLabel(Stock stock)
+	{
+		String text;
+		text = NbBundle.getMessage(ChartFrame.class, "LBL_Loading", stock.getKey());
+		ImageIcon logo = ResourcesUtils.getLogo();
+		JLabel loading = new JLabel(text, logo, SwingConstants.CENTER);
+		loading.setOpaque(true);
+		loading.setBackground(Color.WHITE);
+		loading.setVerticalTextPosition(SwingConstants.BOTTOM);
+		loading.setHorizontalTextPosition(SwingConstants.CENTER);
+		return loading;
+	}
 
-            this.getChartData().removeDataset();
+	private void showConfirmation(final Stock stock, final JLabel loading)
+	{
+		NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation("");
+		descriptor.setTitle("No Data");
+		if (stock.hasCompanyName())
+		{
+			descriptor.setMessage(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoData", stock.getCompanyName()));
+		} else
+		{
+			descriptor.setMessage(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoData", stock.getKey()));
+		}
+		descriptor.setOptionType(NotifyDescriptor.YES_NO_OPTION);
+		Object retval = DialogDisplayer.getDefault().notify(descriptor);
+		if (retval.equals(NotifyDescriptor.YES_OPTION))
+		{
+			remove(loading);
+			DataProvider dataProvider = getChartData().getDataProvider();
+			chartData.setDatasetKey(dataProvider.getDatasetKey(oldStock, oldInterval));
+			chartData.setStock(oldStock);
+			chartData.setInterval(oldInterval);
+			resetHorizontalScrollBar();
+			chartToolbar.setVisible(true);
+			mainPanel.setVisible(true);
+			scrollBar.setVisible(true);
+			revalidate();
+			oldStock = null;
+			oldInterval = null;
+		}
+	}
 
-            final RequestProcessor.Task task = RP.create(new Runnable()
-            {
-
-                @Override
-                public void run()
-                {
-                    if (!newChart)
-                    {
-                        reinitialize();
-                    }
-                    add(loading, BorderLayout.CENTER);
-                    DataProviderManager.getDefault().update(stock, interval, dataProvider);
-                }
-            });
-
-            final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
-            task.addTaskListener(new TaskListener()
-            {
-
-                @Override
-                public void taskFinished(Task task)
-                {
-                    if (DataProviderManager.getDefault().isUpdated())
-                    {
-                        handle.finish();
-                        DataProviderManager.getDefault().setUpdated(false);
-                        Dataset dataset = dataProvider.getDataset(stock, interval);
-                        if (dataset != null)
-                        {
-                            loadingFlag = false;
-                            remove(loading);
-                            getChartData().setDataset(dataset);
-                            getChartData().setInterval(interval);
-                            initComponents();
-                        } else
-                        {
-                            loading.setText(NbBundle.getMessage(
-                                    ChartFrame.class,
-                                    "LBL_LoadingNoDataNew",
-                                    stock.getCompanyName().equals("")
-                                    ? stock.getKey()
-                                    : stock.getCompanyName()));
-
-                            if (!newChart)
-                            {
-                                NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
-                                        NbBundle.getMessage(
-                                        ChartFrame.class,
-                                        "LBL_LoadingNoData",
-                                        stock.getCompanyName().equals("")
-                                        ? stock.getKey()
-                                        : stock.getCompanyName()),
-                                        "No Data",
-                                        NotifyDescriptor.YES_NO_OPTION);
-                                Object retval = DialogDisplayer.getDefault().notify(descriptor);
-                                if (retval.equals(NotifyDescriptor.YES_OPTION))
-                                {
-                                    remove(loading);
-                                    getChartData().setStock(oldStock);
-                                    getChartData().updateDataset(oldInterval);
-                                    initComponents();
-                                    oldStock = null;
-                                    oldInterval = null;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            Dataset dataset = dataProvider.getDataset(stock, interval);
-            if (dataset == null)
-            {
-                loadingFlag = true;
-                handle.start();
-                task.schedule(0);
-            } else
-            {
-                if (dataset.getItemsCount() >= 2)
-                {
-                    if (!newChart)
-                    {
-                        reinitialize();
-                    }
-                    getChartData().setDataset(dataset);
-                    getChartData().setInterval(interval);
-                    initComponents();
-                } else
-                {
-                    handle.start();
-                    task.schedule(0);
-                }
-            }
-        } catch (Exception ex)
-        {
-            LOG.log(Level.WARNING, ex.getMessage());
-        }
-    }
-
-    private void loading(final Stock newStock, final boolean newChart)
-    {
-        try
-        {
-            final DataProvider dataProvider = getChartData().getDataProvider();
-            final Interval interval = getChartData().getInterval();
-
-            final JLabel loading = new JLabel(
-                    NbBundle.getMessage(
-                    ChartFrame.class,
-                    "LBL_Loading",
-                    newStock.getCompanyName().equals("")
-                    ? newStock.getKey()
-                    : newStock.getCompanyName()),
-                    ResourcesUtils.getLogo(),
-                    SwingConstants.CENTER);
-            loading.setOpaque(true);
-            loading.setBackground(Color.WHITE);
-            loading.setVerticalTextPosition(SwingConstants.BOTTOM);
-            loading.setHorizontalTextPosition(SwingConstants.CENTER);
-
-            final RequestProcessor.Task task = RP.create(new Runnable()
-            {
-
-                @Override
-                public void run()
-                {
-                    if (!newChart)
-                    {
-                        reinitialize();
-                    }
-                    add(loading, BorderLayout.CENTER);
-                    DataProviderManager.getDefault().update(newStock, interval, dataProvider);
-                }
-            });
-
-            final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), task);
-            task.addTaskListener(new TaskListener()
-            {
-
-                @Override
-                public void taskFinished(Task task)
-                {
-                    if (DataProviderManager.getDefault().isUpdated())
-                    {
-                        handle.finish();
-                        DataProviderManager.getDefault().setUpdated(false);
-                        Dataset dataset = dataProvider.getDataset(newStock, interval);
-                        if (dataset != null)
-                        {
-                            loadingFlag = false;
-                            remove(loading);
-                            getChartData().setDataset(dataset);
-                            getChartData().setInterval(interval);
-                            initComponents();
-                        } else
-                        {
-                            loading.setText(NbBundle.getMessage(
-                                    ChartFrame.class,
-                                    "LBL_LoadingNoDataNew",
-                                    newStock.getCompanyName().equals("")
-                                    ? newStock.getKey()
-                                    : newStock.getCompanyName()));
-
-                            if (!newChart)
-                            {
-                                NotifyDescriptor descriptor = new NotifyDescriptor.Confirmation(
-                                        NbBundle.getMessage(
-                                        ChartFrame.class,
-                                        "LBL_LoadingNoData",
-                                        newStock.getCompanyName().equals("")
-                                        ? newStock.getKey()
-                                        : newStock.getCompanyName()),
-                                        "No Data",
-                                        NotifyDescriptor.YES_NO_OPTION);
-                                Object retval = DialogDisplayer.getDefault().notify(descriptor);
-                                if (retval.equals(NotifyDescriptor.YES_OPTION))
-                                {
-                                    remove(loading);
-                                    getChartData().setStock(oldStock);
-                                    getChartData().updateDataset(oldInterval);
-                                    initComponents();
-                                    oldStock = null;
-                                    oldInterval = null;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            Dataset dataset = dataProvider.getDataset(newStock, interval);
-            if (dataset == null)
-            {
-                loadingFlag = true;
-                handle.start();
-                task.schedule(0);
-            } else
-            {
-                if (dataset.getItemsCount() >= 2)
-                {
-                    if (!newChart)
-                    {
-                        reinitialize();
-                    }
-                    getChartData().setDataset(dataset);
-                    getChartData().setInterval(interval);
-                    initComponents();
-                } else
-                {
-                    handle.start();
-                    task.schedule(0);
-                }
-            }
-        } catch (Exception e)
-        {
-            LOG.log(Level.WARNING, e.getMessage());
-        }
-    }
-
-    public void stockChanged(StockEvent evt)
-    {
-        final HistoryItem historyItem = (HistoryItem) evt.getSource();
-        final Stock newStock = historyItem.getStock();
-        final Interval interval = DataProvider.getInterval(historyItem.getIntervalHash());
-
-        oldStock = getChartData().getStock();
-        oldInterval = getChartData().getInterval();
-
-        getChartData().setStock(newStock);
-        getChartData().setInterval(interval);
-        setName(NbBundle.getMessage(
-                ChartFrame.class,
-                "CTL_ChartFrame",
-                newStock.getKey()));
-        setToolTipText(NbBundle.getMessage(
-                ChartFrame.class,
-                "TOOL_ChartFrame",
-                newStock.getCompanyName()));
-        getSplitPanel().getChartPanel().updateStock();
-        loading(newStock, false);
-    }
-    private Stock oldStock = null;
-    private Interval oldInterval = null;
+	@Override
+	public void triggerDataProviderListener(DataProviderEvent evt)
+	{
+		String key = chartData.getDatasetKey();
+		if (key.equals((String) evt.getSource()))
+		{
+			int itemsAdded = evt.getItemsAdded();
+			int last = chartData.getLast();
+			datasetKeyChanged(key);
+			int count = chartData.getDataset().getItemsCount();
+			if (last == count - itemsAdded)
+				resetHorizontalScrollBar();
+			revalidate();
+			repaint();
+		}
+	}
 
     final static class ResolvableHelper implements Serializable
     {
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
+
+		private boolean error = false;
+		private String id;
         private ChartProperties chartProperties;
         private ChartData chartData;
         private String dataProvider;
@@ -905,37 +725,237 @@ public class ChartFrame extends TopComponent implements AdjustmentListener, Mous
 
         private ResolvableHelper(ChartFrame chartFrame)
         {
-            chartProperties = chartFrame.getChartProperties();
-            chartData = chartFrame.getChartData();
-            dataProvider = chartData.getDataProvider().getName();
+			if (!chartFrame.loadingError)
+			{
+				error = false;
+				id = chartFrame.preferredID();
+				chartProperties = chartFrame.getChartProperties();
+				chartProperties.clearPropertyChangeListenerList();
+				chartData = chartFrame.getChartData();
+				dataProvider = chartData.getDataProvider().getName();
 
-            chartData.setSavedIndicators(chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsList());
-            chartData.setSavedOverlays(chartFrame.getSplitPanel().getChartPanel().getOverlays());
-            chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
-            chartData.setAnnotations(chartFrame.getAnnotations());
+				chartData.setSavedIndicators(chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsList());
+				chartData.setSavedOverlays(chartFrame.getSplitPanel().getChartPanel().getOverlays());
+				chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
+				chartData.setAnnotations(chartFrame.getAnnotations());
 
-            currentHistoryItem = chartFrame.getHistory().getCurrent();
-            backList = chartFrame.getHistory().getBackHistoryList();
-            fwdList = chartFrame.getHistory().getFwdHistoryList();
+				currentHistoryItem = chartFrame.getHistory().getCurrent();
+				backList = chartFrame.getHistory().getBackHistoryList();
+				fwdList = chartFrame.getHistory().getFwdHistoryList();
+			} else
+				error = true;
         }
 
         public synchronized Object readResolve()
         {
-                DataProvider dp = DataProviderManager.getDefault().getDataProvider(dataProvider);
-                chartData.setDataProvider(dp);
+			if (!error)
+			{
+				chartData.setDataProviderName(dataProvider);
 
-                ChartFrame chartFrame = new ChartFrame(chartData);
-                chartFrame.setChartProperties(chartProperties);
+				ChartFrame chartFrame = new ChartFrame(id);
+				chartFrame.setChartData(chartData);
+				chartFrame.setChartProperties(chartProperties);
 
-                History history = new History();
-                history.initialize();
-                history.setCurrent(currentHistoryItem);
-                history.setBackHistoryList(backList);
-                history.setFwdHistoryList(fwdList);
-                chartFrame.setHistory(history);
+				History history = new History();
+				history.initialize();
+				history.setCurrent(currentHistoryItem);
+				history.setBackHistoryList(backList);
+				history.setFwdHistoryList(fwdList);
+				chartFrame.setHistory(history);
 
-                chartFrame.setRestored(true);
-                return chartFrame;
+				chartFrame.setRestored(true);
+				return chartFrame;
+			} else
+				return null;
         }
     }
+
+	private transient EventListenerList chartFrameListeners;
+
+	private EventListenerList listenerList()
+	{
+		if (chartFrameListeners == null)
+			chartFrameListeners = new EventListenerList();
+		return chartFrameListeners;
+	}
+
+	public void addChartFrameListener(ChartFrameListener listener)
+	{
+		listenerList().add(ChartFrameListener.class, listener);
+	}
+
+	public void removeChartFrameListener(ChartFrameListener listener)
+	{
+		listenerList().remove(ChartFrameListener.class, listener);
+	}
+
+	public void historyItemChanged(HistoryItem item)
+	{
+		Stock newStock = item.getStock();
+		Interval newInterval = item.getInterval();
+		loading(newStock, newInterval, false);
+	}
+
+	public void stockChanged(Stock newStock)
+	{
+		Interval interval = chartData.getInterval();
+		loading(newStock, interval, false);
+		
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.stockChanged(newStock);
+	}
+
+	public void intervalChanged(Interval newInterval)
+	{
+		Stock stock = chartData.getStock();
+		loading(stock, newInterval, false);
+
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.intervalChanged(newInterval);
+	}
+
+	public void chartChanged(Chart newChart)
+	{
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.chartChanged(newChart);
+	}
+
+	public void datasetKeyChanged(String datasetKey)
+	{
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.datasetKeyChanged(datasetKey);
+	}
+
+	public void overlayAdded(Overlay overlay)
+	{
+		addChartFrameListener(overlay);
+		overlay.setDatasetKey(chartData.getDatasetKey());
+		overlay.calculate();
+
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.overlayAdded(overlay);
+	}
+
+	public void overlayRemoved(Overlay overlay)
+	{
+		removeChartFrameListener(overlay);
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.overlayRemoved(overlay);
+	}
+
+	public void indicatorAdded(Indicator indicator)
+	{
+		addChartFrameListener(indicator);
+		indicator.setDatasetKey(chartData.getDatasetKey());
+		indicator.calculate();
+
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.indicatorAdded(indicator);
+	}
+
+	public void indicatorRemoved(Indicator indicator)
+	{
+		removeChartFrameListener(indicator);
+		ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+			listener.indicatorRemoved(indicator);
+	}
+
+	public void zoomIn()
+    {
+        ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+		{
+			double barWidth = chartProperties.getBarWidth();
+			double newWidth = listener.zoomIn(barWidth);
+			if (barWidth != newWidth)
+			{
+				chartProperties.setBarWidth(newWidth);
+				repaint();
+			}
+		}
+    }
+
+    public void zoomOut()
+    {
+        ChartFrameListener[] listeners = listenerList().getListeners(ChartFrameListener.class);
+		for (ChartFrameListener listener : listeners)
+		{
+			double barWidth = chartProperties.getBarWidth();
+			double newWidth = listener.zoomOut(barWidth);
+			if (barWidth != newWidth)
+			{
+				chartProperties.setBarWidth(newWidth);
+				repaint();
+			}
+		}
+    }
+
+	static
+	{
+		try
+		{
+			int id = CacheManager.getInstance().getLastChartFrameId();
+			ID = new AtomicInteger(id);
+		} catch (Exception ex)
+		{
+			ID = new AtomicInteger();
+		}
+	}
+
+	private static void storeLastID()
+	{
+		try { CacheManager.getInstance().cacheLastChartFrameId(ID.get());
+		} catch (Exception ex)
+		{}
+	}
+
+	public static synchronized ChartFrame getInstance()
+	{
+		ChartFrame chartFrame = new ChartFrame();
+		return chartFrame;
+	}
+
+    public static synchronized ChartFrame findInstance(String id)
+    {
+        TopComponent win = WindowManager.getDefault().findTopComponent(id);
+        if (win == null)
+            return getInstance();
+        if (win instanceof ChartFrame)
+            return (ChartFrame) win;
+        return getInstance();
+    }
+
+	private static AtomicInteger ID;
+    private static String PREFERRED_ID;
+    public static final Logger LOG = Logger.getLogger(ChartFrame.class.getName());
+    private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
+
+	private ChartProperties chartProperties;
+	private ChartData chartData;
+	private Template template;
+    private History history;
+	private transient AbstractNode node;
+
+    private ChartToolbar chartToolbar;
+    private MainPanel mainPanel;
+    private JScrollBar scrollBar;
+	private JPopupMenu popupMenu;
+
+	private boolean initialized = false;
+    private boolean restored = false;
+    private boolean focus = true;
+	boolean loadingError = false;
+
+	private Stock oldStock = null;
+    private Interval oldInterval = null;
+	private transient RequestProcessor.Task task;
+
 }
