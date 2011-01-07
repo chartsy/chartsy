@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.chatsy/1
+OpenIDE-Module-Install: org/chartsy/chatsy/Installer.class
+OpenIDE-Module-Layer: org/chartsy/chatsy/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/chatsy/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3.1
+
