@@ -44,7 +44,7 @@ public class Dots
                 double close = dataset.getCloseAt(i);
 
                 double x = cd.getX(i, rect);
-                double yClose = cd.getY(close, rect, range);
+                double yClose = cd.getY(close, rect, range, cp.getAxisLogarithmicFlag());
 
                 double dotWidth = cp.getBarWidth() < 4.0d ? cp.getBarWidth() : 4.0d;
                 double dotHeight = dotWidth;

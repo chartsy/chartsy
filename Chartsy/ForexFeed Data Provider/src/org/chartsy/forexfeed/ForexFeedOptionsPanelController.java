@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.chartsy.forexfeed;
 
 import java.beans.PropertyChangeListener;
@@ -14,6 +10,7 @@ import org.openide.LifecycleManager;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 @OptionsPanelController.SubRegistration(location = "DataFeeds",
 displayName = "#AdvancedOption_DisplayName_ForexFeed",
@@ -39,7 +36,8 @@ public final class ForexFeedOptionsPanelController extends OptionsPanelControlle
         if (changed)
         {
             Confirmation descriptor = new DialogDescriptor.Confirmation(
-                    "You need to restart Chartsy for the changes to take effect.\nDo you want to restart now?", "Restart");
+                    NbBundle.getMessage(getClass(), "restart.msg"),
+					NbBundle.getMessage(getClass(), "restart.title"));
             descriptor.setMessageType(DialogDescriptor.QUESTION_MESSAGE);
             descriptor.setOptions(new Object[]
                     {

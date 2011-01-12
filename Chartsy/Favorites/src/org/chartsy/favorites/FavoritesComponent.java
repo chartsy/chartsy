@@ -5,7 +5,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ActionMap;
@@ -17,7 +16,7 @@ import org.chartsy.main.events.DataProviderListener;
 import org.chartsy.main.favorites.FavoritesTreeView;
 import org.chartsy.main.favorites.nodes.RootAPI;
 import org.chartsy.main.favorites.nodes.RootAPINode;
-import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.DatasetUsage;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.SerialVersion;
 import org.openide.explorer.ExplorerManager;
@@ -77,9 +76,7 @@ public final class FavoritesComponent extends TopComponent
 		map.put("delete", ExplorerUtils.actionDelete(manager, true));
 		associateLookup(ExplorerUtils.createLookup(manager, map));
 
-		List<String> providers = DataProviderManager.getDefault().getDataProviders();
-		for (String provider : providers)
-			DataProviderManager.getDefault().getDataProvider(provider).addDatasetListener((DataProviderListener) this);
+		DatasetUsage.getInstance().addDataProviderListener((DataProviderListener) this);
     }
 
 	private void initComponents()
@@ -149,6 +146,7 @@ public final class FavoritesComponent extends TopComponent
 
 	public void triggerDataProviderListener(DataProviderEvent evt)
 	{
+		revalidate();
 		repaint();
 	}
 
