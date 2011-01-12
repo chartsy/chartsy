@@ -14,7 +14,7 @@
 <entry key="2_profiler.settings.override">false</entry>
 <entry key="profiler.settings.lastselected">1</entry>
 <entry key="2_profiler.settings.instrument.spawned.threads">false</entry>
-<entry key="0_profiler.settings.threads.monitoring.enabled">false</entry>
+<entry key="0_profiler.settings.threads.monitoring.enabled">true</entry>
 <entry key="0_profiler.settings.istrument.getter.setter.methods">false</entry>
 <entry key="2_profiler.settings.instrumentation.filter.selectedprofiler.filter.type">profiler.simple.filter</entry>
 <entry key="2_profiler.settings.n.profiled.threads.limit">32</entry>
@@ -99,7 +99,7 @@
 <entry key="0_profiler.settings.instrumentation.filter.selectedprofiler.simple.filter.type">0</entry>
 <entry key="0_profiler.settings.thread.cpu.timer.on">false</entry>
 <entry key="0_profiler.settings.override.jvm.args"/>
-<entry key="2_profiler.settings.profiling.type">2</entry>
+<entry key="2_profiler.settings.profiling.type">4</entry>
 <entry key="0_profiler.settings.settings.name">Monitor Application</entry>
 <entry key="0_profiler.settings.code.region.cpu.res.buf.size">1000</entry>
 <entry key="2_profiler.settings.profilingpoints.enabled">true</entry>
