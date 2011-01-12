@@ -195,10 +195,6 @@ public class AverageTrueRange
         int count = dataset.getItemsCount();
 
         Dataset result = Dataset.EMPTY(count);
-
-        double[] highLow = new double[count]; // high - low
-        double[] highPrevClose = new double[count]; // high - prev close
-        double[] lowPrevClose = new double[count]; // low - prev close
         double[] trueRange = new double[count]; // daily TR
 
         for (int i = 0; i < count; i++)
@@ -212,12 +208,7 @@ public class AverageTrueRange
             else
             {
                 double prevClose = dataset.getCloseAt(i - 1);
-
-                highLow[i] = high - low;
-                highPrevClose[i] = high - prevClose;
-                lowPrevClose[i] = low - prevClose;
-
-                trueRange[i] = Math.max(highLow[i], Math.max(highPrevClose[i], lowPrevClose[i]));
+                trueRange[i] = Math.max( Math.abs( low - prevClose ), Math.max( high - low, Math.abs( high - prevClose ) ) );
 
                 if (i >= period - 1)
                 {

@@ -31,6 +31,7 @@ public class CandleStick
     {
         ChartData cd = cf.getChartData();
         ChartProperties cp = cf.getChartProperties();
+		boolean isLog = cp.getAxisLogarithmicFlag();
         Rectangle rect = cf.getSplitPanel().getChartPanel().getBounds();
         rect.grow(-2, -2);
         Range range = cf.getSplitPanel().getChartPanel().getRange();
@@ -46,10 +47,10 @@ public class CandleStick
                 double low = dataset.getLowAt(i);
 
                 double x = cd.getX(i, rect);
-                double yOpen = cd.getY(open, rect, range);
-                double yClose = cd.getY(close, rect, range);
-                double yHigh = cd.getY(high, rect, range);
-                double yLow = cd.getY(low, rect, range);
+                double yOpen = cd.getY(open, rect, range, isLog);
+                double yClose = cd.getY(close, rect, range, isLog);
+                double yHigh = cd.getY(high, rect, range, isLog);
+                double yLow = cd.getY(low, rect, range, isLog);
                 
                 double candleWidth = cp.getBarWidth();
                 double candleHeight = Math.abs(yOpen - yClose);
