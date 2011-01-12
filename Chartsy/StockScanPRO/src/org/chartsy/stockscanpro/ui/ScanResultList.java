@@ -19,6 +19,7 @@ import org.chartsy.main.data.ChartData;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.intervals.DailyInterval;
+import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
 import org.chartsy.main.managers.TemplateManager;
@@ -65,21 +66,24 @@ public class ScanResultList extends JList
 					stock.setCompanyName(companyName);
 					final DataProvider dataProvider = DataProviderManager.getDefault().getDataProvider("MrSwing");
 					final Chart chart = ChartManager.getDefault().getChart("Candle Stick");
-
-					final ChartData cd = new ChartData();
-					cd.setStock(stock);
-					cd.setChart(chart);
-					cd.setDataProvider(dataProvider);
-					cd.setInterval(new DailyInterval());
-
-					final Template template = TemplateManager.getDefault().getTemplate(
-						TemplateManager.getDefault().getDefaultTemplate());
+					final Interval interval = new DailyInterval();
 
 					SwingUtilities.invokeLater(new Runnable()
 					{
 						public void run()
 						{
-							ChartFrame chartFrame = new ChartFrame(cd, template);
+							String defaultTemplate = TemplateManager.getDefault().getDefaultTemplate();
+							Template template = TemplateManager.getDefault().getTemplate(defaultTemplate);
+
+							ChartData chartData = new ChartData();
+							chartData.setStock(stock);
+							chartData.setChart(chart);
+							chartData.setDataProviderName(dataProvider.getName());
+							chartData.setInterval(interval);
+
+							ChartFrame chartFrame = ChartFrame.getInstance();
+							chartFrame.setChartData(chartData);
+							chartFrame.setTemplate(template);
 							chartFrame.open();
 						}
 					});

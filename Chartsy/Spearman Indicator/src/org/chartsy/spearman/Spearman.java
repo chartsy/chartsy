@@ -105,8 +105,9 @@ public class Spearman extends Indicator
 
 	public @Override void calculate()
 	{
-		Dataset dataset = getDataset();
-		int count = dataset.getItemsCount();
+		long[] times = getDataset().getTimeValues();
+		double[] closes = getDataset().getCloseValues();
+		int count = getDataset().getItemsCount();
 		int period = properties.getPeriod();
 
 		Dataset spearman = Dataset.EMPTY(count);
@@ -123,8 +124,8 @@ public class Spearman extends Indicator
 			{
 				r1[j] = j;
 				r22[j] = j;
-				r11[j] = dataset.getCloseAt(i - period + j);
-				r21[j] = dataset.getCloseAt(i - period + j);
+				r11[j] = closes[i - period + j];
+				r21[j] = closes[i - period + j];
 			}
 
 			int changed = 1;
@@ -168,7 +169,7 @@ public class Spearman extends Indicator
 			}
 
 			double coefcorr = (1 - (6 * absum) / (period * (period * period - 1)));
-			long time = dataset.getTimeAt(i);
+			long time = times[i];
 			double close = 100 * coefcorr;
 			
 			DataItem item = new DataItem(time, close);

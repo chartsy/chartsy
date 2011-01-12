@@ -28,6 +28,7 @@ public class Volume
     private static final long serialVersionUID = SerialVersion.APPVERSION;
 
     public static final String VOLUME = "volume";
+	public static final String SMA = "sma";
     private IndicatorProperties properties;
 
     public Volume()
@@ -55,12 +56,11 @@ public class Volume
     public LinkedHashMap getHTML(ChartFrame cf, int i)
     {
         LinkedHashMap ht = new LinkedHashMap();
-
-        Dataset d = visibleDataset(cf, VOLUME);
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("###,###");
         String factor = df.format((int) getVolumeFactor(cf));
         df.applyPattern("###,##0.00");
+		String[] labels = { "Volume:", "VolumeMA:" };
         double[] values = getValues(cf, i);
 
         ht.put(getLabel() + " x " + factor, " ");
@@ -69,7 +69,7 @@ public class Volume
             Color[] colors = getColors();
             for (int j = 0; j < values.length; j++)
             {
-                ht.put(getFontHTML(colors[j], "Volume:"),
+                ht.put(getFontHTML(colors[j], labels[j]),
                         getFontHTML(colors[j], df.format(values[j])));
             }
         }
@@ -87,12 +87,20 @@ public class Volume
 
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds) {
         Dataset d = visibleDataset(cf, VOLUME);
+		Dataset sma = visibleDataset(cf, SMA);
         if (d != null) {
             if (maximized)
             {
                 Range range = getRange(cf);
                 
                 DefaultPainter.bar(g, cf, range, bounds, d, properties.getColor());
+
+				if (sma != null)
+				{
+					DefaultPainter.line(
+						g, cf, range, bounds, sma,
+						properties.getSmaColor(), properties.getSmaStroke()); // paint sma line
+				}
             }
         }
     }
@@ -111,6 +119,7 @@ public class Volume
                 d.setDataItem(i, new DataItem(initial.getTimeAt(i), initial.getVolumeAt(i) / factor));
             }
             addDataset(VOLUME, d);
+			addDataset(SMA, Dataset.SMA(d, properties.getSmaPeriod()));
         }
     }
 
@@ -142,21 +151,23 @@ public class Volume
     { return null; }
 
     public Color[] getColors()
-    { return new Color[] {properties.getColor()}; }
+    { return new Color[] {properties.getColor(),properties.getSmaColor()}; }
 
     public double[] getValues(ChartFrame cf)
     {
         Dataset d = visibleDataset(cf, VOLUME);
-        if (d != null)
-            return new double[] {d.getLastClose()};
+		Dataset sma = visibleDataset(cf, SMA);
+        if (d != null && sma != null)
+            return new double[] {d.getLastClose(),sma.getLastClose()};
         return new double[] {};
     }
 
     public double[] getValues(ChartFrame cf, int i)
     {
         Dataset d = visibleDataset(cf, VOLUME);
-        if (d != null)
-            return new double[] {d.getCloseAt(i)};
+		Dataset sma = visibleDataset(cf, SMA);
+        if (d != null && sma != null)
+            return new double[] {d.getCloseAt(i),sma.getCloseAt(i)};
         return new double[] {};
     }
 

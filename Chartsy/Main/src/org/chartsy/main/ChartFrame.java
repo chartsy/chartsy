@@ -2,7 +2,6 @@ package org.chartsy.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.AdjustmentEvent;
@@ -48,12 +47,9 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.AbstractNode;
-import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
-import org.openide.util.Task;
-import org.openide.util.TaskListener;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -87,7 +83,7 @@ public class ChartFrame extends TopComponent
 		setToolTipText(NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrameEmpty"));
 	}
 
-    private synchronized void initComponents()
+    private void initComponents()
     {
 		setOpaque(false);
 		setDoubleBuffered(true);
@@ -101,6 +97,8 @@ public class ChartFrame extends TopComponent
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
 
+		validate();
+
 		if (restored)
 		{
 			chartProperties.setMarkerVisibility(true);
@@ -110,6 +108,12 @@ public class ChartFrame extends TopComponent
 			for (Indicator indicator : chartData.getSavedIndicators())
 				indicatorAdded(indicator);
 			restoreAnnotations();
+
+			revalidate();
+			repaint();
+			getSplitPanel().getIndicatorsPanel().calculateHeight();
+			revalidate();
+			repaint();
 
             chartData.clearSavedIndicators();
             chartData.clearSavedOverlays();
@@ -126,19 +130,12 @@ public class ChartFrame extends TopComponent
 
 			if (template != null)
 			{
-				EventQueue.invokeLater(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						List<Overlay> overlays = template.getOverlays();
-						for (int i = 0; i < overlays.size(); i++)
-							overlayAdded(overlays.get(i));
-						List<Indicator> indicators = template.getIndicators();
-						for (int i = 0; i < indicators.size(); i++)
-							indicatorAdded(indicators.get(i));
-					}
-				});
+				List<Overlay> overlays = template.getOverlays();
+				for (int i = 0; i < overlays.size(); i++)
+					overlayAdded(overlays.get(i));
+				List<Indicator> indicators = template.getIndicators();
+				for (int i = 0; i < indicators.size(); i++)
+					indicatorAdded(indicators.get(i));
 			}
 		}
 
@@ -240,7 +237,9 @@ public class ChartFrame extends TopComponent
 
     public ChartSplitPanel getSplitPanel()
     {
-        return mainPanel.getSplitPanel();
+		if (mainPanel != null)
+			return mainPanel.getSplitPanel();
+		return null;
     }
 
     public boolean hasCurrentAnnotation()
@@ -320,7 +319,7 @@ public class ChartFrame extends TopComponent
         return list;
     }
 
-    public synchronized void restoreAnnotations()
+    public void restoreAnnotations()
     {
         List<Integer> count = getChartData().getAnnotationsCount();
         List<Annotation> annotations = getChartData().getAnnotations();
@@ -437,9 +436,27 @@ public class ChartFrame extends TopComponent
             if (getSplitPanel() != null)
             {
                 getSplitPanel().getChartPanel().getAnnotationPanel().requestFocusInWindow();
+				//getSplitPanel().getIndicatorsPanel().calculateHeight();
+				//revalidate();
+				//repaint();
             }
         }
     }
+
+	@Override
+	protected void componentShowing() {
+		super.componentShowing();
+		if (getMainPanel() != null)
+        {
+            if (getSplitPanel() != null)
+            {
+				getSplitPanel().getIndicatorsPanel().calculateHeight();
+            }
+        }
+		revalidate();
+		repaint();
+	}
+
 
 	public void resetHorizontalScrollBar()
 	{
@@ -563,27 +580,19 @@ public class ChartFrame extends TopComponent
 		final DataProvider dataProvider = getChartData().getDataProvider();
 		final String key = dataProvider.getDatasetKey(stock, interval);
 		final JLabel loading = getLoadingLabel(stock);
+		add(loading, BorderLayout.CENTER);
+		revalidate();
+		repaint();
 
-		final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText(), new Cancellable()
-		{
-			@Override
-			public boolean cancel()
-			{
-				if (task == null)
-					return true;
-				return task.cancel();
-			}
-		});
-
+		final ProgressHandle handle = ProgressHandleFactory.createHandle(loading.getText());
+		handle.start();
+		handle.switchToIndeterminate();
 		final Runnable runnable = new Runnable()
 		{
 			@Override
 			public void run()
 			{
 				loadingError = false;
-				handle.start();
-				handle.switchToIndeterminate();
-				add(loading, BorderLayout.CENTER);
 				try
 				{
 					if (!DatasetUsage.getInstance().isDatasetInMemory(key))
@@ -599,10 +608,51 @@ public class ChartFrame extends TopComponent
 				{
 					loadingError = true;
 				}
+
+				handle.finish();
+				if (!loadingError)
+				{
+					DatasetUsage.getInstance().fetchDataset(key);
+					DatasetUsage.getInstance().addDatasetUpdater(dataProvider.getName(), stock, interval);
+					datasetKeyChanged(key);
+					remove(loading);
+					if (!newChart)
+					{
+						setName(NbBundle.getMessage(ChartFrame.class, "CTL_ChartFrame", stock.getKey()));
+						setToolTipText(NbBundle.getMessage(ChartFrame.class, "TOOL_ChartFrame", stock.getCompanyName()));
+						HistoryItem item = new HistoryItem(stock, interval);
+						history.setCurrent(item);
+						DatasetUsage.getInstance().chartClosed(
+							dataProvider.getDatasetKey(oldStock, oldInterval));
+						resetHorizontalScrollBar();
+						chartToolbar.setVisible(true);
+						chartToolbar.updateToolbar();
+						mainPanel.setVisible(true);
+						scrollBar.setVisible(true);
+					} else
+					{
+						initComponents();
+					}
+				} else
+				{
+					if (stock.hasCompanyName())
+					{
+						loading.setText(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoDataNew", stock.getCompanyName()));
+					} else
+					{
+						loading.setText(NbBundle.getMessage(ChartFrame.class, "LBL_LoadingNoDataNew", stock.getKey()));
+					}
+					if (!newChart)
+						showConfirmation(stock, loading);
+				}
+				revalidate();
+				repaint();
 			}
 		};
 
-		task = RP.create(runnable);
+		WindowManager.getDefault().invokeWhenUIReady(runnable);
+
+		/*task = RP.create(runnable);
 		task.addTaskListener(new TaskListener()
 		{
 			@Override
@@ -646,7 +696,7 @@ public class ChartFrame extends TopComponent
 				repaint();
 			}
 		});
-		task.schedule(0);
+		task.schedule(0);*/
     }
 
 	private JLabel getLoadingLabel(Stock stock)
@@ -714,7 +764,6 @@ public class ChartFrame extends TopComponent
 
         private static final long serialVersionUID = SerialVersion.APPVERSION;
 
-		private boolean error = false;
 		private String id;
         private ChartProperties chartProperties;
         private ChartData chartData;
@@ -725,48 +774,39 @@ public class ChartFrame extends TopComponent
 
         private ResolvableHelper(ChartFrame chartFrame)
         {
-			if (!chartFrame.loadingError)
-			{
-				error = false;
-				id = chartFrame.preferredID();
-				chartProperties = chartFrame.getChartProperties();
-				chartProperties.clearPropertyChangeListenerList();
-				chartData = chartFrame.getChartData();
-				dataProvider = chartData.getDataProvider().getName();
+			id = chartFrame.preferredID();
+			chartProperties = chartFrame.getChartProperties();
+			chartProperties.clearPropertyChangeListenerList();
+			chartData = chartFrame.getChartData();
+			dataProvider = chartData.getDataProvider().getName();
 
-				chartData.setSavedIndicators(chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsList());
-				chartData.setSavedOverlays(chartFrame.getSplitPanel().getChartPanel().getOverlays());
-				chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
-				chartData.setAnnotations(chartFrame.getAnnotations());
+			chartData.setSavedIndicators(chartFrame.getSplitPanel().getIndicatorsPanel().getIndicatorsList());
+			chartData.setSavedOverlays(chartFrame.getSplitPanel().getChartPanel().getOverlays());
+			chartData.setAnnotationsCount(chartFrame.getAnnotationCount());
+			chartData.setAnnotations(chartFrame.getAnnotations());
 
-				currentHistoryItem = chartFrame.getHistory().getCurrent();
-				backList = chartFrame.getHistory().getBackHistoryList();
-				fwdList = chartFrame.getHistory().getFwdHistoryList();
-			} else
-				error = true;
+			currentHistoryItem = chartFrame.getHistory().getCurrent();
+			backList = chartFrame.getHistory().getBackHistoryList();
+			fwdList = chartFrame.getHistory().getFwdHistoryList();
         }
 
-        public synchronized Object readResolve()
+        public Object readResolve()
         {
-			if (!error)
-			{
-				chartData.setDataProviderName(dataProvider);
+			chartData.setDataProviderName(dataProvider);
 
-				ChartFrame chartFrame = new ChartFrame(id);
-				chartFrame.setChartData(chartData);
-				chartFrame.setChartProperties(chartProperties);
+			ChartFrame chartFrame = new ChartFrame(id);
+			chartFrame.setChartData(chartData);
+			chartFrame.setChartProperties(chartProperties);
 
-				History history = new History();
-				history.initialize();
-				history.setCurrent(currentHistoryItem);
-				history.setBackHistoryList(backList);
-				history.setFwdHistoryList(fwdList);
-				chartFrame.setHistory(history);
+			History history = new History();
+			history.initialize();
+			history.setCurrent(currentHistoryItem);
+			history.setBackHistoryList(backList);
+			history.setFwdHistoryList(fwdList);
+			chartFrame.setHistory(history);
 
-				chartFrame.setRestored(true);
-				return chartFrame;
-			} else
-				return null;
+			chartFrame.setRestored(true);
+			return chartFrame;
         }
     }
 
@@ -917,13 +957,13 @@ public class ChartFrame extends TopComponent
 		{}
 	}
 
-	public static synchronized ChartFrame getInstance()
+	public static ChartFrame getInstance()
 	{
 		ChartFrame chartFrame = new ChartFrame();
 		return chartFrame;
 	}
 
-    public static synchronized ChartFrame findInstance(String id)
+    public static ChartFrame findInstance(String id)
     {
         TopComponent win = WindowManager.getDefault().findTopComponent(id);
         if (win == null)
@@ -936,7 +976,7 @@ public class ChartFrame extends TopComponent
 	private static AtomicInteger ID;
     private static String PREFERRED_ID;
     public static final Logger LOG = Logger.getLogger(ChartFrame.class.getName());
-    private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
+    //private static final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
 
 	private ChartProperties chartProperties;
 	private ChartData chartData;

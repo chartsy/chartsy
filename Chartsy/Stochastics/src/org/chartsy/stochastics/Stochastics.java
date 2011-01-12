@@ -39,13 +39,15 @@ public class Stochastics
     }
 
     public String getName()
-    { return "Stochastics"; }
+    { return "Stochastic"; }
 
     public String getLabel()
-    { return properties.getLabel() + " (" + properties.getPeriodK() + ", " + properties.getSmooth() + ", " + properties.getPeriodD() + ")"; }
+    { return properties.getLabel() + (properties.getSF() ? " Fast" : "")
+		  + " (" + properties.getPeriodK() + ", " + properties.getSmooth()
+		  + ", " + properties.getPeriodD() + ")"; }
 
     public String getPaintedLabel(ChartFrame cf)
-    { return (properties.getSF() ? "Fast" : "Slow") + getLabel(); }
+    { return getLabel(); }
 
     public Indicator newInstance() 
     { return new Stochastics(); }
@@ -58,7 +60,7 @@ public class Stochastics
         double[] values = getValues(cf, i);
         String[] labels = {"%D:", "%K:"};
 
-        ht.put((properties.getSF() ? "Fast" : "Slow") + getLabel(), " ");
+        ht.put(getLabel(), " ");
         if (values.length > 0) {
             Color[] colors = getColors();
             for (int j = 0; j < values.length; j++) {

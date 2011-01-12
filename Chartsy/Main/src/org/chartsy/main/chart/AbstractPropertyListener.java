@@ -22,36 +22,24 @@ public abstract class AbstractPropertyListener
 
     public void addPropertyChangeListener(PropertyChangeListener pcl)
     {
-		synchronized (listeners)
-		{
-			listeners.add(pcl);
-		}
+		listeners.add(pcl);
 	}
 
     public void removePropertyChangeListener(PropertyChangeListener pcl)
     {
-		synchronized (listeners)
-		{
-			listeners.remove(pcl);
-		}
+		listeners.remove(pcl);
 	}
 
 	public void clearPropertyChangeListenerList()
 	{
-		synchronized (listeners)
-		{
-			listeners.clear();
-		}
+		listeners.clear();
 	}
 
     protected void fire(String propertyName, Object old, Object nue)
     {
-		synchronized (listeners)
-		{
-			if (!old.equals(nue))
-				for (PropertyChangeListener listener : listeners)
-					listener.propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-		}
+		if (!old.equals(nue))
+			for (PropertyChangeListener listener : listeners)
+				listener.propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
     }
 
 }

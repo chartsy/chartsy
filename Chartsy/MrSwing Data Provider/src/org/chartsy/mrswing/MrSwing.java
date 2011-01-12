@@ -2,24 +2,23 @@ package org.chartsy.mrswing;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.data.DataItem;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.data.Dataset;
-import org.chartsy.main.data.DateCompare;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.data.StockNode;
 import org.chartsy.main.data.StockSet;
@@ -36,16 +35,14 @@ import org.openide.util.NbPreferences;
  *
  * @author viorel.gheba
  */
-public class MrSwing
-        extends DataProvider
+public class MrSwing extends DataProvider
 {
 
     private static final long serialVersionUID = SerialVersion.APPVERSION;
-    private static final Logger LOG = Logger.getLogger(MrSwing.class.getPackage().getName());
 
     public MrSwing()
     {
-        super(NbBundle.getBundle(MrSwing.class), false);
+        super(NbBundle.getBundle(MrSwing.class));
         usedCookies.clear();
         usedCookies.add("PHPSESSID");
         usedCookies.add("amember_nr");
@@ -59,87 +56,138 @@ public class MrSwing
 
 
     @Override
-    public String fetchCompanyName(Stock stock)
+    protected String fetchCompanyName(String symbol)
             throws InvalidStockException, StockNotFoundException, RegistrationException, IOException
     {
-        BufferedReader in = ProxyManager.getDefault().bufferReaderGET(getStockURL(stock));
-
+		String url = getStockURL(symbol);
+        BufferedReader in = ProxyManager.getDefault().bufferReaderGET(url);
         if (in == null)
-        {
             throw new StockNotFoundException();
-        }
 
         String firstLine = in.readLine();
         if (!firstLine.equals("OK"))
-        {
             throw new RegistrationException(
                     NbBundle.getMessage(MrSwing.class, "MSG_Registration"));
-        }
 
         String inputLine = in.readLine();
         if (inputLine.equals("0"))
-        {
             throw new InvalidStockException();
-        }
 
         return inputLine;
     }
 
-    public Dataset getData(Stock stock, Interval interval)
+	@Override
+	protected Dataset fetchDataForFavorites(Stock stock)
+		throws IOException, ParseException
+	{
+		synchronized ((stock.toString() + "-" + DAILY.getTimeParam()).intern())
+        {
+			Dataset result = null;
+            List<DataItem> items = new ArrayList<DataItem>();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+            BufferedReader bufferedReader = null;
+			String uri = getDataURL(stock, DAILY) + "&limit=2";
+			bufferedReader = ProxyManager.getDefault().bufferReaderGET(uri);
+
+			String inputLine = bufferedReader.readLine();
+			if (inputLine.equals("OK")) // check first line
+			{
+				bufferedReader.readLine(); // ignore first 2 lines
+				while ((inputLine = bufferedReader.readLine()) != null)
+				{
+					String[] values = inputLine.split(",");
+					long time = df.parse(values[0]).getTime();
+					double open = Double.parseDouble(values[1]);
+					double high = Double.parseDouble(values[2]);
+					double low = Double.parseDouble(values[3]);
+					double close = Double.parseDouble(values[4]);
+					double volume = Double.parseDouble(values[5]);
+					DataItem item = new DataItem(time, open, high, low, close, volume);
+					items.add(item);
+				}
+				Collections.sort(items);
+				result = new Dataset(items);
+			}
+
+			bufferedReader.close();
+
+            return result;
+        }
+	}
+
+	@Override
+    protected Dataset fetchData(Stock stock, Interval interval)
+		throws IOException, ParseException
     {
         synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
         {
+			Dataset result = null;
             List<DataItem> items = new ArrayList<DataItem>();
-            DateCompare compare = new DateCompare();
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            BufferedReader in = null;
-            try
-            {
-                in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval));
-                if (in != null)
-                {
-                String inputLine = in.readLine();
-                if (inputLine.equals("OK")) // check first line
-                {
-                in.readLine(); // ignore first 2 lines
-                while ((inputLine = in.readLine()) != null)
-                {
-                String[] values = inputLine.split(",");
-                long time = df.parse(values[0]).getTime();
-                double open = Double.parseDouble(values[1]);
-                double high = Double.parseDouble(values[2]);
-                double low = Double.parseDouble(values[3]);
-                double close = Double.parseDouble(values[4]);
-                double volume = Double.parseDouble(values[5]);
-                items.add(new DataItem(time, open, high, low, close, volume));
-                }
-                Collections.sort(items, compare);
-                return new Dataset(items);
-                }
-                }
-            } catch (Exception ex)
-            {
-                LOG.log(Level.WARNING, null, ex);
-            } finally
-            {
-                try
-                {
-                    in.close();
-                } catch (IOException ex)
-                {
-                    LOG.log(Level.WARNING, "", ex);
-                }
-            }
 
-            return null;
+            BufferedReader bufferedReader = null;
+			String uri = getDataURL(stock, interval);
+			bufferedReader = ProxyManager.getDefault().bufferReaderGET(uri);
+
+			String inputLine = bufferedReader.readLine();
+			if (inputLine.equals("OK")) // check first line
+			{
+				bufferedReader.readLine(); // ignore first 2 lines
+				while ((inputLine = bufferedReader.readLine()) != null)
+				{
+					String[] values = inputLine.split(",");
+					long time = df.parse(values[0]).getTime();
+					double open = Double.parseDouble(values[1]);
+					double high = Double.parseDouble(values[2]);
+					double low = Double.parseDouble(values[3]);
+					double close = Double.parseDouble(values[4]);
+					double volume = Double.parseDouble(values[5]);
+					DataItem item = new DataItem(time, open, high, low, close, volume);
+					items.add(item);
+				}
+				Collections.sort(items);
+				result = new Dataset(items);
+			}
+
+			bufferedReader.close();
+
+            return result;
         }
     }
 
-    public Dataset getLastDataItem(Stock stock, Interval interval, Dataset dataset)
+	@Override
+    protected DataItem fetchLastDataItem(Stock stock, Interval interval)
+		throws IOException, ParseException
     {
         synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
         {
-            Dataset result = getRegisteredDataset(stock, interval);
+			DataItem dataItem = null;
+
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			BufferedReader bufferedReader = null;
+			String uri = getDataURL(stock, interval) + "&limit=1";
+			bufferedReader = ProxyManager.getDefault().bufferReaderGET(uri);
+
+			String inputLine = bufferedReader.readLine();
+			if (inputLine.equals("OK")) // check first line
+			{
+				bufferedReader.readLine(); // ignore first 2 lines
+				while ((inputLine = bufferedReader.readLine()) != null)
+				{
+					String[] values = inputLine.split(",");
+					long time = df.parse(values[0]).getTime();
+					double open = Double.parseDouble(values[1]);
+					double high = Double.parseDouble(values[2]);
+					double low = Double.parseDouble(values[3]);
+					double close = Double.parseDouble(values[4]);
+					double volume = Double.parseDouble(values[5]);
+					dataItem = new DataItem(time, open, high, low, close, volume);
+				}
+			}
+
+			bufferedReader.close();
+            /*Dataset result = fetchData(stock, interval);
             if (result != null)
             {
                 int last = dataset.getLastIndex();
@@ -154,58 +202,8 @@ public class MrSwing
                     dataset.setDataItem(last, newItem);
                 }
             }
-            return dataset;
-        }
-    }
-
-    private Dataset getRegisteredDataset(Stock stock, Interval interval)
-    {
-        synchronized ((stock.toString() + "-" + interval.getTimeParam()).intern())
-        {
-            List<DataItem> items = new ArrayList<DataItem>();
-            DateCompare compare = new DateCompare();
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            BufferedReader in = null;
-
-            try
-            {
-                in = ProxyManager.getDefault().bufferReaderGET(getDataURL(stock, interval) + "&limit=1");
-
-                if (in != null)
-                {
-                    String inputLine = in.readLine();
-                    if (inputLine.equals("OK")) // check first line
-                    {
-                        in.readLine(); // ignore first 2 lines
-                        while ((inputLine = in.readLine()) != null)
-                        {
-                            String[] values = inputLine.split(",");
-                            long time = df.parse(values[0]).getTime();
-                            double open = Double.parseDouble(values[1]);
-                            double high = Double.parseDouble(values[2]);
-                            double low = Double.parseDouble(values[3]);
-                            double close = Double.parseDouble(values[4]);
-                            double volume = Double.parseDouble(values[5]);
-                            items.add(new DataItem(time, open, high, low, close, volume));
-                        }
-                        Collections.sort(items, compare);
-                        return new Dataset(items);
-                    }
-                }
-            } catch (Exception ex)
-            {
-                LOG.log(Level.WARNING, null, ex);
-            } finally
-            {
-                try
-                {
-                    in.close();
-                } catch (IOException ex)
-                {
-                    LOG.log(Level.WARNING, null, ex);
-                }
-            }
-            return null;
+            return dataset;*/
+			return dataItem;
         }
     }
 
@@ -221,100 +219,66 @@ public class MrSwing
         return p.get("password", null);
     }
 
-    public StockSet getAutocomplete(String text)
+    @Override
+	public StockSet fetchAutocomplete(String text)
+		throws IOException
     {
         String url = getAutocompleteURL(text);
         StockSet result = new StockSet();
 
-        BufferedReader in = null;
         final HttpClient client = ProxyManager.getDefault().getHttpClient();
         final GetMethod method = new GetMethod(url);
+		client.executeMethod(method);
 
-        try
-        {
-            client.executeMethod(method);
-            in = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+		InputStream inputStream = method.getResponseBodyAsStream();
+		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-            String inputLine;
-            while ((inputLine = in.readLine()) != null)
-            {
+		String inputLine;
+		while ((inputLine = bufferedReader.readLine()) != null)
+		{
+			StringTokenizer st = new StringTokenizer(inputLine, ":");
+			String key = st.nextToken();
+			String company = st.nextToken();
+			String exchange = st.nextToken();
+			result.add(new StockNode(key, company, exchange));
+		}
 
-                StringTokenizer st = new StringTokenizer(inputLine, ":");
-                String key = st.nextToken();
-                String company = st.nextToken();
-                String exchange = st.nextToken();
-                result.add(new StockNode(key, company, exchange));
-            }
-
-            in.close();
-            method.releaseConnection();
-        } catch (IOException ex)
-        {
-            LOG.log(Level.SEVERE, null, ex);
-        }
+		bufferedReader.close();
+		method.releaseConnection();
 
         return result;
     }
 
-    private String getStockURL(Stock stock)
+    private String getStockURL(String symbol)
+		throws UnsupportedEncodingException
     {
-        try
-        {
-            return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[]
-                    {
-                        URLEncoder.encode(stock.getKey(), "UTF-8"),
-                        getUsername(),
-                        getPassword()
-                    });
-        } catch (UnsupportedEncodingException ex)
-        {
-            LOG.log(Level.SEVERE, null, ex);
-        }
-
-        return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[]
-                {
-                    stock.getKey(),
-                    getUsername(),
-                    getPassword()
-                });
+		return NbBundle.getMessage(MrSwing.class, "Stock_URL", new String[]
+		{
+			URLEncoder.encode(symbol, "UTF-8"),
+			getUsername(),
+			getPassword()
+		});
     }
 
     private String getDataURL(Stock stock, Interval interval)
+		throws UnsupportedEncodingException
     {
-        try
-        {
-            return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
-                    {
-                        URLEncoder.encode(stock.getKey(), "UTF-8"),
-                        URLEncoder.encode(interval.getTimeParam(), "UTF-8"),
-                        getUsername(),
-                        getPassword()
-                    });
-        } catch (UnsupportedEncodingException ex)
-        {
-            LOG.log(Level.SEVERE, null, ex);
-        }
-
-        return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
-                {
-                    stock.getKey(),
-                    interval.getTimeParam(),
-                    getUsername(),
-                    getPassword()
-                });
+		return NbBundle.getMessage(MrSwing.class, "Data_URL", new String[]
+				{
+					URLEncoder.encode(stock.getKey(), "UTF-8"),
+					URLEncoder.encode(interval.getTimeParam(), "UTF-8"),
+					getUsername(),
+					getPassword()
+				});
     }
 
     private String getAutocompleteURL(String word)
+		throws UnsupportedEncodingException
     {
-        try
-        {
-            return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", URLEncoder.encode(word, "UTF-8"));
-        } catch (UnsupportedEncodingException ex)
-        {
-            LOG.log(Level.SEVERE, null, ex);
-        }
-
-        return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", word);
+		return NbBundle.getMessage(MrSwing.class, "Autocomplete_URL", URLEncoder.encode(word, "UTF-8"));
     }
+
     private List<String> usedCookies = new ArrayList<String>();
+	
 }

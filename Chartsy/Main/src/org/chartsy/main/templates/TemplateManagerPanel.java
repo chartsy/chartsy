@@ -73,6 +73,7 @@ public class TemplateManagerPanel extends JPanel
 			putValue(SHORT_DESCRIPTION, "Set the selected template as default");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			int index = templateList.getSelectedIndex();
@@ -94,6 +95,7 @@ public class TemplateManagerPanel extends JPanel
 			putValue(SHORT_DESCRIPTION, "Delete the selected template");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			if (templateList.getModel().getSize() > 1)
@@ -140,6 +142,7 @@ public class TemplateManagerPanel extends JPanel
 			super(listData);
 		}
 
+		@Override
 		public void paintComponent(java.awt.Graphics g)
 		{
 			drawStripes = (getLayoutOrientation()==VERTICAL) && isOpaque();
@@ -195,12 +198,16 @@ public class TemplateManagerPanel extends JPanel
 		{
 			public javax.swing.ListCellRenderer ren = null;
 
+			@Override
 			public java.awt.Component getListCellRendererComponent(
 				javax.swing.JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus)
 			{
+				String temp = (String) value;
+				if (TemplateManager.getDefault().getDefaultTemplate().equals(temp))
+					temp += " (default)";
 				final java.awt.Component c = ren.getListCellRendererComponent(
-					list, value, index, isSelected, cellHasFocus);
+					list, temp, index, isSelected, cellHasFocus);
 				if (!isSelected && drawStripes)
 					c.setBackground(rowColors[index&1]);
 				return c;
@@ -208,6 +215,7 @@ public class TemplateManagerPanel extends JPanel
 		}
 		private RendererWrapper wrapper = null;
 
+		@Override
 		public javax.swing.ListCellRenderer getCellRenderer()
 		{
 			final javax.swing.ListCellRenderer ren = super.getCellRenderer();

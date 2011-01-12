@@ -22,12 +22,12 @@ public class IndicatorNode
 
     public IndicatorNode()
     {
-        super("Stochastics Properties");
+        super("Stochastic Properties");
     }
 
     public IndicatorNode(IndicatorProperties indicatorProperties)
     {
-        super("Stochastics Properties", indicatorProperties);
+        super("Stochastic Properties", indicatorProperties);
     }
 
     @SuppressWarnings("unchecked")
@@ -96,7 +96,7 @@ public class IndicatorNode
                     ));
             // Slow or Fast
             set.put(getProperty(
-                    "Fast/Slow", // property name
+                    "Fast", // property name
                     "Sets the fast or slow flag", // property description
                     IndicatorProperties.class, // properties class
                     boolean.class, // property class
@@ -152,7 +152,7 @@ public class IndicatorNode
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.log(Level.SEVERE, "[StochasticsNode] : Method does not exist.", ex);
+            LOG.log(Level.SEVERE, "[StochasticNode] : Method does not exist.", ex);
         }
 
         return sheet;

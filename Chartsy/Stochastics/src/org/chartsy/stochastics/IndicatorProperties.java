@@ -19,7 +19,7 @@ public class IndicatorProperties
     public static final int PERIOD_K = 14;
     public static final int PERIOD_D = 3;
     public static final int SMOOTH = 3;
-    public static final String LABEL = "Stochastics";
+    public static final String LABEL = "Stochastic";
     public static boolean MARKER = true;
     public static boolean SF = true;
     public static Color COLOR_D = new Color(0x4e9a06);

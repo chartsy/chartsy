@@ -162,7 +162,7 @@ public final class ProxyManager
         return null;
     }
 
-    public synchronized void setProxy()
+    public void setProxy()
     {
         if (corePreferences.getInt(PROXY_TYPE_KEY, 1) == 2)
         {
@@ -214,7 +214,7 @@ public final class ProxyManager
         }
     }
 
-    public synchronized void setOnline(boolean online)
+    public void setOnline(boolean online)
     {
         this.isOnline = online;
     }

@@ -23,12 +23,20 @@ public class IndicatorProperties
     public static final boolean ZERO_LINE_VISIBILITY = true;
     public static final Color COLOR = new Color(0xf57900);
 
+	public static final int SMA_PERIOD = 5;
+	public static final Color SMA_COLOR = Color.BLUE;
+	public static final int SMA_STROKE_INDEX = 0;
+
     private String label = LABEL;
     private boolean marker = MARKER;
     private Color zeroLineColor = ZERO_LINE_COLOR;
     private int zeroLineStrokeIndex = ZERO_LINE_STROKE;
     private boolean zeroLineVisibility = ZERO_LINE_VISIBILITY;
     private Color color = COLOR;
+
+	private int smaPeriod = SMA_PERIOD;
+	private Color smaColor = SMA_COLOR;
+	private int smaStrokeIndex = SMA_STROKE_INDEX;
 
     public IndicatorProperties() {}
 
@@ -51,5 +59,16 @@ public class IndicatorProperties
 
     public Color getColor() { return color; }
     public void setColor(Color c) { color = c; }
+
+	public int getSmaPeriod() { return smaPeriod; }
+	public void setSmaPeriod(int i) { smaPeriod = i; }
+
+	public Color getSmaColor() { return smaColor; }
+	public void setSmaColor(Color c) { smaColor = c; }
+
+	public int getSmaStrokeIndex() { return smaStrokeIndex; }
+    public void setSmaStrokeIndex(int i) { smaStrokeIndex = i; }
+    public Stroke getSmaStroke() { return StrokeGenerator.getStroke(smaStrokeIndex); }
+    public void setSmaStroke(Stroke s) { smaStrokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

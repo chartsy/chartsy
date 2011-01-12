@@ -32,7 +32,6 @@ import org.chartsy.main.dialogs.SettingsPanel;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.GraphicsUtils;
-import org.chartsy.main.utils.Range;
 import org.chartsy.main.utils.SerialVersion;
 
 /**

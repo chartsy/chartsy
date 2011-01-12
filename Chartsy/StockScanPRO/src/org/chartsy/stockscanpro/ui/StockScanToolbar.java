@@ -3,9 +3,9 @@ package org.chartsy.stockscanpro.ui;
 import java.awt.FlowLayout;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import org.chartsy.stockscanpro.actions.EmailScansAction;
 import org.chartsy.stockscanpro.actions.LoadScansAction;
 import org.chartsy.stockscanpro.actions.SaveScansAction;
 import org.jdesktop.swingx.JXDatePicker;
@@ -47,7 +47,7 @@ public class StockScanToolbar extends JPanel
 			//NbBundle.getMessage(StockScanToolbar.class, "EmailScan_Btn"));
 		//emailScanBtn.addActionListener(new EmailScansAction());
 
-		datePicker = new JXDatePicker(Calendar.getInstance().getTimeInMillis());
+		datePicker = new JXDatePicker(new Date());
 		datePicker.setFormats(new SimpleDateFormat[]
         {
             new SimpleDateFormat("yyyy-MM-dd")

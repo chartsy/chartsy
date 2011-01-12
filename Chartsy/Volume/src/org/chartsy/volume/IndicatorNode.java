@@ -34,8 +34,12 @@ public class IndicatorNode
     protected @Override Sheet createSheet()
     {
         Sheet sheet = Sheet.createDefault();
-        Sheet.Set set = getPropertiesSet();
+        
+		Sheet.Set set = getPropertiesSet();
+		Sheet.Set smaSet = getPropertiesSet("SMA Properties");
+
         sheet.put(set);
+		sheet.put(smaSet);
 
         try
         {
@@ -104,6 +108,39 @@ public class IndicatorNode
                     "getColor", // get method name
                     "setColor", // set method name
                     IndicatorProperties.COLOR // default property value
+                    ));
+			// SMA Period
+            smaSet.put(getProperty(
+                    "SMA Period", // property name
+                    "Sets the SMA period value", // property description
+                    IndicatorProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getSmaPeriod", // get method name
+                    "setSmaPeriod", // set method name
+                    IndicatorProperties.SMA_PERIOD // default property value
+                    ));
+			// SMA Line Color
+            smaSet.put(getProperty(
+                    "SMA Line Color", // property name
+                    "Sets the sma line color", // property description
+                    IndicatorProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getSmaColor", // get method name
+                    "setSmaColor", // set method name
+                    IndicatorProperties.SMA_COLOR // default property value
+                    ));
+			// SMA Line Style
+            smaSet.put(getProperty(
+                    "SMA Line Style", // property name
+                    "Sets the sma line style", // property description
+                    IndicatorProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getSmaStroke", // get method name
+                    "setSmaStroke", // set method name
+                    StrokeGenerator.getStroke(IndicatorProperties.SMA_STROKE_INDEX) // default property value
                     ));
         }
         catch (NoSuchMethodException ex)

@@ -3,7 +3,6 @@ package org.chartsy.stockscanpro.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.prefs.Preferences;
@@ -53,10 +52,9 @@ public class RunScanPanel extends JPanel
 	private class RunScanAction implements ActionListener
 	{
 
-		private final RequestProcessor RP
-			= new RequestProcessor("interruptible tasks", 1, true);
+		private final RequestProcessor RP = new RequestProcessor("interruptible tasks", 1, true);
+		private RequestProcessor.Task task;
 		private String responce;
-		private InputStream stream;
 
 		public void actionPerformed(ActionEvent e)
 		{
@@ -82,10 +80,25 @@ public class RunScanPanel extends JPanel
 
 			final Preferences preferences = NbPreferences.root().node("/org/chartsy/register");
 
-			final RequestProcessor.Task task = RP.create(new Runnable()
+			final ProgressHandle handle = ProgressHandleFactory.createHandle(
+				NbBundle.getMessage(QueryPanel.class, "Scaning_Lbl"),
+				new Cancellable()
+				{
+					public boolean cancel()
+					{
+						if (task == null)
+							return true;
+						return task.cancel();
+					}
+				});
+
+			final Runnable runnable = new Runnable()
 			{
 				public void run()
 				{
+					handle.start();
+					handle.switchToIndeterminate();
+
 					NameValuePair[] query = new NameValuePair[]
 					{
 						new NameValuePair("option", "com_chartsy"),
@@ -103,23 +116,20 @@ public class RunScanPanel extends JPanel
 						new NameValuePair("scanExpression", scanExpresion),
 						new NameValuePair("scanTitle", scanTtl)
 					};
-					responce = ProxyManager.getDefault().inputStringPOST(
-						NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"),
-						query, request);
-				}
-			});
-
-			final ProgressHandle handle = ProgressHandleFactory.createHandle(
-				NbBundle.getMessage(QueryPanel.class, "Scaning_Lbl"),
-				new Cancellable()
-				{
-					public boolean cancel()
+					try
 					{
-						if (task == null)
-							return true;
-						return task.cancel();
+						responce = ProxyManager.getDefault().inputStringPOST(
+							NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"),
+							query, request);
+					} catch (Exception ex)
+					{
+						handle.finish();
+						responce = null;
 					}
-				});
+				}
+			};
+
+			task = RP.create(runnable);
 			task.addTaskListener(new TaskListener()
 			{
 				public void taskFinished(Task task)
@@ -129,19 +139,21 @@ public class RunScanPanel extends JPanel
 					{
 						public void run()
 						{
-							ResultsPanel resultsPanel
-								= queryPanel.getContentPanel().getResultsPanel();
-							resultsPanel.addTab(
-								exchange,
-								scanTtl,
-								getQuery(queryPanel.getScan()),
-								responce);
+							if (responce != null)
+							{
+								ResultsPanel resultsPanel
+									= queryPanel.getContentPanel().getResultsPanel();
+								resultsPanel.addTab(
+									exchange,
+									scanTtl,
+									getQuery(queryPanel.getScan()),
+									responce);
+							}
 						}
 					});
 				}
 			});
 
-			handle.start();
 			task.schedule(0);
 		}
 

@@ -22,6 +22,7 @@ public class VolumeOverlay
     private static final long serialVersionUID = SerialVersion.APPVERSION;
     
     public static final String VOLUME = "volume";
+	public static final String SMA = "sma";
     private OverlayProperties properties;
 
     public VolumeOverlay()
@@ -60,6 +61,7 @@ public class VolumeOverlay
         df.applyPattern("###,###");
         String factor = df.format((int) getVolumeFactor(cf));
         df.applyPattern("###,##0.00");
+		String[] labels = { "Volume:", "VolumeMA:" };
         double[] values = getValues(cf, i);
 
         ht.put(getLabel() + " x " + factor, " ");
@@ -68,7 +70,7 @@ public class VolumeOverlay
             Color[] colors = getColors();
             for (int j = 0; j < values.length; j++)
             {
-                ht.put(getFontHTML(colors[j], "Volume:"),
+                ht.put(getFontHTML(colors[j], labels[j]),
                         getFontHTML(colors[j], df.format(values[j])));
             }
         }
@@ -79,6 +81,7 @@ public class VolumeOverlay
     public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
     {
         Dataset d = visibleDataset(cf, VOLUME);
+		Dataset sma = visibleDataset(cf, SMA);
         if (d != null)
         {
             Rectangle rect = (Rectangle) bounds.clone();
@@ -88,6 +91,14 @@ public class VolumeOverlay
             rect.setSize(rect.getSize().width, height);
             Color colorVolume = ColorGenerator.getTransparentColor(properties.getColor(), properties.getAlpha());
             DefaultPainter.bar(g, cf, range, rect, d, colorVolume);
+			
+			if (sma != null)
+			{
+				Color colorSma = ColorGenerator.getTransparentColor(properties.getSmaColor(), properties.getAlpha());
+				DefaultPainter.line(
+					g, cf, range, rect, sma,
+					colorSma, properties.getSmaStroke()); // paint sma line
+			}
         }
     }
 
@@ -105,6 +116,7 @@ public class VolumeOverlay
                 d.setDataItem(i, new DataItem(initial.getTimeAt(i), initial.getVolumeAt(i) / factor));
             }
             addDataset(VOLUME, d);
+			addDataset(SMA, Dataset.SMA(d, properties.getSmaPeriod()));
         }
     }
 
@@ -112,18 +124,21 @@ public class VolumeOverlay
     {
         return new Color[]
                 {
-                    properties.getColor()
+                    properties.getColor(),
+					properties.getSmaColor()
                 };
     }
 
     public double[] getValues(ChartFrame cf)
     {
         Dataset d = visibleDataset(cf, VOLUME);
-        if (d != null)
+		Dataset sma = visibleDataset(cf, SMA);
+        if (d != null && sma != null)
         {
             return new double[]
                     {
-                        d.getLastClose()
+                        d.getLastClose(),
+						sma.getLastClose()
                     };
         }
         return new double[]
@@ -134,11 +149,13 @@ public class VolumeOverlay
     public double[] getValues(ChartFrame cf, int i)
     {
         Dataset d = visibleDataset(cf, VOLUME);
+		Dataset sma = visibleDataset(cf, SMA);
         if (d != null)
         {
             return new double[]
                     {
-                        d.getCloseAt(i)
+                        d.getCloseAt(i),
+						sma.getCloseAt(i)
                     };
         }
         return new double[]

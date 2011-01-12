@@ -279,7 +279,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
 			stockInfo.setText(stockInfoText);
 	}
 
-    public synchronized void setOverlays(List<Overlay> list)
+    public void setOverlays(List<Overlay> list)
     {
         clearOverlays();
         chartFrame.getChartData().removeAllOverlaysDatasetListeners();
@@ -340,7 +340,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
 		updateOverlayToolbar();
     }
 
-    public synchronized void updateOverlayToolbar()
+    public void updateOverlayToolbar()
     {
         int width = 0;
         int height = 0;

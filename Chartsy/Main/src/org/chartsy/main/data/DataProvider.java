@@ -66,7 +66,7 @@ public abstract class DataProvider implements Serializable
 		this.supportsCustomInterval = supportsCustomIntervals;
 	}
 
-    public synchronized void initialize()
+    public void initialize()
     {
     }
 
@@ -185,13 +185,13 @@ public abstract class DataProvider implements Serializable
 		CacheManager.getInstance().cacheStock(stock, fileName);
 	}
 
-    public synchronized boolean stockExists(String symbol)
+    public boolean stockExists(String symbol)
     {
 		String fileName = getStockKey(symbol);
 		return CacheManager.getInstance().stockCacheExists(fileName);
     }
 
-    public synchronized Stock fetchStockFromCache(String symbol)
+    public Stock fetchStockFromCache(String symbol)
     {
 		Stock stock = null;
 		String fileName = getStockKey(symbol);

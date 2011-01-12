@@ -1,11 +1,14 @@
 package org.chartsy.volumeoverlay;
 
 import java.awt.Color;
+import java.awt.Stroke;
 import java.beans.PropertyEditorSupport;
 import java.util.logging.Level;
 import org.chartsy.main.chart.AbstractPropertiesNode;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.SerialVersion;
+import org.chartsy.main.utils.StrokeGenerator;
+import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.nodes.Sheet;
 
 public class OverlayNode 
@@ -28,15 +31,20 @@ public class OverlayNode
     protected @Override Sheet createSheet()
     {
         Sheet sheet = new Sheet();
-        sheet.put(getSets()[0]);
+		for ( Sheet.Set set : getSets() )
+			sheet.put(set);
         return sheet;
     }
 
     public @Override Sheet.Set[] getSets()
     {
-        Sheet.Set[] sets = new Sheet.Set[1];
-        Sheet.Set set = getPropertiesSet();
+        Sheet.Set[] sets = new Sheet.Set[2];
+
+		Sheet.Set set = getPropertiesSet();
+		Sheet.Set smaSet = getPropertiesSet("SMA Properties");
+		
         sets[0] = set;
+		sets[1] = smaSet;
 
         try
         {
@@ -72,6 +80,39 @@ public class OverlayNode
                     "getAlpha", // get method name
                     "setAlpha", // set method name
                     OverlayProperties.ALPHA // default property value
+                    ));
+			// SMA Period
+            smaSet.put(getProperty(
+                    "SMA Period", // property name
+                    "Sets the SMA period value", // property description
+                    OverlayProperties.class, // properties class
+                    int.class, // property class
+                    null, // property editor class (null if none)
+                    "getSmaPeriod", // get method name
+                    "setSmaPeriod", // set method name
+                    OverlayProperties.SMA_PERIOD // default property value
+                    ));
+			// SMA Line Color
+            smaSet.put(getProperty(
+                    "SMA Line Color", // property name
+                    "Sets the sma line color", // property description
+                    OverlayProperties.class, // properties class
+                    Color.class, // property class
+                    null, // property editor class (null if none)
+                    "getSmaColor", // get method name
+                    "setSmaColor", // set method name
+                    OverlayProperties.SMA_COLOR // default property value
+                    ));
+			// SMA Line Style
+            smaSet.put(getProperty(
+                    "SMA Line Style", // property name
+                    "Sets the sma line style", // property description
+                    OverlayProperties.class, // properties class
+                    Stroke.class, // property class
+                    StrokePropertyEditor.class, // property editor class (null if none)
+                    "getSmaStroke", // get method name
+                    "setSmaStroke", // set method name
+                    StrokeGenerator.getStroke(OverlayProperties.SMA_STROKE_INDEX) // default property value
                     ));
         }
         catch (NoSuchMethodException ex)

@@ -122,7 +122,7 @@ public class TwoRSI extends Overlay
 				}
 
 				double x = cf.getChartData().getX(i, bounds);
-				double y = cf.getChartData().getY(value, bounds, range);
+				double y = cf.getChartData().getY(value, bounds, range, cf.getChartProperties().getAxisLogarithmicFlag());
 
 				Ellipse2D.Double circle =  new Ellipse2D.Double(x - barWidth/2, y, barWidth, barWidth);
 				g.fill(circle);

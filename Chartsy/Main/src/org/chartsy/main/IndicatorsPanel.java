@@ -38,10 +38,15 @@ public class IndicatorsPanel extends JPanel implements Serializable
 		setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setLayout(new LayoutManager() {
+			@Override
             public void addLayoutComponent(String name, Component comp) {}
+			@Override
             public void removeLayoutComponent(Component comp) {}
+			@Override
             public Dimension preferredLayoutSize(Container parent) { return new Dimension(0, 0); }
+			@Override
             public Dimension minimumLayoutSize(Container parent) { return new Dimension(0, 0); }
+			@Override
             public void layoutContainer(Container parent) {
                 Component[] components = parent.getComponents();
                 if (components.length == 0) return;
@@ -68,10 +73,7 @@ public class IndicatorsPanel extends JPanel implements Serializable
 			{
 				int count = getIndicatorsCount();
 				IndicatorPanel indicatorPanel = new IndicatorPanel(chartFrame, indicator);
-				int height = Indicator.DEFAULT_HEIGHT != indicator.getMaximizedHeight()
-					? indicator.getMaximizedHeight()
-					: Indicator.DEFAULT_HEIGHT;
-				indicatorPanel.setMaximizedHeight(height);
+				indicatorPanel.setMaximizedHeight(Indicator.DEFAULT_HEIGHT);
 				add(indicatorPanel, count);
 				updateIndicatorsToolbar();
 				calculateHeight();
@@ -88,6 +90,7 @@ public class IndicatorsPanel extends JPanel implements Serializable
 					indicator.clearDatasets();
 					remove(indicatorPanel);
 					updateIndicatorsToolbar();
+					calculateHeight();
 					chartFrame.validate();
 					chartFrame.repaint();
 				}
@@ -200,24 +203,18 @@ public class IndicatorsPanel extends JPanel implements Serializable
 
     public void calculateHeight()
     {
-        int count = getIndicatorsCount();
-        int maxHeight = (int) ((chartFrame.getMainPanel().getHeight() - ChartData.dataOffset.bottom) / (count + 1.5)) * count;
+		int count = getIndicatorsCount();
+		if (count != 0)
+		{
+			int height = (int) (chartFrame.getSplitPanel().getHeight() - ChartData.dataOffset.bottom);
+			height = (int) (0.60 * height);
+			height = height / count;
+			if (height > Indicator.DEFAULT_HEIGHT || height < 0)
+				height = Indicator.DEFAULT_HEIGHT;
 
-        int height = getPanelHeight();
-        
-        if (height >= maxHeight)
-            height = maxHeight;
-
-        int indicatorH = height / count;
-
-        if (indicatorH > Indicator.DEFAULT_HEIGHT)
-            indicatorH = Indicator.DEFAULT_HEIGHT;
-        
-        if (indicatorH < 50)
-            indicatorH = 50;
-
-        for (IndicatorPanel panel : getIndicatorPanels())
-            panel.setMaximizedHeight(indicatorH);
+			for (IndicatorPanel panel : getIndicatorPanels())
+				panel.setMaximizedHeight(height);
+		}
     }
 
     public Indicator[] getIndicators()

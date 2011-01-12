@@ -74,9 +74,9 @@ public class MACD
     @Override
     public Range getRange(ChartFrame cf)
     {
-        Range range = super.getRange(cf);
-        double d = Math.max(Math.abs(range.getLowerBound()), Math.abs(range.getUpperBound()));
-        return new Range(-1*d, d);
+		Range range = super.getRange(cf);
+		double d = Math.max(Math.abs(range.getLowerBound()), Math.abs(range.getUpperBound()));
+		return new Range(-1 * d, d);
     }
 
 
@@ -150,16 +150,21 @@ public class MACD
         Dataset signal = visibleDataset(cf, SIGNAL);
         Dataset histogram = visibleDataset(cf, HISTOGRAM);
 
-        int i = histogram.getLastIndex();
-        double[] values = new double[3];
-        values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
-        values[1] = signal.getDataItem(i) != null ? signal.getCloseAt(i) : 0;
-        values[2] = macd.getDataItem(i) != null ? macd.getCloseAt(i) : 0;
+		if (macd != null && signal != null && histogram != null)
+		{
+			int i = histogram.getLastIndex();
+			double[] values = new double[3];
+			values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
+			values[1] = signal.getDataItem(i) != null ? signal.getCloseAt(i) : 0;
+			values[2] = macd.getDataItem(i) != null ? macd.getCloseAt(i) : 0;
 
-        if (histogram.getDataItem(i) != null)
-            histogramColor = histogram.getCloseAt(i) > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
+			if (histogram.getDataItem(i) != null)
+				histogramColor = histogram.getCloseAt(i) > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
 
-        return values;
+			return values;
+		}
+
+		return new double[] {};
     }
 
     public double[] getValues(ChartFrame cf, int i)
@@ -168,15 +173,20 @@ public class MACD
         Dataset signal = visibleDataset(cf, SIGNAL);
         Dataset histogram = visibleDataset(cf, HISTOGRAM);
 
-        double[] values = new double[3];
-        values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
-        values[1] = signal.getDataItem(i) != null ? signal.getCloseAt(i) : 0;
-        values[2] = macd.getDataItem(i) != null ? macd.getCloseAt(i) : 0;
+		if (macd != null && signal != null && histogram != null)
+		{
+			double[] values = new double[3];
+			values[0] = histogram.getDataItem(i) != null ? histogram.getCloseAt(i) : 0;
+			values[1] = signal.getDataItem(i) != null ? signal.getCloseAt(i) : 0;
+			values[2] = macd.getDataItem(i) != null ? macd.getCloseAt(i) : 0;
 
-        if (histogram.getDataItem(i) != null)
-            histogramColor = histogram.getCloseAt(i) > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
+			if (histogram.getDataItem(i) != null)
+				histogramColor = histogram.getCloseAt(i) > 0 ? properties.getHistogramPositiveColor() : properties.getHistogramNegativeColor();
 
-        return values;
+			return values;
+		}
+
+		return new double[] {};
     }
 
     public boolean getMarkerVisibility(){ return properties.getMarker(); }
@@ -189,14 +199,16 @@ public class MACD
         List<Double> list = new ArrayList<Double>();
 
         Range range = getRange(cf);
-
+		Double value;
         if (range.getUpperBound() >= 1)
         {
             int step = (int) (range.getUpperBound() / 3) + 1;
             for (int i = step; i <= range.getUpperBound(); i+=step)
             {
-                list.add(new Double(i));
-                list.add(new Double(-1*i));
+				value = new Double(i);
+                list.add(value);
+				value = new Double(-1 * i);
+                list.add(value);
             }
         }
         else
@@ -204,8 +216,10 @@ public class MACD
             double step = (range.getUpperBound() > 0.5) ? 0.25 : 0.15;
             for (double i = step; i <= range.getUpperBound(); i+=step)
             {
-                list.add(new Double(i));
-                list.add(new Double(-1*i));
+				value = new Double(i);
+                list.add(value);
+				value = new Double(-1 * i);
+                list.add(value);
             }
         }
 

@@ -160,7 +160,7 @@ public class NormalizedVolatilityIndicator
 
         if (mainDataset != null && !mainDataset.isEmpty())
         {
-            Dataset vpiDataset = getVPIDataset(dataset);
+            Dataset vpiDataset = getVPIDataset(getDataset());
             addDataset(NVI, vpiDataset);
             addDataset(MA65, Dataset.SMA(vpiDataset, properties.getMA65Period()));
             addDataset(MA200, Dataset.SMA(vpiDataset, properties.getMA200Period()));
