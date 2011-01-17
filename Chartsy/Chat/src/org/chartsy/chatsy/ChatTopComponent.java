@@ -67,6 +67,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 
 	private ChatTopComponent()
 	{
+		putClientProperty("TopComponentAllowDockAnywhere", Boolean.TRUE);
 		setName(NbBundle.getMessage(ChatTopComponent.class, "CTL_ChatFrame"));
         setToolTipText(NbBundle.getMessage(ChatTopComponent.class, "HINT_ChatFrame"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));

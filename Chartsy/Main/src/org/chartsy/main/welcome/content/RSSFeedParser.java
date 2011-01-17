@@ -1,14 +1,12 @@
 package org.chartsy.main.welcome.content;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.chartsy.main.managers.ProxyManager;
+import org.chartsy.main.utils.NotifyUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -28,14 +26,13 @@ public class RSSFeedParser {
     static final String PUB_DATE = "pubDate";
     static final String GUID = "guid";
 
-    URL url;
+    String url;
 	String name;
 	List<FeedListener> listeners = new ArrayList<FeedListener>();
 
     public RSSFeedParser(String feedUrl, String feedName) {
 		this.name = feedName;
-        try { this.url = new URL(feedUrl); }
-        catch (MalformedURLException e) {}
+        this.url = feedUrl;
     }
 
     public void readFeed() {
@@ -47,10 +44,10 @@ public class RSSFeedParser {
 				Feed feed = null;
 
 				try {
+					InputStream stream = ProxyManager.getDefault().inputStreamGET(url);
 					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 					DocumentBuilder builder = factory.newDocumentBuilder();
-					Document document = builder.parse(
-						ProxyManager.getDefault().inputStreamGET(url.toString()));
+					Document document = builder.parse(stream);
 					document.normalizeDocument();
 
 					if (document != null) {
@@ -100,7 +97,8 @@ public class RSSFeedParser {
 				}
 				catch (Exception e)
 				{
-					Logger.getLogger(getClass().getName()).log(Level.SEVERE, "", e);
+					NotifyUtil.error("RSS parse error", "Could not parse " + name + " RSS Feed", false);
+					//Logger.getLogger(getClass().getName()).log(Level.SEVERE, "", e);
 				}
 
 				return feed;

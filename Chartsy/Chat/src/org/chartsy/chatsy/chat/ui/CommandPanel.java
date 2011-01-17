@@ -478,7 +478,7 @@ public class CommandPanel extends JPanel implements ActionListener
 			try
 			{
 				Form submitForm = multiUserChat.getConfigurationForm().createAnswerForm();
-				submitForm.setAnswer("muc#roomconfig_publicroom", false);
+				submitForm.setAnswer("muc#roomconfig_publicroom", true);
 				submitForm.setAnswer("muc#roomconfig_roomname", roomName);
 				submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", false);
 				submitForm.setAnswer("muc#roomconfig_moderatedroom", false);

@@ -25,7 +25,8 @@
             <file name="ChatTopComponent.settings" url="ChatFrameSettings.xml"/>
         </folder>
         <folder name="Modes">
-            <folder name="properties">
+            <file name="explorerBottom.wsmode" url="explorerBottom.wsmode"/>
+            <folder name="explorerBottom">
                 <file name="ChatTopComponent.wstcref" url="ChatFrameWstcref.xml"/>
             </folder>
         </folder>

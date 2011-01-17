@@ -111,7 +111,7 @@ public class ConferenceList extends AbstractTab
 			{
 				try
 				{
-					Collection<HostedRoom> rooms = MultiUserChat.getHostedRooms(ChatsyManager.getConnection(), "chartsy.viorel-pc");
+					Collection<HostedRoom> rooms = MultiUserChat.getHostedRooms(ChatsyManager.getConnection(), "conference.chat.mrswing.com");
 					Iterator<HostedRoom> iterator = rooms.iterator();
 					while (iterator.hasNext())
 					{

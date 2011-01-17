@@ -110,14 +110,17 @@ public class ResultPanel extends JPanel
 
 	public void setResponce(String responce)
 	{
-		StringTokenizer tokenizer = new StringTokenizer(responce, "\n");
-		resultsNr = tokenizer.nextToken();
+		if (responce != null || !responce.isEmpty())
+		{
+			StringTokenizer tokenizer = new StringTokenizer(responce, "\n");
+			if (tokenizer.hasMoreTokens())
+				resultsNr = tokenizer.nextToken();
 
-		List<String> list = new ArrayList<String>();
-		while (tokenizer.hasMoreTokens())
-			list.add(tokenizer.nextToken());
-		results = list.toArray(new String[list.size()]);
-
+			List<String> list = new ArrayList<String>();
+			while (tokenizer.hasMoreTokens())
+				list.add(tokenizer.nextToken());
+			results = list.toArray(new String[list.size()]);
+		}
 		initContent();
 	}
 

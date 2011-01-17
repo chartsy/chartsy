@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mode version="2.3">
+    <name unique="explorerBottom" />
+    <kind type="view" />
+    <state type="joined" />
+    <constraints>
+        <path orientation="horizontal" number="20" weight="0.1971326164874552"/>
+        <path orientation="vertical" number="21" weight="0.5132743362831859"/>
+    </constraints>
+    <bounds x="0" y="0" width="0" height="0" />
+    <frame state="0"/>
+    <active-tc id="ChatTopComponent" />
+    <empty-behavior permanent="false"/>
+</mode>

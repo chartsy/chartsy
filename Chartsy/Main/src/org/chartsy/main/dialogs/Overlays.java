@@ -348,11 +348,10 @@ public class Overlays extends javax.swing.JDialog
 
     private void btnOkActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnOkActionPerformed
     {//GEN-HEADEREND:event_btnOkActionPerformed
-		for (int i = 0; i < initial.size(); i++)
-		{
-			Overlay overlay = initial.get(i);
-			parent.overlayRemoved(overlay);
-		}
+		List<Overlay> current = parent.getSplitPanel().getChartPanel().getOverlays();
+		for (int i = 0; i < current.size(); i++)
+			parent.overlayRemoved(current.get(i));
+
 		for (int i = 0; i < selected.size(); i++)
 		{
 			Overlay overlay = selected.get(i);
@@ -363,11 +362,10 @@ public class Overlays extends javax.swing.JDialog
 
     private void btnApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnApplyActionPerformed
     {//GEN-HEADEREND:event_btnApplyActionPerformed
-        for (int i = 0; i < initial.size(); i++)
-		{
-			Overlay overlay = initial.get(i);
-			parent.overlayRemoved(overlay);
-		}
+        List<Overlay> current = parent.getSplitPanel().getChartPanel().getOverlays();
+		for (int i = 0; i < current.size(); i++)
+			parent.overlayRemoved(current.get(i));
+		
 		for (int i = 0; i < selected.size(); i++)
 		{
 			Overlay overlay = selected.get(i);

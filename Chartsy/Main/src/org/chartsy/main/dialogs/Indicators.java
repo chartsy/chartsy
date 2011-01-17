@@ -365,11 +365,10 @@ public class Indicators extends javax.swing.JDialog
         parent.revalidate();
         parent.repaint();
         setVisible(false);*/
-		for (int i = 0; i < initial.size(); i++)
-		{
-			Indicator indicator = initial.get(i);
-			parent.indicatorRemoved(indicator);
-		}
+		Indicator[] current = parent.getSplitPanel().getIndicatorsPanel().getIndicators();
+		for (int i = 0; i < current.length; i++)
+			parent.indicatorRemoved(current[i]);
+
 		for (int i = 0; i < selected.size(); i++)
 		{
 			Indicator indicator = selected.get(i);
@@ -380,11 +379,10 @@ public class Indicators extends javax.swing.JDialog
 
     private void btnApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnApplyActionPerformed
     {//GEN-HEADEREND:event_btnApplyActionPerformed
-        for (int i = 0; i < initial.size(); i++)
-		{
-			Indicator indicator = initial.get(i);
-			parent.indicatorRemoved(indicator);
-		}
+        Indicator[] current = parent.getSplitPanel().getIndicatorsPanel().getIndicators();
+		for (int i = 0; i < current.length; i++)
+			parent.indicatorRemoved(current[i]);
+		
 		for (int i = 0; i < selected.size(); i++)
 		{
 			Indicator indicator = selected.get(i);

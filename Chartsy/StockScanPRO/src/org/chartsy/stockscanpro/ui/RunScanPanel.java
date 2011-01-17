@@ -3,14 +3,24 @@ package org.chartsy.stockscanpro.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
-import org.chartsy.main.managers.ProxyManager;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.chartsy.stockscanpro.actions.SaveScansAction;
 import org.chartsy.stockscanpro.ui.JCheckList.CheckableItem;
 import org.netbeans.api.progress.ProgressHandle;
@@ -116,11 +126,38 @@ public class RunScanPanel extends JPanel
 						new NameValuePair("scanExpression", scanExpresion),
 						new NameValuePair("scanTitle", scanTtl)
 					};
+
+					HttpClient client = getHttpClient();
+					PostMethod method = new PostMethod(
+						NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"));
+					method.setQueryString(query);
+					method.setRequestBody(request);
+
+					responce = "";
 					try
 					{
-						responce = ProxyManager.getDefault().inputStringPOST(
-							NbBundle.getMessage(SaveScansAction.class, "StockScanPRO_URL"),
-							query, request);
+						int status = client.executeMethod(method);
+						if (status == HttpStatus.SC_OK)
+						{
+							InputStream is = method.getResponseBodyAsStream();
+							BufferedInputStream bis = new BufferedInputStream(is);
+
+							String datastr = null;
+							StringBuilder sb = new StringBuilder();
+							byte[] bytes = new byte[8192];
+
+							int count = bis.read(bytes);
+							while (count != -1 && count <= 8192)
+							{
+								datastr = new String(bytes, 0, count);
+								sb.append(datastr);
+								count = bis.read(bytes);
+							}
+
+							bis.close();
+							responce = sb.toString();
+						}
+						method.releaseConnection();
 					} catch (Exception ex)
 					{
 						handle.finish();
@@ -181,6 +218,42 @@ public class RunScanPanel extends JPanel
 
 			return stringBuilder.toString();
 		}
+
+		public HttpClient getHttpClient()
+		{
+			MultiThreadedHttpConnectionManager manager = new MultiThreadedHttpConnectionManager();
+			HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+			params.setMaxTotalConnections(100);
+			manager.setParams(params);
+			HttpClient client = new HttpClient(manager);
+			
+			Preferences corePreferences = NbPreferences.root().node("/org/netbeans/core");
+			if (corePreferences.getInt(PROXY_TYPE_KEY, 1) == 2)
+			{
+				HostConfiguration config = client.getHostConfiguration();
+				config.setProxy(
+						corePreferences.get(PROXY_HTTP_HOST_KEY, ""),
+						corePreferences.getInt(PROXY_HTTP_PORT_KEY, 0));
+				if (corePreferences.getBoolean(PROXY_USE_AUTH_KEY, false))
+				{
+					Credentials credentials = new UsernamePasswordCredentials(
+							corePreferences.get(PROXY_USERNAME_KEY, ""),
+							corePreferences.get(PROXY_PASSWORD_KEY, ""));
+					client.getState().setProxyCredentials(AuthScope.ANY, credentials);
+				} else
+				{
+					client.getState().setProxyCredentials(AuthScope.ANY, null);
+				}
+			}
+			return client;
+		}
+
+		private static final String PROXY_TYPE_KEY = "proxyType";
+		private static final String PROXY_HTTP_HOST_KEY = "proxyHttpHost";
+		private static final String PROXY_HTTP_PORT_KEY = "proxyHttpPort";
+		private static final String PROXY_USE_AUTH_KEY = "useProxyAuthentication";
+		private static final String PROXY_USERNAME_KEY = "proxyAuthenticationUsername";
+		private static final String PROXY_PASSWORD_KEY = "proxyAuthenticationPassword";
 
 	}
 
