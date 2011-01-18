@@ -104,6 +104,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 		setLayout(new BorderLayout());
 		setOpaque(true);
 
+		chatPref.putBoolean("loggedin", false);
 		if (preferences.getBoolean("registred", false))
 		{
 			if (loginPanel == null)
@@ -137,6 +138,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 		repaint();
 	}
 
+	@Override
 	protected void paintComponent(Graphics g)
 	{
 		if (!isOpaque())
@@ -288,6 +290,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 			return preferences.get("password", "");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			if (e.getSource() == loginButton)
@@ -296,6 +299,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 				chatPref.putBoolean("autologin", autoLoginBox.isSelected());
 		}
 
+		@Override
 		public void handle(Callback[] callbacks)
 			throws IOException, UnsupportedCallbackException
 		{
@@ -324,6 +328,7 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 		{
 			final SwingWorker loginValidationThread = new SwingWorker()
 			{
+				@Override
 				public Object construct()
 				{
 					boolean loginSuccessfull = login();
@@ -361,8 +366,6 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 					config.setSendPresence(true);
 					connection = new XMPPConnection(config, this);
 					connection.connect();
-					System.out.println(getUsername());
-					System.out.println(getPassword());
 					connection.login(getUsername(), getPassword());
 					sessionManager.setServerAddress(connection.getServiceName());
 					sessionManager.initializeSession(connection, getUsername(), getPassword());
@@ -391,8 +394,10 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 					final String finalErrorMessage = errorMessage;
 					EventQueue.invokeLater(new Runnable()
 					{
+						@Override
 						public void run()
 						{
+							chatPref.putBoolean("loggedin", false);
 							loadingLabel.setVisible(false);
 							NotifyUtil.error("Login Error", finalErrorMessage, false);
 						}
@@ -409,23 +414,24 @@ public class ChatTopComponent extends TopComponent implements PreferenceChangeLi
 		private void startChat()
 		{
 			try
-		   {
-			   EventQueue.invokeLater(new Runnable()
-			   {
-				   public void run()
-				   {
-					   Presence presence = new Presence(Presence.Type.available);
-					   connection.sendPacket(presence);
+			{
+				EventQueue.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						chatPref.putBoolean("loggedin", true);
+						Presence presence = new Presence(Presence.Type.available);
+						connection.sendPacket(presence);
 
-					   final MainWindow mainWindow = MainWindow.getInstance();
-					   Workspace workspace = Workspace.getInstance();
-					   mainWindow.add(workspace.getCardPanel(), BorderLayout.CENTER);
-					   putChatsScreen();
-					   workspace.buildLayout();
+						final MainWindow mainWindow = MainWindow.getInstance();
+						Workspace workspace = Workspace.getInstance();
+						mainWindow.add(workspace.getCardPanel(), BorderLayout.CENTER);
+						putChatsScreen();
+						workspace.buildLayout();
 					}
-				 });
-			}
-			catch (Exception e)
+				});
+			} catch (Exception e)
 			{
 				Log.error(e);
 			}

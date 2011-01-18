@@ -89,6 +89,19 @@ public class ChartToolbar extends JToolBar implements Serializable, PreferenceCh
 		symbolChanger.updateToolbar();
     }
 
+	public void isLoggedInChat()
+	{
+		if (chatPreferences.getBoolean("loggedin", false))
+		{
+			if (!joinConference.isVisible())
+				joinConference.setVisible(true);
+		} else
+		{
+			if (joinConference.isVisible())
+				joinConference.setVisible(false);
+		}
+	}
+
 	public void toggleLabels()
 	{
 		boolean show = chartFrame.getChartProperties().getToolbarShowLabels();

@@ -426,6 +426,8 @@ public class ChartFrame extends TopComponent
     protected void componentActivated()
     {
 		super.componentActivated();
+		if (chartToolbar != null)
+			chartToolbar.isLoggedInChat();
         componentFocused();
     }
 
