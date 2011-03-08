@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.vzo
+OpenIDE-Module-Layer: org/chartsy/vzo/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/chartsy/vzo/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.4.0
+
