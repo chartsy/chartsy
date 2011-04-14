@@ -49,9 +49,12 @@ import org.chartsy.chatsy.chat.ui.conferences.ConferenceUtils;
 import org.chartsy.chatsy.chat.ui.rooms.GroupChatRoom;
 import org.chartsy.main.data.DataProvider;
 import org.chartsy.main.history.HistoryItem;
+import org.chartsy.main.managers.FacebookManager;
+import org.chartsy.main.managers.TwitterManager;
 import org.netbeans.api.print.PrintManager;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.NotifyDescriptor.InputLine;
 import org.openide.explorer.ExplorerManager;
@@ -145,9 +148,19 @@ public final class MainActions
         return SaveToTemplate.getAction(chartFrame);
     }
 
-	public static Action joinToConference(ChartFrame chartFrame)
+    public static Action joinToConference(ChartFrame chartFrame)
     {
         return JoinConference.getAction(chartFrame);
+    }
+
+    public static Action postOnFacebook(ChartFrame chartFrame)
+    {
+        return PostToFacebook.getAction(chartFrame);
+    }
+
+    public static Action postOnTwitter(ChartFrame chartFrame)
+    {
+        return PostToTwitter.getAction(chartFrame);
     }
 
     /*
@@ -333,19 +346,13 @@ public final class MainActions
 
         public MainAction(String name, boolean flag)
         {
-            putValue(NAME,
-                    NbBundle.getMessage(MainActions.class, "ACT_" + name));
-            putValue(SHORT_DESCRIPTION,
-                    NbBundle.getMessage(MainActions.class, "TOOL_" + name));
+            putValue(NAME, NbBundle.getMessage(MainActions.class, "ACT_" + name));
+            putValue(SHORT_DESCRIPTION, NbBundle.getMessage(MainActions.class, "TOOL_" + name));
             if (flag)
             {
-                putValue(SMALL_ICON,
-                        ResourcesUtils.getIcon16(
-                        NbBundle.getMessage(MainActions.class, "ICON_" + name)));
+                putValue(SMALL_ICON, ResourcesUtils.getIcon16(NbBundle.getMessage(MainActions.class, "ICON_" + name)));
                 putValue(LONG_DESCRIPTION, name);
-                putValue(LARGE_ICON_KEY,
-                        ResourcesUtils.getIcon24(
-                        NbBundle.getMessage(MainActions.class, "ICON_" + name)));
+                putValue(LARGE_ICON_KEY, ResourcesUtils.getIcon24(NbBundle.getMessage(MainActions.class, "ICON_" + name)));
             }
         }
     }
@@ -1046,7 +1053,7 @@ public final class MainActions
             this.chartFrame = chartFrame;
         }
 
-		@Override
+	@Override
         public void actionPerformed(ActionEvent e)
         {
             TopComponent component = WindowManager.getDefault().findTopComponent("FavoritesComponent");
@@ -1076,82 +1083,164 @@ public final class MainActions
         }
     }
 
-	private static class JoinConference extends MainAction
-	{
+    private static class JoinConference extends MainAction
+    {
 
-		private ChartFrame chartFrame;
+        private ChartFrame chartFrame;
 
-		public static Action getAction(ChartFrame chartFrame)
-		{
-			return new JoinConference(chartFrame);
-		}
+        public static Action getAction(ChartFrame chartFrame)
+        {
+            return new JoinConference(chartFrame);
+        }
 
-		private JoinConference(ChartFrame chartFrame)
-		{
-			super("JoinConference", true);
-			this.chartFrame = chartFrame;
-		}
+        private JoinConference(ChartFrame chartFrame)
+        {
+            super("JoinConference", true);
+            this.chartFrame = chartFrame;
+        }
 
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			if (NbPreferences.root().node("/org/chartsy/chat").getBoolean("loggedin", false))
-			{
-				try
-				{
-					String roomName = chartFrame.getChartData().getStock().getKey();
-					String roomJID = "symbol_conference_" + roomName.toLowerCase() + "@conference.chat.mrswing.com";
-					boolean exists = false;
-					Object[] list = ConferenceUtils.getRoomList("conference.chat.mrswing.com").toArray();
-					for (Object object : list)
-					{
-						HostedRoom hostedRoom = (HostedRoom) object;
-						if (hostedRoom.getJid().equals(roomJID))
-						{
-							exists = true;
-							break;
-						}
-					}
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if (NbPreferences.root().node("/org/chartsy/chat").getBoolean("loggedin", false))
+            {
+                try
+                {
+                    String roomName = chartFrame.getChartData().getStock().getKey();
+                    String roomJID = "symbol_conference_" + roomName.toLowerCase() + "@conference.chat.mrswing.com";
+                    boolean exists = false;
+                    Object[] list = ConferenceUtils.getRoomList("conference.chat.mrswing.com").toArray();
+                    for (Object object : list)
+                    {
+                        HostedRoom hostedRoom = (HostedRoom) object;
+                        if (hostedRoom.getJid().equals(roomJID))
+                        {
+                            exists = true;
+                            break;
+                        }
+                    }
 
-					if (!exists)
-					{
-						final MultiUserChat multiUserChat = new MultiUserChat(ChatsyManager.getConnection(), roomJID);
-						final GroupChatRoom room = new GroupChatRoom(multiUserChat);
-						room.setTabTitle(roomName);
+                    if (!exists)
+                    {
+                        final MultiUserChat multiUserChat = new MultiUserChat(ChatsyManager.getConnection(), roomJID);
+                        final GroupChatRoom room = new GroupChatRoom(multiUserChat);
+                        room.setTabTitle(roomName);
 
-						multiUserChat.create(NbPreferences.root().node("/org/chartsy/chat").get("nickname", ""));
+                        multiUserChat.create(NbPreferences.root().node("/org/chartsy/chat").get("nickname", ""));
 
-						Form submitForm = multiUserChat.getConfigurationForm().createAnswerForm();
-						submitForm.setAnswer("muc#roomconfig_publicroom", true);
-						submitForm.setAnswer("muc#roomconfig_roomname", roomName);
-						submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", false);
-						submitForm.setAnswer("muc#roomconfig_moderatedroom", false);
-						submitForm.setAnswer("muc#roomconfig_persistentroom", false);
+                        Form submitForm = multiUserChat.getConfigurationForm().createAnswerForm();
+                        submitForm.setAnswer("muc#roomconfig_publicroom", true);
+                        submitForm.setAnswer("muc#roomconfig_roomname", roomName);
+                        submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", false);
+                        submitForm.setAnswer("muc#roomconfig_moderatedroom", false);
+                        submitForm.setAnswer("muc#roomconfig_persistentroom", false);
 
-						multiUserChat.sendConfigurationForm(submitForm);
+                        multiUserChat.sendConfigurationForm(submitForm);
 
-						ChatManager chatManager = ChatsyManager.getChatManager();
-						ChatRoom chatRoom = chatManager.getChatContainer().getChatRoom(room.getRoomname());
-						if (chatRoom == null)
-						{
-							chatManager.getChatContainer().addChatRoom(room);
-							chatManager.getChatContainer().activateChatRoom(room);
-						}
-					}
-					else
-					{
-						ChatRoom chatRoom = ChatsyManager.getChatManager().getChatContainer().getChatRoom(roomName);
-						if (chatRoom == null)
-							ConferenceUtils.joinConferenceOnSeperateThread(roomName, roomJID, null);
-					}
-				}
-				catch (Exception ex)
-				{
-				}
-			}
-		}
+                        ChatManager chatManager = ChatsyManager.getChatManager();
+                        ChatRoom chatRoom = chatManager.getChatContainer().getChatRoom(room.getRoomname());
+                        if (chatRoom == null)
+                        {
+                            chatManager.getChatContainer().addChatRoom(room);
+                            chatManager.getChatContainer().activateChatRoom(room);
+                        }
+                    }
+                    else
+                    {
+                        ChatRoom chatRoom = ChatsyManager.getChatManager().getChatContainer().getChatRoom(roomName);
+                        if (chatRoom == null)
+                            ConferenceUtils.joinConferenceOnSeperateThread(roomName, roomJID, null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+        }
 
-	}
+    }
+
+    private static class PostToFacebook extends MainAction
+    {
+
+        private ChartFrame chartFrame;
+
+        public static Action getAction(ChartFrame chartFrame)
+        {
+            return new PostToFacebook(chartFrame);
+        }
+
+        private PostToFacebook(ChartFrame chartFrame)
+        {
+            super("PostToFacebook", true);
+            this.chartFrame = chartFrame;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if (!FacebookManager.getDefault().isLoggedIn()) {
+                FacebookManager.getDefault().login();
+                postPhoto();
+            } else {
+                postPhoto();
+            }
+        }
+
+        private void postPhoto()
+        {
+            DialogDescriptor descriptor = new DialogDescriptor(
+                    FacebookManager.getDefault().getPhotoCaptionPanel(),
+                    "Photo Caption",
+                    true,
+                    null);
+            descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
+            descriptor.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+            descriptor.setOptionsAlign(DialogDescriptor.BOTTOM_ALIGN);
+            Object retval = DialogDisplayer.getDefault().notify(descriptor);
+            if (retval.equals(NotifyDescriptor.OK_OPTION)) {
+                String caption = FacebookManager.getDefault().getPhotoCaption();
+                FacebookManager.getDefault().publishChart(chartFrame, caption);
+            }
+        }
+
+    }
+
+    private static class PostToTwitter extends MainAction
+    {
+
+        private ChartFrame chartFrame;
+
+        public static Action getAction(ChartFrame chartFrame)
+        {
+            return new PostToTwitter(chartFrame);
+        }
+
+        private PostToTwitter(ChartFrame chartFrame)
+        {
+            super("PostToTwitter", true);
+            this.chartFrame = chartFrame;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            DialogDescriptor descriptor = new DialogDescriptor(
+                    TwitterManager.getDefault().getPhotoCaptionPanel(),
+                    "Photo Caption",
+                    true,
+                    null);
+            descriptor.setMessageType(DialogDescriptor.PLAIN_MESSAGE);
+            descriptor.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+            descriptor.setOptionsAlign(DialogDescriptor.BOTTOM_ALIGN);
+            Object retval = DialogDisplayer.getDefault().notify(descriptor);
+            if (retval.equals(NotifyDescriptor.OK_OPTION)) {
+                String caption = TwitterManager.getDefault().getPhotoCaption();
+                TwitterManager.getDefault().publishChart(chartFrame, caption);
+            }
+        }
+
+    }
 
     private static class ChangeTemplate extends MainAction
     {

@@ -132,4 +132,23 @@ public class ImageExporter {
         }
     }
 
+    public File getExportedFile(ChartFrame chartFrame, Class resource) {
+        File file = null;
+        JComponent chartPanel = chartFrame.getMainPanel();
+        if (chartPanel != null)
+        {
+            try
+            {
+                String format = "png";
+                file = File.createTempFile("tmp_chart", format);
+                BufferedImage image = chartFrame.getBufferedImage(chartPanel.getWidth(), chartPanel.getHeight());
+                ImageIO.write(image, format, file);
+            } catch (IOException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+        return file;
+    }
+
 }

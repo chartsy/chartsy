@@ -10,11 +10,13 @@ import javax.swing.JFrame;
 import org.chartsy.main.managers.AnnotationManager;
 import org.chartsy.main.managers.ChartManager;
 import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.FacebookManager;
 import org.chartsy.main.managers.IndicatorManager;
 import org.chartsy.main.managers.OverlayManager;
 import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.managers.StockManager;
 import org.chartsy.main.managers.TemplateManager;
+import org.chartsy.main.managers.TwitterManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.PricePropertyEditor;
@@ -68,6 +70,8 @@ public class Installer extends ModuleInstall implements Runnable
 		AnnotationManager.getDefault();
 		TemplateManager.getDefault();
 		StockManager.getDefault();
+                FacebookManager.getDefault();
+                TwitterManager.getDefault();
     }
 
     public @Override boolean closing()

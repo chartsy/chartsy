@@ -2,6 +2,7 @@ package org.chartsy.main;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
@@ -42,10 +43,10 @@ public class ChartToolbar extends JToolBar implements Serializable, PreferenceCh
         chartFrame = frame;
         initComponents();
         setFloatable(false);
-		setDoubleBuffered(true);
+	setDoubleBuffered(true);
         setBorder(new BottomBorder());
         addMouseListener(new ToolbarOptions(this));
-		chatPreferences.addPreferenceChangeListener((PreferenceChangeListener) this);
+	chatPreferences.addPreferenceChangeListener((PreferenceChangeListener) this);
     }
 
     private void initComponents()
@@ -54,87 +55,88 @@ public class ChartToolbar extends JToolBar implements Serializable, PreferenceCh
         symbolChanger = new SymbolChanger(chartFrame);
         add(symbolChanger);
 
-		// ChartToolbar buttons
-        add(zoomInBtn
-			= ToolbarButton.getButton(MainActions.zoomIn(chartFrame)));
-        add(zoomOutBtn
-			= ToolbarButton.getButton(MainActions.zoomOut(chartFrame)));
-        add(intervalsBtn
-			= ToolbarButton.getButton(MainActions.intervalPopup(chartFrame)));
-        add(chartBtn
-			= ToolbarButton.getButton(MainActions.chartPopup(chartFrame)));
-        add(indicatorsBtn
-			= ToolbarButton.getButton(MainActions.openIndicators(chartFrame)));
-        add(overlaysBtn
-			= ToolbarButton.getButton(MainActions.openOverlays(chartFrame)));
-        add(annotationsBtn
-			= ToolbarButton.getButton(MainActions.annotationPopup(chartFrame)));
-        add(markerBtn
-			= ToolbarToggleButton.getButton(MainActions.toggleMarker(chartFrame)));
-        add(exportBtn
-			= ToolbarButton.getButton(MainActions.exportImage(chartFrame)));
-        add(printBtn
-			= ToolbarButton.getButton(MainActions.printChart(chartFrame)));
-        add(propertiesBtn
-			= ToolbarButton.getButton(MainActions.chartProperties(chartFrame)));
-		add(joinConference
-			= ToolbarButton.getButton(MainActions.joinToConference(chartFrame)));
+	// ChartToolbar buttons
+        add(zoomInBtn = ToolbarButton.getButton(MainActions.zoomIn(chartFrame)));
+        add(zoomOutBtn = ToolbarButton.getButton(MainActions.zoomOut(chartFrame)));
+        add(intervalsBtn = ToolbarButton.getButton(MainActions.intervalPopup(chartFrame)));
+        add(chartBtn = ToolbarButton.getButton(MainActions.chartPopup(chartFrame)));
+        add(indicatorsBtn = ToolbarButton.getButton(MainActions.openIndicators(chartFrame)));
+        add(overlaysBtn = ToolbarButton.getButton(MainActions.openOverlays(chartFrame)));
+        add(annotationsBtn = ToolbarButton.getButton(MainActions.annotationPopup(chartFrame)));
+        add(markerBtn = ToolbarToggleButton.getButton(MainActions.toggleMarker(chartFrame)));
+        add(exportBtn = ToolbarButton.getButton(MainActions.exportImage(chartFrame)));
+        add(printBtn = ToolbarButton.getButton(MainActions.printChart(chartFrame)));
+        add(propertiesBtn = ToolbarButton.getButton(MainActions.chartProperties(chartFrame)));
+	add(joinConference = ToolbarButton.getButton(MainActions.joinToConference(chartFrame)));
+        add(postFacebook = ToolbarButton.getButton(MainActions.postOnFacebook(chartFrame)));
+        add(postTwitter = ToolbarButton.getButton(MainActions.postOnTwitter(chartFrame)));
 
-		markerBtn.setSelected(true);
-		joinConference.setVisible(chatPreferences.getBoolean("loggedin", false));
+        postFacebook.setButtonWidth(50);
+        postTwitter.setButtonWidth(50);
+
+	markerBtn.setSelected(true);
+	joinConference.setVisible(chatPreferences.getBoolean("loggedin", false));
     }
 
     public void updateToolbar()
     {
-		symbolChanger.updateToolbar();
+	symbolChanger.updateToolbar();
     }
 
-	public void isLoggedInChat()
-	{
-		if (chatPreferences.getBoolean("loggedin", false))
-		{
-			if (!joinConference.isVisible())
-				joinConference.setVisible(true);
-		} else
-		{
-			if (joinConference.isVisible())
-				joinConference.setVisible(false);
-		}
-	}
+    public void isLoggedInChat()
+    {
+        if (chatPreferences.getBoolean("loggedin", false))
+        {
+            if (!joinConference.isVisible())
+                joinConference.setVisible(true);
+        } else
+        {
+            if (joinConference.isVisible())
+                joinConference.setVisible(false);
+        }
+    }
 
-	public void toggleLabels()
-	{
-		boolean show = chartFrame.getChartProperties().getToolbarShowLabels();
-		zoomInBtn.toggleLabel(show);
-		zoomOutBtn.toggleLabel(show);
-		intervalsBtn.toggleLabel(show);
-		chartBtn.toggleLabel(show);
-		indicatorsBtn.toggleLabel(show);
-		overlaysBtn.toggleLabel(show);
-		annotationsBtn.toggleLabel(show);
-		markerBtn.toggleLabel(show);
-		exportBtn.toggleLabel(show);
-		printBtn.toggleLabel(show);
-		propertiesBtn.toggleLabel(show);
-		joinConference.toggleLabel(show);
-	}
+    public void toggleLabels()
+    {
+        boolean show = chartFrame.getChartProperties().getToolbarShowLabels();
+        zoomInBtn.toggleLabel(show);
+        zoomOutBtn.toggleLabel(show);
+        intervalsBtn.toggleLabel(show);
+        chartBtn.toggleLabel(show);
+        indicatorsBtn.toggleLabel(show);
+        overlaysBtn.toggleLabel(show);
+        annotationsBtn.toggleLabel(show);
+        markerBtn.toggleLabel(show);
+        exportBtn.toggleLabel(show);
+        printBtn.toggleLabel(show);
+        propertiesBtn.toggleLabel(show);
+        joinConference.toggleLabel(show);
+        postFacebook.toggleLabel(show);
+        postTwitter.toggleLabel(show);
+        revalidate();
+        repaint();
+    }
 
-	public void toggleIcons()
-	{
-		boolean small = chartFrame.getChartProperties().getToolbarSmallIcons();
-		zoomInBtn.toggleIcon(small);
-		zoomOutBtn.toggleIcon(small);
-		intervalsBtn.toggleIcon(small);
-		chartBtn.toggleIcon(small);
-		indicatorsBtn.toggleIcon(small);
-		overlaysBtn.toggleIcon(small);
-		annotationsBtn.toggleIcon(small);
-		markerBtn.toggleIcon(small);
-		exportBtn.toggleIcon(small);
-		printBtn.toggleIcon(small);
-		propertiesBtn.toggleIcon(small);
-		joinConference.toggleIcon(small);
-	}
+    public void toggleIcons()
+    {
+        boolean small = chartFrame.getChartProperties().getToolbarSmallIcons();
+        zoomInBtn.toggleIcon(small);
+        zoomOutBtn.toggleIcon(small);
+        intervalsBtn.toggleIcon(small);
+        chartBtn.toggleIcon(small);
+        indicatorsBtn.toggleIcon(small);
+        overlaysBtn.toggleIcon(small);
+        annotationsBtn.toggleIcon(small);
+        markerBtn.toggleIcon(small);
+        exportBtn.toggleIcon(small);
+        printBtn.toggleIcon(small);
+        propertiesBtn.toggleIcon(small);
+        joinConference.toggleIcon(small);
+        postFacebook.toggleIcon(small);
+        postTwitter.toggleIcon(small);
+        revalidate();
+        repaint();
+    }
 
     public JPopupMenu getToolbarMenu()
     {
@@ -142,24 +144,25 @@ public class ChartToolbar extends JToolBar implements Serializable, PreferenceCh
         JCheckBoxMenuItem item;
         
         popup.add(item = new JCheckBoxMenuItem(
-			MainActions.toggleToolbarSmallIcons(chartFrame, this)));
-		item.setMargin(new Insets(0,0,0,0));
-		item.setState(chartFrame.getChartProperties().getToolbarSmallIcons());
+            MainActions.toggleToolbarSmallIcons(chartFrame, this)));
+            item.setMargin(new Insets(0,0,0,0));
+            item.setState(chartFrame.getChartProperties().getToolbarSmallIcons());
 
         
         popup.add(item = new JCheckBoxMenuItem(
-			MainActions.toggleToolbarShowLabels(chartFrame, this)));
-		item.setMargin(new Insets(0,0,0,0));
-		item.setState(!chartFrame.getChartProperties().getToolbarShowLabels());
+            MainActions.toggleToolbarShowLabels(chartFrame, this)));
+            item.setMargin(new Insets(0,0,0,0));
+            item.setState(!chartFrame.getChartProperties().getToolbarShowLabels());
 
         return popup;
     }
 
-	@Override public void preferenceChange(PreferenceChangeEvent evt)
-	{
-		if (evt.getKey().equals("loggedin"))
-			joinConference.setVisible(evt.getNode().getBoolean("loggedin", false));
-	}
+    @Override
+    public void preferenceChange(PreferenceChangeEvent evt)
+    {
+        if (evt.getKey().equals("loggedin"))
+            joinConference.setVisible(evt.getNode().getBoolean("loggedin", false));
+    }
 
     public static class ToolbarOptions extends MouseAdapter
     {
@@ -224,98 +227,116 @@ public class ChartToolbar extends JToolBar implements Serializable, PreferenceCh
 
     }
 
-	public static class ToolbarButton extends JButton
-	{
+    public static class ToolbarButton extends JButton
+    {
 
-		public static ToolbarButton getButton(Action action)
-		{
-			return new ToolbarButton(action);
-		}
+        private int width = -1;
 
-		public ToolbarButton(Action action)
-		{
-			super(action);
+        public static ToolbarButton getButton(Action action)
+        {
+            return new ToolbarButton(action);
+        }
 
-			setVerticalAlignment(SwingConstants.TOP);
-			setVerticalTextPosition(SwingConstants.BOTTOM);
-			setHorizontalTextPosition(SwingConstants.CENTER);
+        public ToolbarButton(Action action)
+        {
+            super(action);
 
-			setMargin(new Insets(6, 6, 6, 6));
-			setBorderPainted(false);
-		}
+            setVerticalAlignment(SwingConstants.TOP);
+            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setHorizontalTextPosition(SwingConstants.CENTER);
 
-		public void toggleLabel(boolean show)
-		{
-			if (show) showText();
-			else hideText();
-		}
+            setMargin(new Insets(6, 6, 6, 6));
+            setBorderPainted(false);
+        }
 
-		public void hideText() { setText(""); }
-		public void showText() { setText((String) getAction().getValue(Action.NAME)); }
+        public void toggleLabel(boolean show)
+        {
+            if (show) showText();
+            else hideText();
+        }
 
-		public void toggleIcon(boolean small)
-		{
-			if (small) showSmallIcon();
-			else showBigIcon();
-		}
+        public void hideText() { setText(""); }
+        public void showText() { setText((String) getAction().getValue(Action.NAME)); }
 
-		public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
-		public void showBigIcon() { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+        public void toggleIcon(boolean small)
+        {
+            if (small) showSmallIcon();
+            else showBigIcon();
+        }
 
-	}
+        public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
+        public void showBigIcon() { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
 
-	public static class ToolbarToggleButton extends JToggleButton
-	{
+        public void setButtonWidth(int width) {
+            this.width = width;
+        }
 
-		public static ToolbarToggleButton getButton(Action action)
-		{
-			return new ToolbarToggleButton(action);
-		}
+        @Override
+        public Dimension getPreferredSize() {
+            if (width != -1) {
+                Dimension dimension = super.getPreferredSize();
+                return new Dimension(width, dimension.height);
+            } else {
+                return super.getPreferredSize();
+            }
+        }
 
-		public ToolbarToggleButton(Action action)
-		{
-			super(action);
+    }
 
-			setVerticalAlignment(SwingConstants.TOP);
-			setVerticalTextPosition(SwingConstants.BOTTOM);
-			setHorizontalTextPosition(SwingConstants.CENTER);
+    public static class ToolbarToggleButton extends JToggleButton
+    {
 
-			setMargin(new Insets(6, 6, 6, 6));
-			setBorderPainted(false);
-		}
+        public static ToolbarToggleButton getButton(Action action)
+        {
+            return new ToolbarToggleButton(action);
+        }
 
-		public void toggleLabel(boolean show)
-		{
-			if (show) showText();
-			else hideText();
-		}
+        public ToolbarToggleButton(Action action)
+        {
+            super(action);
 
-		public void hideText() { this.setText(""); }
-		public void showText() { setText((String) getAction().getValue(Action.NAME)); }
+            setVerticalAlignment(SwingConstants.TOP);
+            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setHorizontalTextPosition(SwingConstants.CENTER);
 
-		public void toggleIcon(boolean small)
-		{
-			if (small) showSmallIcon();
-			else showBigIcon();
-		}
+            setMargin(new Insets(6, 6, 6, 6));
+            setBorderPainted(false);
+        }
 
-		public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
-		public void showBigIcon() 
-		{ setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+        public void toggleLabel(boolean show)
+        {
+            if (show) showText();
+            else hideText();
+        }
 
-	}
+        public void hideText() { this.setText(""); }
+        public void showText() { setText((String) getAction().getValue(Action.NAME)); }
 
-	private ToolbarButton zoomInBtn;
-	private ToolbarButton zoomOutBtn;
-	private ToolbarButton intervalsBtn;
-	private ToolbarButton chartBtn;
-	private ToolbarButton indicatorsBtn;
-	private ToolbarButton overlaysBtn;
-	private ToolbarButton annotationsBtn;
-	private ToolbarToggleButton markerBtn;
-	private ToolbarButton exportBtn;
-	private ToolbarButton printBtn;
-	private ToolbarButton propertiesBtn;
-	private ToolbarButton joinConference;
+        public void toggleIcon(boolean small)
+        {
+            if (small) showSmallIcon();
+            else showBigIcon();
+        }
+
+        public void showSmallIcon() { setIcon((ImageIcon) getAction().getValue(Action.SMALL_ICON)); }
+        public void showBigIcon()
+        { setIcon((ImageIcon) getAction().getValue(Action.LARGE_ICON_KEY)); }
+
+    }
+
+    private ToolbarButton zoomInBtn;
+    private ToolbarButton zoomOutBtn;
+    private ToolbarButton intervalsBtn;
+    private ToolbarButton chartBtn;
+    private ToolbarButton indicatorsBtn;
+    private ToolbarButton overlaysBtn;
+    private ToolbarButton annotationsBtn;
+    private ToolbarToggleButton markerBtn;
+    private ToolbarButton exportBtn;
+    private ToolbarButton printBtn;
+    private ToolbarButton propertiesBtn;
+    private ToolbarButton joinConference;
+    private ToolbarButton postFacebook;
+    private ToolbarButton postTwitter;
 
 }
