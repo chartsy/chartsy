@@ -199,6 +199,9 @@ public class MACD
         List<Double> list = new ArrayList<Double>();
 
         Range range = getRange(cf);
+        if ( Double.isInfinite(range.getUpperBound()) )
+            return new Double[0];
+
 		Double value;
         if (range.getUpperBound() >= 1)
         {
