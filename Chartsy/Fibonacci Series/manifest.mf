@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.chartsy.fibonacciseries
+OpenIDE-Module-Localizing-Bundle: org/chartsy/fibonacciseries/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.4.0
+
