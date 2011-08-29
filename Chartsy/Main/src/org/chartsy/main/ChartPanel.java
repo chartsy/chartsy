@@ -54,7 +54,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
     private JLabel stockInfo;
     private JToolBar overlayToolboxes;
     private List<Overlay> overlays;
-    private boolean overlayToolboxesUpdated = false;
+    //private boolean overlayToolboxesUpdated = false;
 
     public ChartPanel(ChartFrame frame)
     {
@@ -223,8 +223,8 @@ public class ChartPanel extends JLayeredPane implements Serializable
     void paint(Graphics g)
     {
 		Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
-		if (!overlayToolboxesUpdated)
-			updateOverlayToolbar();
+//		if (!overlayToolboxesUpdated)
+//			updateOverlayToolbar();
 
 		chartFrame.getChartData().calculateRange(chartFrame, overlays);
 		if (!chartFrame.getChartData().isChartNull())
@@ -356,10 +356,10 @@ public class ChartPanel extends JLayeredPane implements Serializable
             height = overlayToolbox.getHeight() + 4;
         }
 
-        overlayToolboxes.validate();
-        overlayToolboxes.repaint();
-
         overlayToolboxes.setBounds(overlayToolboxes.getX(), overlayToolboxes.getY(), width, height);
+
+        overlayToolboxes.revalidate();
+        overlayToolboxes.repaint();
     }
 
     @Override
@@ -408,7 +408,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 void mouseEntered(MouseEvent e)
                 {
                     mouseOver = true;
-                    revalidate();
+                    validate();
                     repaint();
                 }
 
@@ -418,7 +418,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     mouseOver = false;
-                    revalidate();
+                    validate();
                     repaint();
                 }
             });
