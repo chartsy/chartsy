@@ -33,6 +33,7 @@ import org.chartsy.main.chart.Chart;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.SettingsPanel;
+import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.GraphicsUtils;
@@ -127,6 +128,11 @@ public class ChartPanel extends JLayeredPane implements Serializable
 			{
 				updateStockInfo(newStock);
 			}
+                        @Override
+                        public void intervalChanged(Interval newInterval)
+                        {
+                            updateStockInfo( getChartFrame().getChartData().getStock() );
+                        }
 			@Override
 			public void chartChanged(Chart newChart)
 			{
