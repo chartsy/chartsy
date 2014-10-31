@@ -33,6 +33,7 @@ import org.chartsy.main.chart.Chart;
 import org.chartsy.main.chart.Overlay;
 import org.chartsy.main.data.Stock;
 import org.chartsy.main.dialogs.SettingsPanel;
+import org.chartsy.main.intervals.Interval;
 import org.chartsy.main.resources.ResourcesUtils;
 import org.chartsy.main.utils.ColorGenerator;
 import org.chartsy.main.utils.GraphicsUtils;
@@ -54,7 +55,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
     private JLabel stockInfo;
     private JToolBar overlayToolboxes;
     private List<Overlay> overlays;
-    private boolean overlayToolboxesUpdated = false;
+    //private boolean overlayToolboxesUpdated = false;
 
     public ChartPanel(ChartFrame frame)
     {
@@ -127,6 +128,11 @@ public class ChartPanel extends JLayeredPane implements Serializable
 			{
 				updateStockInfo(newStock);
 			}
+                        @Override
+                        public void intervalChanged(Interval newInterval)
+                        {
+                            updateStockInfo( getChartFrame().getChartData().getStock() );
+                        }
 			@Override
 			public void chartChanged(Chart newChart)
 			{
@@ -223,8 +229,8 @@ public class ChartPanel extends JLayeredPane implements Serializable
     void paint(Graphics g)
     {
 		Graphics2D g2 = GraphicsUtils.prepareGraphics(g);
-		if (!overlayToolboxesUpdated)
-			updateOverlayToolbar();
+//		if (!overlayToolboxesUpdated)
+//			updateOverlayToolbar();
 
 		chartFrame.getChartData().calculateRange(chartFrame, overlays);
 		if (!chartFrame.getChartData().isChartNull())
@@ -356,10 +362,10 @@ public class ChartPanel extends JLayeredPane implements Serializable
             height = overlayToolbox.getHeight() + 4;
         }
 
-        overlayToolboxes.validate();
-        overlayToolboxes.repaint();
-
         overlayToolboxes.setBounds(overlayToolboxes.getX(), overlayToolboxes.getY(), width, height);
+
+        overlayToolboxes.revalidate();
+        overlayToolboxes.repaint();
     }
 
     @Override
@@ -408,7 +414,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 void mouseEntered(MouseEvent e)
                 {
                     mouseOver = true;
-                    revalidate();
+                    validate();
                     repaint();
                 }
 
@@ -418,7 +424,7 @@ public class ChartPanel extends JLayeredPane implements Serializable
                 {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     mouseOver = false;
-                    revalidate();
+                    validate();
                     repaint();
                 }
             });
