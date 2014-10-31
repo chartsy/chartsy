@@ -153,11 +153,24 @@ public class NewChart implements ActionListener
         chartData.setStock(stock);
         chartData.setChart(template.getChart());
         chartData.setDataProviderName(dataProvider);
-        chartData.setInterval(defaultInterval);
 
-		ChartFrame chartFrame = ChartFrame.getInstance();
-		chartFrame.setChartData(chartData);
-		chartFrame.setTemplate(template);
+        Interval minInterval = null;
+        Interval maxInterval = null;
+        for ( Interval i : chartData.getDataProvider().getSupportedIntervals() ) {
+            if ( minInterval == null || i.getLengthInSeconds() < minInterval.getLengthInSeconds() )
+                minInterval = i;
+            if ( maxInterval == null || i.getLengthInSeconds() > maxInterval.getLengthInSeconds() )
+                maxInterval = i;
+        }
+
+        chartData.setInterval( defaultInterval.getLengthInSeconds() >= minInterval.getLengthInSeconds()
+                             ? defaultInterval.getLengthInSeconds() <= maxInterval.getLengthInSeconds()
+                             ? defaultInterval : maxInterval : minInterval );
+
+        ChartFrame chartFrame = ChartFrame.getInstance();
+        chartFrame.setChartData(chartData);
+        chartFrame.setTemplate(template);
+
         chartFrame.open();
         chartFrame.requestActive();
     }
